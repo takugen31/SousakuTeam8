@@ -1,0 +1,5 @@
+lineId,speakerId,expressionId,text,nextLineId
+prologue_001,hero,normal,「ここは……どこだ？」,prologue_002
+prologue_002,,,"ホームには誰もいない。",prologue_003
+prologue_003,hero,surprised,"遠くから、何かが近づいてくる。",prologue_004
+prologue_004,friend,normal,「やっと見つけた」,

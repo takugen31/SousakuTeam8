@@ -1,0 +1,4 @@
+characterId,displayName,nameColor,expressionId,portraitPath
+hero,ユウ,#FFFFFF,normal,Assets/Art/Portraits/hero_normal.png
+hero,ユウ,#FFFFFF,surprised,Assets/Art/Portraits/hero_surprised.png
+friend,ミオ,#80C8FF,normal,Assets/Art/Portraits/friend_normal.png
