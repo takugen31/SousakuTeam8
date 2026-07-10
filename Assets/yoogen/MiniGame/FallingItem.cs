@@ -1,0 +1,61 @@
+using UnityEngine;
+
+namespace Sousakusai8.MiniGame
+{
+    public enum FallingItemKind
+    {
+        Good,
+        Bad
+    }
+
+    /// <summary>Falls vertically and reports a catch when its bounds overlap the player.</summary>
+    public sealed class FallingItem : MonoBehaviour
+    {
+        private CatchMiniGameController game;
+        private PlayerCatcherController catcher;
+        private SpriteRenderer spriteRenderer;
+        private FallingItemKind kind;
+        private float fallSpeed;
+        private float rotationSpeed;
+        private bool resolved;
+
+        public void Initialize(
+            CatchMiniGameController controller,
+            PlayerCatcherController playerCatcher,
+            FallingItemKind itemKind,
+            float speed)
+        {
+            game = controller;
+            catcher = playerCatcher;
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            kind = itemKind;
+            fallSpeed = speed;
+            rotationSpeed = Random.Range(-100f, 100f);
+        }
+
+        private void Update()
+        {
+            if (resolved || game == null || catcher == null)
+            {
+                return;
+            }
+
+            transform.position += Vector3.down * (fallSpeed * Time.deltaTime);
+            transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
+
+            if (spriteRenderer.bounds.Intersects(catcher.CatchBounds))
+            {
+                resolved = true;
+                game.RecordCatch(kind);
+                Destroy(gameObject);
+                return;
+            }
+
+            if (spriteRenderer.bounds.max.y < game.BottomEdge)
+            {
+                resolved = true;
+                Destroy(gameObject);
+            }
+        }
+    }
+}
