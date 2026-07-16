@@ -12,4 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc4d06e5ddceff74baf0b255b9e733ad, type: 3}
   m_Name: CharacterDatabase
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDatabaseSO
-  characters: []
+  characters:
+  - characterId: doute
+    displayName: "\u30E6\u30A6"
+    nameColor: {r: 1, g: 1, b: 1, a: 1}
+    expressions:
+    - expressionId: normal
+      portrait: {fileID: 336508224431435947, guid: 940bdae383811264ab11469415714f30, type: 3}
+  - characterId: hero
+    displayName: "\u30E6\u30A6"
+    nameColor: {r: 1, g: 1, b: 1, a: 1}
+    expressions:
+    - expressionId: surprised
+      portrait: {fileID: 336508224431435947, guid: 940bdae383811264ab11469415714f30, type: 3}
+  - characterId: kayo
+    displayName: "\u30DF\u30AA"
+    nameColor: {r: 0.5019608, g: 0.78431374, b: 1, a: 1}
+    expressions:
+    - expressionId: normal
+      portrait: {fileID: 1240851174394323274, guid: b239034ee8fcad04788dfe82fda004a4, type: 3}
