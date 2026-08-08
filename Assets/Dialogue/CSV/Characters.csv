@@ -1,4 +1,4 @@
 characterId,displayName,nameColor,expressionId,portraitPath
-doute,ユウ,#FFFFFF,normal,Assets/Art/Portraits/doute_normal.png
-hero,ユウ,#FFFFFF,surprised,Assets/Art/Portraits/doute_normal.png
-kayo,ミオ,#80C8FF,normal,Assets/Art/Portraits/kayo_normal.png
+doute,ユウ,#FFFFFF,normal,Assets/Art/DialoguePortraits/doute_normal.png
+hero,ユウ,#FFFFFF,surprised,Assets/Art/DialoguePortraits/doute_normal.png
+kayo,ミオ,#80C8FF,normal,Assets/Art/DialoguePortraits/kayo_normal.png
