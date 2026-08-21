@@ -1,17 +1,32 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public sealed class NovelDialogueController : MonoBehaviour
 {
     [Header("Dialogue Data")]
     [SerializeField]
+    [Tooltip("最初に再生するシナリオです。通常はプロローグを登録します。")]
     private DialogueScenarioSO scenario;
 
     [SerializeField]
+    [Tooltip(
+        "プロローグの後に再生するシナリオを、" +
+        "Chapter 1、Chapter 2の順に登録します。")]
+    private List<DialogueScenarioSO> followingScenarios =
+        new List<DialogueScenarioSO>();
+
+    [SerializeField]
     private CharacterDatabaseSO characterDatabase;
+
+    [SerializeField]
+    [Tooltip("画面左側へ常時表示する主人公のcharacterIdです。")]
+    private string protagonistCharacterId = "doute";
 
     [SerializeField]
     private string startLineId;
@@ -30,10 +45,11 @@ public sealed class NovelDialogueController : MonoBehaviour
     private TMP_Text bodyText;
 
     [SerializeField]
-    private Image portraitImage;
+    [FormerlySerializedAs("portraitImage")]
+    private Image leftPortraitImage;
 
     [SerializeField]
-    private Button nextButton;
+    private Image rightPortraitImage;
 
     [Header("Text Animation")]
     [SerializeField]
@@ -48,16 +64,18 @@ public sealed class NovelDialogueController : MonoBehaviour
     private UnityEvent onDialogueCompleted;
 
     private DialogueLine currentLine;
+    private DialogueScenarioSO currentScenario;
     private Coroutine typingCoroutine;
 
+    private int currentScenarioIndex = -1;
     private bool isPlaying;
     private bool isTyping;
 
-    private void Awake()
+    private void Update()
     {
-        if (nextButton != null)
+        if (Pointer.current?.press.wasPressedThisFrame == true)
         {
-            nextButton.onClick.AddListener(Advance);
+            Advance();
         }
     }
 
@@ -69,14 +87,6 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        if (nextButton != null)
-        {
-            nextButton.onClick.RemoveListener(Advance);
-        }
-    }
-
     public void StartDialogue()
     {
         if (scenario == null)
@@ -85,22 +95,37 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
+        if (characterDatabase == null)
+        {
+            Debug.LogError("CharacterDatabaseが設定されていません。");
+            return;
+        }
+
+        currentScenario = scenario;
+        currentScenarioIndex = 0;
+
         DialogueLine firstLine;
 
         if (!string.IsNullOrWhiteSpace(startLineId))
         {
-            if (!scenario.TryGetLine(startLineId, out firstLine))
+            if (!currentScenario.TryGetLine(startLineId, out firstLine))
             {
                 Debug.LogError(
                     $"開始セリフ「{startLineId}」が存在しません。");
+
+                currentScenario = null;
+                currentScenarioIndex = -1;
                 return;
             }
         }
         else
         {
-            if (!scenario.TryGetFirstLine(out firstLine))
+            if (!currentScenario.TryGetFirstLine(out firstLine))
             {
                 Debug.LogError("シナリオにセリフがありません。");
+
+                currentScenario = null;
+                currentScenarioIndex = -1;
                 return;
             }
         }
@@ -112,6 +137,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             dialogueRoot.SetActive(true);
         }
 
+        ResetPortraitsForScenario();
         ShowLine(firstLine);
     }
 
@@ -123,12 +149,14 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void Advance()
     {
-        if (!isPlaying || currentLine == null)
+        if (!isPlaying ||
+            currentLine == null ||
+            currentScenario == null)
         {
             return;
         }
 
-        // タイプライター表示中なら全文表示する
+        // タイプ表示中の入力では、現在のセリフを全文表示する
         if (isTyping)
         {
             CompleteTyping();
@@ -140,7 +168,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         // nextLineIdが設定されていればそこへ移動
         if (!string.IsNullOrWhiteSpace(currentLine.nextLineId))
         {
-            if (!scenario.TryGetLine(
+            if (!currentScenario.TryGetLine(
                     currentLine.nextLineId,
                     out nextLine))
             {
@@ -157,7 +185,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         // nextLineIdが空ならCSV上の次の行へ進む
-        if (scenario.TryGetNextLine(
+        if (currentScenario.TryGetNextLine(
                 currentLine.lineId,
                 out nextLine))
         {
@@ -165,7 +193,49 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
-        EndDialogue();
+        if (!TryStartNextScenario())
+        {
+            EndDialogue();
+        }
+    }
+
+    private bool TryStartNextScenario()
+    {
+        int scenarioCount = 1 +
+            (followingScenarios?.Count ?? 0);
+
+        for (int nextIndex = currentScenarioIndex + 1;
+             nextIndex < scenarioCount;
+             nextIndex++)
+        {
+            DialogueScenarioSO nextScenario =
+                followingScenarios[nextIndex - 1];
+
+            if (nextScenario == null)
+            {
+                Debug.LogWarning(
+                    $"Dialogueの{nextIndex + 1}番目のシナリオが" +
+                    "設定されていないためスキップします。");
+                continue;
+            }
+
+            if (!nextScenario.TryGetFirstLine(
+                    out DialogueLine firstLine))
+            {
+                Debug.LogWarning(
+                    $"シナリオ「{nextScenario.name}」にセリフがないため" +
+                    "スキップします。");
+                continue;
+            }
+
+            currentScenario = nextScenario;
+            currentScenarioIndex = nextIndex;
+            ResetPortraitsForScenario();
+            ShowLine(firstLine);
+            return true;
+        }
+
+        return false;
     }
 
     private void ShowLine(DialogueLine line)
@@ -189,12 +259,6 @@ public sealed class NovelDialogueController : MonoBehaviour
             if (speakerNameText != null)
             {
                 speakerNameText.text = string.Empty;
-            }
-
-            if (portraitImage != null)
-            {
-                portraitImage.sprite = null;
-                portraitImage.enabled = false;
             }
 
             return;
@@ -221,14 +285,60 @@ public sealed class NovelDialogueController : MonoBehaviour
             speakerNameText.color = character.nameColor;
         }
 
-        if (portraitImage != null)
-        {
-            Sprite portrait =
-                character.GetPortrait(line.expressionId);
+        Sprite portrait =
+            character.GetPortrait(line.expressionId);
 
-            portraitImage.sprite = portrait;
-            portraitImage.enabled = portrait != null;
+        if (string.Equals(
+                line.speakerId,
+                protagonistCharacterId,
+                System.StringComparison.Ordinal))
+        {
+            SetPortrait(leftPortraitImage, portrait);
         }
+        else
+        {
+            SetPortrait(rightPortraitImage, portrait);
+        }
+    }
+
+    private void ResetPortraitsForScenario()
+    {
+        SetPortrait(rightPortraitImage, null);
+
+        if (string.IsNullOrWhiteSpace(protagonistCharacterId))
+        {
+            Debug.LogWarning(
+                "主人公のcharacterIdが設定されていません。");
+            SetPortrait(leftPortraitImage, null);
+            return;
+        }
+
+        if (!characterDatabase.TryGetCharacter(
+                protagonistCharacterId,
+                out CharacterData protagonist))
+        {
+            Debug.LogWarning(
+                $"主人公「{protagonistCharacterId}」が存在しません。");
+            SetPortrait(leftPortraitImage, null);
+            return;
+        }
+
+        SetPortrait(
+            leftPortraitImage,
+            protagonist.GetPortrait(null));
+    }
+
+    private static void SetPortrait(
+        Image image,
+        Sprite portrait)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.sprite = portrait;
+        image.enabled = portrait != null;
     }
 
     private void StartTyping(string text)
@@ -295,6 +405,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         isPlaying = false;
         currentLine = null;
+        currentScenario = null;
+        currentScenarioIndex = -1;
 
         if (dialogueRoot != null)
         {
