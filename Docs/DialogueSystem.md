@@ -224,10 +224,45 @@ Following Scenarios:
 | `Body Text` | `DialogueText` |
 | `Left Portrait Image` | `LeftPortraitImage` |
 | `Right Portrait Image` | `RightPortraitImage` |
+| `Playback Controls Root` | `PlaybackControls` |
+| `Auto Play Button` | `AutoPlayButton` |
+| `Auto Play Button Text` | `AutoPlayLabel` |
+| `Skip Chapter Button` | `SkipChapterButton` |
+| `Skip Confirmation Root` | `SkipConfirmation` |
+| `Confirm Skip Button` | `ConfirmSkipButton` |
+| `Cancel Skip Button` | `CancelSkipButton` |
 
 `Name Plate`が未設定でも会話は動作します。地の文では名前文字列が空になりますが、名前プレート用の背景オブジェクトをまとめて非表示にしたい場合は、対象GameObjectを設定してください。
 
 会話送り専用のButtonは使用しません。`NovelScene`にあった`NextButton`は削除されています。
+
+右上には`AUTO`と`SKIP`の操作ボタンがあります。ボタン領域内のクリックは通常の会話送りとして扱われません。
+
+### Playback Controls
+
+| Inspector項目 | 説明 |
+| --- | --- |
+| `Auto Advance Delay Seconds` | 全文表示完了後、自動で次へ進むまでの秒数。現在値は0.5 |
+| `Auto Play On Start` | 有効なら会話開始時からAUTOをONにする。現在は無効 |
+
+#### AUTO
+
+`AUTO: OFF`を押すと`AUTO: ON`へ切り替わり、文字色が緑になります。もう一度押すとOFFへ戻ります。
+
+AUTOがONの間は、タイプライター表示が完全に終わってから`Auto Advance Delay Seconds`だけ待ち、自動で次のセリフへ進みます。手動クリックでタイプライター演出を中止して全文表示した場合も、その時点から同じ待機時間を計測します。
+
+AUTOの状態は章が切り替わっても維持されます。
+
+#### SKIP
+
+`SKIP`を押すと、画面中央に「現在の章をスキップします、本当によろしいですか？」という確認画面が表示されます。同時に画面全体へ半透明の黒いオーバーレイを表示し、`Time.timeScale`を`0`にしてゲームを一時停止します。
+
+- `はい`: 確認画面と一時停止を解除し、現在の章に残っているセリフをすべて飛ばして次章へ移動する
+- `いいえ`: 確認画面と一時停止を解除し、現在の章をそのまま継続する
+
+確認中は通常の会話送り、タイプライター表示、AUTOの待機時間も停止します。`いいえ`を選んだ場合、AUTOの待機時間は確認画面を開く直前の残り時間から再開します。確認前からゲームが停止または減速されていた場合も、閉じる際に元の`Time.timeScale`へ戻します。
+
+次章が未設定または空の場合は従来の章送りと同様にスキップし、それ以降の有効な章を探します。次の章が存在しなければDialogue全体を終了します。
 
 ### Text Animation
 
@@ -252,8 +287,13 @@ flowchart TD
     Typing -->|自動的に表示完了| Ready[入力待ち]
     Complete --> Ready
     Ready -->|クリックまたはタップ| Advance[Advance]
+    Ready -->|AUTOがONかつ待機時間経過| Advance
     Advance -->|章内に次の行がある| NextLine[次のセリフを表示]
     Advance -->|章末| NextScenario{次の有効なシナリオがあるか}
+    Typing -->|SKIP| Confirm{スキップ確認}
+    Ready -->|SKIP| Confirm
+    Confirm -->|いいえ| Resume[現在の章を再開]
+    Confirm -->|はい| NextScenario
     NextScenario -->|ある| FirstLine[次章の先頭行を表示]
     NextScenario -->|ない| End[パネルを閉じて完了イベント]
     NextLine --> Typing
@@ -280,7 +320,9 @@ flowchart TD
 
 入力には新Input Systemの`Pointer.current`を使用します。マウスのクリック、タッチスクリーンのタップ、ペン入力を同じ処理で検出するため、画面内の特定UIを押す必要はありません。
 
-文字送りには`Time.unscaledDeltaTime`を使います。そのため、`Time.timeScale`が`0`でも文字表示は進みます。
+ただし、右上の`PlaybackControls`内は通常の画面送り判定から除外されます。AUTOやSKIPを操作したクリックで、同時にセリフまで進むことはありません。
+
+通常の文字送りには`Time.unscaledDeltaTime`を使います。そのため、他の仕組みによって`Time.timeScale`が`0`になっても文字表示は進みます。ただし、スキップ確認画面を表示している間は明示的にタイプライター処理を待機させます。
 
 ## 公開メソッド
 
@@ -295,6 +337,22 @@ flowchart TD
 ### `Advance()`
 
 タイプライター表示中なら演出を中止して現在のセリフを全文表示します。すでに全文表示されていれば、次の行への移動、次章への切り替え、全体終了のいずれかを行います。
+
+### `ToggleAutoPlay()`
+
+AUTO再生のON/OFFを切り替え、ボタンの表示と次回自動送り時刻を更新します。
+
+### `ShowSkipConfirmation()`
+
+スキップ確認画面を開き、ゲーム、タイプライター表示、AUTO待機を一時停止します。
+
+### `ConfirmSkip()` / `CancelSkip()`
+
+`ConfirmSkip()`は確認画面を閉じて次章へ移動します。`CancelSkip()`は確認画面を閉じ、現在の章とAUTO待機を再開します。どちらも確認前の`Time.timeScale`を復元します。
+
+### `SkipToNextScenario()`
+
+現在の章の残りを飛ばし、次に再生可能なシナリオへ移動します。次章がなければDialogueを終了します。
 
 ## インポート時の主な検証
 
@@ -346,7 +404,6 @@ line_a → line_b → line_a
 - ゲーム状態を使った条件分岐
 - セーブデータからの章・行の復元
 - 章開始／章終了ごとのイベント
-- オート再生とスキップ
 - 会話履歴
 - ボイス再生
 - ローカライズ
