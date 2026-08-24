@@ -21,4 +21,5 @@
 キャラクターの位置・大きさ・色は各子オブジェクトから変更できます。
 未使用の落下物はゲーム中に `Item Pool` の非アクティブな子として保持されます。
 使用中の落下物だけが `Spawned Items` へ移動し、回収後は `Item Pool` に戻ります。
-見た目は `Item Pool` 内の `Good Item Visual` と `Bad Item Visual` を編集してください。
+見た目は `Item Pool` 内の `Good Item Visual 01～03` と `Bad Item Visual 01～03` を編集してください。
+同名プレフィックスのテンプレートを複製してControllerの配列へ追加すると、種類をさらに増やせます。

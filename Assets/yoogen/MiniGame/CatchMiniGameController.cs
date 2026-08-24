@@ -16,11 +16,11 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private PlayerCatcherController catcher;
         [SerializeField] private Transform spawnedItemsRoot;
         [SerializeField] private Transform itemPoolRoot;
-        [SerializeField] private SpriteRenderer goodItemVisual;
-        [SerializeField] private SpriteRenderer badItemVisual;
+        [SerializeField] private SpriteRenderer[] goodItemVisuals;
+        [SerializeField] private SpriteRenderer[] badItemVisuals;
 
         [Header("Object Pool")]
-        [SerializeField, Min(1)] private int initialPoolSize = 12;
+        [SerializeField, Min(1)] private int initialPoolSize = 24;
 
         [Header("Score")]
         [SerializeField] private int goodItemScore = 100;
@@ -80,19 +80,20 @@ namespace Sousakusai8.MiniGame
                 itemPoolRoot = transform.Find("Item Pool");
             }
 
-            if (goodItemVisual == null && itemPoolRoot != null)
+            if ((goodItemVisuals == null || goodItemVisuals.Length == 0) && itemPoolRoot != null)
             {
-                goodItemVisual = itemPoolRoot.Find("Good Item Visual")?.GetComponent<SpriteRenderer>();
+                goodItemVisuals = FindItemVisuals("Good Item Visual");
             }
 
-            if (badItemVisual == null && itemPoolRoot != null)
+            if ((badItemVisuals == null || badItemVisuals.Length == 0) && itemPoolRoot != null)
             {
-                badItemVisual = itemPoolRoot.Find("Bad Item Visual")?.GetComponent<SpriteRenderer>();
+                badItemVisuals = FindItemVisuals("Bad Item Visual");
             }
 
             if (gameCamera == null || dropper == null || catcher == null ||
                 spawnedItemsRoot == null || itemPoolRoot == null ||
-                goodItemVisual == null || badItemVisual == null)
+                goodItemVisuals == null || goodItemVisuals.Length == 0 ||
+                badItemVisuals == null || badItemVisuals.Length == 0)
             {
                 Debug.LogError(
                     "Catch Mini Game is missing a scene reference. " +
@@ -119,7 +120,8 @@ namespace Sousakusai8.MiniGame
         {
             bool isBad = Random.value < badItemChance;
             FallingItemKind kind = isBad ? FallingItemKind.Bad : FallingItemKind.Good;
-            SpriteRenderer sourceVisual = isBad ? badItemVisual : goodItemVisual;
+            SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
+            SpriteRenderer sourceVisual = candidates[Random.Range(0, candidates.Length)];
             Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
 
             FallingItem item = GetPooledItem();
@@ -229,6 +231,20 @@ namespace Sousakusai8.MiniGame
             destination.size = source.size;
             destination.maskInteraction = source.maskInteraction;
             destination.spriteSortPoint = source.spriteSortPoint;
+        }
+
+        private SpriteRenderer[] FindItemVisuals(string namePrefix)
+        {
+            var matches = new List<SpriteRenderer>();
+            foreach (SpriteRenderer visual in itemPoolRoot.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (visual.name.StartsWith(namePrefix))
+                {
+                    matches.Add(visual);
+                }
+            }
+
+            return matches.ToArray();
         }
 
         private void ResetGame()
