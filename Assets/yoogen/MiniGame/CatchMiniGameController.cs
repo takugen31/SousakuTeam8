@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Sousakusai8.MiniGame
@@ -22,9 +21,8 @@ namespace Sousakusai8.MiniGame
 
         [Header("UI References")]
         [SerializeField] private Text scoreText;
-        [SerializeField] private Text legendText;
-        [SerializeField] private Text controlsText;
         [SerializeField] private Text feedbackText;
+        [SerializeField] private Text timeText;
 
         [Header("Object Pool")]
         [SerializeField, Min(1)] private int initialPoolSize = 24;
@@ -33,6 +31,14 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private int goodItemScore = 100;
         [SerializeField] private int badItemPenalty = 150;
         [SerializeField, Range(0f, 1f)] private float badItemChance = 0.25f;
+
+        [Header("Time and Difficulty")]
+        [SerializeField, Min(1f)] private float gameDuration = 30f;
+        [SerializeField, Min(1)] private int minimumSpawnCount = 1;
+        [SerializeField, Min(1)] private int maximumSpawnCount = 4;
+        [SerializeField, Min(0f)] private float itemHorizontalSpread = 0.75f;
+        [SerializeField, Min(1f)] private float maximumDropperSpeedMultiplier = 2f;
+        [SerializeField, Min(0f)] private float badItemStackDuration = 4f;
 
         [Header("Drop timing")]
         [SerializeField] private float minimumDropInterval = 0.65f;
@@ -49,6 +55,8 @@ namespace Sousakusai8.MiniGame
         private int score;
         private string catchFeedback = string.Empty;
         private float feedbackVisibleUntil;
+        private float remainingTime;
+        private bool isGameOver;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -56,6 +64,12 @@ namespace Sousakusai8.MiniGame
         public float MaximumDropInterval => maximumDropInterval;
         public float MinimumDropperSpeed => minimumDropperSpeed;
         public float MaximumDropperSpeed => maximumDropperSpeed;
+        public float CurrentDropperSpeedMultiplier => Mathf.Lerp(
+            1f,
+            maximumDropperSpeedMultiplier,
+            GetDifficultyProgress());
+        public float BadItemStackDuration => badItemStackDuration;
+        public bool IsGameRunning => !isGameOver;
 
         private void Awake()
         {
@@ -138,23 +152,51 @@ namespace Sousakusai8.MiniGame
                     "Catch Mini Game UI references are missing. Gameplay will continue without the HUD.",
                     this);
             }
+
+            StartRound();
         }
 
         private void Update()
         {
-            if (Keyboard.current?.rKey.wasPressedThisFrame == true)
+            if (!isGameOver)
             {
-                ResetGame();
+                remainingTime = Mathf.Max(0f, remainingTime - Time.deltaTime);
+                UpdateTimeText();
+                if (remainingTime <= 0f)
+                {
+                    EndRound();
+                }
             }
 
-            if (feedbackText != null && feedbackText.gameObject.activeSelf &&
+            if (!isGameOver && feedbackText != null && feedbackText.gameObject.activeSelf &&
                 Time.unscaledTime >= feedbackVisibleUntil)
             {
                 feedbackText.gameObject.SetActive(false);
             }
         }
 
-        public void SpawnItem(Vector3 dropperPosition)
+        public void SpawnItems(Vector3 dropperPosition)
+        {
+            if (isGameOver)
+            {
+                return;
+            }
+
+            int spawnCount = GetCurrentSpawnCount();
+            float centerOffset = (spawnCount - 1) * 0.5f;
+            for (int i = 0; i < spawnCount; i++)
+            {
+                float xOffset = (i - centerOffset) * itemHorizontalSpread;
+                Vector3 position = dropperPosition + new Vector3(
+                    xOffset + Random.Range(-0.12f, 0.12f),
+                    Random.Range(-0.12f, 0.12f),
+                    0f);
+                position.x = Mathf.Clamp(position.x, GetLeftEdge(0.35f), GetRightEdge(0.35f));
+                SpawnItem(position);
+            }
+        }
+
+        private void SpawnItem(Vector3 dropperPosition)
         {
             bool isBad = Random.value < badItemChance;
             FallingItemKind kind = isBad ? FallingItemKind.Bad : FallingItemKind.Good;
@@ -292,23 +334,6 @@ namespace Sousakusai8.MiniGame
             return matches.ToArray();
         }
 
-        private void ResetGame()
-        {
-            score = 0;
-            catchFeedback = "RESET";
-            feedbackVisibleUntil = Time.unscaledTime + 0.55f;
-            ShowFeedback();
-
-            if (spawnedItemsRoot != null)
-            {
-                FallingItem[] activeItems = spawnedItemsRoot.GetComponentsInChildren<FallingItem>(true);
-                foreach (FallingItem item in activeItems)
-                {
-                    ReleaseItem(item);
-                }
-            }
-        }
-
         private void RefreshHud()
         {
             if (!HasHudReferences())
@@ -317,8 +342,7 @@ namespace Sousakusai8.MiniGame
             }
 
             scoreText.text = $"SCORE  {score}";
-            legendText.text = $"YELLOW  +{goodItemScore}     RED  -{badItemPenalty}";
-            controlsText.text = "Move: Mouse / A D     Reset: R";
+            UpdateTimeText();
         }
 
         private void ShowFeedback()
@@ -344,15 +368,73 @@ namespace Sousakusai8.MiniGame
             }
 
             scoreText ??= hud.Find("Score Text")?.GetComponent<Text>();
-            legendText ??= hud.Find("Legend Text")?.GetComponent<Text>();
-            controlsText ??= hud.Find("Controls Text")?.GetComponent<Text>();
             feedbackText ??= hud.Find("Feedback Text")?.GetComponent<Text>();
+            timeText ??= hud.Find("Time Text")?.GetComponent<Text>();
         }
 
         private bool HasHudReferences()
         {
-            return scoreText != null && legendText != null &&
-                controlsText != null && feedbackText != null;
+            return scoreText != null && feedbackText != null && timeText != null;
+        }
+
+        private void StartRound()
+        {
+            remainingTime = gameDuration;
+            isGameOver = false;
+            RefreshHud();
+        }
+
+        private void EndRound()
+        {
+            remainingTime = 0f;
+            isGameOver = true;
+            ClearActiveItems();
+            catchFeedback = "TIME UP";
+            if (feedbackText != null)
+            {
+                feedbackText.text = catchFeedback;
+                feedbackText.gameObject.SetActive(true);
+            }
+
+            UpdateTimeText();
+        }
+
+        private int GetCurrentSpawnCount()
+        {
+            int minCount = Mathf.Max(1, minimumSpawnCount);
+            int maxCount = Mathf.Max(minCount, maximumSpawnCount);
+            float progress = GetDifficultyProgress();
+            return Mathf.Clamp(
+                minCount + Mathf.FloorToInt(progress * (maxCount - minCount + 1)),
+                minCount,
+                maxCount);
+        }
+
+        private float GetDifficultyProgress()
+        {
+            return Mathf.Clamp01(1f - remainingTime / Mathf.Max(1f, gameDuration));
+        }
+
+        private void UpdateTimeText()
+        {
+            if (timeText != null)
+            {
+                timeText.text = $"TIME  {Mathf.CeilToInt(remainingTime)}";
+            }
+        }
+
+        private void ClearActiveItems()
+        {
+            if (spawnedItemsRoot == null)
+            {
+                return;
+            }
+
+            FallingItem[] activeItems = spawnedItemsRoot.GetComponentsInChildren<FallingItem>(true);
+            foreach (FallingItem item in activeItems)
+            {
+                ReleaseItem(item);
+            }
         }
 
     }

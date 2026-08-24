@@ -8,7 +8,7 @@ namespace Sousakusai8.MiniGame
         private CatchMiniGameController game;
         private SpriteRenderer spriteRenderer;
         private float targetX;
-        private float moveSpeed;
+        private float baseMoveSpeed;
         private float nextDropTime;
         private float movementY;
 
@@ -23,13 +23,14 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
-            if (game == null)
+            if (game == null || !game.IsGameRunning)
             {
                 return;
             }
 
             Vector3 position = transform.position;
-            position.x = Mathf.MoveTowards(position.x, targetX, moveSpeed * Time.deltaTime);
+            float currentMoveSpeed = baseMoveSpeed * game.CurrentDropperSpeedMultiplier;
+            position.x = Mathf.MoveTowards(position.x, targetX, currentMoveSpeed * Time.deltaTime);
             position.y = movementY;
             transform.position = position;
 
@@ -40,7 +41,7 @@ namespace Sousakusai8.MiniGame
 
             if (Time.time >= nextDropTime)
             {
-                game.SpawnItem(transform.position);
+                game.SpawnItems(transform.position);
                 ScheduleNextDrop();
             }
         }
@@ -49,7 +50,7 @@ namespace Sousakusai8.MiniGame
         {
             float halfWidth = spriteRenderer.bounds.extents.x;
             targetX = Random.Range(game.GetLeftEdge(halfWidth), game.GetRightEdge(halfWidth));
-            moveSpeed = Random.Range(game.MinimumDropperSpeed, game.MaximumDropperSpeed);
+            baseMoveSpeed = Random.Range(game.MinimumDropperSpeed, game.MaximumDropperSpeed);
         }
 
         private void ScheduleNextDrop(float additionalDelay = 0f)
@@ -58,5 +59,6 @@ namespace Sousakusai8.MiniGame
                 + additionalDelay
                 + Random.Range(game.MinimumDropInterval, game.MaximumDropInterval);
         }
+
     }
 }

@@ -18,6 +18,8 @@ namespace Sousakusai8.MiniGame
         private float fallSpeed;
         private float rotationSpeed;
         private bool resolved;
+        private bool stackedAtBottom;
+        private float stackedUntil;
         private string pooledName;
 
         public string PooledName => pooledName;
@@ -40,6 +42,8 @@ namespace Sousakusai8.MiniGame
             fallSpeed = speed;
             rotationSpeed = Random.Range(-100f, 100f);
             resolved = false;
+            stackedAtBottom = false;
+            stackedUntil = 0f;
         }
 
         private void Update()
@@ -49,9 +53,6 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
-            transform.position += Vector3.down * (fallSpeed * Time.deltaTime);
-            transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
-
             if (spriteRenderer.bounds.Intersects(catcher.CatchBounds))
             {
                 resolved = true;
@@ -60,11 +61,44 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
+            if (stackedAtBottom)
+            {
+                if (Time.time >= stackedUntil)
+                {
+                    resolved = true;
+                    game.ReleaseItem(this);
+                }
+
+                return;
+            }
+
+            transform.position += Vector3.down * (fallSpeed * Time.deltaTime);
+            transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
+
+            if (kind == FallingItemKind.Bad &&
+                spriteRenderer.bounds.center.y <= catcher.CatchBounds.center.y)
+            {
+                StackAtBottom();
+                return;
+            }
+
             if (spriteRenderer.bounds.max.y < game.BottomEdge)
             {
                 resolved = true;
                 game.ReleaseItem(this);
             }
+        }
+
+        private void StackAtBottom()
+        {
+            stackedAtBottom = true;
+            stackedUntil = Time.time + game.BadItemStackDuration;
+            gameObject.name = "Stacked Bad Item";
+            transform.position = new Vector3(
+                transform.position.x,
+                catcher.CatchBounds.center.y,
+                transform.position.z);
+            transform.rotation = Quaternion.identity;
         }
     }
 }
