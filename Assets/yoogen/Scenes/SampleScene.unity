@@ -629,12 +629,12 @@ MonoBehaviour:
   goodItemScore: 100
   badItemPenalty: 150
   badItemChance: 0.25
-  gameDuration: 30
+  gameDuration: 60
   minimumSpawnCount: 1
   maximumSpawnCount: 4
   itemHorizontalSpread: 0.75
   maximumDropperSpeedMultiplier: 2
-  badItemStackDuration: 4
+  badItemStackDuration: 3
   minimumDropInterval: 0.65
   maximumDropInterval: 1.25
   minimumFallSpeed: 2.8
@@ -1584,7 +1584,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: TIME  30
+  m_Text: TIME  60
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

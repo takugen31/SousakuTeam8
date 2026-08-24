@@ -33,12 +33,12 @@ namespace Sousakusai8.MiniGame
         [SerializeField, Range(0f, 1f)] private float badItemChance = 0.25f;
 
         [Header("Time and Difficulty")]
-        [SerializeField, Min(1f)] private float gameDuration = 30f;
+        [SerializeField, Min(1f)] private float gameDuration = 60f;
         [SerializeField, Min(1)] private int minimumSpawnCount = 1;
         [SerializeField, Min(1)] private int maximumSpawnCount = 4;
         [SerializeField, Min(0f)] private float itemHorizontalSpread = 0.75f;
         [SerializeField, Min(1f)] private float maximumDropperSpeedMultiplier = 2f;
-        [SerializeField, Min(0f)] private float badItemStackDuration = 4f;
+        [SerializeField, Min(0f)] private float badItemStackDuration = 3f;
 
         [Header("Drop timing")]
         [SerializeField] private float minimumDropInterval = 0.65f;
