@@ -94,25 +94,50 @@ namespace Sousakusai8.MiniGame
                 badItemVisuals = FindItemVisuals("Bad Item Visual");
             }
 
-            if (gameCamera == null || dropper == null || catcher == null ||
-                spawnedItemsRoot == null || itemPoolRoot == null ||
-                goodItemVisuals == null || goodItemVisuals.Length == 0 ||
-                badItemVisuals == null || badItemVisuals.Length == 0 ||
-                scoreText == null || legendText == null || controlsText == null || feedbackText == null)
+            ResolveHudReferences();
+
+            if (gameCamera == null || catcher == null)
             {
                 Debug.LogError(
-                    "Catch Mini Game is missing a scene reference. " +
-                    "Assign the Camera, actors, hierarchy roots, item visuals, and UI in the Inspector.",
+                    "Player movement requires a Camera and Player Catcher reference.",
                     this);
                 enabled = false;
                 return;
             }
 
-            InitializeItemPool();
-            dropper.Initialize(this);
             catcher.Initialize(this, gameCamera);
-            RefreshHud();
-            feedbackText.gameObject.SetActive(false);
+
+            bool spawningReady = dropper != null && spawnedItemsRoot != null && itemPoolRoot != null &&
+                goodItemVisuals != null && goodItemVisuals.Length > 0 &&
+                badItemVisuals != null && badItemVisuals.Length > 0;
+            if (spawningReady)
+            {
+                InitializeItemPool();
+                dropper.Initialize(this);
+            }
+            else
+            {
+                if (dropper != null)
+                {
+                    dropper.enabled = false;
+                }
+
+                Debug.LogWarning(
+                    "Item spawning references are incomplete. Player movement will continue.",
+                    this);
+            }
+
+            if (HasHudReferences())
+            {
+                RefreshHud();
+                feedbackText.gameObject.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "Catch Mini Game UI references are missing. Gameplay will continue without the HUD.",
+                    this);
+            }
         }
 
         private void Update()
@@ -122,7 +147,8 @@ namespace Sousakusai8.MiniGame
                 ResetGame();
             }
 
-            if (feedbackText.gameObject.activeSelf && Time.unscaledTime >= feedbackVisibleUntil)
+            if (feedbackText != null && feedbackText.gameObject.activeSelf &&
+                Time.unscaledTime >= feedbackVisibleUntil)
             {
                 feedbackText.gameObject.SetActive(false);
             }
@@ -165,6 +191,12 @@ namespace Sousakusai8.MiniGame
             GameObject itemObject = item.gameObject;
             itemObject.SetActive(false);
             itemObject.name = item.PooledName;
+
+            if (itemPoolRoot == null)
+            {
+                return;
+            }
+
             itemObject.transform.SetParent(itemPoolRoot, false);
             itemObject.transform.localPosition = Vector3.zero;
             itemObject.transform.localRotation = Quaternion.identity;
@@ -178,9 +210,7 @@ namespace Sousakusai8.MiniGame
             score += difference;
             catchFeedback = difference > 0 ? $"+{difference}" : difference.ToString();
             feedbackVisibleUntil = Time.unscaledTime + 0.55f;
-            scoreText.text = $"SCORE  {score}";
-            feedbackText.text = catchFeedback;
-            feedbackText.gameObject.SetActive(true);
+            ShowFeedback();
         }
 
         public float GetLeftEdge(float objectHalfWidth)
@@ -267,22 +297,62 @@ namespace Sousakusai8.MiniGame
             score = 0;
             catchFeedback = "RESET";
             feedbackVisibleUntil = Time.unscaledTime + 0.55f;
-            scoreText.text = $"SCORE  {score}";
-            feedbackText.text = catchFeedback;
-            feedbackText.gameObject.SetActive(true);
+            ShowFeedback();
 
-            FallingItem[] activeItems = spawnedItemsRoot.GetComponentsInChildren<FallingItem>(true);
-            foreach (FallingItem item in activeItems)
+            if (spawnedItemsRoot != null)
             {
-                ReleaseItem(item);
+                FallingItem[] activeItems = spawnedItemsRoot.GetComponentsInChildren<FallingItem>(true);
+                foreach (FallingItem item in activeItems)
+                {
+                    ReleaseItem(item);
+                }
             }
         }
 
         private void RefreshHud()
         {
+            if (!HasHudReferences())
+            {
+                return;
+            }
+
             scoreText.text = $"SCORE  {score}";
             legendText.text = $"YELLOW  +{goodItemScore}     RED  -{badItemPenalty}";
             controlsText.text = "Move: Mouse / A D     Reset: R";
+        }
+
+        private void ShowFeedback()
+        {
+            if (scoreText != null)
+            {
+                scoreText.text = $"SCORE  {score}";
+            }
+
+            if (feedbackText != null)
+            {
+                feedbackText.text = catchFeedback;
+                feedbackText.gameObject.SetActive(true);
+            }
+        }
+
+        private void ResolveHudReferences()
+        {
+            Transform hud = transform.Find("Catch Mini Game UI");
+            if (hud == null)
+            {
+                return;
+            }
+
+            scoreText ??= hud.Find("Score Text")?.GetComponent<Text>();
+            legendText ??= hud.Find("Legend Text")?.GetComponent<Text>();
+            controlsText ??= hud.Find("Controls Text")?.GetComponent<Text>();
+            feedbackText ??= hud.Find("Feedback Text")?.GetComponent<Text>();
+        }
+
+        private bool HasHudReferences()
+        {
+            return scoreText != null && legendText != null &&
+                controlsText != null && feedbackText != null;
         }
 
     }
