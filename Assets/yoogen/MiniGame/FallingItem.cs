@@ -18,6 +18,14 @@ namespace Sousakusai8.MiniGame
         private float fallSpeed;
         private float rotationSpeed;
         private bool resolved;
+        private string pooledName;
+
+        public string PooledName => pooledName;
+
+        public void SetPooledName(string value)
+        {
+            pooledName = value;
+        }
 
         public void Initialize(
             CatchMiniGameController controller,
@@ -31,6 +39,7 @@ namespace Sousakusai8.MiniGame
             kind = itemKind;
             fallSpeed = speed;
             rotationSpeed = Random.Range(-100f, 100f);
+            resolved = false;
         }
 
         private void Update()
@@ -47,14 +56,14 @@ namespace Sousakusai8.MiniGame
             {
                 resolved = true;
                 game.RecordCatch(kind);
-                Destroy(gameObject);
+                game.ReleaseItem(this);
                 return;
             }
 
             if (spriteRenderer.bounds.max.y < game.BottomEdge)
             {
                 resolved = true;
-                Destroy(gameObject);
+                game.ReleaseItem(this);
             }
         }
     }

@@ -10,11 +10,13 @@ namespace Sousakusai8.MiniGame
         private float targetX;
         private float moveSpeed;
         private float nextDropTime;
+        private float movementY;
 
         public void Initialize(CatchMiniGameController controller)
         {
             game = controller;
             spriteRenderer = GetComponent<SpriteRenderer>();
+            movementY = transform.position.y;
             PickNextTarget();
             ScheduleNextDrop(0.4f);
         }
@@ -28,7 +30,7 @@ namespace Sousakusai8.MiniGame
 
             Vector3 position = transform.position;
             position.x = Mathf.MoveTowards(position.x, targetX, moveSpeed * Time.deltaTime);
-            position.y = game.DropperY;
+            position.y = movementY;
             transform.position = position;
 
             if (Mathf.Abs(position.x - targetX) < 0.01f)

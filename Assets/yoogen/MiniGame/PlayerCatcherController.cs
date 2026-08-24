@@ -9,6 +9,7 @@ namespace Sousakusai8.MiniGame
         private CatchMiniGameController game;
         private Camera gameCamera;
         private SpriteRenderer spriteRenderer;
+        private float movementY;
 
         public Bounds CatchBounds => spriteRenderer.bounds;
 
@@ -17,6 +18,7 @@ namespace Sousakusai8.MiniGame
             game = controller;
             gameCamera = targetCamera;
             spriteRenderer = GetComponent<SpriteRenderer>();
+            movementY = transform.position.y;
         }
 
         private void Update()
@@ -37,7 +39,7 @@ namespace Sousakusai8.MiniGame
                 game.GetLeftEdge(halfWidth),
                 game.GetRightEdge(halfWidth));
 
-            transform.position = new Vector3(clampedX, game.CatcherY, transform.position.z);
+            transform.position = new Vector3(clampedX, movementY, transform.position.z);
         }
     }
 }

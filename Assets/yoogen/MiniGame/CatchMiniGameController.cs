@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,10 +6,22 @@ namespace Sousakusai8.MiniGame
 {
     /// <summary>
     /// Creates and coordinates the minimum playable version of the catch game.
-    /// All visuals are generated at runtime, so no image assets or prefabs are required.
+    /// The main actors are scene objects; only falling items are created at runtime.
     /// </summary>
     public sealed class CatchMiniGameController : MonoBehaviour
     {
+        [Header("Scene References")]
+        [SerializeField] private Camera gameCamera;
+        [SerializeField] private DropperController dropper;
+        [SerializeField] private PlayerCatcherController catcher;
+        [SerializeField] private Transform spawnedItemsRoot;
+        [SerializeField] private Transform itemPoolRoot;
+        [SerializeField] private SpriteRenderer goodItemVisual;
+        [SerializeField] private SpriteRenderer badItemVisual;
+
+        [Header("Object Pool")]
+        [SerializeField, Min(1)] private int initialPoolSize = 12;
+
         [Header("Score")]
         [SerializeField] private int goodItemScore = 100;
         [SerializeField] private int badItemPenalty = 150;
@@ -24,15 +37,8 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private float minimumDropperSpeed = 1.5f;
         [SerializeField] private float maximumDropperSpeed = 3.2f;
 
-        private static readonly Color BackgroundColor = new(0.055f, 0.075f, 0.12f, 1f);
-        private static readonly Color DropperColor = new(0.72f, 0.4f, 0.95f, 1f);
-        private static readonly Color CatcherColor = new(0.25f, 0.75f, 1f, 1f);
-        private static readonly Color GoodItemColor = new(1f, 0.82f, 0.18f, 1f);
-        private static readonly Color BadItemColor = new(1f, 0.25f, 0.3f, 1f);
-
-        private Camera gameCamera;
-        private Sprite runtimeSprite;
-        private PlayerCatcherController catcher;
+        private readonly Queue<FallingItem> availableItems = new();
+        private int nextPoolNumber = 1;
         private int score;
         private string catchFeedback = string.Empty;
         private float feedbackVisibleUntil;
@@ -42,8 +48,6 @@ namespace Sousakusai8.MiniGame
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
-        public float DropperY => TopEdge - 1f;
-        public float CatcherY => BottomEdge + 0.8f;
         public float MinimumDropInterval => minimumDropInterval;
         public float MaximumDropInterval => maximumDropInterval;
         public float MinimumDropperSpeed => minimumDropperSpeed;
@@ -51,22 +55,56 @@ namespace Sousakusai8.MiniGame
 
         private void Awake()
         {
-            gameCamera = Camera.main;
             if (gameCamera == null)
             {
-                var cameraObject = new GameObject("Main Camera");
-                cameraObject.tag = "MainCamera";
-                gameCamera = cameraObject.AddComponent<Camera>();
-                cameraObject.transform.position = new Vector3(0f, 0f, -10f);
+                gameCamera = Camera.main;
             }
 
-            gameCamera.orthographic = true;
-            gameCamera.orthographicSize = Mathf.Max(5f, gameCamera.orthographicSize);
-            gameCamera.clearFlags = CameraClearFlags.SolidColor;
-            gameCamera.backgroundColor = BackgroundColor;
+            if (dropper == null)
+            {
+                dropper = GetComponentInChildren<DropperController>(true);
+            }
 
-            runtimeSprite = CreateBlockSprite();
-            CreateActors();
+            if (catcher == null)
+            {
+                catcher = GetComponentInChildren<PlayerCatcherController>(true);
+            }
+
+            if (spawnedItemsRoot == null)
+            {
+                spawnedItemsRoot = transform.Find("Spawned Items");
+            }
+
+            if (itemPoolRoot == null)
+            {
+                itemPoolRoot = transform.Find("Item Pool");
+            }
+
+            if (goodItemVisual == null && itemPoolRoot != null)
+            {
+                goodItemVisual = itemPoolRoot.Find("Good Item Visual")?.GetComponent<SpriteRenderer>();
+            }
+
+            if (badItemVisual == null && itemPoolRoot != null)
+            {
+                badItemVisual = itemPoolRoot.Find("Bad Item Visual")?.GetComponent<SpriteRenderer>();
+            }
+
+            if (gameCamera == null || dropper == null || catcher == null ||
+                spawnedItemsRoot == null || itemPoolRoot == null ||
+                goodItemVisual == null || badItemVisual == null)
+            {
+                Debug.LogError(
+                    "Catch Mini Game is missing a scene reference. " +
+                    "Assign the Camera, actors, hierarchy roots, and item visuals in the Inspector.",
+                    this);
+                enabled = false;
+                return;
+            }
+
+            InitializeItemPool();
+            dropper.Initialize(this);
+            catcher.Initialize(this, gameCamera);
         }
 
         private void Update()
@@ -77,50 +115,46 @@ namespace Sousakusai8.MiniGame
             }
         }
 
-        private void CreateActors()
-        {
-            var dropperObject = CreateBlock(
-                "Dropper",
-                new Vector2(1.4f, 0.65f),
-                DropperColor,
-                new Vector3(0f, DropperY, 0f),
-                10);
-
-            var dropper = dropperObject.AddComponent<DropperController>();
-            dropper.Initialize(this);
-
-            var catcherObject = CreateBlock(
-                "Player Catcher",
-                new Vector2(2f, 0.45f),
-                CatcherColor,
-                new Vector3(0f, CatcherY, 0f),
-                10);
-
-            catcher = catcherObject.AddComponent<PlayerCatcherController>();
-            catcher.Initialize(this, gameCamera);
-        }
-
         public void SpawnItem(Vector3 dropperPosition)
         {
             bool isBad = Random.value < badItemChance;
             FallingItemKind kind = isBad ? FallingItemKind.Bad : FallingItemKind.Good;
-            Color color = isBad ? BadItemColor : GoodItemColor;
-            Vector2 size = isBad ? new Vector2(0.62f, 0.62f) : new Vector2(0.5f, 0.5f);
+            SpriteRenderer sourceVisual = isBad ? badItemVisual : goodItemVisual;
             Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
 
-            var itemObject = CreateBlock(
-                isBad ? "Bad Item" : "Good Item",
-                size,
-                color,
-                spawnPosition,
-                5);
+            FallingItem item = GetPooledItem();
+            GameObject itemObject = item.gameObject;
+            itemObject.name = isBad ? "Bad Item" : "Good Item";
+            itemObject.transform.SetParent(spawnedItemsRoot, false);
+            itemObject.transform.position = spawnPosition;
+            itemObject.transform.localRotation = sourceVisual.transform.localRotation;
+            itemObject.transform.localScale = sourceVisual.transform.localScale;
 
-            var item = itemObject.AddComponent<FallingItem>();
+            SpriteRenderer spriteRenderer = itemObject.GetComponent<SpriteRenderer>();
+            CopyVisual(sourceVisual, spriteRenderer);
+
             item.Initialize(
                 this,
                 catcher,
                 kind,
                 Random.Range(minimumFallSpeed, maximumFallSpeed));
+            itemObject.SetActive(true);
+        }
+
+        public void ReleaseItem(FallingItem item)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            GameObject itemObject = item.gameObject;
+            itemObject.SetActive(false);
+            itemObject.name = item.PooledName;
+            itemObject.transform.SetParent(itemPoolRoot, false);
+            itemObject.transform.localPosition = Vector3.zero;
+            itemObject.transform.localRotation = Quaternion.identity;
+            availableItems.Enqueue(item);
         }
 
         public void RecordCatch(FallingItemKind kind)
@@ -144,45 +178,57 @@ namespace Sousakusai8.MiniGame
             return gameCamera.transform.position.x + halfViewWidth - objectHalfWidth;
         }
 
-        private GameObject CreateBlock(
-            string objectName,
-            Vector2 size,
-            Color color,
-            Vector3 position,
-            int sortingOrder)
+        private void InitializeItemPool()
         {
-            var block = new GameObject(objectName);
-            block.transform.SetParent(transform);
-            block.transform.position = position;
-            block.transform.localScale = new Vector3(size.x, size.y, 1f);
+            availableItems.Clear();
 
-            var spriteRenderer = block.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = runtimeSprite;
-            spriteRenderer.color = color;
-            spriteRenderer.sortingOrder = sortingOrder;
-            return block;
+            FallingItem[] existingItems = itemPoolRoot.GetComponentsInChildren<FallingItem>(true);
+            foreach (FallingItem item in existingItems)
+            {
+                item.SetPooledName($"Pooled Item {nextPoolNumber++:00}");
+                item.gameObject.name = item.PooledName;
+                item.gameObject.SetActive(false);
+                availableItems.Enqueue(item);
+            }
+
+            while (availableItems.Count < initialPoolSize)
+            {
+                availableItems.Enqueue(CreatePooledItem());
+            }
         }
 
-        private static Sprite CreateBlockSprite()
+        private FallingItem GetPooledItem()
         {
-            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false)
-            {
-                name = "Runtime Block Texture",
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp,
-                hideFlags = HideFlags.HideAndDontSave
-            };
-            texture.SetPixel(0, 0, Color.white);
-            texture.Apply();
+            return availableItems.Count > 0 ? availableItems.Dequeue() : CreatePooledItem();
+        }
 
-            var sprite = Sprite.Create(
-                texture,
-                new Rect(0f, 0f, 1f, 1f),
-                new Vector2(0.5f, 0.5f),
-                1f);
-            sprite.name = "Runtime Block Sprite";
-            sprite.hideFlags = HideFlags.HideAndDontSave;
-            return sprite;
+        private FallingItem CreatePooledItem()
+        {
+            var itemObject = new GameObject($"Pooled Item {nextPoolNumber++:00}");
+            itemObject.transform.SetParent(itemPoolRoot, false);
+
+            var spriteRenderer = itemObject.AddComponent<SpriteRenderer>();
+            spriteRenderer.sortingOrder = 5;
+
+            FallingItem item = itemObject.AddComponent<FallingItem>();
+            item.SetPooledName(itemObject.name);
+            itemObject.SetActive(false);
+            return item;
+        }
+
+        private static void CopyVisual(SpriteRenderer source, SpriteRenderer destination)
+        {
+            destination.sprite = source.sprite;
+            destination.sharedMaterial = source.sharedMaterial;
+            destination.color = source.color;
+            destination.sortingLayerID = source.sortingLayerID;
+            destination.sortingOrder = source.sortingOrder;
+            destination.flipX = source.flipX;
+            destination.flipY = source.flipY;
+            destination.drawMode = source.drawMode;
+            destination.size = source.size;
+            destination.maskInteraction = source.maskInteraction;
+            destination.spriteSortPoint = source.spriteSortPoint;
         }
 
         private void ResetGame()
@@ -191,9 +237,10 @@ namespace Sousakusai8.MiniGame
             catchFeedback = "RESET";
             feedbackVisibleUntil = Time.unscaledTime + 0.55f;
 
-            foreach (FallingItem item in GetComponentsInChildren<FallingItem>())
+            FallingItem[] activeItems = spawnedItemsRoot.GetComponentsInChildren<FallingItem>(true);
+            foreach (FallingItem item in activeItems)
             {
-                Destroy(item.gameObject);
+                ReleaseItem(item);
             }
         }
 
@@ -247,16 +294,5 @@ namespace Sousakusai8.MiniGame
             };
         }
 
-        private void OnDestroy()
-        {
-            if (runtimeSprite == null)
-            {
-                return;
-            }
-
-            Texture2D texture = runtimeSprite.texture;
-            Destroy(runtimeSprite);
-            Destroy(texture);
-        }
     }
 }

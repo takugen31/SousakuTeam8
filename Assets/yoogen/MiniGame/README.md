@@ -1,7 +1,7 @@
 # Catch Mini Game Prototype
 
-`Assets/Scenes/SampleScene.unity` を開いて再生ボタンを押すだけで起動します。
-シーンへのGameObject追加や画像素材の設定は不要です。
+`Assets/yoogen/Scenes/SampleScene.unity` を開いて再生ボタンを押すと起動します。
+主要オブジェクトはシーンに保存されており、HierarchyとInspectorから編集できます。
 
 ## 操作
 
@@ -17,6 +17,8 @@
 - 黄色: キャッチすべき物
 - 赤: キャッチしてはいけない物
 
-数値は `CatchMiniGameController.cs` のInspector用フィールドでまとめてあります。
-今回は最小構成のため、`CatchMiniGameBootstrap.cs` が再生時に必要なオブジェクトを自動生成します。
-今後ノベルゲーム本体へ統合するときは、自動起動をシーン遷移やゲーム管理側からの起動に置き換えられます。
+ゲーム設定と落下物の見た目は `Catch Mini Game` の `CatchMiniGameController`、
+キャラクターの位置・大きさ・色は各子オブジェクトから変更できます。
+未使用の落下物はゲーム中に `Item Pool` の非アクティブな子として保持されます。
+使用中の落下物だけが `Spawned Items` へ移動し、回収後は `Item Pool` に戻ります。
+見た目は `Item Pool` 内の `Good Item Visual` と `Bad Item Visual` を編集してください。
