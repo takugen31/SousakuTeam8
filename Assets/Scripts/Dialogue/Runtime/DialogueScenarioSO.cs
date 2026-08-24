@@ -125,4 +125,26 @@ public sealed class DialogueLine
     public string text;
 
     public string nextLineId;
+
+    // このセリフが表示されたときに適用する好感度の増減
+    public List<AffectionDelta> affectionChanges =
+        new List<AffectionDelta>();
+
+    // 好感度に応じた分岐（先頭から順に評価され、最初に一致したものが選ばれる）
+    public List<DialogueBranch> branches =
+        new List<DialogueBranch>();
+}
+
+[Serializable]
+public sealed class DialogueBranch
+{
+    public string nextLineId;
+
+    // すべての条件を満たす場合にこの分岐が選ばれる（AND条件）
+    public List<AffectionCondition> conditions =
+        new List<AffectionCondition>();
+
+    // 分岐が選ばれたときに追加で適用する好感度の増減
+    public List<AffectionDelta> affectionChanges =
+        new List<AffectionDelta>();
 }

@@ -214,6 +214,11 @@ public sealed class CsvRecord
         return value;
     }
 
+    public bool TryGet(string columnName, out string value)
+    {
+        return values.TryGetValue(columnName, out value);
+    }
+
     public string GetRequired(string columnName)
     {
         string value = Get(columnName);

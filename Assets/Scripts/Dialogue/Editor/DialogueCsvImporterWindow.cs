@@ -272,6 +272,30 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
             string nextLineId =
                 record.Get("nextLineId").Trim();
 
+            string affectionChangesText =
+                record.TryGet(
+                    "affectionChanges",
+                    out string affectionText)
+                    ? affectionText.Trim()
+                    : string.Empty;
+
+            string branchesText =
+                record.TryGet("branches", out string branchesRaw)
+                    ? branchesRaw.Trim()
+                    : string.Empty;
+
+            List<AffectionDelta> affectionChanges =
+                ParseAffectionChanges(
+                    affectionChangesText,
+                    record.RowNumber,
+                    characterById);
+
+            List<DialogueBranch> branches =
+                ParseBranches(
+                    branchesText,
+                    record.RowNumber,
+                    characterById);
+
             if (!lineIds.Add(lineId))
             {
                 throw new FormatException(
@@ -308,7 +332,9 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     speakerId = speakerId,
                     expressionId = expressionId,
                     text = text.Replace("\\n", "\n"),
-                    nextLineId = nextLineId
+                    nextLineId = nextLineId,
+                    affectionChanges = affectionChanges,
+                    branches = branches
                 });
         }
 
@@ -321,9 +347,311 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     $"セリフ「{line.lineId}」のnextLineId " +
                     $"「{line.nextLineId}」が存在しません。");
             }
+
+            if (line.branches == null)
+            {
+                continue;
+            }
+
+            foreach (DialogueBranch branch in line.branches)
+            {
+                if (branch == null)
+                {
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(branch.nextLineId) &&
+                    !lineIds.Contains(branch.nextLineId))
+                {
+                    throw new FormatException(
+                        $"セリフ「{line.lineId}」の分岐先 " +
+                        $"「{branch.nextLineId}」が存在しません。");
+                }
+            }
         }
 
         return result;
+    }
+
+    private static List<AffectionDelta> ParseAffectionChanges(
+        string text,
+        int rowNumber,
+        Dictionary<string, CharacterData> characterById)
+    {
+        List<AffectionDelta> result =
+            new List<AffectionDelta>();
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return result;
+        }
+
+        string[] items = text.Split(';');
+
+        foreach (string rawItem in items)
+        {
+            string item = rawItem.Trim();
+
+            if (item.Length == 0)
+            {
+                continue;
+            }
+
+            result.Add(
+                ParseAffectionDelta(
+                    item,
+                    rowNumber,
+                    characterById));
+        }
+
+        return result;
+    }
+
+    private static AffectionDelta ParseAffectionDelta(
+        string item,
+        int rowNumber,
+        Dictionary<string, CharacterData> characterById)
+    {
+        int signIndex = FindDeltaSign(item);
+
+        if (signIndex <= 0 || signIndex >= item.Length - 1)
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: 好感度変化「{item}」の形式が" +
+                "不正です。例: kayo+5 または doute-2");
+        }
+
+        string characterId =
+            item.Substring(0, signIndex).Trim();
+
+        char sign = item[signIndex];
+
+        string numberText =
+            item.Substring(signIndex + 1).Trim();
+
+        if (!int.TryParse(numberText, out int number))
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: 好感度変化「{item}」の数値が" +
+                "不正です。");
+        }
+
+        ValidateAffectionCharacter(
+            characterId,
+            rowNumber,
+            characterById);
+
+        return new AffectionDelta
+        {
+            characterId = characterId,
+            value = sign == '-' ? -number : number
+        };
+    }
+
+    private static int FindDeltaSign(string item)
+    {
+        for (int i = 1; i < item.Length - 1; i++)
+        {
+            char current = item[i];
+
+            if ((current == '+' || current == '-') &&
+                char.IsDigit(item[i + 1]))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static List<DialogueBranch> ParseBranches(
+        string text,
+        int rowNumber,
+        Dictionary<string, CharacterData> characterById)
+    {
+        List<DialogueBranch> result =
+            new List<DialogueBranch>();
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return result;
+        }
+
+        string[] items = text.Split(';');
+
+        foreach (string rawItem in items)
+        {
+            string item = rawItem.Trim();
+
+            if (item.Length == 0)
+            {
+                continue;
+            }
+
+            result.Add(
+                ParseBranch(
+                    item,
+                    rowNumber,
+                    characterById));
+        }
+
+        return result;
+    }
+
+    private static DialogueBranch ParseBranch(
+        string item,
+        int rowNumber,
+        Dictionary<string, CharacterData> characterById)
+    {
+        int arrowIndex =
+            item.IndexOf("->", StringComparison.Ordinal);
+
+        if (arrowIndex <= 0)
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: 分岐「{item}」に「->」がありません。");
+        }
+
+        string conditionsText =
+            item.Substring(0, arrowIndex).Trim();
+
+        string targetLineId =
+            item.Substring(arrowIndex + 2).Trim();
+
+        if (string.IsNullOrWhiteSpace(conditionsText) ||
+            string.IsNullOrWhiteSpace(targetLineId))
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: 分岐「{item}」の形式が不正です。" +
+                "例: kayo>=5->prologue_good");
+        }
+
+        DialogueBranch branch = new DialogueBranch
+        {
+            nextLineId = targetLineId,
+            conditions = new List<AffectionCondition>(),
+            affectionChanges = new List<AffectionDelta>()
+        };
+
+        string[] conditionItems = conditionsText.Split('&');
+
+        foreach (string rawCondition in conditionItems)
+        {
+            string condition = rawCondition.Trim();
+
+            if (condition.Length == 0)
+            {
+                throw new FormatException(
+                    $"{rowNumber}行目: 分岐の条件が空です。");
+            }
+
+            branch.conditions.Add(
+                ParseCondition(
+                    condition,
+                    rowNumber,
+                    characterById));
+        }
+
+        return branch;
+    }
+
+    private static AffectionCondition ParseCondition(
+        string text,
+        int rowNumber,
+        Dictionary<string, CharacterData> characterById)
+    {
+        string[] operators =
+        {
+            ">=", "<=", "==", "!=", ">", "<"
+        };
+
+        string characterId = null;
+        string valueText = null;
+        AffectionCondition.ComparisonType comparison = default;
+
+        foreach (string op in operators)
+        {
+            int index =
+                text.IndexOf(op, StringComparison.Ordinal);
+
+            if (index <= 0)
+            {
+                continue;
+            }
+
+            characterId = text.Substring(0, index).Trim();
+            valueText = text.Substring(index + op.Length).Trim();
+            comparison = SymbolToComparison(op);
+            break;
+        }
+
+        if (characterId == null ||
+            !int.TryParse(valueText, out int value))
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: 分岐条件「{text}」の形式が" +
+                "不正です。例: kayo>=5");
+        }
+
+        ValidateAffectionCharacter(
+            characterId,
+            rowNumber,
+            characterById);
+
+        return new AffectionCondition
+        {
+            characterId = characterId,
+            comparison = comparison,
+            value = value
+        };
+    }
+
+    private static AffectionCondition.ComparisonType SymbolToComparison(
+        string symbol)
+    {
+        switch (symbol)
+        {
+            case ">=":
+                return AffectionCondition.ComparisonType.GreaterOrEqual;
+
+            case ">":
+                return AffectionCondition.ComparisonType.Greater;
+
+            case "<=":
+                return AffectionCondition.ComparisonType.LessOrEqual;
+
+            case "<":
+                return AffectionCondition.ComparisonType.Less;
+
+            case "==":
+                return AffectionCondition.ComparisonType.Equal;
+
+            case "!=":
+                return AffectionCondition.ComparisonType.NotEqual;
+
+            default:
+                throw new FormatException(
+                    $"未知の比較演算子: {symbol}");
+        }
+    }
+
+    private static void ValidateAffectionCharacter(
+        string characterId,
+        int rowNumber,
+        Dictionary<string, CharacterData> characterById)
+    {
+        if (string.IsNullOrWhiteSpace(characterId))
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: 好感度のcharacterIdが空です。");
+        }
+
+        if (!characterById.ContainsKey(characterId))
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: 好感度のキャラクター" +
+                $"「{characterId}」がキャラクターCSVに存在しません。");
+        }
     }
 
     private static Color ParseColor(
