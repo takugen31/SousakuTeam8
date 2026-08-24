@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace Sousakusai8.MiniGame
 {
@@ -18,6 +19,12 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Transform itemPoolRoot;
         [SerializeField] private SpriteRenderer[] goodItemVisuals;
         [SerializeField] private SpriteRenderer[] badItemVisuals;
+
+        [Header("UI References")]
+        [SerializeField] private Text scoreText;
+        [SerializeField] private Text legendText;
+        [SerializeField] private Text controlsText;
+        [SerializeField] private Text feedbackText;
 
         [Header("Object Pool")]
         [SerializeField, Min(1)] private int initialPoolSize = 24;
@@ -42,9 +49,6 @@ namespace Sousakusai8.MiniGame
         private int score;
         private string catchFeedback = string.Empty;
         private float feedbackVisibleUntil;
-        private GUIStyle scoreStyle;
-        private GUIStyle helpStyle;
-        private GUIStyle feedbackStyle;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -93,11 +97,12 @@ namespace Sousakusai8.MiniGame
             if (gameCamera == null || dropper == null || catcher == null ||
                 spawnedItemsRoot == null || itemPoolRoot == null ||
                 goodItemVisuals == null || goodItemVisuals.Length == 0 ||
-                badItemVisuals == null || badItemVisuals.Length == 0)
+                badItemVisuals == null || badItemVisuals.Length == 0 ||
+                scoreText == null || legendText == null || controlsText == null || feedbackText == null)
             {
                 Debug.LogError(
                     "Catch Mini Game is missing a scene reference. " +
-                    "Assign the Camera, actors, hierarchy roots, and item visuals in the Inspector.",
+                    "Assign the Camera, actors, hierarchy roots, item visuals, and UI in the Inspector.",
                     this);
                 enabled = false;
                 return;
@@ -106,6 +111,8 @@ namespace Sousakusai8.MiniGame
             InitializeItemPool();
             dropper.Initialize(this);
             catcher.Initialize(this, gameCamera);
+            RefreshHud();
+            feedbackText.gameObject.SetActive(false);
         }
 
         private void Update()
@@ -113,6 +120,11 @@ namespace Sousakusai8.MiniGame
             if (Keyboard.current?.rKey.wasPressedThisFrame == true)
             {
                 ResetGame();
+            }
+
+            if (feedbackText.gameObject.activeSelf && Time.unscaledTime >= feedbackVisibleUntil)
+            {
+                feedbackText.gameObject.SetActive(false);
             }
         }
 
@@ -166,6 +178,9 @@ namespace Sousakusai8.MiniGame
             score += difference;
             catchFeedback = difference > 0 ? $"+{difference}" : difference.ToString();
             feedbackVisibleUntil = Time.unscaledTime + 0.55f;
+            scoreText.text = $"SCORE  {score}";
+            feedbackText.text = catchFeedback;
+            feedbackText.gameObject.SetActive(true);
         }
 
         public float GetLeftEdge(float objectHalfWidth)
@@ -252,6 +267,9 @@ namespace Sousakusai8.MiniGame
             score = 0;
             catchFeedback = "RESET";
             feedbackVisibleUntil = Time.unscaledTime + 0.55f;
+            scoreText.text = $"SCORE  {score}";
+            feedbackText.text = catchFeedback;
+            feedbackText.gameObject.SetActive(true);
 
             FallingItem[] activeItems = spawnedItemsRoot.GetComponentsInChildren<FallingItem>(true);
             foreach (FallingItem item in activeItems)
@@ -260,54 +278,11 @@ namespace Sousakusai8.MiniGame
             }
         }
 
-        private void OnGUI()
+        private void RefreshHud()
         {
-            EnsureGuiStyles();
-
-            float scale = Mathf.Clamp(Mathf.Min(Screen.width / 960f, Screen.height / 540f), 0.65f, 1.5f);
-            Matrix4x4 previousMatrix = GUI.matrix;
-            GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-
-            GUILayout.BeginArea(new Rect(22f, 18f, 470f, 145f));
-            GUILayout.Label($"SCORE  {score}", scoreStyle);
-            GUILayout.Label($"YELLOW  +{goodItemScore}     RED  -{badItemPenalty}", helpStyle);
-            GUILayout.Label("Move: Mouse     Reset: R", helpStyle);
-            GUILayout.EndArea();
-
-            if (Time.unscaledTime < feedbackVisibleUntil)
-            {
-                float virtualWidth = Screen.width / scale;
-                GUI.Label(new Rect(0f, 85f, virtualWidth, 70f), catchFeedback, feedbackStyle);
-            }
-
-            GUI.matrix = previousMatrix;
-        }
-
-        private void EnsureGuiStyles()
-        {
-            if (scoreStyle != null)
-            {
-                return;
-            }
-
-            scoreStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 34,
-                fontStyle = FontStyle.Bold,
-                normal = { textColor = Color.white }
-            };
-            helpStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 18,
-                normal = { textColor = new Color(0.8f, 0.86f, 0.95f) }
-            };
-            feedbackStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 42,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = Color.white }
-            };
+            scoreText.text = $"SCORE  {score}";
+            legendText.text = $"YELLOW  +{goodItemScore}     RED  -{badItemPenalty}";
+            controlsText.text = "Move: Mouse / A D     Reset: R";
         }
 
     }
