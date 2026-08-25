@@ -76,7 +76,7 @@ namespace Sousakusai8.MiniGame
             transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
 
             if (kind == FallingItemKind.Bad &&
-                spriteRenderer.bounds.center.y <= catcher.CatchBounds.center.y)
+                spriteRenderer.bounds.center.y <= catcher.GroundY)
             {
                 StackAtBottom();
                 return;
@@ -96,7 +96,7 @@ namespace Sousakusai8.MiniGame
             gameObject.name = "Stacked Bad Item";
             transform.position = new Vector3(
                 transform.position.x,
-                catcher.CatchBounds.center.y,
+                catcher.GroundY,
                 transform.position.z);
             transform.rotation = Quaternion.identity;
         }

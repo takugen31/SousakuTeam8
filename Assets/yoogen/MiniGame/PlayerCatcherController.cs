@@ -3,28 +3,35 @@ using UnityEngine.InputSystem;
 
 namespace Sousakusai8.MiniGame
 {
-    /// <summary>Keeps the catcher at the bottom of the screen and follows the mouse on X.</summary>
+    /// <summary>Moves the catcher horizontally and lets it jump over hazards.</summary>
     public sealed class PlayerCatcherController : MonoBehaviour
     {
         [Header("Keyboard Movement")]
         [SerializeField, Min(0f)] private float keyboardMoveSpeed = 8f;
 
+        [Header("Jump Movement")]
+        [SerializeField, Min(0f)] private float jumpSpeed = 7f;
+        [SerializeField, Min(0f)] private float gravity = 18f;
+
         private CatchMiniGameController game;
         private Camera gameCamera;
         private SpriteRenderer spriteRenderer;
-        private float movementY;
+        private float groundY;
+        private float verticalVelocity;
         private Vector2 previousMousePosition;
         private bool mousePositionInitialized;
         private bool usingKeyboard;
 
         public Bounds CatchBounds => spriteRenderer.bounds;
+        public float GroundY => groundY;
 
         public void Initialize(CatchMiniGameController controller, Camera targetCamera)
         {
             game = controller;
             gameCamera = targetCamera;
             spriteRenderer = GetComponent<SpriteRenderer>();
-            movementY = transform.position.y;
+            groundY = transform.position.y;
+            verticalVelocity = 0f;
         }
 
         private void Update()
@@ -63,10 +70,43 @@ namespace Sousakusai8.MiniGame
                 targetX = worldPosition.x;
             }
 
+            bool isGrounded = transform.position.y <= groundY + 0.001f;
+            if (isGrounded)
+            {
+                verticalVelocity = 0f;
+                if (game.IsGameRunning && WasJumpPressed())
+                {
+                    verticalVelocity = jumpSpeed;
+                }
+            }
+
+            verticalVelocity -= gravity * Time.deltaTime;
+            float targetY = transform.position.y + verticalVelocity * Time.deltaTime;
+            if (targetY <= groundY)
+            {
+                targetY = groundY;
+                verticalVelocity = 0f;
+            }
+
+            float halfHeight = spriteRenderer.bounds.extents.y;
+            float ceilingY = game.TopEdge - halfHeight;
+            if (targetY >= ceilingY)
+            {
+                targetY = ceilingY;
+                verticalVelocity = Mathf.Min(0f, verticalVelocity);
+            }
+
             transform.position = new Vector3(
                 Mathf.Clamp(targetX, leftEdge, rightEdge),
-                movementY,
+                targetY,
                 transform.position.z);
+        }
+
+        private static bool WasJumpPressed()
+        {
+            return Keyboard.current != null &&
+                (Keyboard.current.spaceKey.wasPressedThisFrame ||
+                 Keyboard.current.wKey.wasPressedThisFrame);
         }
 
         private static float ReadKeyboardDirection()

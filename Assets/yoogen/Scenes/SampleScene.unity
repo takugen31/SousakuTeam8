@@ -506,6 +506,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sousakusai8.MiniGame.PlayerCatcherController
   keyboardMoveSpeed: 8
+  jumpSpeed: 7
+  gravity: 18
 --- !u!212 &1258845369
 SpriteRenderer:
   serializedVersion: 2
@@ -625,13 +627,13 @@ MonoBehaviour:
   scoreText: {fileID: 1951000003}
   feedbackText: {fileID: 1954000003}
   timeText: {fileID: 1955000003}
-  initialPoolSize: 24
+  initialPoolSize: 48
   goodItemScore: 100
   badItemPenalty: 150
   badItemChance: 0.25
   gameDuration: 60
   minimumSpawnCount: 1
-  maximumSpawnCount: 4
+  maximumSpawnCount: 8
   itemHorizontalSpread: 0.75
   maximumDropperSpeedMultiplier: 2
   badItemStackDuration: 3

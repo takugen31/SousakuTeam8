@@ -25,7 +25,7 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Text timeText;
 
         [Header("Object Pool")]
-        [SerializeField, Min(1)] private int initialPoolSize = 24;
+        [SerializeField, Min(1)] private int initialPoolSize = 48;
 
         [Header("Score")]
         [SerializeField] private int goodItemScore = 100;
@@ -35,7 +35,7 @@ namespace Sousakusai8.MiniGame
         [Header("Time and Difficulty")]
         [SerializeField, Min(1f)] private float gameDuration = 60f;
         [SerializeField, Min(1)] private int minimumSpawnCount = 1;
-        [SerializeField, Min(1)] private int maximumSpawnCount = 4;
+        [SerializeField, Min(1)] private int maximumSpawnCount = 8;
         [SerializeField, Min(0f)] private float itemHorizontalSpread = 0.75f;
         [SerializeField, Min(1f)] private float maximumDropperSpeedMultiplier = 2f;
         [SerializeField, Min(0f)] private float badItemStackDuration = 3f;
@@ -183,6 +183,9 @@ namespace Sousakusai8.MiniGame
             }
 
             int spawnCount = GetCurrentSpawnCount();
+            int badItemsRemaining = spawnCount >= 4
+                ? Mathf.Clamp(Mathf.RoundToInt(spawnCount * badItemChance), 1, spawnCount - 1)
+                : -1;
             float centerOffset = (spawnCount - 1) * 0.5f;
             for (int i = 0; i < spawnCount; i++)
             {
@@ -192,14 +195,28 @@ namespace Sousakusai8.MiniGame
                     Random.Range(-0.12f, 0.12f),
                     0f);
                 position.x = Mathf.Clamp(position.x, GetLeftEdge(0.35f), GetRightEdge(0.35f));
-                SpawnItem(position);
+
+                FallingItemKind? forcedKind = null;
+                if (badItemsRemaining >= 0)
+                {
+                    int slotsRemaining = spawnCount - i;
+                    bool spawnBad = Random.value < badItemsRemaining / (float)slotsRemaining;
+                    forcedKind = spawnBad ? FallingItemKind.Bad : FallingItemKind.Good;
+                    if (spawnBad)
+                    {
+                        badItemsRemaining--;
+                    }
+                }
+
+                SpawnItem(position, forcedKind);
             }
         }
 
-        private void SpawnItem(Vector3 dropperPosition)
+        private void SpawnItem(Vector3 dropperPosition, FallingItemKind? forcedKind = null)
         {
-            bool isBad = Random.value < badItemChance;
-            FallingItemKind kind = isBad ? FallingItemKind.Bad : FallingItemKind.Good;
+            FallingItemKind kind = forcedKind ??
+                (Random.value < badItemChance ? FallingItemKind.Bad : FallingItemKind.Good);
+            bool isBad = kind == FallingItemKind.Bad;
             SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
             SpriteRenderer sourceVisual = candidates[Random.Range(0, candidates.Length)];
             Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
