@@ -18,6 +18,11 @@ namespace Sousakusai8.MiniGame
             spriteRenderer = GetComponent<SpriteRenderer>();
             movementY = transform.position.y;
             PickNextTarget();
+        }
+
+        public void BeginRound()
+        {
+            PickNextTarget();
             ScheduleNextDrop(0.4f);
         }
 

@@ -74,7 +74,7 @@ namespace Sousakusai8.MiniGame
             if (isGrounded)
             {
                 verticalVelocity = 0f;
-                if (game.IsGameRunning && WasJumpPressed())
+                if (game.IsGameRunning && game.CanPlayerJump && WasJumpPressed())
                 {
                     verticalVelocity = jumpSpeed;
                 }

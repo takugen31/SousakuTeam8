@@ -6,10 +6,25 @@ namespace Sousakusai8.MiniGame
 {
     /// <summary>
     /// Creates and coordinates the minimum playable version of the catch game.
-    /// The main actors are scene objects; only falling items are created at runtime.
+    /// Main actors, UI, visual templates, and the normal item pool are scene objects.
     /// </summary>
     public sealed class CatchMiniGameController : MonoBehaviour
     {
+        [System.Serializable]
+        private sealed class ScoreMessageTier
+        {
+            public int minimumScore;
+            public string message;
+        }
+
+        private enum GamePhase
+        {
+            AwaitingInput,
+            Countdown,
+            Playing,
+            GameOver
+        }
+
         [Header("Scene References")]
         [SerializeField] private Camera gameCamera;
         [SerializeField] private DropperController dropper;
@@ -23,14 +38,35 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Text scoreText;
         [SerializeField] private Text feedbackText;
         [SerializeField] private Text timeText;
+        [SerializeField] private Text scoreMessageText;
+        [SerializeField] private Text jumpUnlockText;
+        [SerializeField] private Text startPromptText;
 
         [Header("Object Pool")]
-        [SerializeField, Min(1)] private int initialPoolSize = 48;
+        [SerializeField, Min(1)] private int initialPoolSize = 64;
 
         [Header("Score")]
         [SerializeField] private int goodItemScore = 100;
         [SerializeField] private int badItemPenalty = 150;
         [SerializeField, Range(0f, 1f)] private float badItemChance = 0.25f;
+
+        [Header("Jump Unlock")]
+        [SerializeField] private int jumpUnlockScore = 2000;
+        [SerializeField, Min(0f)] private float jumpUnlockMessageDuration = 3f;
+        [SerializeField] private string jumpUnlockMessage = "ジャンプ能力を獲得！";
+
+        [Header("Score Messages")]
+        [SerializeField] private ScoreMessageTier[] scoreMessageTiers =
+        {
+            new() { minimumScore = -1000000, message = "まだまだ！" },
+            new() { minimumScore = 1000, message = "こっから！" },
+            new() { minimumScore = 2000, message = "やるじゃん？" },
+            new() { minimumScore = 3000, message = "ええええ（ドン引き）" }
+        };
+
+        [Header("Start Sequence")]
+        [SerializeField] private string startPromptMessage = "大変！かよがピンチ！\n何かボタンを押して開始";
+        [SerializeField, Min(0.1f)] private float countdownStepDuration = 1f;
 
         [Header("Time and Difficulty")]
         [SerializeField, Min(1f)] private float gameDuration = 60f;
@@ -55,8 +91,11 @@ namespace Sousakusai8.MiniGame
         private int score;
         private string catchFeedback = string.Empty;
         private float feedbackVisibleUntil;
+        private float jumpUnlockVisibleUntil;
         private float remainingTime;
-        private bool isGameOver;
+        private float countdownRemaining;
+        private bool jumpUnlocked;
+        private GamePhase phase;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -69,7 +108,8 @@ namespace Sousakusai8.MiniGame
             maximumDropperSpeedMultiplier,
             GetDifficultyProgress());
         public float BadItemStackDuration => badItemStackDuration;
-        public bool IsGameRunning => !isGameOver;
+        public bool IsGameRunning => phase == GamePhase.Playing;
+        public bool CanPlayerJump => jumpUnlocked;
 
         private void Awake()
         {
@@ -153,12 +193,20 @@ namespace Sousakusai8.MiniGame
                     this);
             }
 
-            StartRound();
+            PrepareForStart();
         }
 
         private void Update()
         {
-            if (!isGameOver)
+            if (phase == GamePhase.AwaitingInput && WasAnyStartButtonPressed())
+            {
+                BeginCountdown();
+            }
+            else if (phase == GamePhase.Countdown)
+            {
+                UpdateCountdown();
+            }
+            else if (phase == GamePhase.Playing)
             {
                 remainingTime = Mathf.Max(0f, remainingTime - Time.deltaTime);
                 UpdateTimeText();
@@ -168,16 +216,22 @@ namespace Sousakusai8.MiniGame
                 }
             }
 
-            if (!isGameOver && feedbackText != null && feedbackText.gameObject.activeSelf &&
+            if (phase == GamePhase.Playing && feedbackText != null && feedbackText.gameObject.activeSelf &&
                 Time.unscaledTime >= feedbackVisibleUntil)
             {
                 feedbackText.gameObject.SetActive(false);
+            }
+
+            if (jumpUnlockText != null && jumpUnlockText.gameObject.activeSelf &&
+                Time.unscaledTime >= jumpUnlockVisibleUntil)
+            {
+                jumpUnlockText.gameObject.SetActive(false);
             }
         }
 
         public void SpawnItems(Vector3 dropperPosition)
         {
-            if (isGameOver)
+            if (!IsGameRunning)
             {
                 return;
             }
@@ -270,6 +324,12 @@ namespace Sousakusai8.MiniGame
             catchFeedback = difference > 0 ? $"+{difference}" : difference.ToString();
             feedbackVisibleUntil = Time.unscaledTime + 0.55f;
             ShowFeedback();
+            UpdateScoreMessage();
+
+            if (!jumpUnlocked && score >= jumpUnlockScore)
+            {
+                UnlockJump();
+            }
         }
 
         public float GetLeftEdge(float objectHalfWidth)
@@ -360,6 +420,7 @@ namespace Sousakusai8.MiniGame
 
             scoreText.text = $"SCORE  {score}";
             UpdateTimeText();
+            UpdateScoreMessage();
         }
 
         private void ShowFeedback()
@@ -387,24 +448,90 @@ namespace Sousakusai8.MiniGame
             scoreText ??= hud.Find("Score Text")?.GetComponent<Text>();
             feedbackText ??= hud.Find("Feedback Text")?.GetComponent<Text>();
             timeText ??= hud.Find("Time Text")?.GetComponent<Text>();
+            scoreMessageText ??= hud.Find("Score Message Text")?.GetComponent<Text>();
+            jumpUnlockText ??= hud.Find("Jump Unlock Text")?.GetComponent<Text>();
+            startPromptText ??= hud.Find("Start Prompt Text")?.GetComponent<Text>();
         }
 
         private bool HasHudReferences()
         {
-            return scoreText != null && feedbackText != null && timeText != null;
+            return scoreText != null && feedbackText != null && timeText != null &&
+                scoreMessageText != null && jumpUnlockText != null && startPromptText != null;
+        }
+
+        private void PrepareForStart()
+        {
+            score = 0;
+            jumpUnlocked = score >= jumpUnlockScore;
+            remainingTime = gameDuration;
+            phase = GamePhase.AwaitingInput;
+            RefreshHud();
+
+            if (feedbackText != null)
+            {
+                feedbackText.gameObject.SetActive(false);
+            }
+
+            if (jumpUnlockText != null)
+            {
+                jumpUnlockText.gameObject.SetActive(false);
+            }
+
+            if (startPromptText != null)
+            {
+                startPromptText.text = startPromptMessage;
+                startPromptText.gameObject.SetActive(true);
+            }
+        }
+
+        private void BeginCountdown()
+        {
+            phase = GamePhase.Countdown;
+            countdownRemaining = 3f * countdownStepDuration;
+            UpdateCountdownText();
+        }
+
+        private void UpdateCountdown()
+        {
+            countdownRemaining = Mathf.Max(0f, countdownRemaining - Time.unscaledDeltaTime);
+            if (countdownRemaining <= 0f)
+            {
+                StartRound();
+                return;
+            }
+
+            UpdateCountdownText();
+        }
+
+        private void UpdateCountdownText()
+        {
+            if (startPromptText != null)
+            {
+                int number = Mathf.Clamp(
+                    Mathf.CeilToInt(countdownRemaining / countdownStepDuration),
+                    1,
+                    3);
+                startPromptText.text = number.ToString();
+            }
         }
 
         private void StartRound()
         {
             remainingTime = gameDuration;
-            isGameOver = false;
+            phase = GamePhase.Playing;
+            if (startPromptText != null)
+            {
+                startPromptText.gameObject.SetActive(false);
+            }
+
+            dropper?.BeginRound();
             RefreshHud();
         }
 
         private void EndRound()
         {
             remainingTime = 0f;
-            isGameOver = true;
+            phase = GamePhase.GameOver;
             ClearActiveItems();
             catchFeedback = "TIME UP";
             if (feedbackText != null)
@@ -438,6 +565,54 @@ namespace Sousakusai8.MiniGame
             {
                 timeText.text = $"TIME  {Mathf.CeilToInt(remainingTime)}";
             }
+        }
+
+        private void UpdateScoreMessage()
+        {
+            if (scoreMessageText == null || scoreMessageTiers == null || scoreMessageTiers.Length == 0)
+            {
+                return;
+            }
+
+            string selectedMessage = string.Empty;
+            int selectedThreshold = int.MinValue;
+            foreach (ScoreMessageTier tier in scoreMessageTiers)
+            {
+                if (tier != null && score >= tier.minimumScore && tier.minimumScore >= selectedThreshold)
+                {
+                    selectedThreshold = tier.minimumScore;
+                    selectedMessage = tier.message;
+                }
+            }
+
+            scoreMessageText.text = selectedMessage;
+        }
+
+        private void UnlockJump()
+        {
+            jumpUnlocked = true;
+            if (jumpUnlockText == null)
+            {
+                return;
+            }
+
+            jumpUnlockText.text = jumpUnlockMessage;
+            jumpUnlockText.gameObject.SetActive(true);
+            jumpUnlockVisibleUntil = Time.unscaledTime + jumpUnlockMessageDuration;
+        }
+
+        private static bool WasAnyStartButtonPressed()
+        {
+            if (UnityEngine.InputSystem.Keyboard.current?.anyKey.wasPressedThisFrame == true)
+            {
+                return true;
+            }
+
+            UnityEngine.InputSystem.Mouse mouse = UnityEngine.InputSystem.Mouse.current;
+            return mouse != null &&
+                (mouse.leftButton.wasPressedThisFrame ||
+                 mouse.rightButton.wasPressedThisFrame ||
+                 mouse.middleButton.wasPressedThisFrame);
         }
 
         private void ClearActiveItems()
