@@ -1,10 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class Chapter1SearchController : MonoBehaviour
@@ -27,6 +29,16 @@ public sealed class Chapter1SearchController : MonoBehaviour
     [SerializeField]
     private TMP_FontAsset uiFont;
 
+    [Header("Completion Transition")]
+    [SerializeField, Min(0f)]
+    private float fadeOutDuration = 2.5f;
+
+    [SerializeField, Min(0f)]
+    private float postFadeDelay = 2f;
+
+    [SerializeField]
+    private string completionSceneName = "NovelScene";
+
     private readonly HashSet<string> acquiredItemIds =
         new HashSet<string>(StringComparer.Ordinal);
     private readonly List<ItemDefinition> items = new List<ItemDefinition>();
@@ -44,9 +56,11 @@ public sealed class Chapter1SearchController : MonoBehaviour
     private AspectRatioFitter modalStillAspect;
     private TMP_Text modalTitle;
     private TMP_Text savedMessage;
+    private Image completionFadeOverlay;
     private int modalOpenedFrame = -1;
     private RoomView currentRoom = RoomView.Room1;
     private bool isModalOpen;
+    private bool isCompleting;
     private bool cursorStateCaptured;
     private CursorLockMode previousCursorLock;
     private bool previousCursorVisible;
@@ -74,11 +88,16 @@ public sealed class Chapter1SearchController : MonoBehaviour
         EnsureEventSystem();
         BuildUI();
         ShowRoom(RoomView.Room1);
+
+        if (HasAcquiredAllItems())
+        {
+            BeginCompletionTransition();
+        }
     }
 
     private void Update()
     {
-        if (!isModalOpen || ArchiveManager.IsOpen)
+        if (isCompleting || !isModalOpen || ArchiveManager.IsOpen)
         {
             return;
         }
@@ -107,6 +126,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
     internal bool CanInspect(string itemId)
     {
         return !isModalOpen &&
+            !isCompleting &&
             !ArchiveManager.IsOpen &&
             !acquiredItemIds.Contains(itemId);
     }
@@ -269,6 +289,13 @@ public sealed class Chapter1SearchController : MonoBehaviour
         BuildNavigation(canvasObject.transform);
         BuildHeader(canvasObject.transform);
         BuildModal(canvasObject.transform);
+
+        completionFadeOverlay = CreateImage(
+            "CompletionFadeOverlay",
+            canvasObject.transform,
+            new Color(0f, 0f, 0f, 0f),
+            false).GetComponent<Image>();
+        Stretch(completionFadeOverlay.rectTransform);
     }
 
     private void BuildNavigation(Transform parent)
@@ -484,7 +511,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
     private void ShowRoom(RoomView room)
     {
-        if (isModalOpen)
+        if (isModalOpen || isCompleting)
         {
             return;
         }
@@ -505,7 +532,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
             bool visible = item != null &&
                 item.Room == currentRoom &&
                 !acquiredItemIds.Contains(item.Id) &&
-                !isModalOpen;
+                !isModalOpen &&
+                !isCompleting;
             hotspot.SetAvailable(visible);
         }
     }
@@ -530,7 +558,72 @@ public sealed class Chapter1SearchController : MonoBehaviour
     {
         isModalOpen = false;
         modalRoot.SetActive(false);
+
+        if (HasAcquiredAllItems())
+        {
+            BeginCompletionTransition();
+            return;
+        }
+
         ShowRoom(currentRoom);
+    }
+
+    private bool HasAcquiredAllItems()
+    {
+        return items.Count > 0 &&
+            items.TrueForAll(item => acquiredItemIds.Contains(item.Id));
+    }
+
+    private void BeginCompletionTransition()
+    {
+        if (isCompleting)
+        {
+            return;
+        }
+
+        isCompleting = true;
+        ArchiveManager.Close();
+        canvas.sortingOrder = short.MaxValue;
+        leftArrow.gameObject.SetActive(false);
+        rightArrow.gameObject.SetActive(false);
+        roomIndicator.gameObject.SetActive(false);
+        RefreshHotspots();
+
+        completionFadeOverlay.raycastTarget = true;
+        completionFadeOverlay.transform.SetAsLastSibling();
+        StartCoroutine(CompleteSearchSequence());
+    }
+
+    private IEnumerator CompleteSearchSequence()
+    {
+        float duration = Mathf.Max(0f, fadeOutDuration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float alpha = duration <= 0f ? 1f : Mathf.Clamp01(elapsed / duration);
+            completionFadeOverlay.color = new Color(0f, 0f, 0f, alpha);
+            yield return null;
+        }
+
+        completionFadeOverlay.color = Color.black;
+
+        if (postFadeDelay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(postFadeDelay);
+        }
+
+        if (!Application.CanStreamedLevelBeLoaded(completionSceneName))
+        {
+            Debug.LogError(
+                $"遷移先シーン '{completionSceneName}' がBuild Settingsに登録されていません。",
+                this);
+            yield break;
+        }
+
+        ArchiveManager.Close();
+        SceneManager.LoadScene(completionSceneName, LoadSceneMode.Single);
     }
 
     private void LoadProgress()
