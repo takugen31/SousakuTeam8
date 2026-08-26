@@ -21,7 +21,8 @@ namespace Sousakusai8.MiniGame
         private bool stackedAtBottom;
         private float stackedUntil;
         private Sprite stackedVisualSprite;
-        private float stackedVisualScale = 1f;
+        private Vector2 stackedVisualSize;
+        private Vector2 currentTargetSize;
         private string pooledName;
 
         public string PooledName => pooledName;
@@ -38,7 +39,8 @@ namespace Sousakusai8.MiniGame
             FallingItemKind itemKind,
             float speed,
             Sprite pairedStackedSprite = null,
-            float pairedVisualScale = 1f)
+            Vector2 pairedStackedSize = default,
+            Vector2 fallingTargetSize = default)
         {
             game = controller;
             catcher = playerCatcher;
@@ -50,7 +52,9 @@ namespace Sousakusai8.MiniGame
             stackedAtBottom = false;
             stackedUntil = 0f;
             stackedVisualSprite = pairedStackedSprite;
-            stackedVisualScale = pairedVisualScale;
+            stackedVisualSize = pairedStackedSize;
+            currentTargetSize = fallingTargetSize;
+            ApplyCurrentTargetSize();
         }
 
         private void Update()
@@ -59,6 +63,8 @@ namespace Sousakusai8.MiniGame
             {
                 return;
             }
+
+            ApplyCurrentTargetSize();
 
             if (spriteRenderer.bounds.Intersects(catcher.CatchBounds))
             {
@@ -120,7 +126,9 @@ namespace Sousakusai8.MiniGame
             }
 
             Vector2 nativeSize = stackedSprite.bounds.size;
-            Vector2 targetSize = game.StackedBadItemSize * stackedVisualScale;
+            Vector2 targetSize = stackedVisualSize.x > 0f && stackedVisualSize.y > 0f
+                ? stackedVisualSize
+                : game.StackedBadItemSize;
             if (nativeSize.x <= 0f || nativeSize.y <= 0f ||
                 targetSize.x <= 0f || targetSize.y <= 0f)
             {
@@ -130,10 +138,32 @@ namespace Sousakusai8.MiniGame
             spriteRenderer.sprite = stackedSprite;
             spriteRenderer.color = Color.white;
             spriteRenderer.drawMode = SpriteDrawMode.Simple;
+            currentTargetSize = targetSize;
+            ApplyCurrentTargetSize();
+        }
 
+        private void ApplyCurrentTargetSize()
+        {
+            if (spriteRenderer == null || spriteRenderer.sprite == null ||
+                currentTargetSize.x <= 0f || currentTargetSize.y <= 0f)
+            {
+                return;
+            }
+
+            Vector2 nativeSize = spriteRenderer.sprite.bounds.size;
+            if (nativeSize.x <= 0f || nativeSize.y <= 0f)
+            {
+                return;
+            }
+
+            Vector3 parentScale = transform.parent != null
+                ? transform.parent.lossyScale
+                : Vector3.one;
+            float parentScaleX = Mathf.Max(Mathf.Abs(parentScale.x), 0.0001f);
+            float parentScaleY = Mathf.Max(Mathf.Abs(parentScale.y), 0.0001f);
             float uniformScale = Mathf.Min(
-                targetSize.x / nativeSize.x,
-                targetSize.y / nativeSize.y);
+                currentTargetSize.x / (nativeSize.x * parentScaleX),
+                currentTargetSize.y / (nativeSize.y * parentScaleY));
             transform.localScale = new Vector3(uniformScale, uniformScale, 1f);
         }
     }

@@ -35,7 +35,12 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Transform itemPoolRoot;
         [SerializeField] private SpriteRenderer[] goodItemVisuals;
         [SerializeField] private SpriteRenderer[] badItemVisuals;
-        [SerializeField] private float[] badItemVisualScaleMultipliers = { 1.5f, 1f, 1.5f };
+        [SerializeField] private Vector2[] badItemFallingSizes =
+        {
+            new(0.93f, 0.93f),
+            new(0.93f, 0.93f),
+            new(0.93f, 0.93f)
+        };
 
         [Header("Falling Item Visual Size")]
         [SerializeField] private Vector2 fallingItemSize = new(0.62f, 0.62f);
@@ -44,6 +49,12 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Sprite stackedBadItemSprite;
         [SerializeField] private Sprite[] stackedBadItemSprites;
         [SerializeField] private Vector2 stackedBadItemSize = new(1.4f, 0.85f);
+        [SerializeField] private Vector2[] stackedBadItemSizes =
+        {
+            new(2.1f, 1.275f),
+            new(2.1f, 1.275f),
+            new(2.1f, 1.275f)
+        };
 
         [Header("Rendering Quality")]
         [SerializeField] private bool forceHighestQualityLevel = true;
@@ -387,7 +398,12 @@ namespace Sousakusai8.MiniGame
             SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
             int visualIndex = Random.Range(0, candidates.Length);
             SpriteRenderer sourceVisual = candidates[visualIndex];
-            float badVisualScale = isBad ? GetBadItemVisualScale(visualIndex) : 1f;
+            Vector2 badFallingSize = isBad
+                ? GetBadItemSize(badItemFallingSizes, visualIndex, fallingItemSize)
+                : fallingItemSize;
+            Vector2 badStackedSize = isBad
+                ? GetBadItemSize(stackedBadItemSizes, visualIndex, stackedBadItemSize)
+                : stackedBadItemSize;
             Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
 
             FallingItem item = GetPooledItem();
@@ -405,12 +421,14 @@ namespace Sousakusai8.MiniGame
                 ApplySimpleSpriteSize(
                     spriteRenderer,
                     itemObject.transform,
-                    fallingItemSize * badVisualScale);
+                    badFallingSize);
             }
             else
             {
-                spriteRenderer.drawMode = SpriteDrawMode.Sliced;
-                spriteRenderer.size = fallingItemSize;
+                ApplySimpleSpriteSize(
+                    spriteRenderer,
+                    itemObject.transform,
+                    fallingItemSize);
             }
 
             item.Initialize(
@@ -419,20 +437,24 @@ namespace Sousakusai8.MiniGame
                 kind,
                 Random.Range(minimumFallSpeed, maximumFallSpeed),
                 isBad ? GetStackedBadItemSprite(visualIndex) : null,
-                badVisualScale);
+                badStackedSize,
+                isBad ? badFallingSize : fallingItemSize);
             itemObject.SetActive(true);
         }
 
-        private float GetBadItemVisualScale(int visualIndex)
+        private static Vector2 GetBadItemSize(
+            Vector2[] sizes,
+            int visualIndex,
+            Vector2 fallbackSize)
         {
-            if (badItemVisualScaleMultipliers != null &&
-                visualIndex >= 0 && visualIndex < badItemVisualScaleMultipliers.Length &&
-                badItemVisualScaleMultipliers[visualIndex] > 0f)
+            if (sizes != null &&
+                visualIndex >= 0 && visualIndex < sizes.Length &&
+                sizes[visualIndex].x > 0f && sizes[visualIndex].y > 0f)
             {
-                return badItemVisualScaleMultipliers[visualIndex];
+                return sizes[visualIndex];
             }
 
-            return 1f;
+            return fallbackSize;
         }
 
         private Sprite GetStackedBadItemSprite(int visualIndex)
