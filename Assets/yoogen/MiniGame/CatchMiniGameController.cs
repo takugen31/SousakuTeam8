@@ -38,7 +38,7 @@ namespace Sousakusai8.MiniGame
 
         [Header("Rendering Quality")]
         [SerializeField] private bool forceHighestQualityLevel = true;
-        [SerializeField, Range(1f, 2f)] private float renderScale = 1.5f;
+        [SerializeField, Range(1f, 2f)] private float renderScale = 2f;
         [SerializeField] private int antiAliasingSamples = 4;
 
         [Header("UI References")]
@@ -47,7 +47,13 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Text timeText;
         [SerializeField] private Text scoreMessageText;
         [SerializeField] private Text jumpUnlockText;
+        [SerializeField] private Text sweepUnlockText;
         [SerializeField] private Text startPromptText;
+        [SerializeField] private GameObject gameOverPanel;
+        [SerializeField] private Image resultPortrait;
+        [SerializeField] private Text resultScoreText;
+        [SerializeField] private Text resultDialogueText;
+        [SerializeField] private Text resultCountsText;
 
         [Header("Object Pool")]
         [SerializeField, Min(1)] private int initialPoolSize = 64;
@@ -60,20 +66,30 @@ namespace Sousakusai8.MiniGame
         [Header("Jump Unlock")]
         [SerializeField] private int jumpUnlockScore = 2000;
         [SerializeField, Min(0f)] private float jumpUnlockMessageDuration = 3f;
-        [SerializeField] private string jumpUnlockMessage = "ジャンプ能力を獲得！";
+        [SerializeField] private string jumpUnlockMessage = "\"ジャンプ\"を獲得!";
+
+        [Header("Sweep Unlock")]
+        [SerializeField] private int sweepUnlockScore = 6000;
+        [SerializeField, Min(0)] private int sweepScoreCost = 200;
+        [SerializeField, Min(0f)] private float sweepCooldown = 10f;
+        [SerializeField, Min(0f)] private float sweepUnlockMessageDuration = 3f;
+        [SerializeField] private string sweepUnlockMessage = "\"一掃\"を獲得!";
 
         [Header("Score Messages")]
         [SerializeField] private ScoreMessageTier[] scoreMessageTiers =
         {
-            new() { minimumScore = -1000000, message = "まだまだ！" },
+            new() { minimumScore = -1000000, message = "まだまだ!" },
             new() { minimumScore = 1000, message = "こっから！" },
             new() { minimumScore = 2000, message = "やるじゃん？" },
             new() { minimumScore = 3000, message = "ええええ（ドン引き）" }
         };
 
         [Header("Start Sequence")]
-        [SerializeField] private string startPromptMessage = "大変！かよがピンチ！\n何かボタンを押して開始";
+        [SerializeField] private string startPromptMessage = "大変！かよがピンチ！";
         [SerializeField, Min(0.1f)] private float countdownStepDuration = 1f;
+
+        [Header("Game Over Presentation")]
+        [SerializeField] private string resultDialogue = "助かったよ！ありがとう！";
 
         [Header("Time and Difficulty")]
         [SerializeField, Min(1f)] private float gameDuration = 100f;
@@ -96,12 +112,17 @@ namespace Sousakusai8.MiniGame
         private readonly Queue<FallingItem> availableItems = new();
         private int nextPoolNumber = 1;
         private int score;
+        private int collectedGoodItemCount;
+        private int collectedBadItemCount;
         private string catchFeedback = string.Empty;
         private float feedbackVisibleUntil;
         private float jumpUnlockVisibleUntil;
+        private float sweepUnlockVisibleUntil;
+        private float nextSweepAvailableTime;
         private float remainingTime;
         private float countdownRemaining;
         private bool jumpUnlocked;
+        private bool sweepUnlocked;
         private GamePhase phase;
         private int originalQualityLevel;
         private int originalTextureMipmapLimit;
@@ -230,6 +251,11 @@ namespace Sousakusai8.MiniGame
                 {
                     EndRound();
                 }
+
+                if (phase == GamePhase.Playing && sweepUnlocked && WasSweepPressed())
+                {
+                    TryUseSweep();
+                }
             }
 
             if (phase == GamePhase.Playing && feedbackText != null && feedbackText.gameObject.activeSelf &&
@@ -242,6 +268,12 @@ namespace Sousakusai8.MiniGame
                 Time.unscaledTime >= jumpUnlockVisibleUntil)
             {
                 jumpUnlockText.gameObject.SetActive(false);
+            }
+
+            if (sweepUnlockText != null && sweepUnlockText.gameObject.activeSelf &&
+                Time.unscaledTime >= sweepUnlockVisibleUntil)
+            {
+                sweepUnlockText.gameObject.SetActive(false);
             }
         }
 
@@ -389,6 +421,15 @@ namespace Sousakusai8.MiniGame
         {
             bool isGood = kind == FallingItemKind.Good;
             int difference = isGood ? goodItemScore : -badItemPenalty;
+            if (isGood)
+            {
+                collectedGoodItemCount++;
+            }
+            else
+            {
+                collectedBadItemCount++;
+            }
+
             score += difference;
             catchFeedback = difference > 0 ? $"+{difference}" : difference.ToString();
             feedbackVisibleUntil = Time.unscaledTime + 0.55f;
@@ -398,6 +439,11 @@ namespace Sousakusai8.MiniGame
             if (!jumpUnlocked && score >= jumpUnlockScore)
             {
                 UnlockJump();
+            }
+
+            if (!sweepUnlocked && score >= sweepUnlockScore)
+            {
+                UnlockSweep();
             }
         }
 
@@ -487,7 +533,7 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
-            scoreText.text = $"SCORE  {score}";
+            scoreText.text = $"スコア  {score}";
             UpdateTimeText();
             UpdateScoreMessage();
         }
@@ -496,7 +542,7 @@ namespace Sousakusai8.MiniGame
         {
             if (scoreText != null)
             {
-                scoreText.text = $"SCORE  {score}";
+                scoreText.text = $"スコア  {score}";
             }
 
             if (feedbackText != null)
@@ -519,19 +565,35 @@ namespace Sousakusai8.MiniGame
             timeText ??= hud.Find("Time Text")?.GetComponent<Text>();
             scoreMessageText ??= hud.Find("Score Message Text")?.GetComponent<Text>();
             jumpUnlockText ??= hud.Find("Jump Unlock Text")?.GetComponent<Text>();
+            sweepUnlockText ??= hud.Find("Sweep Unlock Text")?.GetComponent<Text>();
             startPromptText ??= hud.Find("Start Prompt Text")?.GetComponent<Text>();
+            Transform resultRoot = hud.Find("Game Over UI");
+            if (resultRoot != null)
+            {
+                gameOverPanel ??= resultRoot.gameObject;
+                resultPortrait ??= resultRoot.Find("Game Over Portrait")?.GetComponent<Image>();
+                resultScoreText ??= resultRoot.Find("Final Score Text")?.GetComponent<Text>();
+                resultDialogueText ??= resultRoot.Find("Final Dialogue Text")?.GetComponent<Text>();
+                resultCountsText ??= resultRoot.Find("Final Counts Text")?.GetComponent<Text>();
+            }
         }
 
         private bool HasHudReferences()
         {
             return scoreText != null && feedbackText != null && timeText != null &&
-                scoreMessageText != null && jumpUnlockText != null && startPromptText != null;
+                scoreMessageText != null && jumpUnlockText != null && sweepUnlockText != null &&
+                startPromptText != null && gameOverPanel != null && resultPortrait != null &&
+                resultScoreText != null && resultDialogueText != null && resultCountsText != null;
         }
 
         private void PrepareForStart()
         {
             score = 0;
+            collectedGoodItemCount = 0;
+            collectedBadItemCount = 0;
             jumpUnlocked = score >= jumpUnlockScore;
+            sweepUnlocked = score >= sweepUnlockScore;
+            nextSweepAvailableTime = 0f;
             remainingTime = gameDuration;
             phase = GamePhase.AwaitingInput;
             RefreshHud();
@@ -546,10 +608,20 @@ namespace Sousakusai8.MiniGame
                 jumpUnlockText.gameObject.SetActive(false);
             }
 
+            if (sweepUnlockText != null)
+            {
+                sweepUnlockText.gameObject.SetActive(false);
+            }
+
             if (startPromptText != null)
             {
                 startPromptText.text = startPromptMessage;
                 startPromptText.gameObject.SetActive(true);
+            }
+
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(false);
             }
         }
 
@@ -602,14 +674,39 @@ namespace Sousakusai8.MiniGame
             remainingTime = 0f;
             phase = GamePhase.GameOver;
             ClearActiveItems();
-            catchFeedback = "TIME UP";
             if (feedbackText != null)
             {
-                feedbackText.text = catchFeedback;
-                feedbackText.gameObject.SetActive(true);
+                feedbackText.gameObject.SetActive(false);
             }
 
             UpdateTimeText();
+            ShowGameOverPresentation();
+        }
+
+        private void ShowGameOverPresentation()
+        {
+            if (gameOverPanel == null)
+            {
+                return;
+            }
+
+            if (resultScoreText != null)
+            {
+                resultScoreText.text = $"あなたのスコア\n{score}";
+            }
+
+            if (resultDialogueText != null)
+            {
+                resultDialogueText.text = resultDialogue;
+            }
+
+            if (resultCountsText != null)
+            {
+                resultCountsText.text =
+                    $"取得した黄色  {collectedGoodItemCount}個\n取得した赤     {collectedBadItemCount}個";
+            }
+
+            gameOverPanel.SetActive(true);
         }
 
         private int GetCurrentSpawnCount()
@@ -632,7 +729,7 @@ namespace Sousakusai8.MiniGame
         {
             if (timeText != null)
             {
-                timeText.text = $"TIME  {Mathf.CeilToInt(remainingTime)}";
+                timeText.text = $"残り  {Mathf.CeilToInt(remainingTime)}";
             }
         }
 
@@ -668,6 +765,86 @@ namespace Sousakusai8.MiniGame
             jumpUnlockText.text = jumpUnlockMessage;
             jumpUnlockText.gameObject.SetActive(true);
             jumpUnlockVisibleUntil = Time.unscaledTime + jumpUnlockMessageDuration;
+        }
+
+        private void UnlockSweep()
+        {
+            sweepUnlocked = true;
+            if (sweepUnlockText == null)
+            {
+                return;
+            }
+
+            sweepUnlockText.text = sweepUnlockMessage;
+            sweepUnlockText.gameObject.SetActive(true);
+            sweepUnlockVisibleUntil = Time.unscaledTime + sweepUnlockMessageDuration;
+        }
+
+        private void TryUseSweep()
+        {
+            float cooldownRemaining = nextSweepAvailableTime - Time.unscaledTime;
+            if (cooldownRemaining > 0f)
+            {
+                ShowStatusFeedback($"一掃 再使用まで {Mathf.CeilToInt(cooldownRemaining)}秒");
+                return;
+            }
+
+            int clearedCount = ClearStackedBadItems();
+            if (clearedCount == 0)
+            {
+                ShowStatusFeedback("地面の赤オブジェクトなし");
+                return;
+            }
+
+            score -= sweepScoreCost;
+            nextSweepAvailableTime = Time.unscaledTime + sweepCooldown;
+            catchFeedback = $"一掃！  -{sweepScoreCost}";
+            feedbackVisibleUntil = Time.unscaledTime + 0.9f;
+            ShowFeedback();
+            UpdateScoreMessage();
+        }
+
+        private void ShowStatusFeedback(string message)
+        {
+            catchFeedback = message;
+            feedbackVisibleUntil = Time.unscaledTime + 0.9f;
+            ShowFeedback();
+        }
+
+        private int ClearStackedBadItems()
+        {
+            if (spawnedItemsRoot == null)
+            {
+                return 0;
+            }
+
+            int clearedCount = 0;
+            FallingItem[] activeItems = spawnedItemsRoot.GetComponentsInChildren<FallingItem>(true);
+            foreach (FallingItem item in activeItems)
+            {
+                if (!item.IsStackedBad)
+                {
+                    continue;
+                }
+
+                ReleaseItem(item);
+                clearedCount++;
+            }
+
+            return clearedCount;
+        }
+
+        private static bool WasSweepPressed()
+        {
+            UnityEngine.InputSystem.Keyboard keyboard = UnityEngine.InputSystem.Keyboard.current;
+            if (keyboard != null &&
+                (keyboard.leftShiftKey.wasPressedThisFrame ||
+                 keyboard.rightShiftKey.wasPressedThisFrame))
+            {
+                return true;
+            }
+
+            return UnityEngine.InputSystem.Mouse.current?.rightButton.wasPressedThisFrame == true;
         }
 
         private static bool WasAnyStartButtonPressed()

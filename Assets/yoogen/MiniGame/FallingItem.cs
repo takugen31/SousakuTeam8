@@ -23,6 +23,7 @@ namespace Sousakusai8.MiniGame
         private string pooledName;
 
         public string PooledName => pooledName;
+        public bool IsStackedBad => kind == FallingItemKind.Bad && stackedAtBottom && !resolved;
 
         public void SetPooledName(string value)
         {
