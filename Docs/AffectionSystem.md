@@ -40,6 +40,8 @@ flowchart TD
     Importer --> Scenario["DialogueScenarioSO"]
 
     Scenario --> Line["DialogueLine"]
+    Scenario --> DefaultBackground["Default Background（チャプター既定背景）"]
+    Line --> Background["background（セリフ単位の背景上書き）"]
     Line --> Choice["choices（プレイヤー選択）"]
     Line --> Branch["branches（好感度条件）"]
     Line --> Delta1["affectionChanges"]
@@ -52,6 +54,8 @@ flowchart TD
 ```
 
 - `DialogueLine.affectionChanges` は、そのセリフが**表示されたとき**に好感度へ適用されます。
+- `DialogueScenarioSO.DefaultBackground` は、チャプター開始時に表示される既定背景です。
+- `DialogueLine.background` は、設定されたセリフの表示時に現在の背景を上書きします。
 - `DialogueLine.choices` は、セリフの表示完了後にプレイヤーへ表示されます。
 - `DialogueLine.branches` は、そのセリフの**次に進むとき**に評価され、条件を満たした分岐先へ移動します。
 - 分岐の選択時に `DialogueBranch.affectionChanges` が追加で適用されます。
@@ -135,6 +139,7 @@ flowchart TD
 
 | フィールド | 型 | 説明 |
 | --- | --- | --- |
+| `background` | `Sprite` | そのセリフ表示時に切り替える背景。未設定なら現在の背景を維持 |
 | `choices` | `List<DialogueChoice>` | プレイヤーが選ぶ表示文と遷移先 |
 | `affectionChanges` | `List<AffectionDelta>` | 表示時に適用する好感度の増減 |
 | `branches` | `List<DialogueBranch>` | 好感度による分岐リスト（先頭から評価） |
@@ -160,17 +165,33 @@ flowchart TD
 3. 好感度分岐が無い・一致しない場合は `nextLineId` へ移動
 4. `nextLineId` も空の場合は CSV 上の次の行へ移動
 
+チャプター開始時は `Default Background` へ切り替えられ、セリフに `background` が設定されている場合はその背景が上書き適用されます。
+
 ---
 
 ## 5. CSV フォーマット
 
-選択肢と好感度分岐を含むダイアログ CSV は次の列構成です。`choiceNText` / `choiceNNextLineId` は必要な数だけ追加でき、`affectionChanges` / `branches` は省略可能です。
+背景、選択肢、好感度分岐を含むダイアログ CSV は次の列構成です。`choiceNText` / `choiceNNextLineId` は必要な数だけ追加でき、`backgroundPath` / `affectionChanges` / `branches` は省略可能です。
 
 ```
-lineId,speakerId,expressionId,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches
 ```
 
-### 5.1 choices（プレイヤー選択）
+### 5.1 backgroundPath（背景切り替え）
+
+セリフ表示時に背景を切り替える場合は、`Assets/` から始まる背景Spriteのパスを設定します。
+
+```csv
+backgroundPath
+Assets/Art/Backgrounds/station_platform_twilight.png
+```
+
+- 空欄の場合は、直前まで表示していた背景を維持します。
+- チャプター開始時は、各 `DialogueScenarioSO` の `Default Background` が先に適用されます。
+- 最初のセリフの `backgroundPath` に値がある場合は、チャプター既定背景をさらに上書きします。
+- 画像の Unity Import Settings は `Texture Type: Sprite (2D and UI)` にしてください。
+
+### 5.2 choices（プレイヤー選択）
 
 `choiceNText` と `choiceNNextLineId` を同じ番号のペアで設定します。選択肢を設定した行の `nextLineId` と `branches` は空欄にしてください。
 
@@ -179,7 +200,7 @@ choice1Text,choice1NextLineId,choice2Text,choice2NextLineId
 駅へ行く,chapter1_station,公園へ行く,chapter1_park
 ```
 
-### 5.2 affectionChanges（好感度の増減）
+### 5.3 affectionChanges（好感度の増減）
 
 そのセリフが表示されたときに適用されます。`キャラクターID+値`（加算）または `キャラクターID-値`（減算）を `;` 区切りで並べます。
 
@@ -187,7 +208,7 @@ choice1Text,choice1NextLineId,choice2Text,choice2NextLineId
 kayo+5; doute-2
 ```
 
-### 5.3 branches（好感度による分岐）
+### 5.4 branches（好感度による分岐）
 
 `条件->遷移先セリフID` の形式で、`;` 区切りで並べます。条件は `キャラクターID 演算子 数値` です。
 
@@ -212,26 +233,27 @@ kayo>=5&doute>=3->special_ending
 | `==` | 等しい |
 | `!=` | 等しくない |
 
-### 5.4 記入例
+### 5.5 記入例
 
 ```csv
-lineId,speakerId,expressionId,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches
-prologue_001,kayo,normal,「今日はありがとう、デート楽しかったわ」,prologue_002,,,,,kayo+5,
-prologue_002,kayo,normal,どっちへ行く？,,駅へ行く,prologue_station,公園へ行く,prologue_park,,
-prologue_station,doute,normal,駅へ向かおう,prologue_check,,,,,doute+2,
-prologue_park,doute,normal,公園へ向かおう,prologue_check,,,,,doute+1,
-prologue_check,kayo,normal,それじゃあまたね,,,,,,,kayo>=5->prologue_good; kayo<5->prologue_bad
-prologue_good,kayo,normal,「……次も楽しみにしてる」,,,,,,,
-prologue_bad,kayo,normal,「また機会があったらね」,,,,,,,
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches
+prologue_001,kayo,normal,Assets/Art/Backgrounds/station_plaza_sunset.png,「今日はありがとう、デート楽しかったわ」,prologue_002,,,,,kayo+5,
+prologue_002,kayo,normal,,どっちへ行く？,,駅へ行く,prologue_station,公園へ行く,prologue_park,,
+prologue_station,doute,normal,Assets/Art/Backgrounds/station_platform_twilight.png,駅へ向かおう,prologue_check,,,,,doute+2,
+prologue_park,doute,normal,Assets/Art/Backgrounds/station_platform_twilight.png,公園へ向かおう,prologue_check,,,,,doute+1,
+prologue_check,kayo,normal,,それじゃあまたね,,,,,,,kayo>=5->prologue_good; kayo<5->prologue_bad
+prologue_good,kayo,normal,,「……次も楽しみにしてる」,,,,,,,
+prologue_bad,kayo,normal,,「また機会があったらね」,,,,,,,
 ```
 
 > 上記は例示です。実際のゲーム内容には合わせて調整してください。
 
-### 5.5 バリデーション
+### 5.6 バリデーション
 
 CSV インポート時に以下の検証が行われます。
 
 - `affectionChanges` / `branches` で参照するキャラクター ID が `Characters.csv` に存在すること
+- `backgroundPath` が存在する背景Spriteを参照していること
 - 選択肢の表示文と遷移先がペアで設定されていること
 - 選択肢の遷移先が同じダイアログ CSV 内に存在すること
 - 選択肢と好感度分岐が同じ行に同時設定されていないこと
@@ -248,7 +270,8 @@ CSV インポート時に以下の検証が行われます。
    - 必要に応じて `Min Value` / `Max Value` / `Initial Values` を設定します。
 3. `DontDestroyOnLoad` により、以降のシーンへ自動的に引き継がれます。
 4. `Tools > Dialogue > CSV Importer` を開き、CSV と出力先の ScriptableObject を設定してインポートします。
-5. `NovelDialogueController` の `Affection Manager` 欄は未設定でも動作します（`Instance` にフォールバック）。
+5. 各 `DialogueScenarioSO` の `Default Background` にチャプター開始時の背景を設定します。
+6. `NovelDialogueController` の `Affection Manager` 欄は未設定でも動作します（`Instance` にフォールバック）。
 
 > 新規追加したスクリプトの `.meta` ファイルは Unity が自動生成します。
 
