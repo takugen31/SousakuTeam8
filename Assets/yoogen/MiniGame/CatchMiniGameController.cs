@@ -35,6 +35,15 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Transform itemPoolRoot;
         [SerializeField] private SpriteRenderer[] goodItemVisuals;
         [SerializeField] private SpriteRenderer[] badItemVisuals;
+        [SerializeField] private float[] badItemVisualScaleMultipliers = { 1.5f, 1f, 1.5f };
+
+        [Header("Falling Item Visual Size")]
+        [SerializeField] private Vector2 fallingItemSize = new(0.62f, 0.62f);
+
+        [Header("Stacked Bad Item Visual")]
+        [SerializeField] private Sprite stackedBadItemSprite;
+        [SerializeField] private Sprite[] stackedBadItemSprites;
+        [SerializeField] private Vector2 stackedBadItemSize = new(1.4f, 0.85f);
 
         [Header("Rendering Quality")]
         [SerializeField] private bool forceHighestQualityLevel = true;
@@ -142,6 +151,9 @@ namespace Sousakusai8.MiniGame
             maximumDropperSpeedMultiplier,
             GetDifficultyProgress());
         public float BadItemStackDuration => badItemStackDuration;
+        public Vector2 FallingItemSize => fallingItemSize;
+        public Sprite StackedBadItemSprite => stackedBadItemSprite;
+        public Vector2 StackedBadItemSize => stackedBadItemSize;
         public bool IsGameRunning => phase == GamePhase.Playing;
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
@@ -373,7 +385,9 @@ namespace Sousakusai8.MiniGame
                 (Random.value < badItemChance ? FallingItemKind.Bad : FallingItemKind.Good);
             bool isBad = kind == FallingItemKind.Bad;
             SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
-            SpriteRenderer sourceVisual = candidates[Random.Range(0, candidates.Length)];
+            int visualIndex = Random.Range(0, candidates.Length);
+            SpriteRenderer sourceVisual = candidates[visualIndex];
+            float badVisualScale = isBad ? GetBadItemVisualScale(visualIndex) : 1f;
             Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
 
             FallingItem item = GetPooledItem();
@@ -382,17 +396,80 @@ namespace Sousakusai8.MiniGame
             itemObject.transform.SetParent(spawnedItemsRoot, false);
             itemObject.transform.position = spawnPosition;
             itemObject.transform.localRotation = sourceVisual.transform.localRotation;
-            itemObject.transform.localScale = sourceVisual.transform.localScale;
+            itemObject.transform.localScale = Vector3.one;
 
             SpriteRenderer spriteRenderer = itemObject.GetComponent<SpriteRenderer>();
             CopyVisual(sourceVisual, spriteRenderer);
+            if (isBad)
+            {
+                ApplySimpleSpriteSize(
+                    spriteRenderer,
+                    itemObject.transform,
+                    fallingItemSize * badVisualScale);
+            }
+            else
+            {
+                spriteRenderer.drawMode = SpriteDrawMode.Sliced;
+                spriteRenderer.size = fallingItemSize;
+            }
 
             item.Initialize(
                 this,
                 catcher,
                 kind,
-                Random.Range(minimumFallSpeed, maximumFallSpeed));
+                Random.Range(minimumFallSpeed, maximumFallSpeed),
+                isBad ? GetStackedBadItemSprite(visualIndex) : null,
+                badVisualScale);
             itemObject.SetActive(true);
+        }
+
+        private float GetBadItemVisualScale(int visualIndex)
+        {
+            if (badItemVisualScaleMultipliers != null &&
+                visualIndex >= 0 && visualIndex < badItemVisualScaleMultipliers.Length &&
+                badItemVisualScaleMultipliers[visualIndex] > 0f)
+            {
+                return badItemVisualScaleMultipliers[visualIndex];
+            }
+
+            return 1f;
+        }
+
+        private Sprite GetStackedBadItemSprite(int visualIndex)
+        {
+            if (stackedBadItemSprites != null &&
+                visualIndex >= 0 && visualIndex < stackedBadItemSprites.Length &&
+                stackedBadItemSprites[visualIndex] != null)
+            {
+                return stackedBadItemSprites[visualIndex];
+            }
+
+            return stackedBadItemSprite;
+        }
+
+        private static void ApplySimpleSpriteSize(
+            SpriteRenderer spriteRenderer,
+            Transform itemTransform,
+            Vector2 targetSize)
+        {
+            spriteRenderer.drawMode = SpriteDrawMode.Simple;
+            Sprite sprite = spriteRenderer.sprite;
+            if (sprite == null)
+            {
+                return;
+            }
+
+            Vector2 nativeSize = sprite.bounds.size;
+            if (nativeSize.x <= 0f || nativeSize.y <= 0f ||
+                targetSize.x <= 0f || targetSize.y <= 0f)
+            {
+                return;
+            }
+
+            float uniformScale = Mathf.Min(
+                targetSize.x / nativeSize.x,
+                targetSize.y / nativeSize.y);
+            itemTransform.localScale = new Vector3(uniformScale, uniformScale, 1f);
         }
 
         public void ReleaseItem(FallingItem item)
@@ -405,6 +482,8 @@ namespace Sousakusai8.MiniGame
             GameObject itemObject = item.gameObject;
             itemObject.SetActive(false);
             itemObject.name = item.PooledName;
+            itemObject.transform.localRotation = Quaternion.identity;
+            itemObject.transform.localScale = Vector3.one;
 
             if (itemPoolRoot == null)
             {

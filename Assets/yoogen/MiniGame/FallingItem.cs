@@ -20,6 +20,8 @@ namespace Sousakusai8.MiniGame
         private bool resolved;
         private bool stackedAtBottom;
         private float stackedUntil;
+        private Sprite stackedVisualSprite;
+        private float stackedVisualScale = 1f;
         private string pooledName;
 
         public string PooledName => pooledName;
@@ -34,7 +36,9 @@ namespace Sousakusai8.MiniGame
             CatchMiniGameController controller,
             PlayerCatcherController playerCatcher,
             FallingItemKind itemKind,
-            float speed)
+            float speed,
+            Sprite pairedStackedSprite = null,
+            float pairedVisualScale = 1f)
         {
             game = controller;
             catcher = playerCatcher;
@@ -45,6 +49,8 @@ namespace Sousakusai8.MiniGame
             resolved = false;
             stackedAtBottom = false;
             stackedUntil = 0f;
+            stackedVisualSprite = pairedStackedSprite;
+            stackedVisualScale = pairedVisualScale;
         }
 
         private void Update()
@@ -77,7 +83,7 @@ namespace Sousakusai8.MiniGame
             transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
 
             if (kind == FallingItemKind.Bad &&
-                spriteRenderer.bounds.center.y <= catcher.GroundY)
+                spriteRenderer.bounds.min.y <= catcher.GroundY)
             {
                 StackAtBottom();
                 return;
@@ -95,11 +101,40 @@ namespace Sousakusai8.MiniGame
             stackedAtBottom = true;
             stackedUntil = Time.time + game.BadItemStackDuration;
             gameObject.name = "Stacked Bad Item";
+            transform.rotation = Quaternion.identity;
+            ApplyStackedVisual();
             transform.position = new Vector3(
                 transform.position.x,
                 catcher.GroundY,
                 transform.position.z);
-            transform.rotation = Quaternion.identity;
+        }
+
+        private void ApplyStackedVisual()
+        {
+            Sprite stackedSprite = stackedVisualSprite != null
+                ? stackedVisualSprite
+                : game.StackedBadItemSprite;
+            if (stackedSprite == null)
+            {
+                return;
+            }
+
+            Vector2 nativeSize = stackedSprite.bounds.size;
+            Vector2 targetSize = game.StackedBadItemSize * stackedVisualScale;
+            if (nativeSize.x <= 0f || nativeSize.y <= 0f ||
+                targetSize.x <= 0f || targetSize.y <= 0f)
+            {
+                return;
+            }
+
+            spriteRenderer.sprite = stackedSprite;
+            spriteRenderer.color = Color.white;
+            spriteRenderer.drawMode = SpriteDrawMode.Simple;
+
+            float uniformScale = Mathf.Min(
+                targetSize.x / nativeSize.x,
+                targetSize.y / nativeSize.y);
+            transform.localScale = new Vector3(uniformScale, uniformScale, 1f);
         }
     }
 }

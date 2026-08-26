@@ -1,22 +1,16 @@
 fileFormatVersion: 2
-guid: d0af47f53b17fce4cbfbbfe6f78b7269
+guid: f6341e19e3a37f340bb056ec733c85d1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3965640568819358984
-    second: flower_vase_broken_pop_0
+      213: 484178133816046619
+    second: flower_vase_turquoise_broken_0
   - first:
-      213: 7066798427138311788
-    second: flower_vase_broken_pop_1
+      213: 1208879468930695539
+    second: flower_vase_turquoise_broken_1
   - first:
-      213: 6191854753782841364
-    second: flower_vase_broken_pop_2
-  - first:
-      213: 95064446510051849
-    second: flower_vase_broken_pop_3
-  - first:
-      213: 7882108603919046554
-    second: flower_vase_broken_pop_4
+      213: 8695083556186636602
+    second: flower_vase_turquoise_broken_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +40,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 4096
+  maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
     filterMode: 1
@@ -57,7 +51,7 @@ TextureImporter:
     wrapW: 1
   nPOTScale: 0
   lightmap: 0
-  compressionQuality: 100
+  compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
@@ -84,11 +78,11 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 4096
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
-    compressionQuality: 100
+    textureCompression: 1
+    compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -97,11 +91,11 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 4096
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
-    compressionQuality: 100
+    textureCompression: 1
+    compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -112,13 +106,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: flower_vase_broken_pop_0
+      name: flower_vase_turquoise_broken_0
       rect:
         serializedVersion: 2
-        x: 142
-        y: 863
-        width: 17
-        height: 17
+        x: 2
+        y: 275
+        width: 166
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -127,20 +121,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 80d1b532619c80730800000000000000
-      internalID: 3965640568819358984
+      spriteID: b14fd1a827528b600800000000000000
+      internalID: 484178133816046619
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: flower_vase_broken_pop_1
+      name: flower_vase_turquoise_broken_1
       rect:
         serializedVersion: 2
-        x: 420
-        y: 97
-        width: 1055
-        height: 889
+        x: 112
+        y: 250
+        width: 1248
+        height: 585
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -149,20 +143,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c664edc5abf421260800000000000000
-      internalID: 7066798427138311788
+      spriteID: 37180e9d87dc6c010800000000000000
+      internalID: 1208879468930695539
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: flower_vase_broken_pop_2
+      name: flower_vase_turquoise_broken_2
       rect:
         serializedVersion: 2
-        x: 0
-        y: 159
-        width: 707
-        height: 598
+        x: 1264
+        y: 292
+        width: 138
+        height: 77
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -171,52 +165,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4104a0cb713ede550800000000000000
-      internalID: 6191854753782841364
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: flower_vase_broken_pop_3
-      rect:
-        serializedVersion: 2
-        x: 88
-        y: 155
-        width: 213
-        height: 199
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 90230054c9cb15100800000000000000
-      internalID: 95064446510051849
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: flower_vase_broken_pop_4
-      rect:
-        serializedVersion: 2
-        x: 542
-        y: 35
-        width: 215
-        height: 136
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a9715a99300e26d60800000000000000
-      internalID: 7882108603919046554
+      spriteID: a3148d20d642ba870800000000000000
+      internalID: 8695083556186636602
       vertices: []
       indices: 
       edges: []
@@ -235,11 +185,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      flower_vase_broken_pop_0: 3965640568819358984
-      flower_vase_broken_pop_1: 7066798427138311788
-      flower_vase_broken_pop_2: 6191854753782841364
-      flower_vase_broken_pop_3: 95064446510051849
-      flower_vase_broken_pop_4: 7882108603919046554
+      flower_vase_turquoise_broken_0: 484178133816046619
+      flower_vase_turquoise_broken_1: 1208879468930695539
+      flower_vase_turquoise_broken_2: 8695083556186636602
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
