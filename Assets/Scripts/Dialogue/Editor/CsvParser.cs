@@ -194,6 +194,7 @@ public sealed class CsvRecord
     private readonly Dictionary<string, string> values;
 
     public int RowNumber { get; }
+    public IEnumerable<string> ColumnNames => values.Keys;
 
     public CsvRecord(
         int rowNumber,
@@ -212,6 +213,11 @@ public sealed class CsvRecord
         }
 
         return value;
+    }
+
+    public bool TryGet(string columnName, out string value)
+    {
+        return values.TryGetValue(columnName, out value);
     }
 
     public string GetRequired(string columnName)

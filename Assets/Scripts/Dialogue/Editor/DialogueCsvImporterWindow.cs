@@ -272,11 +272,22 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
             string nextLineId =
                 record.Get("nextLineId").Trim();
 
+            List<DialogueChoice> choices =
+                ParseChoices(record);
+
             if (!lineIds.Add(lineId))
             {
                 throw new FormatException(
                     $"{record.RowNumber}行目: " +
                     $"lineId「{lineId}」が重複しています。");
+            }
+
+            if (choices.Count > 0 &&
+                !string.IsNullOrEmpty(nextLineId))
+            {
+                throw new FormatException(
+                    $"{record.RowNumber}行目: 選択肢があるセリフには" +
+                    "nextLineIdを設定できません。");
             }
 
             if (!string.IsNullOrEmpty(speakerId))
@@ -308,7 +319,8 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     speakerId = speakerId,
                     expressionId = expressionId,
                     text = text.Replace("\\n", "\n"),
-                    nextLineId = nextLineId
+                    nextLineId = nextLineId,
+                    choices = choices
                 });
         }
 
@@ -321,9 +333,150 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     $"セリフ「{line.lineId}」のnextLineId " +
                     $"「{line.nextLineId}」が存在しません。");
             }
+
+            if (line.choices == null)
+            {
+                continue;
+            }
+
+            foreach (DialogueChoice choice in line.choices)
+            {
+                if (!lineIds.Contains(choice.nextLineId))
+                {
+                    throw new FormatException(
+                        $"セリフ「{line.lineId}」の選択肢" +
+                        $"「{choice.text}」の遷移先 " +
+                        $"「{choice.nextLineId}」が存在しません。");
+                }
+            }
         }
 
         return result;
+    }
+
+    private static List<DialogueChoice> ParseChoices(
+        CsvRecord record)
+    {
+        List<DialogueChoice> result =
+            new List<DialogueChoice>();
+
+        HashSet<string> choiceTexts =
+            new HashSet<string>(StringComparer.Ordinal);
+
+        SortedSet<int> choiceIndices = new SortedSet<int>();
+
+        foreach (string columnName in record.ColumnNames)
+        {
+            if (TryGetChoiceColumnIndex(
+                    columnName,
+                    "Text",
+                    out int textIndex))
+            {
+                choiceIndices.Add(textIndex);
+            }
+
+            if (TryGetChoiceColumnIndex(
+                    columnName,
+                    "NextLineId",
+                    out int nextLineIndex))
+            {
+                choiceIndices.Add(nextLineIndex);
+            }
+        }
+
+        foreach (int index in choiceIndices)
+        {
+            string textColumn = $"choice{index}Text";
+            string nextLineColumn =
+                $"choice{index}NextLineId";
+
+            bool hasTextColumn =
+                record.TryGet(textColumn, out string choiceText);
+
+            bool hasNextLineColumn =
+                record.TryGet(
+                    nextLineColumn,
+                    out string choiceNextLineId);
+
+            if (!hasTextColumn && !hasNextLineColumn)
+            {
+                continue;
+            }
+
+            if (!hasTextColumn || !hasNextLineColumn)
+            {
+                throw new FormatException(
+                    $"CSVには{textColumn}と{nextLineColumn}を" +
+                    "両方用意してください。");
+            }
+
+            choiceText = choiceText.Trim();
+            choiceNextLineId = choiceNextLineId.Trim();
+
+            if (string.IsNullOrEmpty(choiceText) &&
+                string.IsNullOrEmpty(choiceNextLineId))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(choiceText) ||
+                string.IsNullOrEmpty(choiceNextLineId))
+            {
+                throw new FormatException(
+                    $"{record.RowNumber}行目: {textColumn}と" +
+                    $"{nextLineColumn}は両方入力してください。");
+            }
+
+            if (!choiceTexts.Add(choiceText))
+            {
+                throw new FormatException(
+                    $"{record.RowNumber}行目: 選択肢" +
+                    $"「{choiceText}」が重複しています。");
+            }
+
+            result.Add(
+                new DialogueChoice
+                {
+                    text = choiceText.Replace("\\n", "\n"),
+                    nextLineId = choiceNextLineId
+                });
+        }
+
+        return result;
+    }
+
+    private static bool TryGetChoiceColumnIndex(
+        string columnName,
+        string suffix,
+        out int index)
+    {
+        const string prefix = "choice";
+
+        index = 0;
+
+        if (!columnName.StartsWith(
+                prefix,
+                StringComparison.OrdinalIgnoreCase) ||
+            !columnName.EndsWith(
+                suffix,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        int numberLength =
+            columnName.Length - prefix.Length - suffix.Length;
+
+        if (numberLength <= 0)
+        {
+            return false;
+        }
+
+        string numberText = columnName.Substring(
+            prefix.Length,
+            numberLength);
+
+        return int.TryParse(numberText, out index) && index >= 1;
     }
 
     private static Color ParseColor(

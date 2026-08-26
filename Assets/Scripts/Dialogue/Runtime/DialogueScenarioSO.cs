@@ -125,4 +125,14 @@ public sealed class DialogueLine
     public string text;
 
     public string nextLineId;
+    public List<DialogueChoice> choices = new List<DialogueChoice>();
+
+    public bool HasChoices => choices != null && choices.Count > 0;
+}
+
+[Serializable]
+public sealed class DialogueChoice
+{
+    public string text;
+    public string nextLineId;
 }

@@ -1,10 +1,10 @@
 # Dialogueシステム仕様・運用ガイド
 
-最終更新: 2026-08-21
+最終更新: 2026-08-26
 
 ## 概要
 
-本プロジェクトのDialogueシステムは、CSVで作成したキャラクター情報と会話内容をUnity Editor上でScriptableObjectへ変換し、実行時にTextMeshProとuGUIを使って表示する仕組みです。
+本プロジェクトのDialogueシステムは、CSVで作成したキャラクター情報と会話内容をUnity Editor上でScriptableObjectへ変換し、実行時にTextMeshProとuGUIを使って表示する仕組みです。セリフごとにプレイヤー選択肢と遷移先を設定し、同じ章の中で会話を分岐できます。
 
 複数の`DialogueScenarioSO`を順番に登録できるため、次のように章をまたいで物語を連続再生できます。
 
@@ -129,7 +129,7 @@ kayo,,#80C8FF,smile,Assets/Art/Portraits/kayo_smile.PNG
 ### 列構成
 
 ```csv
-lineId,speakerId,expressionId,text,nextLineId
+lineId,speakerId,expressionId,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId
 ```
 
 | 列 | 必須 | 説明 |
@@ -139,6 +139,8 @@ lineId,speakerId,expressionId,text,nextLineId
 | `expressionId` | 任意 | 表示する表情。空欄なら立ち絵のフォールバック規則を使う |
 | `text` | 必須 | 表示する本文。文字列の`\n`は実際の改行へ変換される |
 | `nextLineId` | 任意 | 次に表示するセリフID |
+| `choiceNText` | 任意 | プレイヤーへ表示する選択肢。`N`は1以上の連番 |
+| `choiceNNextLineId` | 選択肢使用時は必須 | 対応する選択肢を押したときの遷移先ID |
 
 例：
 
@@ -156,7 +158,23 @@ chapter1_002,doute,normal,「先へ進もう」,
 2. `nextLineId`が空なら、CSV上の次の行へ移動する
 3. CSV上にも次の行がなければ、その章を終了する
 
-`nextLineId`を利用すると行の並びとは異なる場所へ移動できますが、現在は条件や選択肢による分岐ではなく、固定された無条件ジャンプです。
+`nextLineId`は、選択肢がない行でCSVの並びとは異なる場所へ無条件に移動したい場合に使用します。
+
+### 選択肢による分岐
+
+選択肢を使う場合は、同じ番号の`choiceNText`と`choiceNNextLineId`をセットで追加します。使用する番号の列だけCSVヘッダーへ追加でき、未使用セルは空欄にできます。
+
+```csv
+lineId,speakerId,expressionId,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId
+chapter1_001,kayo,normal,どちらへ行く？,,駅へ行く,chapter1_station,公園へ行く,chapter1_park
+chapter1_station,doute,normal,駅へ向かおう,chapter1_join,,,,
+chapter1_park,doute,normal,公園へ向かおう,chapter1_join,,,,
+chapter1_join,kayo,normal,それじゃあ行きましょう,,,,,
+```
+
+`chapter1_001`の全文表示が完了すると「駅へ行く」と「公園へ行く」が表示されます。前者なら`chapter1_station`、後者なら`chapter1_park`へ移動し、どちらも最後は`chapter1_join`へ合流します。
+
+選択肢付きの行では`nextLineId`を空にしてください。通常クリックとAUTOでは先へ進まず、プレイヤーがいずれかの選択肢を押したときだけ指定先へ移動します。遷移先は同じ`DialogueScenarioSO`内の`lineId`を指定します。
 
 ## CSVのインポート手順
 
@@ -231,12 +249,23 @@ Following Scenarios:
 | `Skip Confirmation Root` | `SkipConfirmation` |
 | `Confirm Skip Button` | `ConfirmSkipButton` |
 | `Cancel Skip Button` | `CancelSkipButton` |
+| `Choice Options Root` | `ChoiceOptions` |
+| `Choice Button Template` | `ChoiceButtonTemplate` |
 
 `Name Plate`が未設定でも会話は動作します。地の文では名前文字列が空になりますが、名前プレート用の背景オブジェクトをまとめて非表示にしたい場合は、対象GameObjectを設定してください。
 
 会話送り専用のButtonは使用しません。`NovelScene`にあった`NextButton`は削除されています。
 
 右上には`AUTO`と`SKIP`の操作ボタンがあります。ボタン領域内のクリックは通常の会話送りとして扱われません。
+
+### Choices
+
+| Inspector項目 | 説明 |
+| --- | --- |
+| `Choice Button Height` | 選択肢ボタン1個の高さ。現在値は64 |
+| `Choice Button Spacing` | 選択肢ボタン間の余白。現在値は12 |
+
+`ChoiceButtonTemplate`は実行時に選択肢の個数だけ複製され、`ChoiceOptions`内へ縦に並びます。選択後は生成したボタンを破棄し、遷移先のセリフを表示します。
 
 ### Playback Controls
 
@@ -284,14 +313,18 @@ flowchart TD
     Start[StartDialogue] --> Prologue[最初のシナリオを開始]
     Prologue --> Typing[タイプライター表示]
     Typing -->|表示中にクリックまたはタップ| Complete[演出を止めて全文表示]
-    Typing -->|自動的に表示完了| Ready[入力待ち]
-    Complete --> Ready
+    Typing -->|自動的に表示完了| Branch{選択肢があるか}
+    Complete --> Branch
+    Branch -->|ある| Choices[選択肢を表示]
+    Branch -->|ない| Ready[入力待ち]
+    Choices -->|選択| NextLine
     Ready -->|クリックまたはタップ| Advance[Advance]
     Ready -->|AUTOがONかつ待機時間経過| Advance
     Advance -->|章内に次の行がある| NextLine[次のセリフを表示]
     Advance -->|章末| NextScenario{次の有効なシナリオがあるか}
     Typing -->|SKIP| Confirm{スキップ確認}
     Ready -->|SKIP| Confirm
+    Choices -->|SKIP| Confirm
     Confirm -->|いいえ| Resume[現在の章を再開]
     Confirm -->|はい| NextScenario
     NextScenario -->|ある| FirstLine[次章の先頭行を表示]
@@ -315,6 +348,7 @@ flowchart TD
 
 - タイプライター表示中: 演出を中止し、現在のセリフを即座に全文表示する
 - 全文表示後: 次のセリフまたは次の章へ進む
+- 選択肢表示中: 通常クリックとAUTOを停止し、選択肢ボタンの入力だけを受け付ける
 
 タイプライター表示中の1回の入力で、次のセリフまで進むことはありません。全文表示するための入力と、次へ進むための入力が分離されています。
 
@@ -367,30 +401,18 @@ AUTO再生のON/OFFを切り替え、ボタンの表示と次回自動送り時�
 - `speakerId`がキャラクターCSVに存在しない
 - 指定された表情がキャラクターに存在しない
 - `nextLineId`の参照先が存在しない
+- 選択肢の表示文または遷移先の片方だけが入力されている
+- 選択肢付きの行に`nextLineId`も設定されている
+- 選択肢の遷移先が同じシナリオ内に存在しない
+- 同じ行の選択肢表示文が重複している
 
 すべての検証が成功した場合だけ、ScriptableObjectが更新されます。
 
 ## 現在の注意事項
 
-### Characters.csvのportraitPath
+### 循環する遷移
 
-現在の`Characters.csv`は以下のディレクトリを参照しています。
-
-```text
-Assets/Art/DialoguePortraits/
-```
-
-実際の画像は以下にあります。
-
-```text
-Assets/Art/Portraits/
-```
-
-この状態で再インポートするとSpriteの読み込みエラーになります。再インポート前に、CSVのパスを実際のファイル位置と大文字・小文字まで一致させてください。
-
-### 循環するnextLineId
-
-`nextLineId`の存在は検証されますが、循環参照は検出されません。
+`nextLineId`と選択肢の遷移先が存在することは検証されますが、循環参照は検出されません。
 
 ```text
 line_a → line_b → line_a
@@ -400,7 +422,6 @@ line_a → line_b → line_a
 
 ### 現在未対応の機能
 
-- 選択肢による分岐
 - ゲーム状態を使った条件分岐
 - セーブデータからの章・行の復元
 - 章開始／章終了ごとのイベント
@@ -414,6 +435,8 @@ line_a → line_b → line_a
 - [ ] `lineId`を章内で重複させていない
 - [ ] `speakerId`と`expressionId`がCharacters.csvに存在する
 - [ ] 章の最後の行で意図しない次行へ進まないことを確認した
+- [ ] 選択肢の表示文と遷移先IDをペアで設定した
+- [ ] 選択肢付きの行では`nextLineId`を空にした
 - [ ] Chapter用の`DialogueScenarioSO`を作成した
 - [ ] CSV Importerで正しい出力先へインポートした
 - [ ] `Following Scenarios`へ物語順に登録した

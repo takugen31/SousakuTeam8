@@ -73,6 +73,22 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     private Button cancelSkipButton;
 
+    [Header("Choices")]
+    [SerializeField]
+    private RectTransform choiceOptionsRoot;
+
+    [SerializeField]
+    private Button choiceButtonTemplate;
+
+    [SerializeField]
+    [Min(1f)]
+    private float choiceButtonHeight = 64f;
+
+    [SerializeField]
+    [Min(0f)]
+    private float choiceButtonSpacing = 12f;
+
+    [Header("Auto Play")]
     [SerializeField]
     [Min(0f)]
     [Tooltip("タイプライター表示完了後、次のセリフへ進むまでの秒数です。")]
@@ -95,13 +111,18 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private DialogueLine currentLine;
     private DialogueScenarioSO currentScenario;
+    private Coroutine choiceActivationCoroutine;
     private Coroutine typingCoroutine;
+
+    private readonly List<Button> spawnedChoiceButtons =
+        new List<Button>();
 
     private int currentScenarioIndex = -1;
     private float autoAdvanceAt = -1f;
     private float autoAdvanceRemainingBeforeConfirmation = -1f;
     private float timeScaleBeforeConfirmation = 1f;
     private bool autoPlayEnabled;
+    private bool isChoiceSelectionOpen;
     private bool isPlaying;
     private bool isSkipConfirmationOpen;
     private bool isTyping;
@@ -133,13 +154,23 @@ public sealed class NovelDialogueController : MonoBehaviour
             skipConfirmationRoot.SetActive(false);
         }
 
+        if (choiceButtonTemplate != null)
+        {
+            choiceButtonTemplate.gameObject.SetActive(false);
+        }
+
+        if (choiceOptionsRoot != null)
+        {
+            choiceOptionsRoot.gameObject.SetActive(false);
+        }
+
         autoPlayEnabled = autoPlayOnStart;
         UpdateAutoPlayButton();
     }
 
     private void Update()
     {
-        if (isSkipConfirmationOpen)
+        if (isSkipConfirmationOpen || isChoiceSelectionOpen)
         {
             return;
         }
@@ -167,6 +198,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void StartDialogue()
     {
+        HideChoices();
+
         if (scenario == null)
         {
             Debug.LogError("DialogueScenarioが設定されていません。");
@@ -229,7 +262,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (!isPlaying ||
             currentLine == null ||
-            currentScenario == null)
+            currentScenario == null ||
+            isChoiceSelectionOpen)
         {
             return;
         }
@@ -285,7 +319,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (autoPlayEnabled &&
             isPlaying &&
             currentLine != null &&
-            !isTyping)
+            !isTyping &&
+            !isChoiceSelectionOpen)
         {
             ScheduleAutoAdvance();
         }
@@ -433,6 +468,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ShowLine(DialogueLine line)
     {
+        HideChoices();
+
         currentLine = line;
         autoAdvanceAt = -1f;
 
@@ -585,10 +622,16 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         isTyping = false;
         typingCoroutine = null;
-        ScheduleAutoAdvance();
+        HandleLineFullyDisplayed();
     }
 
     private void CompleteTyping()
+    {
+        StopTypingAndRevealText();
+        HandleLineFullyDisplayed();
+    }
+
+    private void StopTypingAndRevealText()
     {
         if (typingCoroutine != null)
         {
@@ -598,7 +641,156 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         bodyText.maxVisibleCharacters = int.MaxValue;
         isTyping = false;
+    }
+
+    private void HandleLineFullyDisplayed()
+    {
+        if (currentLine != null && currentLine.HasChoices)
+        {
+            ShowChoices(currentLine.choices);
+            return;
+        }
+
         ScheduleAutoAdvance();
+    }
+
+    private void ShowChoices(IReadOnlyList<DialogueChoice> choices)
+    {
+        if (choiceOptionsRoot == null || choiceButtonTemplate == null)
+        {
+            Debug.LogError(
+                "選択肢UIが設定されていません。");
+            EndDialogue();
+            return;
+        }
+
+        autoAdvanceAt = -1f;
+        isChoiceSelectionOpen = true;
+
+        float totalHeight =
+            choices.Count * choiceButtonHeight +
+            Mathf.Max(0, choices.Count - 1) * choiceButtonSpacing;
+
+        choiceOptionsRoot.SetSizeWithCurrentAnchors(
+            RectTransform.Axis.Vertical,
+            totalHeight);
+
+        choiceOptionsRoot.gameObject.SetActive(true);
+
+        for (int index = 0; index < choices.Count; index++)
+        {
+            DialogueChoice choice = choices[index];
+            Button button = Instantiate(
+                choiceButtonTemplate,
+                choiceOptionsRoot);
+
+            button.gameObject.name = $"ChoiceButton_{index + 1}";
+
+            RectTransform buttonRect =
+                (RectTransform)button.transform;
+
+            buttonRect.anchorMin = new Vector2(0f, 1f);
+            buttonRect.anchorMax = new Vector2(1f, 1f);
+            buttonRect.pivot = new Vector2(0.5f, 1f);
+            buttonRect.anchoredPosition =
+                new Vector2(
+                    0f,
+                    -index *
+                    (choiceButtonHeight + choiceButtonSpacing));
+            buttonRect.sizeDelta =
+                new Vector2(0f, choiceButtonHeight);
+
+            TMP_Text label =
+                button.GetComponentInChildren<TMP_Text>(true);
+
+            if (label != null)
+            {
+                label.text = choice.text;
+            }
+
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(
+                () => SelectChoice(choice));
+            button.interactable = false;
+            button.gameObject.SetActive(true);
+
+            spawnedChoiceButtons.Add(button);
+        }
+
+        choiceActivationCoroutine =
+            StartCoroutine(EnableChoiceButtonsAfterInputRelease());
+    }
+
+    private IEnumerator EnableChoiceButtonsAfterInputRelease()
+    {
+        yield return null;
+
+        while (Pointer.current?.press.isPressed == true)
+        {
+            yield return null;
+        }
+
+        foreach (Button button in spawnedChoiceButtons)
+        {
+            if (button != null)
+            {
+                button.interactable = true;
+            }
+        }
+
+        choiceActivationCoroutine = null;
+    }
+
+    private void SelectChoice(DialogueChoice choice)
+    {
+        if (!isChoiceSelectionOpen ||
+            choice == null ||
+            currentScenario == null)
+        {
+            return;
+        }
+
+        HideChoices();
+
+        if (!currentScenario.TryGetLine(
+                choice.nextLineId,
+                out DialogueLine nextLine))
+        {
+            Debug.LogError(
+                $"選択肢「{choice.text}」の遷移先" +
+                $"「{choice.nextLineId}」が存在しません。");
+            EndDialogue();
+            return;
+        }
+
+        ShowLine(nextLine);
+    }
+
+    private void HideChoices()
+    {
+        isChoiceSelectionOpen = false;
+
+        if (choiceActivationCoroutine != null)
+        {
+            StopCoroutine(choiceActivationCoroutine);
+            choiceActivationCoroutine = null;
+        }
+
+        foreach (Button button in spawnedChoiceButtons)
+        {
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                Destroy(button.gameObject);
+            }
+        }
+
+        spawnedChoiceButtons.Clear();
+
+        if (choiceOptionsRoot != null)
+        {
+            choiceOptionsRoot.gameObject.SetActive(false);
+        }
     }
 
     private bool ShouldAutoAdvance()
@@ -606,6 +798,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         return autoPlayEnabled &&
             isPlaying &&
             !isTyping &&
+            !isChoiceSelectionOpen &&
             currentLine != null &&
             autoAdvanceAt >= 0f &&
             Time.unscaledTime >= autoAdvanceAt;
@@ -684,7 +877,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void EndDialogue()
     {
-        CompleteTyping();
+        StopTypingAndRevealText();
+        HideChoices();
 
         isPlaying = false;
         currentLine = null;
