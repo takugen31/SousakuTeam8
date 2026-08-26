@@ -31,6 +31,10 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     private string startLineId;
 
+    [Header("Affection")]
+    [SerializeField]
+    private AffectionManager affectionManager;
+
     [Header("UI")]
     [SerializeField]
     private GameObject dialogueRoot;
@@ -275,9 +279,76 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
-        DialogueLine nextLine;
+        if (!TryResolveNextLine(
+                out DialogueLine nextLine,
+                out bool reachedScenarioEnd))
+        {
+            if (!reachedScenarioEnd || !TryStartNextScenario())
+            {
+                EndDialogue();
+            }
 
-        // nextLineIdが設定されていればそこへ移動
+            return;
+        }
+
+        ShowLine(nextLine);
+    }
+
+    private bool TryResolveNextLine(
+        out DialogueLine nextLine,
+        out bool reachedScenarioEnd)
+    {
+        nextLine = null;
+        reachedScenarioEnd = false;
+
+        AffectionManager affection = ResolveAffectionManager();
+
+        // 1. 好感度に応じた分岐（先頭から順に評価）
+        if (currentLine.branches != null &&
+            currentLine.branches.Count > 0)
+        {
+            if (affection == null)
+            {
+                Debug.LogWarning(
+                    $"セリフ「{currentLine.lineId}」に分岐がありますが、" +
+                    "AffectionManagerが見つかりません。分岐をスキップします。");
+            }
+            else
+            {
+                foreach (DialogueBranch branch in currentLine.branches)
+                {
+                    if (branch == null)
+                    {
+                        continue;
+                    }
+
+                    if (!affection.EvaluateAll(branch.conditions))
+                    {
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(branch.nextLineId))
+                    {
+                        continue;
+                    }
+
+                    if (!currentScenario.TryGetLine(
+                            branch.nextLineId,
+                            out nextLine))
+                    {
+                        Debug.LogError(
+                            $"分岐先のセリフ「{branch.nextLineId}」が" +
+                            "存在しません。");
+                        return false;
+                    }
+
+                    affection.ApplyDeltas(branch.affectionChanges);
+                    return true;
+                }
+            }
+        }
+
+        // 2. nextLineIdが設定されていればそこへ移動
         if (!string.IsNullOrWhiteSpace(currentLine.nextLineId))
         {
             if (!currentScenario.TryGetLine(
@@ -287,28 +358,32 @@ public sealed class NovelDialogueController : MonoBehaviour
                 Debug.LogError(
                     $"次のセリフ「{currentLine.nextLineId}」が" +
                     "存在しません。");
-
-                EndDialogue();
-                return;
+                return false;
             }
 
-            ShowLine(nextLine);
-            return;
+            return true;
         }
 
-        // nextLineIdが空ならCSV上の次の行へ進む
+        // 3. nextLineIdが空ならCSV上の次の行へ進む
         if (currentScenario.TryGetNextLine(
                 currentLine.lineId,
                 out nextLine))
         {
-            ShowLine(nextLine);
-            return;
+            return true;
         }
 
-        if (!TryStartNextScenario())
+        reachedScenarioEnd = true;
+        return false;
+    }
+
+    private AffectionManager ResolveAffectionManager()
+    {
+        if (affectionManager != null)
         {
-            EndDialogue();
+            return affectionManager;
         }
+
+        return AffectionManager.Instance;
     }
 
     public void ToggleAutoPlay()
@@ -473,8 +548,31 @@ public sealed class NovelDialogueController : MonoBehaviour
         currentLine = line;
         autoAdvanceAt = -1f;
 
+        ApplyAffectionChanges(line);
         ApplyCharacter(line);
         StartTyping(line.text);
+    }
+
+    private void ApplyAffectionChanges(DialogueLine line)
+    {
+        if (line == null ||
+            line.affectionChanges == null ||
+            line.affectionChanges.Count == 0)
+        {
+            return;
+        }
+
+        AffectionManager affection = ResolveAffectionManager();
+
+        if (affection == null)
+        {
+            Debug.LogWarning(
+                $"セリフ「{line.lineId}」に好感度の変化がありますが、" +
+                "AffectionManagerが見つかりません。");
+            return;
+        }
+
+        affection.ApplyDeltas(line.affectionChanges);
     }
 
     private void ApplyCharacter(DialogueLine line)

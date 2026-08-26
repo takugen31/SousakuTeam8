@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,text,nextLineId
+lineId,speakerId,expressionId,text,nextLineId,affectionChanges,branches
 prologue_001,kayo,normal,「今日はありがとう、デート楽しかったわ」,prologue_002
 prologue_002,kayo,normal,"「でも、食べすぎてちょっと太ったかも」",prologue_003
 prologue_003,doute,normal,"「今何kgなの？」",prologue_004
