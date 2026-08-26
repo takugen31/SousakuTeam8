@@ -8,10 +8,15 @@ using UnityEngine;
 public sealed class DialogueScenarioSO : ScriptableObject
 {
     [SerializeField]
+    [Tooltip("このチャプター開始時に表示する背景です。")]
+    private Sprite defaultBackground;
+
+    [SerializeField]
     private List<DialogueLine> lines = new List<DialogueLine>();
 
     private Dictionary<string, int> indexByLineId;
 
+    public Sprite DefaultBackground => defaultBackground;
     public IReadOnlyList<DialogueLine> Lines => lines;
 
     public void ReplaceAll(List<DialogueLine> newLines)
@@ -123,6 +128,9 @@ public sealed class DialogueLine
 
     [TextArea(2, 8)]
     public string text;
+
+    [Tooltip("設定されている場合、このセリフ表示時に背景を切り替えます。")]
+    public Sprite background;
 
     public string nextLineId;
     public List<DialogueChoice> choices = new List<DialogueChoice>();

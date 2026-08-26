@@ -266,6 +266,13 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
             string expressionId =
                 record.Get("expressionId").Trim();
 
+            string backgroundPath =
+                record.TryGet(
+                    "backgroundPath",
+                    out string backgroundPathText)
+                    ? backgroundPathText.Trim()
+                    : string.Empty;
+
             string text =
                 record.GetRequired("text");
 
@@ -274,6 +281,10 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
 
             List<DialogueChoice> choices =
                 ParseChoices(record);
+
+            Sprite background = ParseBackground(
+                backgroundPath,
+                record.RowNumber);
 
             string affectionChangesText =
                 record.TryGet(
@@ -350,6 +361,7 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     speakerId = speakerId,
                     expressionId = expressionId,
                     text = text.Replace("\\n", "\n"),
+                    background = background,
                     nextLineId = nextLineId,
                     choices = choices,
                     affectionChanges = affectionChanges,
@@ -404,6 +416,30 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
         }
 
         return result;
+    }
+
+    private static Sprite ParseBackground(
+        string backgroundPath,
+        int rowNumber)
+    {
+        if (string.IsNullOrWhiteSpace(backgroundPath))
+        {
+            return null;
+        }
+
+        Sprite background =
+            AssetDatabase.LoadAssetAtPath<Sprite>(
+                backgroundPath);
+
+        if (background != null)
+        {
+            return background;
+        }
+
+        throw new FormatException(
+            $"{rowNumber}行目: 背景Spriteを読み込めませんでした。\n" +
+            $"パス: {backgroundPath}\n" +
+            "画像のTexture TypeがSpriteになっているか確認してください。");
     }
 
     private static List<DialogueChoice> ParseChoices(

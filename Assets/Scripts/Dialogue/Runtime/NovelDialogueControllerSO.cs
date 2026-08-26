@@ -35,6 +35,10 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     private AffectionManager affectionManager;
 
+    [Header("Background")]
+    [SerializeField]
+    private Image backgroundImage;
+
     [Header("UI")]
     [SerializeField]
     private GameObject dialogueRoot;
@@ -252,6 +256,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             dialogueRoot.SetActive(true);
         }
 
+        ResetBackgroundForScenario();
         ResetPortraitsForScenario();
         ShowLine(firstLine);
     }
@@ -533,6 +538,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
             currentScenario = nextScenario;
             currentScenarioIndex = nextIndex;
+            ResetBackgroundForScenario();
             ResetPortraitsForScenario();
             ShowLine(firstLine);
             return true;
@@ -548,9 +554,39 @@ public sealed class NovelDialogueController : MonoBehaviour
         currentLine = line;
         autoAdvanceAt = -1f;
 
+        ApplyBackground(line);
         ApplyAffectionChanges(line);
         ApplyCharacter(line);
         StartTyping(line.text);
+    }
+
+    private void ResetBackgroundForScenario()
+    {
+        SetBackground(
+            currentScenario != null
+                ? currentScenario.DefaultBackground
+                : null);
+    }
+
+    private void ApplyBackground(DialogueLine line)
+    {
+        if (line == null || line.background == null)
+        {
+            return;
+        }
+
+        SetBackground(line.background);
+    }
+
+    private void SetBackground(Sprite background)
+    {
+        if (backgroundImage == null)
+        {
+            return;
+        }
+
+        backgroundImage.sprite = background;
+        backgroundImage.enabled = background != null;
     }
 
     private void ApplyAffectionChanges(DialogueLine line)
@@ -988,6 +1024,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         {
             dialogueRoot.SetActive(false);
         }
+
+        SetBackground(null);
 
         onDialogueCompleted?.Invoke();
     }

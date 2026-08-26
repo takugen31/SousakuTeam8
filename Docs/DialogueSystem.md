@@ -129,7 +129,7 @@ kayo,,#80C8FF,smile,Assets/Art/Portraits/kayo_smile.PNG
 ### 列構成
 
 ```csv
-lineId,speakerId,expressionId,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId
 ```
 
 | 列 | 必須 | 説明 |
@@ -137,6 +137,7 @@ lineId,speakerId,expressionId,text,nextLineId,choice1Text,choice1NextLineId,choi
 | `lineId` | 必須 | シナリオ内でセリフを識別する一意のID |
 | `speakerId` | 任意 | 発言者の`characterId`。空欄なら地の文 |
 | `expressionId` | 任意 | 表示する表情。空欄なら立ち絵のフォールバック規則を使う |
+| `backgroundPath` | 任意 | このセリフで切り替える背景Spriteの`Assets/...`パス。空欄なら現在の背景を維持 |
 | `text` | 必須 | 表示する本文。文字列の`\n`は実際の改行へ変換される |
 | `nextLineId` | 任意 | 次に表示するセリフID |
 | `choiceNText` | 任意 | プレイヤーへ表示する選択肢。`N`は1以上の連番 |
@@ -145,10 +146,14 @@ lineId,speakerId,expressionId,text,nextLineId,choice1Text,choice1NextLineId,choi
 例：
 
 ```csv
-lineId,speakerId,expressionId,text,nextLineId
-chapter1_001,kayo,normal,「ここからChapter 1よ」,chapter1_002
-chapter1_002,doute,normal,「先へ進もう」,
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId
+chapter1_001,kayo,normal,,「ここからChapter 1よ」,chapter1_002
+chapter1_002,doute,normal,Assets/Art/Backgrounds/station_platform_twilight.png,「先へ進もう」,
 ```
+
+### 背景の切り替え
+
+`DialogueScenarioSO` の `Default Background` はチャプター開始時に毎回適用されます。チャプターの途中で背景を変える場合は、対象セリフの `backgroundPath` へSpriteのパスを設定します。以降の空欄行ではその背景が維持され、次のチャプターに進むとそのチャプターの既定背景へ切り替わります。
 
 ### 同じ章の中での進み方
 
@@ -221,6 +226,8 @@ Chapter 2以降も同様です。インポーターは一度につき1つの会�
 | `Protagonist Character Id` | 左側へ表示する主人公ID。現在値は`doute` |
 | `Start Line Id` | 最初のシナリオの途中から始めたい場合のセリフID |
 
+各 `DialogueScenarioSO` の `Default Background` に、そのチャプター開始時の背景を設定します。
+
 Chapter 1、Chapter 2を作成した後、`Following Scenarios`を次のように設定します。
 
 ```text
@@ -237,6 +244,7 @@ Following Scenarios:
 | Inspector項目 | 現在の参照先 |
 | --- | --- |
 | `Dialogue Root` | `DialoguePanel` |
+| `Background Image` | `BackgroundImage` |
 | `Name Plate` | 未設定 |
 | `Speaker Name Text` | `SpeakerNameText` |
 | `Body Text` | `DialogueText` |
@@ -397,6 +405,7 @@ AUTO再生のON/OFFを切り替え、ボタンの表示と次回自動送り時�
 - 同じキャラクターの`displayName`が行によって異なる
 - `nameColor`をUnityのColorとして解析できない
 - portraitをSpriteとして読み込めない
+- `backgroundPath`の画像をSpriteとして読み込めない
 - `lineId`が重複している
 - `speakerId`がキャラクターCSVに存在しない
 - 指定された表情がキャラクターに存在しない
@@ -434,6 +443,7 @@ line_a → line_b → line_a
 - [ ] Chapter用CSVを作成した
 - [ ] `lineId`を章内で重複させていない
 - [ ] `speakerId`と`expressionId`がCharacters.csvに存在する
+- [ ] `Default Background`または必要な行の`backgroundPath`を設定した
 - [ ] 章の最後の行で意図しない次行へ進まないことを確認した
 - [ ] 選択肢の表示文と遷移先IDをペアで設定した
 - [ ] 選択肢付きの行では`nextLineId`を空にした

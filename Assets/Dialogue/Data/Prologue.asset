@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
   m_Name: Prologue
   m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 257605313618584720, guid: 72c11297ec0ace6428fa61e8e1b3a6df, type: 3}
   lines:
   - lineId: prologue_001
     speakerId: kayo
@@ -27,6 +28,7 @@ MonoBehaviour:
     speakerId: doute
     expressionId: normal
     text: "\u300C\u4ECA\u4F55kg\u306A\u306E\uFF1F\u300D"
+    background: {fileID: 5200507253851056871, guid: 15f1d0bba0218d44aaea51f98ac0d62c, type: 3}
     nextLineId: prologue_004
   - lineId: prologue_004
     speakerId: kayo
