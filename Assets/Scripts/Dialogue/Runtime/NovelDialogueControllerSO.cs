@@ -29,6 +29,10 @@ public sealed class NovelDialogueController : MonoBehaviour
     private string protagonistCharacterId = "doute";
 
     [SerializeField]
+    [Tooltip("名前がまだ公開されていないキャラクターの表示名です。")]
+    private string unknownSpeakerName = "???";
+
+    [SerializeField]
     private string startLineId;
 
     [Header("Affection")]
@@ -38,6 +42,30 @@ public sealed class NovelDialogueController : MonoBehaviour
     [Header("Background")]
     [SerializeField]
     private Image backgroundImage;
+
+    [Header("Chapter Transition")]
+    [SerializeField]
+    [Tooltip("チャプター切替時の暗転演出を有効にします。")]
+    private bool useChapterTransitionFade = true;
+
+    [SerializeField]
+    [Min(0f)]
+    [Tooltip("暗転するまでの秒数です。")]
+    private float chapterFadeOutDuration = 1f;
+
+    [SerializeField]
+    [Min(0f)]
+    [Tooltip("暗転したまま待機する秒数です。")]
+    private float chapterFadeHoldDuration = 1.7f;
+
+    [SerializeField]
+    [Min(0f)]
+    [Tooltip("暗転から画面を表示するまでの秒数です。")]
+    private float chapterFadeInDuration = 1f;
+
+    [SerializeField]
+    [Tooltip("チャプター切替時に画面を覆う色です。")]
+    private Color chapterFadeColor = Color.black;
 
     [Header("UI")]
     [SerializeField]
@@ -119,17 +147,23 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private DialogueLine currentLine;
     private DialogueScenarioSO currentScenario;
+    private Coroutine chapterTransitionCoroutine;
     private Coroutine choiceActivationCoroutine;
     private Coroutine typingCoroutine;
+    private Image chapterTransitionOverlay;
 
     private readonly List<Button> spawnedChoiceButtons =
         new List<Button>();
+
+    private readonly HashSet<string> knownCharacterIds =
+        new HashSet<string>(System.StringComparer.Ordinal);
 
     private int currentScenarioIndex = -1;
     private float autoAdvanceAt = -1f;
     private float autoAdvanceRemainingBeforeConfirmation = -1f;
     private float timeScaleBeforeConfirmation = 1f;
     private bool autoPlayEnabled;
+    private bool isChapterTransitioning;
     private bool isChoiceSelectionOpen;
     private bool isPlaying;
     private bool isSkipConfirmationOpen;
@@ -178,7 +212,9 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
-        if (isSkipConfirmationOpen || isChoiceSelectionOpen)
+        if (isChapterTransitioning ||
+            isSkipConfirmationOpen ||
+            isChoiceSelectionOpen)
         {
             return;
         }
@@ -206,6 +242,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void StartDialogue()
     {
+        CancelChapterTransition();
         HideChoices();
 
         if (scenario == null)
@@ -219,6 +256,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             Debug.LogError("CharacterDatabaseが設定されていません。");
             return;
         }
+
+        ResetKnownCharacterNames();
 
         currentScenario = scenario;
         currentScenarioIndex = 0;
@@ -272,6 +311,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (!isPlaying ||
             currentLine == null ||
             currentScenario == null ||
+            isChapterTransitioning ||
             isChoiceSelectionOpen)
         {
             return;
@@ -414,6 +454,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (!isPlaying ||
             currentScenario == null ||
+            isChapterTransitioning ||
             isSkipConfirmationOpen)
         {
             return;
@@ -461,7 +502,9 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void SkipToNextScenario()
     {
-        if (!isPlaying || currentScenario == null)
+        if (!isPlaying ||
+            currentScenario == null ||
+            isChapterTransitioning)
         {
             return;
         }
@@ -481,6 +524,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDestroy()
     {
+        CancelChapterTransition();
+
         if (autoPlayButton != null)
         {
             autoPlayButton.onClick.RemoveListener(ToggleAutoPlay);
@@ -509,6 +554,65 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private bool TryStartNextScenario()
     {
+        if (!TryFindNextScenario(
+                out DialogueScenarioSO nextScenario,
+                out DialogueLine firstLine,
+                out int nextScenarioIndex))
+        {
+            return false;
+        }
+
+        StopTypingAndRevealText();
+        HideChoices();
+        autoAdvanceAt = -1f;
+
+        if (!useChapterTransitionFade)
+        {
+            StartScenario(
+                nextScenario,
+                firstLine,
+                nextScenarioIndex);
+            return true;
+        }
+
+        Image overlay = EnsureChapterTransitionOverlay();
+
+        if (overlay == null)
+        {
+            Debug.LogWarning(
+                "チャプター切替用のCanvasが見つからないため、" +
+                "フェードせずに次のチャプターを開始します。");
+
+            StartScenario(
+                nextScenario,
+                firstLine,
+                nextScenarioIndex);
+            return true;
+        }
+
+        isChapterTransitioning = true;
+        overlay.transform.SetAsLastSibling();
+        overlay.gameObject.SetActive(true);
+        SetChapterTransitionAlpha(0f);
+
+        chapterTransitionCoroutine = StartCoroutine(
+            TransitionToScenario(
+                nextScenario,
+                firstLine,
+                nextScenarioIndex));
+
+        return true;
+    }
+
+    private bool TryFindNextScenario(
+        out DialogueScenarioSO nextScenario,
+        out DialogueLine firstLine,
+        out int nextScenarioIndex)
+    {
+        nextScenario = null;
+        firstLine = null;
+        nextScenarioIndex = -1;
+
         int scenarioCount = 1 +
             (followingScenarios?.Count ?? 0);
 
@@ -516,10 +620,10 @@ public sealed class NovelDialogueController : MonoBehaviour
              nextIndex < scenarioCount;
              nextIndex++)
         {
-            DialogueScenarioSO nextScenario =
+            DialogueScenarioSO candidateScenario =
                 followingScenarios[nextIndex - 1];
 
-            if (nextScenario == null)
+            if (candidateScenario == null)
             {
                 Debug.LogWarning(
                     $"Dialogueの{nextIndex + 1}番目のシナリオが" +
@@ -527,24 +631,174 @@ public sealed class NovelDialogueController : MonoBehaviour
                 continue;
             }
 
-            if (!nextScenario.TryGetFirstLine(
-                    out DialogueLine firstLine))
+            if (!candidateScenario.TryGetFirstLine(
+                    out DialogueLine candidateFirstLine))
             {
                 Debug.LogWarning(
-                    $"シナリオ「{nextScenario.name}」にセリフがないため" +
+                    $"シナリオ「{candidateScenario.name}」にセリフがないため" +
                     "スキップします。");
                 continue;
             }
 
-            currentScenario = nextScenario;
-            currentScenarioIndex = nextIndex;
-            ResetBackgroundForScenario();
-            ResetPortraitsForScenario();
-            ShowLine(firstLine);
+            nextScenario = candidateScenario;
+            firstLine = candidateFirstLine;
+            nextScenarioIndex = nextIndex;
             return true;
         }
 
         return false;
+    }
+
+    private IEnumerator TransitionToScenario(
+        DialogueScenarioSO nextScenario,
+        DialogueLine firstLine,
+        int nextScenarioIndex)
+    {
+        yield return FadeChapterTransition(
+            0f,
+            1f,
+            chapterFadeOutDuration);
+
+        StartScenario(
+            nextScenario,
+            firstLine,
+            nextScenarioIndex);
+
+        if (chapterFadeHoldDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(
+                chapterFadeHoldDuration);
+        }
+
+        yield return FadeChapterTransition(
+            1f,
+            0f,
+            chapterFadeInDuration);
+
+        if (chapterTransitionOverlay != null)
+        {
+            chapterTransitionOverlay.gameObject.SetActive(false);
+        }
+
+        isChapterTransitioning = false;
+        chapterTransitionCoroutine = null;
+    }
+
+    private void StartScenario(
+        DialogueScenarioSO nextScenario,
+        DialogueLine firstLine,
+        int nextScenarioIndex)
+    {
+        currentScenario = nextScenario;
+        currentScenarioIndex = nextScenarioIndex;
+        ResetBackgroundForScenario();
+        ResetPortraitsForScenario();
+        ShowLine(firstLine);
+    }
+
+    private IEnumerator FadeChapterTransition(
+        float startAlpha,
+        float endAlpha,
+        float duration)
+    {
+        SetChapterTransitionAlpha(startAlpha);
+
+        if (duration <= 0f)
+        {
+            SetChapterTransitionAlpha(endAlpha);
+            yield break;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            SetChapterTransitionAlpha(
+                Mathf.Lerp(
+                    startAlpha,
+                    endAlpha,
+                    Mathf.Clamp01(elapsed / duration)));
+
+            yield return null;
+        }
+
+        SetChapterTransitionAlpha(endAlpha);
+    }
+
+    private Image EnsureChapterTransitionOverlay()
+    {
+        if (chapterTransitionOverlay != null)
+        {
+            return chapterTransitionOverlay;
+        }
+
+        Canvas canvas =
+            backgroundImage != null
+                ? backgroundImage.canvas
+                : GetComponentInParent<Canvas>();
+
+        if (canvas == null)
+        {
+            return null;
+        }
+
+        GameObject overlayObject = new GameObject(
+            "ChapterTransitionFadeOverlay",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image));
+
+        RectTransform overlayRect =
+            overlayObject.GetComponent<RectTransform>();
+
+        overlayRect.SetParent(canvas.transform, false);
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        overlayRect.SetAsLastSibling();
+
+        chapterTransitionOverlay =
+            overlayObject.GetComponent<Image>();
+        chapterTransitionOverlay.raycastTarget = true;
+
+        SetChapterTransitionAlpha(0f);
+        overlayObject.SetActive(false);
+
+        return chapterTransitionOverlay;
+    }
+
+    private void SetChapterTransitionAlpha(float alpha)
+    {
+        if (chapterTransitionOverlay == null)
+        {
+            return;
+        }
+
+        Color color = chapterFadeColor;
+        color.a *= Mathf.Clamp01(alpha);
+        chapterTransitionOverlay.color = color;
+    }
+
+    private void CancelChapterTransition()
+    {
+        if (chapterTransitionCoroutine != null)
+        {
+            StopCoroutine(chapterTransitionCoroutine);
+            chapterTransitionCoroutine = null;
+        }
+
+        isChapterTransitioning = false;
+
+        if (chapterTransitionOverlay == null)
+        {
+            return;
+        }
+
+        SetChapterTransitionAlpha(0f);
+        chapterTransitionOverlay.gameObject.SetActive(false);
     }
 
     private void ShowLine(DialogueLine line)
@@ -646,7 +900,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         if (speakerNameText != null)
         {
-            speakerNameText.text = character.displayName;
+            speakerNameText.text =
+                knownCharacterIds.Contains(line.speakerId)
+                    ? character.displayName
+                    : unknownSpeakerName;
             speakerNameText.color = character.nameColor;
         }
 
@@ -735,7 +992,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         while (bodyText.maxVisibleCharacters < totalCharacters)
         {
-            if (isSkipConfirmationOpen)
+            if (isChapterTransitioning || isSkipConfirmationOpen)
             {
                 yield return null;
                 continue;
@@ -779,6 +1036,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void HandleLineFullyDisplayed()
     {
+        RevealCurrentSpeakerName();
+
         if (currentLine != null && currentLine.HasChoices)
         {
             ShowChoices(currentLine.choices);
@@ -786,6 +1045,51 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         ScheduleAutoAdvance();
+    }
+
+    private void ResetKnownCharacterNames()
+    {
+        knownCharacterIds.Clear();
+
+        if (characterDatabase == null)
+        {
+            return;
+        }
+
+        foreach (CharacterData character in characterDatabase.Characters)
+        {
+            if (character == null ||
+                !character.nameKnownInitially ||
+                string.IsNullOrWhiteSpace(character.characterId))
+            {
+                continue;
+            }
+
+            knownCharacterIds.Add(character.characterId);
+        }
+    }
+
+    private void RevealCurrentSpeakerName()
+    {
+        if (currentLine == null ||
+            !currentLine.revealSpeakerName ||
+            string.IsNullOrWhiteSpace(currentLine.speakerId))
+        {
+            return;
+        }
+
+        knownCharacterIds.Add(currentLine.speakerId);
+
+        if (speakerNameText == null ||
+            !characterDatabase.TryGetCharacter(
+                currentLine.speakerId,
+                out CharacterData character))
+        {
+            return;
+        }
+
+        speakerNameText.text = character.displayName;
+        speakerNameText.color = character.nameColor;
     }
 
     private void ShowChoices(IReadOnlyList<DialogueChoice> choices)
@@ -1011,6 +1315,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void EndDialogue()
     {
+        CancelChapterTransition();
         StopTypingAndRevealText();
         HideChoices();
 

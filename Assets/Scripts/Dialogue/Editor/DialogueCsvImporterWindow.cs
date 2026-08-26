@@ -156,6 +156,18 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
             string colorText =
                 record.Get("nameColor").Trim();
 
+            string nameKnownInitiallyText =
+                record.TryGet(
+                    "nameKnownInitially",
+                    out string knownInitiallyText)
+                    ? knownInitiallyText.Trim()
+                    : string.Empty;
+
+            bool? nameKnownInitially = ParseOptionalBoolean(
+                nameKnownInitiallyText,
+                record.RowNumber,
+                "nameKnownInitially");
+
             string expressionId =
                 record.GetRequired("expressionId").Trim();
 
@@ -180,6 +192,8 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     nameColor = ParseColor(
                         colorText,
                         record.RowNumber),
+                    nameKnownInitially =
+                        nameKnownInitially ?? false,
                     expressions =
                         new List<CharacterExpression>()
                 };
@@ -196,6 +210,16 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                         $"{record.RowNumber}行目: " +
                         $"characterId「{characterId}」の" +
                         "displayNameが他の行と一致しません。");
+                }
+
+                if (nameKnownInitially.HasValue &&
+                    character.nameKnownInitially !=
+                    nameKnownInitially.Value)
+                {
+                    throw new FormatException(
+                        $"{record.RowNumber}行目: " +
+                        $"characterId「{characterId}」の" +
+                        "nameKnownInitiallyが他の行と一致しません。");
                 }
             }
 
@@ -272,6 +296,19 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     out string backgroundPathText)
                     ? backgroundPathText.Trim()
                     : string.Empty;
+
+            string revealSpeakerNameText =
+                record.TryGet(
+                    "revealSpeakerName",
+                    out string revealNameText)
+                    ? revealNameText.Trim()
+                    : string.Empty;
+
+            bool revealSpeakerName =
+                ParseOptionalBoolean(
+                    revealSpeakerNameText,
+                    record.RowNumber,
+                    "revealSpeakerName") ?? false;
 
             string text =
                 record.GetRequired("text");
@@ -354,6 +391,15 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                 }
             }
 
+            if (revealSpeakerName &&
+                string.IsNullOrEmpty(speakerId))
+            {
+                throw new FormatException(
+                    $"{record.RowNumber}行目: " +
+                    "revealSpeakerNameがtrueの行には" +
+                    "speakerIdが必要です。");
+            }
+
             result.Add(
                 new DialogueLine
                 {
@@ -362,6 +408,7 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     expressionId = expressionId,
                     text = text.Replace("\\n", "\n"),
                     background = background,
+                    revealSpeakerName = revealSpeakerName,
                     nextLineId = nextLineId,
                     choices = choices,
                     affectionChanges = affectionChanges,
@@ -868,5 +915,35 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
             $"{rowNumber}行目: " +
             $"色「{colorText}」を読み込めません。" +
             "例: #FFFFFF");
+    }
+
+    private static bool? ParseOptionalBoolean(
+        string text,
+        int rowNumber,
+        string columnName)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        if (bool.TryParse(text, out bool value))
+        {
+            return value;
+        }
+
+        if (text == "1")
+        {
+            return true;
+        }
+
+        if (text == "0")
+        {
+            return false;
+        }
+
+        throw new FormatException(
+            $"{rowNumber}行目: 「{columnName}」は" +
+            "true、false、1、0のいずれかで指定してください。");
     }
 }

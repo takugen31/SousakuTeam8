@@ -132,6 +132,9 @@ public sealed class DialogueLine
     [Tooltip("設定されている場合、このセリフ表示時に背景を切り替えます。")]
     public Sprite background;
 
+    [Tooltip("このセリフを全文表示した後、話者の本名を公開します。")]
+    public bool revealSpeakerName;
+
     public string nextLineId;
     public List<DialogueChoice> choices = new List<DialogueChoice>();
 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b239034ee8fcad04788dfe82fda004a4
+guid: ab77056009af31a44b33dde5dab2de7d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1240851174394323274
-    second: kayo_normal_0
+      213: 1223118908298377405
+    second: yowashi_normal_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: kayo_normal_0
+      name: yowashi_normal_0
       rect:
         serializedVersion: 2
-        x: 219
-        y: 49
-        width: 789
-        height: 1835
+        x: 122
+        y: 62
+        width: 848
+        height: 1719
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a4166ec9193683110800000000000000
-      internalID: 1240851174394323274
+      spriteID: db8303faa2469f010800000000000000
+      internalID: 1223118908298377405
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      kayo_normal_0: 1240851174394323274
+      yowashi_normal_0: 1223118908298377405
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

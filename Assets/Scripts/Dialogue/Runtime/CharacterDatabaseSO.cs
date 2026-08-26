@@ -78,6 +78,7 @@ public sealed class CharacterData
     public string characterId;
     public string displayName;
     public Color nameColor = Color.white;
+    public bool nameKnownInitially;
 
     public List<CharacterExpression> expressions =
         new List<CharacterExpression>();

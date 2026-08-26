@@ -70,7 +70,7 @@ CSVは実行時に直接読み込みません。EditorでCSVをインポート�
 ### 列構成
 
 ```csv
-characterId,displayName,nameColor,expressionId,portraitPath
+characterId,displayName,nameColor,expressionId,portraitPath,nameKnownInitially
 ```
 
 | 列 | 必須 | 説明 |
@@ -80,16 +80,31 @@ characterId,displayName,nameColor,expressionId,portraitPath
 | `nameColor` | 任意 | HTML形式の名前色。空欄の場合は白。例：`#FFFFFF` |
 | `expressionId` | 必須 | 表情ID。例：`normal`、`surprised` |
 | `portraitPath` | 必須 | Unityプロジェクト内のSpriteパス |
+| `nameKnownInitially` | 任意 | 会話開始時から本名を表示するか。`true`なら本名、`false`または空欄なら`???` |
 
 同じキャラクターへ複数の表情を登録するときは、同じ`characterId`で行を追加します。
 
 ```csv
-characterId,displayName,nameColor,expressionId,portraitPath
-kayo,ミオ,#80C8FF,normal,Assets/Art/Portraits/kayo_normal.PNG
-kayo,,#80C8FF,smile,Assets/Art/Portraits/kayo_smile.PNG
+characterId,displayName,nameColor,expressionId,portraitPath,nameKnownInitially
+kayo,ミオ,#80C8FF,normal,Assets/Art/Portraits/kayo_normal.PNG,false
+kayo,,#80C8FF,smile,Assets/Art/Portraits/kayo_smile.PNG,
 ```
 
-2行目以降の`displayName`は空にできます。値を書く場合は、そのキャラクターの最初の行と完全に一致させる必要があります。
+2行目以降の`displayName`と`nameKnownInitially`は空にできます。値を書く場合は、そのキャラクターの最初の行と完全に一致させる必要があります。
+
+### 名前の公開状態
+
+`nameKnownInitially`が`false`または空欄のキャラクターは、名前が公開されるまで名前欄へ`???`と表示されます。最初から名前を表示したいキャラクターだけ`true`にします。
+
+会話CSVの自己紹介行で`revealSpeakerName`を`true`にすると、そのセリフが全文表示された直後に話者の名前が公開されます。自己紹介中は`???`のまま表示され、全文表示後に本名へ切り替わります。
+
+```csv
+lineId,speakerId,text,nextLineId,revealSpeakerName
+chapter1_001,kayo,私はカヨです,chapter1_002,true
+chapter1_002,kayo,よろしくね,,
+```
+
+公開状態は後続チャプターへ引き継がれます。`StartDialogue()`で会話全体を最初から開始した場合は、Characters.csvの初期状態へリセットされます。現在はセーブデータや別のUnityシーンへ公開状態を保存する機能はありません。
 
 ### 立ち絵の選択順
 
@@ -129,7 +144,7 @@ kayo,,#80C8FF,smile,Assets/Art/Portraits/kayo_smile.PNG
 ### 列構成
 
 ```csv
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,revealSpeakerName
 ```
 
 | 列 | 必須 | 説明 |
@@ -142,6 +157,7 @@ lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1
 | `nextLineId` | 任意 | 次に表示するセリフID |
 | `choiceNText` | 任意 | プレイヤーへ表示する選択肢。`N`は1以上の連番 |
 | `choiceNNextLineId` | 選択肢使用時は必須 | 対応する選択肢を押したときの遷移先ID |
+| `revealSpeakerName` | 任意 | `true`なら、このセリフの全文表示後に話者の本名を公開する |
 
 例：
 
@@ -224,6 +240,7 @@ Chapter 2以降も同様です。インポーターは一度につき1つの会�
 | `Following Scenarios` | プロローグ後に再生する章のリスト |
 | `Character Database` | `CharacterDatabase.asset` |
 | `Protagonist Character Id` | 左側へ表示する主人公ID。現在値は`doute` |
+| `Unknown Speaker Name` | 名前が公開される前に表示する文字列。初期値は`???` |
 | `Start Line Id` | 最初のシナリオの途中から始めたい場合のセリフID |
 
 各 `DialogueScenarioSO` の `Default Background` に、そのチャプター開始時の背景を設定します。
@@ -238,6 +255,34 @@ Following Scenarios:
 ```
 
 リストの順番が再生順です。Chapterを増やす場合は、同じリストの末尾へ追加します。
+
+### Chapter Transition
+
+チャプター末尾から次のチャプターへ移動するときは、画面全体を覆う暗転フェードを再生できます。
+
+| Inspector項目 | 説明 | 初期値 |
+| --- | --- | --- |
+| `Use Chapter Transition Fade` | チャプター切替フェードのON/OFF | 有効 |
+| `Chapter Fade Out Duration` | 画面が完全に暗転するまでの秒数 | `1` |
+| `Chapter Fade Hold Duration` | 完全に暗転したまま待機する秒数 | `1.7` |
+| `Chapter Fade In Duration` | 暗転から画面を表示するまでの秒数 | `1` |
+| `Chapter Fade Color` | 画面を覆う色 | 黒 |
+
+初期設定での再生順は次のとおりです。
+
+```text
+現在のチャプター
+    ↓ 1秒かけてフェードアウト
+完全に暗転
+    ↓ 背景・立ち絵・チャプターを切り替える
+1.7秒待機
+    ↓ 1秒かけてフェードイン
+次チャプターの文字送りを開始
+```
+
+暗転用のImageは実行時にCanvas内へ自動生成されるため、シーンに専用オブジェクトを作る必要はありません。フェード中は通常の会話送り、AUTO、SKIPを停止し、次チャプターのタイプライター表示もフェードイン完了まで待機します。時間計測には非スケール時間を使用するため、`Time.timeScale`の影響を受けません。
+
+`Use Chapter Transition Fade`を無効にすると、従来どおり次チャプターへ即座に切り替わります。章末からの通常遷移だけでなく、SKIPによる次章移動にも同じ設定が適用されます。次に再生できるチャプターがない場合はフェードせず、Dialogue全体を終了します。
 
 ### UI
 
@@ -335,7 +380,12 @@ flowchart TD
     Choices -->|SKIP| Confirm
     Confirm -->|いいえ| Resume[現在の章を再開]
     Confirm -->|はい| NextScenario
-    NextScenario -->|ある| FirstLine[次章の先頭行を表示]
+    NextScenario -->|ある・フェード有効| FadeOut[1秒かけてフェードアウト]
+    FadeOut --> SwitchChapter[背景・立ち絵・チャプターを切り替え]
+    SwitchChapter --> FadeHold[1.7秒暗転待機]
+    FadeHold --> FadeIn[1秒かけてフェードイン]
+    FadeIn --> FirstLine[次章の先頭行を表示]
+    NextScenario -->|ある・フェード無効| FirstLine
     NextScenario -->|ない| End[パネルを閉じて完了イベント]
     NextLine --> Typing
     FirstLine --> Typing
@@ -357,6 +407,7 @@ flowchart TD
 - タイプライター表示中: 演出を中止し、現在のセリフを即座に全文表示する
 - 全文表示後: 次のセリフまたは次の章へ進む
 - 選択肢表示中: 通常クリックとAUTOを停止し、選択肢ボタンの入力だけを受け付ける
+- チャプター切替フェード中: 通常クリック、AUTO、SKIP、次章のタイプライター表示を停止する
 
 タイプライター表示中の1回の入力で、次のセリフまで進むことはありません。全文表示するための入力と、次へ進むための入力が分離されています。
 
@@ -403,11 +454,14 @@ AUTO再生のON/OFFを切り替え、ボタンの表示と次回自動送り時�
 - 必須ヘッダーまたは必須値がない
 - `characterId`と`expressionId`の組み合わせが重複している
 - 同じキャラクターの`displayName`が行によって異なる
+- 同じキャラクターの`nameKnownInitially`が行によって異なる
+- `nameKnownInitially`または`revealSpeakerName`が`true`、`false`、`1`、`0`以外になっている
 - `nameColor`をUnityのColorとして解析できない
 - portraitをSpriteとして読み込めない
 - `backgroundPath`の画像をSpriteとして読み込めない
 - `lineId`が重複している
 - `speakerId`がキャラクターCSVに存在しない
+- `revealSpeakerName`が`true`なのに`speakerId`が空になっている
 - 指定された表情がキャラクターに存在しない
 - `nextLineId`の参照先が存在しない
 - 選択肢の表示文または遷移先の片方だけが入力されている
@@ -443,6 +497,8 @@ line_a → line_b → line_a
 - [ ] Chapter用CSVを作成した
 - [ ] `lineId`を章内で重複させていない
 - [ ] `speakerId`と`expressionId`がCharacters.csvに存在する
+- [ ] 初期名表示が必要なキャラクターの`nameKnownInitially`を設定した
+- [ ] 自己紹介行の`revealSpeakerName`を設定した
 - [ ] `Default Background`または必要な行の`backgroundPath`を設定した
 - [ ] 章の最後の行で意図しない次行へ進まないことを確認した
 - [ ] 選択肢の表示文と遷移先IDをペアで設定した
@@ -450,5 +506,6 @@ line_a → line_b → line_a
 - [ ] Chapter用の`DialogueScenarioSO`を作成した
 - [ ] CSV Importerで正しい出力先へインポートした
 - [ ] `Following Scenarios`へ物語順に登録した
+- [ ] `Use Chapter Transition Fade`とフェード時間を確認した
 - [ ] 最終章終了時の`On Dialogue Completed`を必要に応じて設定した
 - [ ] Play Modeでプロローグから次章へパネルを閉じずに進むことを確認した

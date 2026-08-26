@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b239034ee8fcad04788dfe82fda004a4
+guid: 2f638f3b99bcade49888e208c0066080
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1240851174394323274
-    second: kayo_normal_0
+      213: -990163987816521801
+    second: white_room_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: kayo_normal_0
+      name: white_room_0
       rect:
         serializedVersion: 2
-        x: 219
-        y: 49
-        width: 789
-        height: 1835
+        x: 0
+        y: 0
+        width: 1672
+        height: 941
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a4166ec9193683110800000000000000
-      internalID: 1240851174394323274
+      spriteID: 7bfdfc4691b3242f0800000000000000
+      internalID: -990163987816521801
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      kayo_normal_0: 1240851174394323274
+      white_room_0: -990163987816521801
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b239034ee8fcad04788dfe82fda004a4
+guid: 722e4816d64bcdb469b6b6ebb1d7e425
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1240851174394323274
-    second: kayo_normal_0
+      213: -8838777000032000206
+    second: moteru_normal_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: kayo_normal_0
+      name: moteru_normal_0
       rect:
         serializedVersion: 2
-        x: 219
-        y: 49
-        width: 789
-        height: 1835
+        x: 331
+        y: 373
+        width: 633
+        height: 1168
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a4166ec9193683110800000000000000
-      internalID: 1240851174394323274
+      spriteID: 2372338f52b565580800000000000000
+      internalID: -8838777000032000206
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      kayo_normal_0: 1240851174394323274
+      moteru_normal_0: -8838777000032000206
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

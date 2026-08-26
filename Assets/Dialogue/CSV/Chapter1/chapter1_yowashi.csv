@@ -1,0 +1,9 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+chapter1_yowashi_001,doute,normal,Assets/Art/Backgrounds/white_room.png,あのー、こんにちは？,chapter1_yowashi_002,,,
+chapter1_yowashi_002,yowashi,normal,,我に声をかけたことを褒め讃えよう……我が下僕になる覚悟はできたのだな？,chapter1_yowashi_003,,,
+chapter1_yowashi_003,doute,normal,,え？,chapter1_yowashi_004,,,
+chapter1_yowashi_004,yowashi,normal,,ということでどーも、こんにちは！どしたのー？,chapter1_yowashi_005,,,
+chapter1_yowashi_005,doute,normal,,？？？？？？,chapter1_yowashi_006,,,
+chapter1_yowashi_006,doute,normal,,あ、あそこでみんなとりあえず集まって協力しようってことになってるんだけど……,chapter1_yowashi_007,,,
+chapter1_yowashi_007,yowashi,normal,,りょかい！行こ行こ〜,chapter1_yowashi_008,,,
+chapter1_yowashi_008,doute,normal,,（よく分からない子だな……）,,,,
