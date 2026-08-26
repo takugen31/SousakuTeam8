@@ -44,7 +44,8 @@ namespace Sousakusai8.MiniGame
             float halfWidth = spriteRenderer.bounds.extents.x;
             float leftEdge = game.GetLeftEdge(halfWidth);
             float rightEdge = game.GetRightEdge(halfWidth);
-            float keyboardDirection = ReadKeyboardDirection();
+            bool canPlayerMove = game.CanPlayerMove;
+            float keyboardDirection = canPlayerMove ? ReadKeyboardDirection() : 0f;
 
             if (!Mathf.Approximately(keyboardDirection, 0f))
             {
@@ -52,17 +53,17 @@ namespace Sousakusai8.MiniGame
             }
 
             bool mouseMoved = DidMouseMove(out Vector2 screenPosition);
-            if (mouseMoved && Mathf.Approximately(keyboardDirection, 0f))
+            if (canPlayerMove && mouseMoved && Mathf.Approximately(keyboardDirection, 0f))
             {
                 usingKeyboard = false;
             }
 
             float targetX = transform.position.x;
-            if (usingKeyboard)
+            if (canPlayerMove && usingKeyboard)
             {
                 targetX += keyboardDirection * keyboardMoveSpeed * Time.deltaTime;
             }
-            else if (Mouse.current != null)
+            else if (canPlayerMove && Mouse.current != null)
             {
                 float distanceToGamePlane = Mathf.Abs(gameCamera.transform.position.z - transform.position.z);
                 Vector3 worldPosition = gameCamera.ScreenToWorldPoint(

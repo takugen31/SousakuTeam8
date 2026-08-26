@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 namespace Sousakusai8.MiniGame
@@ -33,6 +35,11 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Transform itemPoolRoot;
         [SerializeField] private SpriteRenderer[] goodItemVisuals;
         [SerializeField] private SpriteRenderer[] badItemVisuals;
+
+        [Header("Rendering Quality")]
+        [SerializeField] private bool forceHighestQualityLevel = true;
+        [SerializeField, Range(1f, 2f)] private float renderScale = 1.5f;
+        [SerializeField] private int antiAliasingSamples = 4;
 
         [Header("UI References")]
         [SerializeField] private Text scoreText;
@@ -69,12 +76,12 @@ namespace Sousakusai8.MiniGame
         [SerializeField, Min(0.1f)] private float countdownStepDuration = 1f;
 
         [Header("Time and Difficulty")]
-        [SerializeField, Min(1f)] private float gameDuration = 60f;
+        [SerializeField, Min(1f)] private float gameDuration = 100f;
         [SerializeField, Min(1)] private int minimumSpawnCount = 1;
         [SerializeField, Min(1)] private int maximumSpawnCount = 8;
         [SerializeField, Min(0f)] private float itemHorizontalSpread = 0.75f;
         [SerializeField, Min(1f)] private float maximumDropperSpeedMultiplier = 2f;
-        [SerializeField, Min(0f)] private float badItemStackDuration = 3f;
+        [SerializeField, Min(0f)] private float badItemStackDuration = 2f;
 
         [Header("Drop timing")]
         [SerializeField] private float minimumDropInterval = 0.65f;
@@ -96,6 +103,12 @@ namespace Sousakusai8.MiniGame
         private float countdownRemaining;
         private bool jumpUnlocked;
         private GamePhase phase;
+        private int originalQualityLevel;
+        private int originalTextureMipmapLimit;
+        private int originalAntiAliasing;
+        private RenderPipelineAsset originalRenderPipeline;
+        private UniversalRenderPipelineAsset runtimeRenderPipeline;
+        private bool renderingQualityApplied;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -109,6 +122,7 @@ namespace Sousakusai8.MiniGame
             GetDifficultyProgress());
         public float BadItemStackDuration => badItemStackDuration;
         public bool IsGameRunning => phase == GamePhase.Playing;
+        public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
 
         private void Awake()
@@ -117,6 +131,8 @@ namespace Sousakusai8.MiniGame
             {
                 gameCamera = Camera.main;
             }
+
+            ApplyRenderingQuality();
 
             if (dropper == null)
             {
@@ -226,6 +242,59 @@ namespace Sousakusai8.MiniGame
                 Time.unscaledTime >= jumpUnlockVisibleUntil)
             {
                 jumpUnlockText.gameObject.SetActive(false);
+            }
+        }
+
+        private void ApplyRenderingQuality()
+        {
+            originalQualityLevel = QualitySettings.GetQualityLevel();
+            originalTextureMipmapLimit = QualitySettings.globalTextureMipmapLimit;
+            originalAntiAliasing = QualitySettings.antiAliasing;
+            originalRenderPipeline = QualitySettings.renderPipeline;
+            renderingQualityApplied = true;
+
+            if (forceHighestQualityLevel && QualitySettings.names.Length > 0)
+            {
+                QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1, true);
+            }
+
+            QualitySettings.globalTextureMipmapLimit = 0;
+            QualitySettings.antiAliasing = antiAliasingSamples;
+            ScalableBufferManager.ResizeBuffers(1f, 1f);
+
+            if (QualitySettings.renderPipeline is UniversalRenderPipelineAsset sourcePipelineAsset)
+            {
+                runtimeRenderPipeline = Instantiate(sourcePipelineAsset);
+                runtimeRenderPipeline.name = $"{sourcePipelineAsset.name} (Mini Game Runtime)";
+                runtimeRenderPipeline.hideFlags = HideFlags.HideAndDontSave;
+                runtimeRenderPipeline.renderScale = renderScale;
+                runtimeRenderPipeline.msaaSampleCount = antiAliasingSamples;
+                QualitySettings.renderPipeline = runtimeRenderPipeline;
+            }
+
+            if (gameCamera != null)
+            {
+                gameCamera.allowMSAA = true;
+                gameCamera.allowDynamicResolution = false;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (!renderingQualityApplied)
+            {
+                return;
+            }
+
+            QualitySettings.SetQualityLevel(originalQualityLevel, true);
+            QualitySettings.globalTextureMipmapLimit = originalTextureMipmapLimit;
+            QualitySettings.antiAliasing = originalAntiAliasing;
+            QualitySettings.renderPipeline = originalRenderPipeline;
+            ScalableBufferManager.ResizeBuffers(1f, 1f);
+
+            if (runtimeRenderPipeline != null)
+            {
+                Destroy(runtimeRenderPipeline);
             }
         }
 
