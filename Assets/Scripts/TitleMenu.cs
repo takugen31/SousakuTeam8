@@ -36,6 +36,11 @@ public class TitleMenu : MonoBehaviour
         Application.Quit();
     }
 
+    public void SetBGM(bool enabled)
+    {
+        bgmSource.mute = !enabled;
+    }
+
     private IEnumerator FadeIn()
     {
         isTransitioning = true;
