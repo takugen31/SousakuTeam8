@@ -628,10 +628,6 @@ MonoBehaviour:
   - {fileID: 1820000002}
   - {fileID: 1850000002}
   - {fileID: 1860000002}
-  badItemFallingSizes:
-  - {x: 0.93, y: 0.93}
-  - {x: 0.93, y: 0.93}
-  - {x: 0.93, y: 0.93}
   fallingItemSize: {x: 0.62, y: 0.62}
   stackedBadItemSprite: {fileID: 21300000, guid: d0af47f53b17fce4cbfbbfe6f78b7269, type: 3}
   stackedBadItemSprites:
@@ -639,10 +635,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 1174d427191e537459049e22bb2b7019, type: 3}
   - {fileID: 21300000, guid: f6341e19e3a37f340bb056ec733c85d1, type: 3}
   stackedBadItemSize: {x: 1.4, y: 0.85}
-  stackedBadItemSizes:
-  - {x: 2.1, y: 1.275}
-  - {x: 2.1, y: 1.275}
-  - {x: 2.1, y: 1.275}
   forceHighestQualityLevel: 1
   renderScale: 2
   antiAliasingSamples: 4
