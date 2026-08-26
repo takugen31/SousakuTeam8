@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 chapter2_end_001,doute,normal,Assets/Art/Backgrounds/white_room.png,自己紹介はお互いにできたよね！,chapter2_end_002,,,
 chapter2_end_002,yowashi,normal,,うんうん！我らは血の盟約を交わしたのだ……ねっカヨちゃん！,chapter2_end_003,,,
 chapter2_end_003,kayo,normal,,ちょっと、ヨワシ……！そんなの知らないってば！,chapter2_end_004,,,

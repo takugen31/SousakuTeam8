@@ -310,6 +310,17 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     record.RowNumber,
                     "revealSpeakerName") ?? false;
 
+            string nextScenePathText =
+                record.TryGet(
+                    "nextScenePath",
+                    out string scenePathText)
+                    ? scenePathText.Trim()
+                    : string.Empty;
+
+            string nextScenePath = ParseScenePath(
+                nextScenePathText,
+                record.RowNumber);
+
             string text =
                 record.GetRequired("text");
 
@@ -369,6 +380,30 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     "同じセリフに同時設定できません。");
             }
 
+            if (!string.IsNullOrEmpty(nextScenePath) &&
+                !string.IsNullOrEmpty(nextLineId))
+            {
+                throw new FormatException(
+                    $"{record.RowNumber}行目: Unity Sceneへ遷移する" +
+                    "セリフにはnextLineIdを設定できません。");
+            }
+
+            if (!string.IsNullOrEmpty(nextScenePath) &&
+                choices.Count > 0)
+            {
+                throw new FormatException(
+                    $"{record.RowNumber}行目: Unity Scene遷移と選択肢は" +
+                    "同じセリフに同時設定できません。");
+            }
+
+            if (!string.IsNullOrEmpty(nextScenePath) &&
+                branches.Count > 0)
+            {
+                throw new FormatException(
+                    $"{record.RowNumber}行目: Unity Scene遷移と好感度分岐は" +
+                    "同じセリフに同時設定できません。");
+            }
+
             if (!string.IsNullOrEmpty(speakerId))
             {
                 if (!characterById.TryGetValue(
@@ -409,6 +444,7 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     text = text.Replace("\\n", "\n"),
                     background = background,
                     revealSpeakerName = revealSpeakerName,
+                    nextScenePath = nextScenePath,
                     nextLineId = nextLineId,
                     choices = choices,
                     affectionChanges = affectionChanges,
@@ -487,6 +523,39 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
             $"{rowNumber}行目: 背景Spriteを読み込めませんでした。\n" +
             $"パス: {backgroundPath}\n" +
             "画像のTexture TypeがSpriteになっているか確認してください。");
+    }
+
+    private static string ParseScenePath(
+        string scenePath,
+        int rowNumber)
+    {
+        if (string.IsNullOrWhiteSpace(scenePath))
+        {
+            return string.Empty;
+        }
+
+        if (!scenePath.EndsWith(
+                ".unity",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new FormatException(
+                $"{rowNumber}行目: nextScenePathには" +
+                ".unityファイルを指定してください。\n" +
+                $"パス: {scenePath}");
+        }
+
+        SceneAsset scene =
+            AssetDatabase.LoadAssetAtPath<SceneAsset>(
+                scenePath);
+
+        if (scene != null)
+        {
+            return scenePath;
+        }
+
+        throw new FormatException(
+            $"{rowNumber}行目: Unity Sceneを読み込めませんでした。\n" +
+            $"パス: {scenePath}");
     }
 
     private static List<DialogueChoice> ParseChoices(

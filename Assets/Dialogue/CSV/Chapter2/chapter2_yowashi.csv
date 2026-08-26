@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 chapter2_yowashi_001,yowashi,normal,Assets/Art/Backgrounds/white_room.png,この左腕に封印されし悪魔、ベルゼバブが疼いている……刮目せよ！！！,chapter2_yowashi_002,,,
 chapter2_yowashi_002,yowashi,normal,,ということでこんにちは、空田ヨワシでーす！よろしく〜,chapter2_yowashi_003,,,true
 chapter2_yowashi_003,doute,normal,,（さっきも思ったけど……）,chapter2_yowashi_004,,,

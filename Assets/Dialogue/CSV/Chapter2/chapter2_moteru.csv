@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 chapter2_moteru_001,moteru,normal,Assets/Art/Backgrounds/white_room.png,僕の自己紹介だね……！僕は凄久モテル、よろしく！,chapter2_moteru_002,,,true
 chapter2_moteru_002,doute,normal,,俺は蓮愛ドウテ。趣味はゲーム、血液型はA型、誕生日は1月21日です。よろしくお願いします……！,chapter2_moteru_003,,,
 chapter2_moteru_003,moteru,normal,,うん！よろしくね……！さっきは本当にありがとう……！,chapter2_moteru_004,,,

@@ -144,7 +144,7 @@ chapter1_002,kayo,よろしくね,,
 ### 列構成
 
 ```csv
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,revealSpeakerName,nextScenePath
 ```
 
 | 列 | 必須 | 説明 |
@@ -158,6 +158,7 @@ lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1
 | `choiceNText` | 任意 | プレイヤーへ表示する選択肢。`N`は1以上の連番 |
 | `choiceNNextLineId` | 選択肢使用時は必須 | 対応する選択肢を押したときの遷移先ID |
 | `revealSpeakerName` | 任意 | `true`なら、このセリフの全文表示後に話者の本名を公開する |
+| `nextScenePath` | 任意 | このセリフの次操作で読み込むUnity Sceneの`Assets/...unity`パス |
 
 例：
 
@@ -170,6 +171,30 @@ chapter1_002,doute,normal,Assets/Art/Backgrounds/station_platform_twilight.png,�
 ### 背景の切り替え
 
 `DialogueScenarioSO` の `Default Background` はチャプター開始時に毎回適用されます。チャプターの途中で背景を変える場合は、対象セリフの `backgroundPath` へSpriteのパスを設定します。以降の空欄行ではその背景が維持され、次のチャプターに進むとそのチャプターの既定背景へ切り替わります。
+
+### Unity Sceneへの遷移
+
+会話途中から別のUnity Sceneを読み込む場合は、遷移直前のセリフの`nextScenePath`へ`.unity`ファイルのパスを指定します。
+
+```csv
+lineId,speakerId,expressionId,text,nextLineId,nextScenePath
+chapter2_end_012,moteru,normal,みんなの気持ちが決まったら教えてほしいな,chapter2_end_013,
+chapter2_end_013,doute,normal,こんな感じで大丈夫なのかなぁ……,,Assets/Scenes/GameMap/Title.unity
+```
+
+対象セリフでは次の順で動作します。
+
+1. セリフを通常どおりタイプライター表示する
+2. 全文表示後はAUTOによる自動送りを停止する
+3. プレイヤーが次へ進む操作をしたときに`nextScenePath`のSceneを読み込む
+
+AUTOのON/OFF設定自体は変更せず、Scene遷移を設定したセリフだけ自動送りの対象外にします。セリフ表示中の最初のクリックは全文表示だけを行い、Sceneを読み込むには全文表示後にもう一度クリックします。
+
+Scene遷移行には`nextLineId`、選択肢、好感度分岐を同時設定できません。`affectionChanges`と`revealSpeakerName`は通常どおり使用でき、Sceneを読み込む前に適用されます。
+
+遷移先Sceneは、Unity 6の`File > Build Profiles > Scene List`へ追加し、有効にしてください。CSV Importerは`.unity`ファイルがプロジェクト内に存在することを検証しますが、Build Profilesへの追加までは自動で行いません。
+
+Scene読み込み時はDialogueを終了扱いにしないため、`On Dialogue Completed`は呼び出されません。また、チャプター切替用の暗転フェードは適用せず、Unity Sceneを直接読み込みます。
 
 ### 同じ章の中での進み方
 
@@ -346,6 +371,8 @@ AUTOの状態は章が切り替わっても維持されます。
 
 次章が未設定または空の場合は従来の章送りと同様にスキップし、それ以降の有効な章を探します。次の章が存在しなければDialogue全体を終了します。
 
+現在位置以降、または`Following Scenarios`の後続チャプター内に`nextScenePath`を持つセリフがある場合、SKIPの`はい`では通常の次章移動よりScene遷移を優先します。対象セリフ自体は表示せず、再生順で最初に見つかったUnity Sceneを読み込みます。すでに通過したScene遷移行は検索対象になりません。
+
 ### Text Animation
 
 | Inspector項目 | 説明 |
@@ -374,12 +401,14 @@ flowchart TD
     Ready -->|クリックまたはタップ| Advance[Advance]
     Ready -->|AUTOがONかつ待機時間経過| Advance
     Advance -->|章内に次の行がある| NextLine[次のセリフを表示]
+    Advance -->|全文表示済みかつnextScenePathあり| LoadScene[Unity Sceneを読み込む]
     Advance -->|章末| NextScenario{次の有効なシナリオがあるか}
     Typing -->|SKIP| Confirm{スキップ確認}
     Ready -->|SKIP| Confirm
     Choices -->|SKIP| Confirm
     Confirm -->|いいえ| Resume[現在の章を再開]
     Confirm -->|はい| NextScenario
+    Confirm -->|はい・後続にnextScenePathあり| LoadScene
     NextScenario -->|ある・フェード有効| FadeOut[1秒かけてフェードアウト]
     FadeOut --> SwitchChapter[背景・立ち絵・チャプターを切り替え]
     SwitchChapter --> FadeHold[1.7秒暗転待機]
@@ -459,6 +488,8 @@ AUTO再生のON/OFFを切り替え、ボタンの表示と次回自動送り時�
 - `nameColor`をUnityのColorとして解析できない
 - portraitをSpriteとして読み込めない
 - `backgroundPath`の画像をSpriteとして読み込めない
+- `nextScenePath`の`.unity`ファイルが存在しない
+- Scene遷移行に`nextLineId`、選択肢、好感度分岐も設定されている
 - `lineId`が重複している
 - `speakerId`がキャラクターCSVに存在しない
 - `revealSpeakerName`が`true`なのに`speakerId`が空になっている
@@ -499,6 +530,8 @@ line_a → line_b → line_a
 - [ ] `speakerId`と`expressionId`がCharacters.csvに存在する
 - [ ] 初期名表示が必要なキャラクターの`nameKnownInitially`を設定した
 - [ ] 自己紹介行の`revealSpeakerName`を設定した
+- [ ] Unity Sceneへ移動する行の`nextScenePath`を設定した
+- [ ] 遷移先SceneをBuild ProfilesのScene Listへ追加した
 - [ ] `Default Background`または必要な行の`backgroundPath`を設定した
 - [ ] 章の最後の行で意図しない次行へ進まないことを確認した
 - [ ] 選択肢の表示文と遷移先IDをペアで設定した

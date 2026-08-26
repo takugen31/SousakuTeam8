@@ -1,3 +1,3 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 chapter2_001,moteru,normal,Assets/Art/Backgrounds/white_room.png,みんなを集めてくれてありがとう……！ひとまず、お互いを知るのが先かな？,chapter2_002,,,
 chapter2_002,doute,normal,,それもそうだね。もう一回みんなと話してみようかな……？,,,,

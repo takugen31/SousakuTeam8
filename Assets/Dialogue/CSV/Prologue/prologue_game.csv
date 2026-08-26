@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,nextScenePath
 prologue_001,kayo,normal,,「今日はありがとう、デート楽しかったわ」,prologue_002
 prologue_002,kayo,normal,,"「でも、食べすぎてちょっと太ったかも」",prologue_003
 prologue_003,doute,normal,Assets/Art/Backgrounds/station_platform_twilight.png,"「今何kgなの？」",prologue_004

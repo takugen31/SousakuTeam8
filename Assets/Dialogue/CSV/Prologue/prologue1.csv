@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 prologue1_001,doute,normal,,少しくらいぽっちゃりでも女の子は可愛いと思うけどなぁ、30代がどんくらいかはわからないけど健康的だよね！,prologue1_002,,
 prologue1_002,doute,normal,,さてゲームの続きを……ってもうこんな時間！？,prologue1_003,,
 prologue1_003,doute,normal,,明日は休みとはいえ、うっかり2時まで起きちゃった,prologue1_004,,

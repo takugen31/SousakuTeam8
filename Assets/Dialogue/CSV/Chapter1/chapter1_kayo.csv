@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 chapter1_kayo_001,doute,normal,Assets/Art/Backgrounds/white_room.png,えっと、こんにちはー……,chapter1_kayo_002,,,
 chapter1_kayo_002,kayo,normal,,こんにちは……,chapter1_kayo_003,,,
 chapter1_kayo_003,kayo,normal,,……！あ、あんた誰？！言っとくけど恋愛とかごめんなんだから！,chapter1_kayo_004,,,

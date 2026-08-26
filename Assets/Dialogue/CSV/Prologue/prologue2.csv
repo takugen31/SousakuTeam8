@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,choice3Text,choice3NextLineId,choice4Text,choice4NextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,choice3Text,choice3NextLineId,choice4Text,choice4NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 prologue2_001,doute,normal,Assets/Art/Backgrounds/white_room.png,んん……はっ！今何時……って、どこだここ！,prologue2_002,,,,,,,,,,
 prologue2_002,doute,normal,,…………！こほんっ,prologue2_003,,,,,,,,,,
 prologue2_003,doute,normal,,知らない天井だ……,,ヲタクすぎるだろ……,prologue2_004,記念すべき初選択肢ここで使うの？,prologue2_004,ノーコメントだよ,prologue2_004,エ〇パロですよ！見てください！,prologue2_004,,

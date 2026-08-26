@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 chapter1_yowashi_001,doute,normal,Assets/Art/Backgrounds/white_room.png,あのー、こんにちは？,chapter1_yowashi_002,,,
 chapter1_yowashi_002,yowashi,normal,,我に声をかけたことを褒め讃えよう……我が下僕になる覚悟はできたのだな？,chapter1_yowashi_003,,,
 chapter1_yowashi_003,doute,normal,,え？,chapter1_yowashi_004,,,

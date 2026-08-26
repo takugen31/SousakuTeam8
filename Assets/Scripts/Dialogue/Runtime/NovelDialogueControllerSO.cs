@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -166,6 +167,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool isChapterTransitioning;
     private bool isChoiceSelectionOpen;
     private bool isPlaying;
+    private bool isSceneLoading;
     private bool isSkipConfirmationOpen;
     private bool isTyping;
 
@@ -213,6 +215,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void Update()
     {
         if (isChapterTransitioning ||
+            isSceneLoading ||
             isSkipConfirmationOpen ||
             isChoiceSelectionOpen)
         {
@@ -312,6 +315,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             currentLine == null ||
             currentScenario == null ||
             isChapterTransitioning ||
+            isSceneLoading ||
             isChoiceSelectionOpen)
         {
             return;
@@ -321,6 +325,12 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (isTyping)
         {
             CompleteTyping();
+            return;
+        }
+
+        if (currentLine.HasSceneTransition)
+        {
+            LoadDialogueScene(currentLine.nextScenePath);
             return;
         }
 
@@ -455,6 +465,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (!isPlaying ||
             currentScenario == null ||
             isChapterTransitioning ||
+            isSceneLoading ||
             isSkipConfirmationOpen)
         {
             return;
@@ -504,7 +515,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (!isPlaying ||
             currentScenario == null ||
-            isChapterTransitioning)
+            isChapterTransitioning ||
+            isSceneLoading)
         {
             return;
         }
@@ -515,6 +527,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         autoAdvanceAt = -1f;
+
+        if (TryLoadUpcomingSceneTransition())
+        {
+            return;
+        }
 
         if (!TryStartNextScenario())
         {
@@ -1038,6 +1055,13 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         RevealCurrentSpeakerName();
 
+        if (currentLine != null && currentLine.HasSceneTransition)
+        {
+            // Scene遷移行はAUTOで先へ進めず、プレイヤーの入力を待つ
+            autoAdvanceAt = -1f;
+            return;
+        }
+
         if (currentLine != null && currentLine.HasChoices)
         {
             ShowChoices(currentLine.choices);
@@ -1090,6 +1114,81 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         speakerNameText.text = character.displayName;
         speakerNameText.color = character.nameColor;
+    }
+
+    private bool TryLoadUpcomingSceneTransition()
+    {
+        if (currentScenario != null &&
+            currentLine != null &&
+            currentScenario.TryGetSceneTransitionAtOrAfter(
+                currentLine.lineId,
+                out DialogueLine currentTransition))
+        {
+            LoadDialogueScene(currentTransition.nextScenePath);
+            return true;
+        }
+
+        int scenarioCount = 1 +
+            (followingScenarios?.Count ?? 0);
+
+        for (int nextIndex = currentScenarioIndex + 1;
+             nextIndex < scenarioCount;
+             nextIndex++)
+        {
+            DialogueScenarioSO nextScenario =
+                followingScenarios[nextIndex - 1];
+
+            if (nextScenario == null ||
+                !nextScenario.TryGetFirstSceneTransition(
+                    out DialogueLine nextTransition))
+            {
+                continue;
+            }
+
+            LoadDialogueScene(nextTransition.nextScenePath);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void LoadDialogueScene(string scenePath)
+    {
+        if (isSceneLoading || string.IsNullOrWhiteSpace(scenePath))
+        {
+            return;
+        }
+
+        isSceneLoading = true;
+        isPlaying = false;
+        autoAdvanceAt = -1f;
+
+        StopTypingAndRevealText();
+        HideChoices();
+
+        try
+        {
+            string runtimeScenePath = scenePath.EndsWith(
+                    ".unity",
+                    System.StringComparison.OrdinalIgnoreCase)
+                ? scenePath.Substring(
+                    0,
+                    scenePath.Length - ".unity".Length)
+                : scenePath;
+
+            SceneManager.LoadScene(runtimeScenePath);
+        }
+        catch (System.Exception exception)
+        {
+            isSceneLoading = false;
+            isPlaying = true;
+
+            Debug.LogError(
+                $"Unity Scene「{scenePath}」を読み込めませんでした。" +
+                "Build ProfilesのScene Listへ追加されているか" +
+                "確認してください。\n" +
+                exception);
+        }
     }
 
     private void ShowChoices(IReadOnlyList<DialogueChoice> choices)
@@ -1264,7 +1363,9 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ScheduleAutoAdvance()
     {
-        autoAdvanceAt = autoPlayEnabled
+        autoAdvanceAt = autoPlayEnabled &&
+            currentLine != null &&
+            !currentLine.HasSceneTransition
             ? Time.unscaledTime + autoAdvanceDelaySeconds
             : -1f;
     }

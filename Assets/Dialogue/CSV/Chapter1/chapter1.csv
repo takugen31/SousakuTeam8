@@ -1,4 +1,4 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
 chapter1_001,moteru,normal,Assets/Art/Backgrounds/white_room.png,いたた……私のベッド固くないかい……？,chapter1_002,,,
 chapter1_002,moteru,normal,,……すぅ,chapter1_003,,,
 chapter1_003,moteru,normal,,ここは……どこ？！誘拐……？,chapter1_004,,,
