@@ -214,7 +214,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
-        if (isChapterTransitioning ||
+        if (ArchiveManager.IsOpen ||
+            isChapterTransitioning ||
             isSceneLoading ||
             isSkipConfirmationOpen ||
             isChoiceSelectionOpen)
@@ -827,6 +828,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         ApplyBackground(line);
         ApplyAffectionChanges(line);
+        ApplyArchiveUnlocks(line);
         ApplyCharacter(line);
         StartTyping(line.text);
     }
@@ -880,6 +882,22 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         affection.ApplyDeltas(line.affectionChanges);
+    }
+
+    private static void ApplyArchiveUnlocks(DialogueLine line)
+    {
+        if (line == null || line.archiveUnlockIds == null)
+        {
+            return;
+        }
+
+        foreach (string entryId in line.archiveUnlockIds)
+        {
+            if (!string.IsNullOrWhiteSpace(entryId))
+            {
+                ArchiveManager.Unlock(entryId.Trim());
+            }
+        }
     }
 
     private void ApplyCharacter(DialogueLine line)

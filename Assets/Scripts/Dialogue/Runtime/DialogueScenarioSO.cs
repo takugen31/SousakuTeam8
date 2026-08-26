@@ -201,6 +201,9 @@ public sealed class DialogueLine
     public List<AffectionDelta> affectionChanges =
         new List<AffectionDelta>();
 
+    [Tooltip("このセリフが表示されたときに獲得するアーカイブ項目のIDです。")]
+    public List<string> archiveUnlockIds = new List<string>();
+
     // 好感度に応じた分岐（先頭から順に評価され、最初に一致したものが選ばれる）
     public List<DialogueBranch> branches =
         new List<DialogueBranch>();
