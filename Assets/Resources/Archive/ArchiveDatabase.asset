@@ -34,3 +34,43 @@ MonoBehaviour:
     sortOrder: 10
     unlockedAtStart: 1
     showBeforeUnlock: 0
+  - id: chapter1.bookshelf
+    category: 2
+    title: 本棚
+    subtitle: 白い部屋の左側に置かれた木製の本棚。
+    body: "数多くの本が整然と並べられている。どの本も長い間、この部屋に置かれていたようだ。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 100
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter1.nameplate
+    category: 2
+    title: ドアの表札
+    subtitle: ドアの上に取り付けられた横長の木製表札。
+    body: "白いドアの上に、茶色い表札が掲げられている。部屋を調べるうえで重要な手がかりかもしれない。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 110
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter1.manga
+    category: 2
+    title: ベッドの上の漫画
+    subtitle: 白いベッドの上に置かれていた漫画。
+    body: "数冊の漫画が重ねて置かれている。誰かがここで読んでいたのだろうか。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 120
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter1.facing_wall
+    category: 2
+    title: ベッドが面している壁
+    subtitle: ベッドの正面に広がる白い壁。
+    body: "一見すると何もない白い壁だが、注意深く確認しておく必要がありそうだ。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 130
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
