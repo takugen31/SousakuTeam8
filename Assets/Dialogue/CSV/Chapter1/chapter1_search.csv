@@ -1,0 +1,8 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+search_door_001,doute,normal,,「恋人を作らないと出られない部屋……？なんだそれ、そんなアニメみたいな……嘘だろ、ドアノブがない！？」,search_door_kayo_002,,,,
+search_door_kayo_002,kayo,normal,,「あれ、このドア、ドアノブがない……引き戸かな」,,,,,
+search_bookshelf_001,doute,normal,,「これは俺の愛読書、恋愛童貞の俺が異世界転生したらモテまくった件じゃないか！こっちには売り切れ続出だった少女漫画が全巻セット！？この部屋を作った人とは趣味が合いそうだな〜」,,,,,
+search_wall_001,,,,「だめだ、ビクともしない。」,search_wall_002,,,,
+search_wall_002,,,,「RPGでお決まりのこのセリフ、これ言ってみたかったんだよな〜。てかそれどころじゃない、どこから脱出しよう」,search_wall_moteru_003,,,,
+search_wall_moteru_003,moteru,normal,,「この壁かなり分厚そう……破って脱出するのは無理だね……」,,,,,
+search_manga_001,yowashi,normal,,「これはもしや、あの売り切れ続出してた花より男子の漫画！？最高じゃん！」,,,,,

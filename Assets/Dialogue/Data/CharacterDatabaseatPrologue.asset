@@ -16,6 +16,7 @@ MonoBehaviour:
   - characterId: doute
     displayName: "\u30C9\u30A6\u30C6"
     nameColor: {r: 1, g: 1, b: 1, a: 1}
+    nameKnownInitially: 1
     expressions:
     - expressionId: normal
       portrait: {fileID: 336508224431435947, guid: 940bdae383811264ab11469415714f30, type: 3}
@@ -24,18 +25,21 @@ MonoBehaviour:
   - characterId: kayo
     displayName: "\u30AB\u30E8"
     nameColor: {r: 0.5019608, g: 0.78431374, b: 1, a: 1}
+    nameKnownInitially: 0
     expressions:
     - expressionId: normal
       portrait: {fileID: 1240851174394323274, guid: b239034ee8fcad04788dfe82fda004a4, type: 3}
   - characterId: moteru
     displayName: "\u30E2\u30C6\u30EB"
     nameColor: {r: 0.5019608, g: 0.78431374, b: 1, a: 1}
+    nameKnownInitially: 0
     expressions:
     - expressionId: normal
       portrait: {fileID: -8838777000032000206, guid: 722e4816d64bcdb469b6b6ebb1d7e425, type: 3}
   - characterId: yowashi
     displayName: "\u30E8\u30EF\u30B7"
     nameColor: {r: 0.5019608, g: 0.78431374, b: 1, a: 1}
+    nameKnownInitially: 0
     expressions:
     - expressionId: normal
       portrait: {fileID: 1223118908298377405, guid: ab77056009af31a44b33dde5dab2de7d, type: 3}

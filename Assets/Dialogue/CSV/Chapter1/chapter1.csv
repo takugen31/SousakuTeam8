@@ -3,7 +3,7 @@ chapter1_001,moteru,normal,Assets/Art/Backgrounds/white_room.png,いたた……
 chapter1_002,moteru,normal,,……すぅ,chapter1_003,,,
 chapter1_003,moteru,normal,,ここは……どこ？！誘拐……？,chapter1_004,,,
 chapter1_004,doute,normal,,わっ俺以外にも人がいたのか！色々ありすぎて気づかなかった……,chapter1_005,,,
-chapter1_005,doute,normal,,とりあえずこの部屋の手がかりも欲しいし探索してみようかな……？,chapter1_006,,,
+chapter1_005,doute,normal,,とりあえずこの部屋の手がかりも欲しいし探索してみようかな……？,chapter1_006,,,,Assets/Scenes/GameMap/Chapter1_SearchScene.unity
 chapter1_006,doute,normal,,ひと通り探索したけど、出口がない、よな？あったのは変な扉だけ……プレイヤーさぁん……！,chapter1_007,,,
 chapter1_007,moteru,normal,,あの……大丈夫？,chapter1_008,,,
 chapter1_008,doute,normal,,うわっえっとその……これは一人で喋ってたわけではなくてですね……！,chapter1_009,,,

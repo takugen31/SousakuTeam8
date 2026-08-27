@@ -731,6 +731,7 @@ MonoBehaviour:
   scenario: {fileID: 11400000, guid: cf8d3c86502709540a8bcadb9944ddf1, type: 2}
   followingScenarios:
   - {fileID: 11400000, guid: 32de4174b15050344a870acf28ebf99a, type: 2}
+  - {fileID: 11400000, guid: a41c6e59be1b4aa1a0e87a0b2c9135f7, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???
@@ -742,6 +743,9 @@ MonoBehaviour:
   chapterFadeHoldDuration: 1.7
   chapterFadeInDuration: 1
   chapterFadeColor: {r: 0, g: 0, b: 0, a: 1}
+  useSceneTransitionFade: 1
+  sceneFadeOutDuration: 1
+  sceneFadeHoldDuration: 0.15
   dialogueRoot: {fileID: 1164511896}
   namePlate: {fileID: 0}
   speakerNameText: {fileID: 2096725564}

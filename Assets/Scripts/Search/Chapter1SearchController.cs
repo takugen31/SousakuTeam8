@@ -13,6 +13,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
 {
     private const string SaveKey = "Chapter1Search.Acquired.v1";
     private const float ReferenceAspect = 1672f / 941f;
+    private const int SearchCanvasSortingOrder = 100;
 
     private static readonly Color Gold = new Color(1f, 0.72f, 0.16f, 1f);
     private static readonly Color DarkPanel = new Color(0.018f, 0.027f, 0.04f, 0.84f);
@@ -29,7 +30,17 @@ public sealed class Chapter1SearchController : MonoBehaviour
     [SerializeField]
     private TMP_FontAsset uiFont;
 
+    [Header("Item Dialogue")]
+    [SerializeField]
+    private DialogueScenarioSO itemDialogueScenario;
+
+    [SerializeField]
+    private CharacterDatabaseSO dialogueCharacterDatabase;
+
     [Header("Completion Transition")]
+    [SerializeField, Min(0f)]
+    private float sceneFadeInDuration = 1f;
+
     [SerializeField, Min(0f)]
     private float fadeOutDuration = 2.5f;
 
@@ -38,6 +49,9 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
     [SerializeField]
     private string completionSceneName = "NovelScene";
+
+    [SerializeField]
+    private string completionResumeLineId = "chapter1_006";
 
     private readonly HashSet<string> acquiredItemIds =
         new HashSet<string>(StringComparer.Ordinal);
@@ -56,10 +70,15 @@ public sealed class Chapter1SearchController : MonoBehaviour
     private AspectRatioFitter modalStillAspect;
     private TMP_Text modalTitle;
     private TMP_Text savedMessage;
+    private NovelDialogueController itemDialogueController;
+    private GameObject itemDialogueRoot;
+    private ItemDefinition inspectedItem;
     private Image completionFadeOverlay;
     private int modalOpenedFrame = -1;
     private RoomView currentRoom = RoomView.Room1;
     private bool isModalOpen;
+    private bool isDialogueOpen;
+    private bool isFadingIn;
     private bool isCompleting;
     private bool cursorStateCaptured;
     private CursorLockMode previousCursorLock;
@@ -87,17 +106,26 @@ public sealed class Chapter1SearchController : MonoBehaviour
         BuildItemDefinitions();
         EnsureEventSystem();
         BuildUI();
+        bool hasCompletedSearch = HasAcquiredAllItems();
+        isFadingIn = !hasCompletedSearch;
         ShowRoom(RoomView.Room1);
 
-        if (HasAcquiredAllItems())
+        if (hasCompletedSearch)
         {
             BeginCompletionTransition();
+        }
+        else
+        {
+            StartCoroutine(FadeInSearchScene());
         }
     }
 
     private void Update()
     {
-        if (isCompleting || !isModalOpen || ArchiveManager.IsOpen)
+        if (isFadingIn ||
+            isCompleting ||
+            !isModalOpen ||
+            ArchiveManager.IsOpen)
         {
             return;
         }
@@ -114,6 +142,11 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (itemDialogueController != null)
+        {
+            itemDialogueController.DialogueCompleted -= OnItemDialogueCompleted;
+        }
+
         if (!cursorStateCaptured)
         {
             return;
@@ -126,6 +159,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
     internal bool CanInspect(string itemId)
     {
         return !isModalOpen &&
+            !isDialogueOpen &&
+            !isFadingIn &&
             !isCompleting &&
             !ArchiveManager.IsOpen &&
             !acquiredItemIds.Contains(itemId);
@@ -176,6 +211,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
                 new Vector2(0.34f, 0.66f),
                 new Rect(0.095f, 0.08f, 0.27f, 0.64f),
                 whiteRoom1,
+                "search_bookshelf_001",
+                "search_bookshelf_001",
                 new[]
                 {
                     new Vector2(0.1310f, 0.6461f),
@@ -189,14 +226,16 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
         items.Add(
             new ItemDefinition(
-                "nameplate",
-                "chapter1.nameplate",
-                "ドアの表札",
+                "door",
+                "chapter1.door",
+                "ドア",
                 RoomView.Room1,
                 new Vector2(0.43f, 0.79f),
                 new Vector2(0.57f, 0.88f),
                 new Rect(0.35f, 0.68f, 0.30f, 0.26f),
                 whiteRoom1,
+                "search_door_001",
+                "search_door_kayo_002",
                 new[]
                 {
                     new Vector2(0.4426f, 0.8470f),
@@ -214,18 +253,22 @@ public sealed class Chapter1SearchController : MonoBehaviour
                 new Vector2(0.635f, 0.275f),
                 new Vector2(0.78f, 0.43f),
                 new Rect(0.55f, 0.17f, 0.33f, 0.39f),
-                whiteRoom2));
+                whiteRoom2,
+                "search_manga_001",
+                "search_manga_001"));
 
         items.Add(
             new ItemDefinition(
                 "facing_wall",
                 "chapter1.facing_wall",
-                "ベッドが面している壁",
+                "壁",
                 RoomView.Room2,
                 new Vector2(0.045f, 0.30f),
                 new Vector2(0.385f, 0.88f),
                 new Rect(0.015f, 0.25f, 0.42f, 0.66f),
                 whiteRoom2,
+                "search_wall_001",
+                "search_wall_moteru_003",
                 new[]
                 {
                     new Vector2(0.004f, 0.995f),
@@ -247,7 +290,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
         canvas = canvasObject.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 100;
+        canvas.sortingOrder = SearchCanvasSortingOrder;
 
         CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -289,6 +332,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         BuildNavigation(canvasObject.transform);
         BuildHeader(canvasObject.transform);
         BuildModal(canvasObject.transform);
+        BuildItemDialogue(canvasObject.transform);
 
         completionFadeOverlay = CreateImage(
             "CompletionFadeOverlay",
@@ -434,6 +478,118 @@ public sealed class Chapter1SearchController : MonoBehaviour
         modalRoot.SetActive(false);
     }
 
+    private void BuildItemDialogue(Transform parent)
+    {
+        itemDialogueRoot = CreateImage(
+            "ItemDialogueRoot",
+            parent,
+            new Color(0f, 0f, 0f, 0.28f),
+            true);
+        Stretch(itemDialogueRoot.GetComponent<RectTransform>());
+
+        Image leftPortrait = CreateImage(
+            "LeftPortrait",
+            itemDialogueRoot.transform,
+            Color.white,
+            false).GetComponent<Image>();
+        SetAnchors(
+            leftPortrait.gameObject,
+            new Vector2(0.015f, 0.12f),
+            new Vector2(0.30f, 0.89f));
+        leftPortrait.preserveAspect = true;
+        leftPortrait.enabled = false;
+
+        Image rightPortrait = CreateImage(
+            "RightPortrait",
+            itemDialogueRoot.transform,
+            Color.white,
+            false).GetComponent<Image>();
+        SetAnchors(
+            rightPortrait.gameObject,
+            new Vector2(0.70f, 0.12f),
+            new Vector2(0.985f, 0.89f));
+        rightPortrait.preserveAspect = true;
+        rightPortrait.enabled = false;
+
+        Color dialoguePlateColor =
+            new Color(0.012f, 0.02f, 0.032f, 0.94f);
+
+        GameObject dialoguePanel = CreateImage(
+            "DialoguePanel",
+            itemDialogueRoot.transform,
+            dialoguePlateColor,
+            false);
+        SetAnchors(
+            dialoguePanel,
+            new Vector2(0.075f, 0.045f),
+            new Vector2(0.925f, 0.32f));
+        AddBorder(dialoguePanel.transform, 3f, Gold);
+
+        GameObject speakerPlate = CreateImage(
+            "SpeakerPlate",
+            dialoguePanel.transform,
+            dialoguePlateColor,
+            false);
+        SetAnchors(
+            speakerPlate,
+            new Vector2(0.035f, 0.73f),
+            new Vector2(0.25f, 0.98f));
+        AddBorder(speakerPlate.transform, 3f, Gold);
+
+        TMP_Text speakerText = CreateText(
+            "SpeakerName",
+            speakerPlate.transform,
+            string.Empty,
+            22f,
+            MainText,
+            FontStyles.Bold);
+        Stretch(speakerText.rectTransform, 18f, 18f, 0f, 0f);
+        speakerText.alignment = TextAlignmentOptions.MidlineLeft;
+
+        TMP_Text dialogueText = CreateText(
+            "DialogueText",
+            dialoguePanel.transform,
+            string.Empty,
+            29f,
+            MainText);
+        SetAnchors(
+            dialogueText.gameObject,
+            new Vector2(0.05f, 0.16f),
+            new Vector2(0.95f, 0.72f));
+        dialogueText.alignment = TextAlignmentOptions.TopLeft;
+
+        TMP_Text advanceHint = CreateText(
+            "AdvanceHint",
+            dialoguePanel.transform,
+            "左クリックで進む",
+            15f,
+            new Color(0.67f, 0.71f, 0.72f, 1f));
+        SetAnchors(
+            advanceHint.gameObject,
+            new Vector2(0.72f, 0.02f),
+            new Vector2(0.95f, 0.16f));
+        advanceHint.alignment = TextAlignmentOptions.MidlineRight;
+
+        GameObject controllerObject = new GameObject(
+            "EmbeddedItemDialogueController",
+            typeof(RectTransform));
+        controllerObject.transform.SetParent(parent, false);
+        itemDialogueController =
+            controllerObject.AddComponent<NovelDialogueController>();
+        itemDialogueController.ConfigureEmbeddedDialogue(
+            itemDialogueScenario,
+            dialogueCharacterDatabase,
+            itemDialogueRoot,
+            speakerPlate,
+            speakerText,
+            dialogueText,
+            leftPortrait,
+            rightPortrait);
+        itemDialogueController.DialogueCompleted += OnItemDialogueCompleted;
+
+        itemDialogueRoot.SetActive(false);
+    }
+
     private void CreateHotspot(ItemDefinition item)
     {
         if (item.HotspotPolygon != null &&
@@ -511,7 +667,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
     private void ShowRoom(RoomView room)
     {
-        if (isModalOpen || isCompleting)
+        if (isModalOpen || isDialogueOpen || isCompleting)
         {
             return;
         }
@@ -533,6 +689,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
                 item.Room == currentRoom &&
                 !acquiredItemIds.Contains(item.Id) &&
                 !isModalOpen &&
+                !isDialogueOpen &&
+                !isFadingIn &&
                 !isCompleting;
             hotspot.SetAvailable(visible);
         }
@@ -540,6 +698,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
     private void ShowInspection(ItemDefinition item)
     {
+        inspectedItem = item;
         isModalOpen = true;
         modalOpenedFrame = Time.frameCount;
         modalTitle.text = item.Title;
@@ -556,9 +715,71 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
     private void CloseInspection()
     {
+        ItemDefinition item = inspectedItem;
+        inspectedItem = null;
         isModalOpen = false;
         modalRoot.SetActive(false);
 
+        if (TryStartItemDialogue(item))
+        {
+            return;
+        }
+
+        FinishAcquisitionSequence();
+    }
+
+    private bool TryStartItemDialogue(ItemDefinition item)
+    {
+        if (item == null ||
+            itemDialogueController == null ||
+            itemDialogueScenario == null ||
+            dialogueCharacterDatabase == null ||
+            string.IsNullOrWhiteSpace(item.DialogueStartLineId) ||
+            string.IsNullOrWhiteSpace(item.DialogueEndLineId) ||
+            !itemDialogueScenario.TryGetLine(
+                item.DialogueStartLineId,
+                out _) ||
+            !itemDialogueScenario.TryGetLine(
+                item.DialogueEndLineId,
+                out _))
+        {
+            Debug.LogWarning(
+                "探索会話のデータまたはDialogueシステムが設定されていません。",
+                this);
+            return false;
+        }
+
+        isDialogueOpen = true;
+        leftArrow.gameObject.SetActive(false);
+        rightArrow.gameObject.SetActive(false);
+        RefreshHotspots();
+        StartCoroutine(StartItemDialogueNextFrame(item));
+        return true;
+    }
+
+    private IEnumerator StartItemDialogueNextFrame(ItemDefinition item)
+    {
+        yield return null;
+
+        if (!isDialogueOpen || isCompleting)
+        {
+            yield break;
+        }
+
+        itemDialogueController.PlayDialogueRange(
+            itemDialogueScenario,
+            item.DialogueStartLineId,
+            item.DialogueEndLineId);
+    }
+
+    private void OnItemDialogueCompleted()
+    {
+        isDialogueOpen = false;
+        FinishAcquisitionSequence();
+    }
+
+    private void FinishAcquisitionSequence()
+    {
         if (HasAcquiredAllItems())
         {
             BeginCompletionTransition();
@@ -572,6 +793,36 @@ public sealed class Chapter1SearchController : MonoBehaviour
     {
         return items.Count > 0 &&
             items.TrueForAll(item => acquiredItemIds.Contains(item.Id));
+    }
+
+    private IEnumerator FadeInSearchScene()
+    {
+        ArchiveManager.Close();
+        canvas.sortingOrder = short.MaxValue;
+        completionFadeOverlay.raycastTarget = true;
+        completionFadeOverlay.transform.SetAsLastSibling();
+        completionFadeOverlay.color = Color.black;
+
+        float duration = Mathf.Max(0f, sceneFadeInDuration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float alpha =
+                duration <= 0f
+                    ? 0f
+                    : 1f - Mathf.Clamp01(elapsed / duration);
+            completionFadeOverlay.color = new Color(0f, 0f, 0f, alpha);
+            yield return null;
+        }
+
+        completionFadeOverlay.color = new Color(0f, 0f, 0f, 0f);
+        completionFadeOverlay.raycastTarget = false;
+        canvas.sortingOrder = SearchCanvasSortingOrder;
+        ArchiveManager.Close();
+        isFadingIn = false;
+        ShowRoom(currentRoom);
     }
 
     private void BeginCompletionTransition()
@@ -623,6 +874,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
 
         ArchiveManager.Close();
+        NovelDialogueController.QueueResumeLine(completionResumeLineId);
         SceneManager.LoadScene(completionSceneName, LoadSceneMode.Single);
     }
 
@@ -822,6 +1074,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
         public Vector2 HotspotMax { get; }
         public Rect StillUv { get; }
         public Sprite SourceSprite { get; }
+        public string DialogueStartLineId { get; }
+        public string DialogueEndLineId { get; }
         public Vector2[] HotspotPolygon { get; }
         public bool UsePolygonRaycast { get; }
 
@@ -834,6 +1088,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
             Vector2 hotspotMax,
             Rect stillUv,
             Sprite sourceSprite,
+            string dialogueStartLineId,
+            string dialogueEndLineId,
             Vector2[] hotspotPolygon = null,
             bool usePolygonRaycast = true)
         {
@@ -845,6 +1101,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
             HotspotMax = hotspotMax;
             StillUv = stillUv;
             SourceSprite = sourceSprite;
+            DialogueStartLineId = dialogueStartLineId;
+            DialogueEndLineId = dialogueEndLineId;
             HotspotPolygon = hotspotPolygon;
             UsePolygonRaycast = usePolygonRaycast;
         }
