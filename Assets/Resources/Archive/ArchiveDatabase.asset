@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71853f32b16e4d059176459186bcd4b9, type: 3}
+  m_Name: ArchiveDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::ArchiveDatabase
+  uiFont: {fileID: 11400000, guid: 605d5d10cb9d13f45b4c5b4e27b115b4, type: 2}
+  entries:
+  - id: system.archive_guide
+    category: 4
+    title: アーカイブについて
+    subtitle: 獲得した情報を、いつでも振り返ることができます。
+    body: "人物・場所・手がかり・記録など、ゲーム中に獲得した情報がここへ追加されます。\n\n左側のカテゴリや検索欄を使うと、目的の情報を絞り込めます。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 0
+    unlockedAtStart: 1
+    showBeforeUnlock: 0
+  - id: system.archive_controls
+    category: 4
+    title: 情報画面の操作
+    subtitle: Bキーから情報タブを開きます。
+    body: "Bキーでアーカイブを開閉します。\n\n上下キーで項目を選択し、マウスホイールで一覧や本文をスクロールできます。ESCキーでも画面を閉じられます。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 10
+    unlockedAtStart: 1
+    showBeforeUnlock: 0
+  - id: chapter1.bookshelf
+    category: 2
+    title: 本棚
+    subtitle: 白い部屋の左側に置かれた木製の本棚。
+    body: "数多くの本が整然と並べられている。どの本も長い間、この部屋に置かれていたようだ。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 100
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter1.nameplate
+    category: 2
+    title: ドアの表札
+    subtitle: ドアの上に取り付けられた横長の木製表札。
+    body: "白いドアの上に、茶色い表札が掲げられている。部屋を調べるうえで重要な手がかりかもしれない。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 110
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter1.manga
+    category: 2
+    title: ベッドの上の漫画
+    subtitle: 白いベッドの上に置かれていた漫画。
+    body: "数冊の漫画が重ねて置かれている。誰かがここで読んでいたのだろうか。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 120
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter1.facing_wall
+    category: 2
+    title: ベッドが面している壁
+    subtitle: ベッドの正面に広がる白い壁。
+    body: "一見すると何もない白い壁だが、注意深く確認しておく必要がありそうだ。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 130
+    unlockedAtStart: 0
+    showBeforeUnlock: 0

@@ -1,0 +1,235 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(
+    menuName = "Dialogue/Dialogue Scenario",
+    fileName = "DialogueScenario")]
+public sealed class DialogueScenarioSO : ScriptableObject
+{
+    [SerializeField]
+    [Tooltip("このチャプター開始時に表示する背景です。")]
+    private Sprite defaultBackground;
+
+    [SerializeField]
+    private List<DialogueLine> lines = new List<DialogueLine>();
+
+    private Dictionary<string, int> indexByLineId;
+
+    public Sprite DefaultBackground => defaultBackground;
+    public IReadOnlyList<DialogueLine> Lines => lines;
+
+    public void ReplaceAll(List<DialogueLine> newLines)
+    {
+        lines = newLines ?? new List<DialogueLine>();
+        RebuildCache();
+    }
+
+    public bool TryGetFirstLine(out DialogueLine line)
+    {
+        if (lines != null && lines.Count > 0)
+        {
+            line = lines[0];
+            return true;
+        }
+
+        line = null;
+        return false;
+    }
+
+    public bool TryGetLine(string lineId, out DialogueLine line)
+    {
+        EnsureCache();
+
+        if (indexByLineId.TryGetValue(lineId, out int index))
+        {
+            line = lines[index];
+            return true;
+        }
+
+        line = null;
+        return false;
+    }
+
+    public bool TryGetNextLine(
+        string currentLineId,
+        out DialogueLine nextLine)
+    {
+        EnsureCache();
+
+        if (!indexByLineId.TryGetValue(currentLineId, out int index))
+        {
+            nextLine = null;
+            return false;
+        }
+
+        int nextIndex = index + 1;
+
+        if (nextIndex >= lines.Count)
+        {
+            nextLine = null;
+            return false;
+        }
+
+        nextLine = lines[nextIndex];
+        return true;
+    }
+
+    public bool TryGetSceneTransitionAtOrAfter(
+        string currentLineId,
+        out DialogueLine transitionLine)
+    {
+        EnsureCache();
+
+        if (!indexByLineId.TryGetValue(
+                currentLineId,
+                out int startIndex))
+        {
+            transitionLine = null;
+            return false;
+        }
+
+        return TryGetSceneTransitionFromIndex(
+            startIndex,
+            out transitionLine);
+    }
+
+    public bool TryGetFirstSceneTransition(
+        out DialogueLine transitionLine)
+    {
+        return TryGetSceneTransitionFromIndex(
+            0,
+            out transitionLine);
+    }
+
+    private bool TryGetSceneTransitionFromIndex(
+        int startIndex,
+        out DialogueLine transitionLine)
+    {
+        if (lines == null)
+        {
+            transitionLine = null;
+            return false;
+        }
+
+        for (int index = Mathf.Max(0, startIndex);
+             index < lines.Count;
+             index++)
+        {
+            DialogueLine line = lines[index];
+
+            if (line != null && line.HasSceneTransition)
+            {
+                transitionLine = line;
+                return true;
+            }
+        }
+
+        transitionLine = null;
+        return false;
+    }
+
+    private void OnEnable()
+    {
+        RebuildCache();
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        RebuildCache();
+    }
+#endif
+
+    private void EnsureCache()
+    {
+        if (indexByLineId == null)
+        {
+            RebuildCache();
+        }
+    }
+
+    private void RebuildCache()
+    {
+        indexByLineId =
+            new Dictionary<string, int>(StringComparer.Ordinal);
+
+        if (lines == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < lines.Count; i++)
+        {
+            DialogueLine line = lines[i];
+
+            if (line == null || string.IsNullOrWhiteSpace(line.lineId))
+            {
+                continue;
+            }
+
+            indexByLineId[line.lineId] = i;
+        }
+    }
+}
+
+[Serializable]
+public sealed class DialogueLine
+{
+    public string lineId;
+    public string speakerId;
+    public string expressionId;
+
+    [TextArea(2, 8)]
+    public string text;
+
+    [Tooltip("設定されている場合、このセリフ表示時に背景を切り替えます。")]
+    public Sprite background;
+
+    [Tooltip("このセリフを全文表示した後、話者の本名を公開します。")]
+    public bool revealSpeakerName;
+
+    [Tooltip(
+        "このセリフを全文表示し、次へ進む操作をしたときに" +
+        "読み込むUnity SceneのAssets/...unityパスです。")]
+    public string nextScenePath;
+
+    public string nextLineId;
+    public List<DialogueChoice> choices = new List<DialogueChoice>();
+
+    // このセリフが表示されたときに適用する好感度の増減
+    public List<AffectionDelta> affectionChanges =
+        new List<AffectionDelta>();
+
+    [Tooltip("このセリフが表示されたときに獲得するアーカイブ項目のIDです。")]
+    public List<string> archiveUnlockIds = new List<string>();
+
+    // 好感度に応じた分岐（先頭から順に評価され、最初に一致したものが選ばれる）
+    public List<DialogueBranch> branches =
+        new List<DialogueBranch>();
+
+    public bool HasChoices => choices != null && choices.Count > 0;
+    public bool HasSceneTransition =>
+        !string.IsNullOrWhiteSpace(nextScenePath);
+}
+
+[Serializable]
+public sealed class DialogueChoice
+{
+    public string text;
+    public string nextLineId;
+}
+
+[Serializable]
+public sealed class DialogueBranch
+{
+    public string nextLineId;
+
+    // すべての条件を満たす場合にこの分岐が選ばれる（AND条件）
+    public List<AffectionCondition> conditions =
+        new List<AffectionCondition>();
+
+    // 分岐が選ばれたときに追加で適用する好感度の増減
+    public List<AffectionDelta> affectionChanges =
+        new List<AffectionDelta>();
+}

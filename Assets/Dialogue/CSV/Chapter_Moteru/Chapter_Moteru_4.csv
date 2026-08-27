@@ -1,0 +1,12 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_moteru_4_001,doute,normal,Assets/Art/Backgrounds/white_room.png,モテルっ！,chapter_moteru_4_002,,,,
+chapter_moteru_4_002,moteru,normal,,あれっドウテくん？他の2人と話してきたんじゃ……,chapter_moteru_4_003,,,,
+chapter_moteru_4_003,doute,normal,,そのつもり……だったんだけどな。ひとまずこれを見てくれないか？,chapter_moteru_4_004,,,,
+chapter_moteru_4_004,moteru,normal,,なにこれ、日記………………,chapter_moteru_4_005,,,,
+chapter_moteru_4_005,moteru,normal,,っ………………,chapter_moteru_4_006,,,,
+chapter_moteru_4_006,doute,normal,,（モテルはそれを目にして数秒、顔をりんご飴のように真っ赤にさせて固まった。たしかに改めて考えるとこの内容の日記を俺に見せられるのってエグいな……）,chapter_moteru_4_007,,,,
+chapter_moteru_4_007,doute,normal,,あっ……あー、その公開処刑みたいなことがしたかった訳ではなくてですね……っ！,chapter_moteru_4_008,,,,
+chapter_moteru_4_008,moteru,normal,,……して,chapter_moteru_4_009,,,,
+chapter_moteru_4_009,doute,normal,,？な、なんて……,chapter_moteru_4_010,,,,
+chapter_moteru_4_010,moteru,normal,,かっかえして〜〜～〜〜～！！！！,chapter_moteru_4_011,,,,
+chapter_moteru_4_011,doute,normal,,うわあっ！,,,,,
