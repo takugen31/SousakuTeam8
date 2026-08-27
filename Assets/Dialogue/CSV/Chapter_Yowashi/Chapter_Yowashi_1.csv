@@ -1,0 +1,10 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_yowashi_1_001,doute,normal,Assets/Art/Backgrounds/white_room.png,こんにちは、えっと、ヨワシちゃんであってるよね？,chapter_yowashi_1_002,,,,,,,,
+chapter_yowashi_1_002,yowashi,normal,,我が下僕よ、今日もいい日だな！\nドウテくんだよね〜、どしたの？,chapter_yowashi_1_003,,,,,,,,
+chapter_yowashi_1_003,doute,normal,,ヨワシちゃん、その包帯ってどうしたの？\nなんかさっき凄く怖いものが見えた気がしたんだけど……,chapter_yowashi_1_004,,,,,,,,
+chapter_yowashi_1_004,yowashi,normal,,これは我が腕に宿しベルゼバブを封じ込める封印……\n絶対に中を見てはいけないよ、少年,chapter_yowashi_1_005,,,,,,,,
+chapter_yowashi_1_005,doute,normal,,少年って……ヨワシちゃん何歳？,chapter_yowashi_1_006,,,,,,,,
+chapter_yowashi_1_006,yowashi,normal,,ぴっちぴちの16歳！\nていうか、細かいことを気にする男はモテないよ〜？\n恋人を作らないと出れない部屋なんだから、今からでもちょっとずつ意識しよっ、ね？,chapter_yowashi_1_007,,,,,,,,
+chapter_yowashi_1_007,doute,normal,,は、はぁ……,chapter_yowashi_1_008,,,,,,,,
+chapter_yowashi_1_008,doute,normal,,（何かはぐらかされたような気がするなぁ）,chapter_yowashi_1_009,,,,,,,,
+chapter_yowashi_1_009,,,,［情報］ヨワシの腕の包帯を手に入れた！,,,,,,,,,

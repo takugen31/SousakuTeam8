@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_Catch_Fail
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_catch_fail_001
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u4F55\u304B\u5909\u306A\u3082\u306E\u307E\u3067\u98DB\u3093\u3067\u304D\u3066\u306A\u304B\u3063\u305F\u2026\u2026\uFF1F\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_002
+    speakerId: yowashi
+    expressionId: normal
+    text: "\u307E\u3060\u307E\u3060\u3060\u306A\u2026\u2026\u30C9\u30A6\u30C6\u537F\u2026\u2026\u935B\u3048\u76F4\u3057\u3066\u2026\u2026\u307E\u305F\u6765\u308B\u3068\u3044\u3044\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_003
+    speakerId: doute
+    expressionId: normal
+    text: "\u30E8\u30EF\u30B7\u3061\u3083\u3093\u3082\u30D0\u30C6\u30D0\u30C6\u3058\u3083\u3093\u2026\u2026\n\u3084\u3063\u305F\u306E2\u5206\u3068\u304B\u3060\u3088\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_004
+    speakerId: yowashi
+    expressionId: normal
+    text: "\u6211\u304C\u4F53\u306B\u2026\u2026\u5DE3\u98DF\u3046\u30D9\u30EB\u30BC\u30D0\u30D6\u304C\u2026\u2026\u5C11\u3057\u66B4\u308C\u59CB\u3081\u305F\u3060\u3051\u3060\u2026\u2026\u307E\u3060\u307E\u3060\u3044\u304F\u305E\u2026\u2026\u30C9\u30A6\u30C6\u537F\uFF01\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_005
+    speakerId: doute
+    expressionId: normal
+    text: "\u3044\u3044\u3088\uFF01\u3069\u3093\u3068\u6765\u3044\uFF01\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_006
+    speakerId: 
+    expressionId: 
+    text: "\uFF08\u6697\u8EE2\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_007
+    speakerId: 
+    expressionId: 
+    text: "\u305D\u306E\u5F8C\u306E\u3053\u3068\u306F\u3042\u307E\u308A\u899A\u3048\u3066\u3044\u306A\u3044\u3002"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_008
+    speakerId: 
+    expressionId: 
+    text: "\u30E8\u30EF\u30B7\u3061\u3083\u3093\u304C\u5012\u308C\u3001\u6551\u6025\u968A\u54E1\u3089\u3057\u304D\u4EBA\u306B\u904B\u3070\u308C\u3066\u3044\u3063\u305F\u3002\u4FFA\u306F\u305D\u308C\u3092\u898B\u3066\u3044\u308B\u3053\u3068\u3057\u304B\u3067\u304D\u305A\u3001\u7ACB\u3061\u5C3D\u304F\u3057\u3066\u3044\u305F\u3002"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_009
+    speakerId: 
+    expressionId: 
+    text: "\u6C17\u304C\u3064\u304F\u3068\u4FFA\u306F\u4FFA\u306E\u5BB6\u306B\u3044\u3066\u3001\u767D\u3044\u3042\u306E\u90E8\u5C4B\u306A\u3093\u3066\u898B\u5F53\u305F\u3089\u306A\u304F\u306A\u3063\u3066\u3044\u305F\u3002\u3057\u304B\u3057\u4FFA\u306E\u624B\u306B\u306F\u3001\u81EA\u8CA9\u6A5F\u3067\u8CB7\u3063\u305F\u3042\u306E\u30DC\u30FC\u30EB\u3060\u3051\u304C\u6B8B\u3055\u308C\u3066\u3044\u305F\u3002"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catch_fail_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catch_fail_010
+    speakerId: 
+    expressionId: 
+    text: "\u304D\u3063\u3068\u5922\u3060\u3002\u3042\u3093\u306A\u90E8\u5C4B\u306A\u3093\u3066\u3042\u308B\u308F\u3051\u306A\u3044\u3093\u3060\u3002\u4FFA\u306F\u305D\u3046\u601D\u3046\u3053\u3068\u3057\u304B\u3067\u304D\u306A\u304B\u3063\u305F\u3002"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: Assets/Scenes/GameMap/Title.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

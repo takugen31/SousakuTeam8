@@ -1,0 +1,496 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Moteru_1
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_moteru_1_001
+    speakerId: doute
+    expressionId: normal
+    text: "\u30E2\u30C6\u30EB\u3001\u5C11\u3057\u8A71\u3092\u805E\u3044\u3066\u3082\u3044\u3044\u304B\uFF1F"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_002
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3046\u3093\u3001\u5927\u4E08\u592B\u3060\u3088\u2026\u2026\uFF01\u306A\u3093\u3067\u3082\u805E\u3044\u3066\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_003
+    speakerId: doute
+    expressionId: normal
+    text: "\u3093\uFF1F\u4ECA\u306A\u3093\u3067\u3082\u3063\u3066\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_004
+    speakerId: moteru
+    expressionId: normal
+    text: "\u30C9\u30A6\u30C6\u304F\u3093\u306F\u5197\u8AC7\u304C\u597D\u304D\u3060\u306D\u3063\u3002\u9811\u5F35\u3063\u3066\u7B54\u3048\u308B\u2026\u2026\u3051\u3069\u3001\u5909\u306A\u3053\u3068\u306F\u805E\u304B\u308C\u3066\u3082\u56F0\u308B\u304B\u306A\u3041\u3002\u3054\u3081\u3093\u306D\u2026\u2026\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_005
+    speakerId: doute
+    expressionId: normal
+    text: "\u3044\u3084\u3080\u3057\u308D\u5909\u306A\u5197\u8AC7\u8A00\u3063\u3066\u3054\u3081\u3093\uFF01\u305D\u308C\u3058\u3083\u304A\u8A71\u3088\u308D\u3057\u304F\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_006
+    speakerId: doute
+    expressionId: normal
+    text: "\u305D\u3046\u3044\u3048\u3070\u30E2\u30C6\u30EB\u306F\u30E2\u30C6\u305D\u3046\u3060\u3051\u3069\u604B\u611B\u7D4C\u9A13\u306F\u306A\u3044\u3093\u3060\u3063\u3051\u304B"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_007
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3046\u3093\u3001\u306A\u3044\u3093\u3060\u3002\u3084\u3063\u3071\u308A\u76F8\u624B\u3068\u3061\u3083\u3093\u3068\u5411\u304D\u5408\u3046\u3079\u304D\u3060\u3063\u3066\u8003\u3048\u308B\u3068\u96E3\u3057\u304F\u3066\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_008
+    speakerId: doute
+    expressionId: normal
+    text: "\u307E\u3041\u3001\u305D\u3046\u3060\u3088\u306A\u3041\u2026\u2026\u3002\u30E2\u30C6\u30EB\u306A\u3089\u306A\u306B\u304B\u805E\u3051\u308B\u304B\u3068\u601D\u3063\u305F\u3051\u3069"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_009
+    speakerId: moteru
+    expressionId: normal
+    text: "\u305D\u3063\u305D\u3046\u306A\u306E\uFF1F\uFF01\u2026\u2026\u9811\u5F35\u308B\u3088\uFF01\u4F55\u304B\u3042\u308C\u3070\u76F8\u8AC7\u306B\u306A\u3089\u4E57\u308B\u304B\u3089\u3063\u983C\u308A\u306B\u3057\u3066\u306D\u3002\u3068\u306F\u3044\u3063\u3066\u3082\u7D4C\u9A13\u306F\u306A\u3044\u304B\u3089\u305D\u3093\u306A\u306B\u671F\u5F85\u306F\u3067\u304D\u306A\u3044\u3051\u3069\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_010
+    speakerId: doute
+    expressionId: normal
+    text: "\u305D\u3093\u306A\u3053\u3068\u306A\u3044\uFF01\u3059\u3054\u304F\u52A9\u304B\u308B\u3088\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_011
+    speakerId: doute
+    expressionId: normal
+    text: "\u30E2\u30C6\u30EB\u81EA\u8EAB\u306F2\u4EBA\u306E\u4E2D\u3067\u6C17\u306B\u306A\u3063\u305F\u5B50\u3068\u304B\u3044\u305F\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_012
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3048\u3063\u2026\u2026\u50D5\u306F\u30C9\u30A6\u3063\u3066\u3001\u2026\u2026\u5C11\u3057\u96E3\u3057\u304F\u3066\u30012\u4EBA\u3068\u3082\u3059\u3054\u304F\u7D20\u6575\u3060\u3051\u3069\u3001\u30C9\u30A6\u30C6\u304F\u3093\u306F\u3069\u3046\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_013
+    speakerId: doute
+    expressionId: normal
+    text: "\u3046\u30FC\u3093\u3001\u96E3\u3057\u3044\u3068\u3053\u308D\u3060\u306D\u2026\u2026\u30022\u4EBA\u3068\u3082\u5909\u308F\u3063\u3066\u308B\u3057\u3001\u3044\u3063\u305D\u30E2\u30C6\u30EB\u304C\u5973\u306E\u5B50\u306A\u3089\u5927\u512A\u52DD\u3060\u3063\u305F\u306A\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_014
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3078\u3063\uFF1F\uFF01\u30C9\u3001\u30C9\u30A6\u30C6\u304F\u3093\u3082\u5197\u8AC7\u304C\u597D\u304D\u3060\u306D\u2026\u2026\uFF01\u50D5\u3082\u5973\u306E\u5B50\u306A\u3089\u2026\u2026\u306A\u3093\u3066\u306D\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_015
+    speakerId: doute
+    expressionId: normal
+    text: "\u2026\u2026\u306F\u3063"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_016
+    speakerId: doute
+    expressionId: normal
+    text: "\u30E2\u30C6\u30EB\u3082\u5197\u8AC7\u3068\u304B\u8A00\u3048\u308B\u3093\u3060\u306A\uFF1F\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_017
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3075\u3075\u3063\u3001\u305D\u3046\u3060\u3088\u3002\u5197\u8AC7\u2026\u2026\u306D"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_018
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_018
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u2026\u2026\u306A\u3093\u304B\u542B\u307F\u304C\u3042\u308B\u3088\u3046\u306B\u601D\u3048\u3066\u3057\u307E\u3046\uFF01\u6050\u308B\u3079\u304D\u9854\u306E\u826F\u3055\u2026\u2026\uFF01\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_019
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_019
+    speakerId: moteru
+    expressionId: normal
+    text: "\u306B\u3057\u3066\u3082\u4ED8\u304D\u5408\u308F\u306A\u3044\u3068\u51FA\u3089\u308C\u306A\u3044\u2026\u2026\u306A\u3093\u3066\u4E0D\u601D\u8B70\u306A\u8A71\u3060\u3088\u306D\u3002"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_020
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_020
+    speakerId: doute
+    expressionId: normal
+    text: "\u307E\u3041\u3001\u3053\u3046\u3044\u3046\u306E\u306F\u304A\u7D04\u675F\u306E\u5C55\u958B\u3060\u3051\u3069\u30EA\u30A2\u30EB\u306B\u5165\u308B\u65E5\u304C\u6765\u308B\u3068\u306F\u601D\u308F\u306A\u304B\u3063\u305F\u306A\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_021
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_021
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3048\u3063\uFF1F\u30C9\u30A6\u30C6\u304F\u3093\u306F\u3053\u306E\u90E8\u5C4B\u77E5\u3063\u3066\u308B\u306E\uFF1F\u3055\u3059\u304C\u3060\u306D\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_022
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_022
+    speakerId: doute
+    expressionId: normal
+    text: "\u3042\u30FC\u2026\u2026\u305D\u3046\u3044\u3046\u6F2B\u753B\u3001\u30AA\u30CF\u30CA\u30B7\u304C\u3042\u308B\u3063\u3066\u3060\u3051\u3060\u3051\u3069\u306D\u3002\u3067\u3082\u88CF\u9053\u306E\u8131\u51FA\u65B9\u6CD5\u306F\u691C\u8A0E\u3064\u304B\u306A\u3044\u304B\u306A"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_023
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_023
+    speakerId: moteru
+    expressionId: normal
+    text: "\u305D\u3046\u306A\u3093\u3060\u2026\u2026\u50D5\u3082\u3055\u3063\u304D\u304B\u3089\u90E8\u5C4B\u3092\u8ABF\u3079\u3066\u308B\u3051\u3069\u8131\u51FA\u306E\u30D2\u30F3\u30C8\u306F\u6249\u306E\u6587\u5B57\u4EE5\u5916\u898B\u3064\u304B\u308A\u305D\u3046\u306B\u306A\u3044\u306A\u3041"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_024
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_024
+    speakerId: moteru
+    expressionId: normal
+    text: "\u30C9\u30A6\u30C6\u304F\u3093\u3082\u3082\u3057\u6C17\u3065\u3044\u305F\u3053\u3068\u304C\u3042\u3063\u305F\u3089\u6559\u3048\u3066\u306D\u2026\u2026\uFF01\u624B\u4F1D\u3048\u308B\u3053\u3068\u304C\u3042\u308C\u3070\u306A\u3093\u3067\u3082\u8A00\u3063\u3066\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_025
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_025
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u305D\u3046\u3044\u3048\u3070\u2026\u2026\u30E2\u30C6\u30EB\u81EA\u8EAB\u306E\u8A71\u3092\u5168\u7136\u805E\u3051\u3066\u306A\u3044\u6C17\u304C\u3059\u308B\u2026\u2026\uFF01\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_026
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_026
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u7537\u540C\u58EB\u305D\u3093\u306A\u306B\u8A71\u3057\u3066\u3082\u3067\u306F\u3042\u308B\u3093\u3060\u308D\u3046\u3051\u3069\u3055\u3063\u304D\u304B\u3089\u604B\u611B\u306E\u8A71\u3067\u3082\u3001\u8131\u51FA\u3067\u3082\u3001\u4FFA\u305F\u3061\u306E\u3053\u3068\u3070\u304B\u308A\u3002\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_027
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_027
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u2026\u2026\u306A\u3093\u304B\u5F15\u3063\u304B\u304B\u308B\u306A\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_028
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_028
+    speakerId: doute
+    expressionId: normal
+    text: "\u306A\u3041\u3001\u30E2\u30C6\u30EB\u3002\u4FFA\u305F\u3061\u306E\u3053\u3068\u3092\u6C17\u306B\u304B\u3051\u3066\u304F\u308C\u308B\u306E\u306F\u5B09\u3057\u3044\u3093\u3060\u3051\u3069\u304A\u524D\u81EA\u8EAB\u306E\u3053\u3068\u3082\u8A71\u3057\u3066\u304F\u308C\u306A\u3044\u304B\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_029
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_029
+    speakerId: moteru
+    expressionId: normal
+    text: "\u50D5\u306E\u3053\u3068\u3092\u2026\u2026\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_030
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_030
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u30E2\u30C6\u30EB\u306F\u601D\u3063\u3066\u3082\u3044\u306A\u3044\u3053\u3068\u3092\u8A00\u308F\u308C\u305F\u306E\u304B\u76EE\u3092\u4E38\u304F\u3057\u3066\u56FA\u307E\u3063\u3066\u3057\u307E\u3063\u305F\u3002\u4FFA\u305F\u3061\u306E\u9593\u306B\u6C88\u9ED9\u304C\u6D41\u308C\u308B\u3002\u2026\u2026\u7406\u7531\u306F\u308F\u304B\u3089\u306A\u3044\u304C\u3001\u30E2\u30C6\u30EB\u306F\u81EA\u5206\u306E\u3053\u3068\u3092\u8A71\u3057\u305F\u304F\u306A\u3044\u306E\u304B\u3082\u3057\u308C\u306A\u3044\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_031
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_031
+    speakerId: doute
+    expressionId: normal
+    text: "\u3042\u30FC\u2026\u2026\u3082\u3057\u8A00\u3044\u305F\u304F\u306A\u3044\u306A\u3089\u3001\u30DB\u30F3\u30C8\uFF01\u5927\u4E08\u592B\u3060\u304B\u3089\u2026\u2026\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_032
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_032
+    speakerId: moteru
+    expressionId: normal
+    text: "\u2026\u2026\u305D\u3093\u306A\u306E\u3001\u305D\u3093\u306A\u3053\u3068\u2014\u2014"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_033
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_033
+    speakerId: doute
+    expressionId: normal
+    text: "\u2026\u2026\u3063\u3042"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_034
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_034
+    speakerId: moteru
+    expressionId: normal
+    text: "\u2014\u2014\u3082\u3063\u3061\u308D\u3093\u3060\u3088\uFF01\u306A\u306B\u304C\u805E\u304D\u305F\u3044\u306E\uFF1F\u3048\u3063\u3068\u306D\u3001\u50D5\u306F\u4ECA\u306F\u3082\u3046\u30B3\u30FC\u30D2\u30FC\u3068\u304B\u98F2\u3081\u308B\u3088\u3046\u306B\u306A\u3063\u3066\u306D\u3063\uFF01\u7D05\u8336\u3068\u304B\u306F\u30DF\u30EB\u30AF\u30C6\u30A3\u30FC\u306E\u65B9\u304C\u597D\u304D\u3060\u3051\u3069\u30B9\u30C8\u30EC\u30FC\u30C8\u3082\u7D50\u69CB\u597D\u304D\u3067\u3001\u3042\u3068\u306F\u305D\u3046\u305D\u3046\u82B1\u5C4B\u3055\u3093\u3067\u30D0\u30A4\u30C8\u3057\u3066\u308B\u3093\u3060\u3051\u3069\u8AAC\u660E\u3067\u304D\u308B\u3088\u3046\u306B\u52C9\u5F37\u3057\u3066\u305F\u3089\u597D\u304D\u306B\u306A\u3063\u3061\u3083\u3063\u3066\u306D\uFF1F\u50D5\u306F\u3072\u307E\u308F\u308A\u304C\u597D\u304D\u306A\u3093\u3060\u3051\u3069\u30C9\u30A6\u30C6\u304F\u3093\u306A\u3089\u30D0\u30E9\u3068\u304B\u4F3C\u5408\u3046\u3088\u306D\uFF01\u3042\u3063\u3044\u3084\u3001\u304D\u3063\u3068\u306A\u3093\u3067\u3082\u4F3C\u5408\u3046\u3051\u3069\u2026\u2026\uFF01\u305D\u3046\u305D\u3046\u4ECA\u5E74\u306E\u590F\u306F\u9ED2\u304C\u6D41\u884C\u308A\u307F\u305F\u3044\u3060\u3088\uFF01\u30C9\u30A6\u30C6\u304F\u3093\u306A\u3089\u7D76\u5BFE\u4F3C\u5408\u3046\u3068\u601D\u3046\u3057\u3001\u3044\u3084\u3080\u3057\u308D\u306A\u3093\u3067\u3082\u4F3C\u5408\u3046\u304B\u3089\u3082\u3046\u30C9\u30A6\u30C6\u304F\u3093\u304C\u6D41\u884C\u308A\u307F\u305F\u3044\u306A\u3082\u306E\u306A\u3093\u3060\u3051\u3069\u2026\u2026\uFF01\u305D\u308C\u3068\u3042\u3068\u306F\u2014\u2014"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_035
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_035
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF1F\uFF01\uFF1F\uFF01\uFF1F\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_036
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_036
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u9A5A\u304D\u3059\u304E\u3066\u58F0\u304C\u51FA\u306A\u3044\u3067\u3044\u3066\u3082\u3044\u307E\u3060\u306B\u30E2\u30C6\u30EB\u306F\u3068\u3081\u3069\u306A\u304F\u8A71\u3057\u307E\u304F\u3063\u3066\u3044\u308B\u3002\u3057\u304B\u3082\u3068\u304D\u3069\u304D\u4FFA\u306B\u5BFE\u3059\u308B\u8B0E\u306E\u8CDB\u7F8E\u3092\u4EA4\u3048\u3066\u2026\u2026\u3044\u3084\u3001\u307B\u3093\u3068\u306B\u306A\u3093\u3067\uFF1F\uFF1F\uFF1F\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_037
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_037
+    speakerId: doute
+    expressionId: normal
+    text: "\u2026\u2026\u3063\u306F\uFF01\u5371\u306A\u3044\u5371\u306A\u3044\u3001\u3064\u3044\u306B\u5E7B\u899A\u3092\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_038
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_038
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3084\u3063\u3071\u308A\u30D2\u30FC\u30ED\u30FC\u3068\u304B\u3082\u304B\u3063\u3053\u3088\u304F\u3066\u3044\u3084\u3001\u3082\u3061\u308D\u3093\u30C9\u30A6\u30C6\u304F\u3093\u304C1\u756A\u3067\u3080\u3057\u308D\u30C9\u30A6\u30C6\u304F\u3093\u304C\u30D2\u30FC\u30ED\u30FC\u306A\u3093\u3060\u3051\u3069\u2026\u2026\u3046\u3093\u306C\u3093\u304B\u3093\u306C\u3093"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_039
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_039
+    speakerId: doute
+    expressionId: normal
+    text: "\u5E7B\u899A\u3058\u3083\u306A\u3044\u2026\u2026\u3060\u3068"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: chapter_moteru_1_040
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_1_040
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u56F0\u60D1\u3057\u3066\u3044\u308B\u4FFA\u306B\u306F\u6C17\u3065\u3044\u3066\u3044\u306A\u3044\u3089\u3057\u304F\u30E2\u30C6\u30EB\u306F\u305D\u306E\u307E\u307E\u8A71\u3057\u7D9A\u3051\u305F\u3002\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
