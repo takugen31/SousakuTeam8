@@ -1140,6 +1140,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         image.sprite = portrait;
+        image.preserveAspect = true;
         image.enabled = portrait != null;
     }
 
