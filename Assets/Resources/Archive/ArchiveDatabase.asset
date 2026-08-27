@@ -74,3 +74,33 @@ MonoBehaviour:
     sortOrder: 130
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_kayo.floor_dent
+    category: 2
+    title: 床のくぼみ
+    subtitle: 白い部屋の床にできた小さなくぼみ。
+    body: "何もないと思っていた床に、よく見ると小さなくぼみがある。誰かがここで何度もつまずいたのだろうか。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 200
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_kayo.bookshelf
+    category: 1
+    title: 本棚
+    subtitle: 白い部屋に置かれた豪華な本棚。
+    body: "伝説の漫画『ツンデレラのガラスの心』などが並ぶ豪華な本棚。調べていると、何かが落ちる音がした。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 210
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_kayo.paper_scrap
+    category: 2
+    title: 紙片
+    subtitle: 本棚から落ちてきた破れた紙。
+    body: "破れていて一部しか読めない。『わた……いで……しい』……他の紙片を集めれば、組み立てて読めるかもしれない。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 220
+    unlockedAtStart: 0
+    showBeforeUnlock: 0

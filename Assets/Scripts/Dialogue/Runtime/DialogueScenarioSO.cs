@@ -25,6 +25,11 @@ public sealed class DialogueScenarioSO : ScriptableObject
         RebuildCache();
     }
 
+    public void SetDefaultBackground(Sprite background)
+    {
+        defaultBackground = background;
+    }
+
     public bool TryGetFirstLine(out DialogueLine line)
     {
         if (lines != null && lines.Count > 0)
@@ -188,6 +193,11 @@ public sealed class DialogueLine
 
     [Tooltip("このセリフを全文表示した後、話者の本名を公開します。")]
     public bool revealSpeakerName;
+
+    [Tooltip(
+        "値が設定されている場合、このセリフの直前に" +
+        "相談パート開始のフェード演出とタイトルを表示します。")]
+    public string consultationTitle;
 
     [Tooltip(
         "このセリフを全文表示し、次へ進む操作をしたときに" +

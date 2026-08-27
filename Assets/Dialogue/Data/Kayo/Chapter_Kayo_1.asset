@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Kayo_1
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_kayo_1_001
+    speakerId: doute
+    expressionId: normal
+    text: "\u30AB\u30E8\u3061\u3083\u3093\uFF01\u5C11\u3057\u8A71\u3092\u2026\u2026\u3063\u3066\u4F55\u6301\u3063\u3066\u308B\u306E\uFF1F\uFF01"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 1
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_1_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_1_002
+    speakerId: kayo
+    expressionId: normal
+    text: "\u3042\u3001\u3042\u3093\u305F\u2026\u2026\u30C9\u30A6\u30C6\uFF1F\uFF01\u3042\u3001\u5371\u306A\u3044\u304B\u3089\u3069\u3044\u3066\u30FC\u30FC\u30FC\u30FC\uFF01\uFF01\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: Assets/FallingGame/Scenes/falling_verKayo.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

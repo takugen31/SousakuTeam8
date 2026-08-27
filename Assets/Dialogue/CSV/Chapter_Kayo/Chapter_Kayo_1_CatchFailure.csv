@@ -1,0 +1,13 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,revealSpeakerName
+kayo_catch_failure_001,doute,normal,,うわーーー！,kayo_catch_failure_002,true
+kayo_catch_failure_002,kayo,normal,,ドウテあんた大丈夫……ってあんた顔がっ！……ど、どういう状態……？,kayo_catch_failure_003,true
+kayo_catch_failure_003,doute,normal,,うぅ、顔が凹んで力が出ない……！新しい顔持ってきてよカヨ子さん！,kayo_catch_failure_004,
+kayo_catch_failure_004,kayo,normal,,えっ！あんたの顔って変えられるものだったの？！,kayo_catch_failure_005,
+kayo_catch_failure_005,kayo,normal,,そういえば、お腹がすいてきたような……？,kayo_catch_failure_006,
+kayo_catch_failure_006,doute,normal,,うわーーー！カニバリズムぅ！,kayo_catch_failure_007,
+kayo_catch_failure_007,,,,（ドウテはにげだした！）,kayo_catch_failure_008,
+kayo_catch_failure_008,,,,（しかしうまくにげられなかった！）,kayo_catch_failure_009,
+kayo_catch_failure_009,kayo,normal,,じょ、じょーだんに決まってるでしょ！私は米派よ！,kayo_catch_failure_010,
+kayo_catch_failure_010,doute,normal,,もしかして俺がおにぎりマンなら食べてた？,kayo_catch_failure_011,
+kayo_catch_failure_011,kayo,normal,,………………,kayo_catch_failure_012,
+kayo_catch_failure_012,doute,normal,,せめてなんか言ってくれ——！,,

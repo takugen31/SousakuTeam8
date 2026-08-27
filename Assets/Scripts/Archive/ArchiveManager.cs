@@ -218,6 +218,18 @@ public sealed class ArchiveManager : MonoBehaviour
         ArchiveChanged?.Invoke();
     }
 
+    /// <summary>
+    /// ニューゲーム時にアーカイブの解放状態を初期化します。
+    /// </summary>
+    public void ResetProgress()
+    {
+        unlockedIds.Clear();
+        readIds.Clear();
+        UnlockInitialEntries();
+        SaveState();
+        ArchiveChanged?.Invoke();
+    }
+
     public void ToggleArchive()
     {
         if (IsOpen)
@@ -371,6 +383,13 @@ public sealed class ArchiveManager : MonoBehaviour
         PlayerPrefs.DeleteKey(SaveKey);
         PlayerPrefs.Save();
         Debug.Log("アーカイブの保存データを削除しました。");
+    }
+
+    [UnityEditor.InitializeOnEnterPlayMode]
+    private static void ClearArchiveProgressOnEnterPlayMode()
+    {
+        PlayerPrefs.DeleteKey(SaveKey);
+        PlayerPrefs.Save();
     }
 #endif
 }

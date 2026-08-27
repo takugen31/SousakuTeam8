@@ -12,6 +12,8 @@ namespace Sousakusai8.MiniGame
     /// </summary>
     public sealed class CatchMiniGameController : MonoBehaviour
     {
+        public event System.Action<int> RoundEnded;
+
         [System.Serializable]
         private sealed class ScoreMessageTier
         {
@@ -158,6 +160,7 @@ namespace Sousakusai8.MiniGame
         public bool IsGameRunning => phase == GamePhase.Playing;
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
+        public int CurrentScore => score;
 
         private void Awake()
         {
@@ -753,6 +756,15 @@ namespace Sousakusai8.MiniGame
 
             UpdateTimeText();
             ShowGameOverPresentation();
+            RoundEnded?.Invoke(score);
+        }
+
+        public void HideGameOverPresentation()
+        {
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(false);
+            }
         }
 
         private void ShowGameOverPresentation()

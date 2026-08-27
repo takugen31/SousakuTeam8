@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Kayo_Search
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: search_kayo_floor_001
+    speakerId: doute
+    expressionId: normal
+    text: "相変わらず何もない床だ……うん？ここ、床がへこんでる！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_kayo_bookshelf_001
+    speakerId: doute
+    expressionId: normal
+    text: "おぉ……！相変わらずこの本棚は豪華だな〜！す、少しくらい……そう！調べるくらいは必要だよねっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: search_kayo_bookshelf_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_kayo_bookshelf_002
+    speakerId: doute
+    expressionId: normal
+    text: "わぁあ……！『ツンデレラのガラスの心』だ！もう絶版になっちゃった伝説の漫画……！触れる日が来るなんて……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: search_kayo_bookshelf_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_kayo_bookshelf_003
+    speakerId: doute
+    expressionId: normal
+    text: "うわっ！興奮してぶつかっちゃった……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: search_kayo_bookshelf_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_kayo_bookshelf_004
+    speakerId: doute
+    expressionId: normal
+    text: "……？今、なにか落ちたような……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_kayo_paper_001
+    speakerId: doute
+    expressionId: normal
+    text: "なんだこれ、なにか文字が書いてある……『わた……いで……しい』うーん……頑張ってみたけどいまいち読めなさそうだな"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: search_kayo_paper_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_kayo_paper_002
+    speakerId: doute
+    expressionId: normal
+    text: "破れてるみたいだし他の紙も見つければ組み立てて読めるかも……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: search_kayo_paper_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_kayo_paper_003
+    speakerId: doute
+    expressionId: normal
+    text: "探してみよう！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

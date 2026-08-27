@@ -310,6 +310,13 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     record.RowNumber,
                     "revealSpeakerName") ?? false;
 
+            string consultationTitle =
+                record.TryGet(
+                    "consultationTitle",
+                    out string consultationTitleText)
+                    ? consultationTitleText.Trim()
+                    : string.Empty;
+
             string nextScenePathText =
                 record.TryGet(
                     "nextScenePath",
@@ -452,6 +459,7 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     text = text.Replace("\\n", "\n"),
                     background = background,
                     revealSpeakerName = revealSpeakerName,
+                    consultationTitle = consultationTitle,
                     nextScenePath = nextScenePath,
                     nextLineId = nextLineId,
                     choices = choices,

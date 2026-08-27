@@ -28,6 +28,7 @@ public class TitleMenu : MonoBehaviour
         if (isTransitioning)
             return;
 
+        GameProgress.ResetAll();
         StartCoroutine(FadeOutAndLoadScene());
     }
 
@@ -100,6 +101,6 @@ public class TitleMenu : MonoBehaviour
         bgmSource.volume = 0f;
         bgmSource.Stop();
 
-        SceneManager.LoadSceneAsync("GameScene");
+        SceneManager.LoadSceneAsync("NovelScene");
     }
 }

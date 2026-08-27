@@ -1,0 +1,369 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Kayo_2
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_kayo_2_001
+    speakerId: doute
+    expressionId: normal
+    text: "\u305D\u3046\u3044\u3048\u3070\u3001\u305D\u306E\u76EE\u7389\u713C\u304D\u306F\u2026\u2026\u306A\u3093\u3068\u3044\u3046\u304B\u3001\u3046\u3093\uFF01\u3059\u3054\u3044\u306D\u2026\u2026\uFF01"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_002
+    speakerId: kayo
+    expressionId: normal
+    text: "\u4E8C\u56DE\u3082\u4E0B\u624B\u306A\u3075\u308C\u65B9\u3059\u308B\u3093\u3058\u3083\u306A\u3044\u308F\u3088\u3063\u2026\u2026\uFF01\u3046\u3045\u2026\u2026\u3075\u3060\u3093\u306F\u3053\u3093\u306A\u30C9\u30B8\u3057\u306A\u3044\u304B\u3089\uFF01\u307B\u3001\u307B\u3093\u3068\u3060\u3088\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 1
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_003
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u7A81\u3063\u8FBC\u3080\u6C17\u3082\u8D77\u304D\u306A\u3044\u5618\u3060\u306A\u2026\u2026\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_004
+    speakerId: doute
+    expressionId: normal
+    text: "\u3084\u3063\u3071\u308A\u3001\u666E\u6BB5\u3082\u7D50\u69CB\u30C9\u30B8\u306A\u306E\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_005
+    speakerId: kayo
+    expressionId: normal
+    text: "\u9055\u3046\u3063\u3066\u8A00\u3063\u3066\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_006
+    speakerId: kayo
+    expressionId: normal
+    text: "\u2026\u2026\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_007
+    speakerId: kayo
+    expressionId: normal
+    text: "\u2026\u2026\u305D\u3046\u3088\u3002\u3060\u304B\u3089\u30B1\u30AC\u3057\u305F\u304F\u306A\u3044\u306A\u3089\u3001\u79C1\u3068\u306F\u95A2\u308F\u3089\u306A\u3044\u65B9\u304C\u3044\u3044\u308F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_008
+    speakerId: doute
+    expressionId: normal
+    text: "\u2026\u2026\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_009
+    speakerId: doute
+    expressionId: normal
+    text: "\u30AB\u30E8\u3061\u3083\u3093\u3001\u4FFA\u306F\u3053\u3046\u898B\u3048\u3066\u9811\u4E08\u306A\u3093\u3060\u3063\uFF01\u3060\u304B\u3089\u30AB\u30E8\u3061\u3083\u3093\u306E\u30C9\u30B8\u306E\u3072\u3068\u3064\u3084\u3075\u305F\u3064\u3001\u5B8C\u74A7\u306B\u53D7\u3051\u3066\u307F\u305B\u307E\u3059\u3068\u3082\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_010
+    speakerId: kayo
+    expressionId: normal
+    text: "\u2026\u2026\uFF01\u2026\u2026\u3042\u308A\u304C\u3068"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_011
+    speakerId: doute
+    expressionId: normal
+    text: "\u305D\u3046\u3044\u3048\u3070\u30AB\u30E8\u3061\u3083\u3093\u306F\u3084\u3063\u3071\u308A\u604B\u611B\u306F\u3057\u305F\u304F\u306A\u3044\u306E\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_012
+    speakerId: kayo
+    expressionId: normal
+    text: "\u3042\u305F\u308A\u307E\u3048\u3067\u3057\u3087\uFF01\u3053\u3093\u306A\u3068\u3053\u308D\u3067\u306A\u3093\u3066\u7D76\u5BFE\u3054\u3081\u3093\u306A\u3093\u3060\u304B\u3089\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_013
+    speakerId: doute
+    expressionId: normal
+    text: "\u307E\u3041\u3001\u5909\u306A\u90E8\u5C4B\u3060\u3057\u6C17\u6301\u3061\u306F\u308F\u304B\u308B\u3088\u3002\u3051\u3069\u30AB\u30E8\u3061\u3083\u3093\u306F\u305D\u308C\u3060\u3051\u3058\u3083\u306A\u3044\u3088\u3046\u306A\u6C17\u304C\u3057\u3066\u2026\u2026\u7406\u7531\u3092\u805E\u304B\u305B\u3066\u3082\u3089\u3048\u306A\u3044\u304B\u306A\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_014
+    speakerId: kayo
+    expressionId: normal
+    text: "\u308F\u305F\u3057\u306F\u3001\u3042\u3093\u305F\u305F\u3061\u304C\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_015
+    speakerId: doute
+    expressionId: normal
+    text: "\u2026\u2026\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_016
+    speakerId: kayo
+    expressionId: normal
+    text: "\u2026\u2026\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_017
+    speakerId: doute
+    expressionId: normal
+    text: "\u2026\u2026\u2026\u2026\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_018
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_018
+    speakerId: kayo
+    expressionId: normal
+    text: "\u2026\u2026\u3042\u3001\u3042\u3093\u305F\u305F\u3061\u306A\u3093\u304B\u3068\u604B\u611B\u3057\u305F\u304F\u306A\u3044\u3060\u3051\u306A\u3093\u3060\u304B\u3089\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_019
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_019
+    speakerId: kayo
+    expressionId: normal
+    text: "\u30AE\u30E2\u30F3\u70B9\uFF1F\u3082\u306A\u3044\u3001\u5358\u7D14\u30E1\u30FC\u30AB\u30A4\u306A\u8A71\u3067\u3057\u3087\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_020
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_020
+    speakerId: doute
+    expressionId: normal
+    text: "\u3044\u3084\u3001\u3067\u3082\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_021
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_021
+    speakerId: kayo
+    expressionId: normal
+    text: "\u3046\u308B\u3055\u3044\u308F\u306D\u3063\uFF01\u3082\u3046\u3044\u3044\u3067\u3057\u3087\u2026\u2026\uFF01\u305D\u308C\u3053\u305D\u30E8\u30EF\u30B7\u3068\u304B\u306F\u4E57\u308A\u6C17\u307F\u305F\u3044\u3060\u3057\u305D\u3063\u3061\u306B\u884C\u3063\u3066\u306A\u3055\u3044\u3001\u308F\u305F\u3057\u306F\u90E8\u5C4B\u3092\u8ABF\u3079\u308B\u306E\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_022
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_022
+    speakerId: doute
+    expressionId: normal
+    text: "\u3048\u3063\u3046\u308F\u3042\uFF01\u3054\u3001\u3054\u3081\u3093\u306A\u3055\u3044\u2026\u2026\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_023
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_023
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u884C\u3063\u3061\u3083\u3063\u305F\u2026\u2026\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_024
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_024
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u306A\u3093\u3060\u308D\u3046\u3001\u30AB\u30E8\u3061\u3083\u3093\u306E\u614B\u5EA6\u2026\u2026\u9055\u548C\u611F\u304C\u3042\u308B\u3088\u3046\u306A\uFF1F\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_025
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_025
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u30D7\u30EC\u30A4\u30E4\u30FC\u3055\u3093\u306B\u76F8\u8AC7\u3057\u305F\u3044\u3068\u3053\u308D\u3060\u3051\u3069\u2026\u2026\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: 
+    choices:
+    - text: "\u60C5\u5831\u304C\u306A\u3044\u306E\u3067\u7121\u7406\u3067\u3059"
+      nextLineId: chapter_kayo_2_026
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_026
+    speakerId: doute
+    expressionId: normal
+    text: "\u3067\u3059\u3088\u306D\u301C\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_2_027
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_2_027
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u3053\u3053\u306F\u3082\u3046\u4E00\u5EA6\u90E8\u5C4B\u3092\u8ABF\u3079\u3066\u4F55\u304B\u624B\u304C\u304B\u308A\u304C\u306A\u3044\u304B\u8ABF\u3079\u3066\u307F\u3088\u3046\u304B\u306A\u2026\u2026\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: Assets/Scenes/GameMap/Chapter_Kayo_SearchScene.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
