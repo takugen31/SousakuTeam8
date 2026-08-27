@@ -361,7 +361,7 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
-    nextScenePath: 
+    nextScenePath: Assets/Scenes/GameMap/Chapter_Kayo_SearchScene.unity
     nextLineId: 
     choices: []
     affectionChanges: []

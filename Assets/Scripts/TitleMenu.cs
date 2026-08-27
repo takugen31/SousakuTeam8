@@ -100,6 +100,6 @@ public class TitleMenu : MonoBehaviour
         bgmSource.volume = 0f;
         bgmSource.Stop();
 
-        SceneManager.LoadSceneAsync("GameScene");
+        SceneManager.LoadSceneAsync("NovelScene");
     }
 }

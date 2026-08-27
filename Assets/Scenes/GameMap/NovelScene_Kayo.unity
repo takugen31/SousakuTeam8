@@ -689,7 +689,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1633669556}
   - component: {fileID: 1633669557}
-  - component: {fileID: 2200000100}
   m_Layer: 5
   m_Name: DialogueController
   m_TagString: Untagged
@@ -3041,23 +3040,6 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 0.72, b: 0.16, a: 1}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 0
---- !u!114 &2200000100
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1633669555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13cff9cc7a704dc5a49790001adf92e3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueCsvSequenceBootstrap
-  dialogueController: {fileID: 1633669557}
-  scenarioCsvs:
-  - {fileID: 4900000, guid: ec0413f3f7b209f418894c505ff473fc, type: 3}
-  - {fileID: 4900000, guid: ebd3a3e1cc514ee468644595d1556280, type: 3}
-  backgroundForPathRows: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

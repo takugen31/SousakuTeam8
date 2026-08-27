@@ -222,19 +222,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1950354241}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b61c9f4d23443de89e754ea6c738df2, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a8f2b1c4d5e6f708192a3b4c5d6e7f8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Chapter1SearchController
-  whiteRoom1: {fileID: -807315467421928614, guid: a0d5e8ce798948c98423e645ed6e234f, type: 3}
-  whiteRoom2: {fileID: -512409681733682045, guid: 62d5e1b8cb9e4dc1be90551bc884ae2a, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::KayoSearchController
+  roomBackground: {fileID: -807315467421928614, guid: a0d5e8ce798948c98423e645ed6e234f, type: 3}
   uiFont: {fileID: 11400000, guid: 605d5d10cb9d13f45b4c5b4e27b115b4, type: 2}
-  itemDialogueScenario: {fileID: 11400000, guid: b7f3392d3fa54cc9b5dcad6e29c1e9c1, type: 2}
+  itemDialogueScenario: {fileID: 11400000, guid: 6d1b5e4f708192a3b4c5d6e7f8091a2b, type: 2}
   dialogueCharacterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   sceneFadeInDuration: 1
   fadeOutDuration: 2.5
   postFadeDelay: 2
-  completionSceneName: NovelScene
-  completionResumeLineId: chapter1_006
+  completionSceneName: NovelScene_Kayo
+  completionResumeLineId: chapter_kayo_3_001
 --- !u!114 &1950354246
 MonoBehaviour:
   m_ObjectHideFlags: 0

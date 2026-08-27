@@ -675,7 +675,7 @@ MonoBehaviour:
   startPromptMessage: "\u5927\u5909\uFF01\u304B\u3088\u304C\u30D4\u30F3\u30C1\uFF01"
   countdownStepDuration: 1
   resultDialogue: "\u52A9\u304B\u3063\u305F\u3088\uFF01\u3042\u308A\u304C\u3068\u3046\uFF01"
-  gameDuration: 10
+  gameDuration: 100
   minimumSpawnCount: 1
   maximumSpawnCount: 8
   itemHorizontalSpread: 0.75

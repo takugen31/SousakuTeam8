@@ -1,0 +1,9 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+search_kayo_floor_001,doute,normal,,相変わらず何もない床だ……うん？ここ、床がへこんでる！,,,,,
+search_kayo_bookshelf_001,doute,normal,,おぉ……！相変わらずこの本棚は豪華だな〜！す、少しくらい……そう！調べるくらいは必要だよねっ！,search_kayo_bookshelf_002,,,,
+search_kayo_bookshelf_002,doute,normal,,わぁあ……！『ツンデレラのガラスの心』だ！もう絶版になっちゃった伝説の漫画……！触れる日が来るなんて……！,search_kayo_bookshelf_003,,,,
+search_kayo_bookshelf_003,doute,normal,,うわっ！興奮してぶつかっちゃった……,search_kayo_bookshelf_004,,,,
+search_kayo_bookshelf_004,doute,normal,,……？今、なにか落ちたような……,,,,,
+search_kayo_paper_001,doute,normal,,なんだこれ、なにか文字が書いてある……『わた……いで……しい』うーん……頑張ってみたけどいまいち読めなさそうだな,search_kayo_paper_002,,,,
+search_kayo_paper_002,doute,normal,,破れてるみたいだし他の紙も見つければ組み立てて読めるかも……！,search_kayo_paper_003,,,,
+search_kayo_paper_003,doute,normal,,探してみよう！,,,,,

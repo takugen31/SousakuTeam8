@@ -731,6 +731,14 @@ MonoBehaviour:
   followingScenarios:
   - {fileID: 11400000, guid: 32de4174b15050344a870acf28ebf99a, type: 2}
   - {fileID: 11400000, guid: a41c6e59be1b4aa1a0e87a0b2c9135f7, type: 2}
+  - {fileID: 11400000, guid: e3aecef09cbefec4d93c19e29a0340bb, type: 2}
+  - {fileID: 11400000, guid: 1decce0c61e3dfe43bf8ba33dccb529c, type: 2}
+  - {fileID: 11400000, guid: e58b9925f7e002b4d95175944e073603, type: 2}
+  - {fileID: 11400000, guid: b8a50b79e29d9a8469c55fb38a5d75cd, type: 2}
+  - {fileID: 11400000, guid: c67919f7e84a16c478dd0e6c274aa847, type: 2}
+  - {fileID: 11400000, guid: d5a6918a9af10ed409231e973a09111b, type: 2}
+  - {fileID: 11400000, guid: 7885d344d75085e40a8b60708960c33c, type: 2}
+  - {fileID: 11400000, guid: d9657345466d64c4bb278eb7708c8f90, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???
@@ -2909,7 +2917,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.012, g: 0.02, b: 0.032, a: 0.94}
@@ -2939,7 +2947,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
   m_EffectColor: {r: 1, g: 0.72, b: 0.16, a: 1}
   m_EffectDistance: {x: 3, y: -3}
@@ -3001,7 +3009,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.012, g: 0.02, b: 0.032, a: 0.94}
@@ -3031,7 +3039,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
   m_EffectColor: {r: 1, g: 0.72, b: 0.16, a: 1}
   m_EffectDistance: {x: 3, y: -3}
