@@ -1,0 +1,5 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_kayo_end_001,doute,normal,,（その後、俺とカヨちゃんは連絡先を交換した。まさかの付き合わないと脱出できない……こともない部屋だったけど恋愛なんて縁のなかった俺にとっていい思い出になった……かな？）,chapter_kayo_end_002,,,,,,,,
+chapter_kayo_end_002,kayo,normal,,ドウテっ！見てみて、この目玉焼き！ちゃんと黄身が割れてないでしょっ？！,chapter_kayo_end_003,,,,,,,,
+chapter_kayo_end_003,doute,normal,,ほんとだっ！おいしそ〜！それじゃあ——,chapter_kayo_end_004,,,,,,,,
+chapter_kayo_end_004,,,,ドウテ＆カヨ「いただきますっ！！！」,,,,,,,,,

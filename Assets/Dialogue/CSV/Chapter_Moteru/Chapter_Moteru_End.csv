@@ -1,0 +1,3 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_moteru_end_001,,,,パパ、ママっ！ただいまっ！,chapter_moteru_end_002,,,,
+chapter_moteru_end_002,,,,おかえり、——！,,,,,

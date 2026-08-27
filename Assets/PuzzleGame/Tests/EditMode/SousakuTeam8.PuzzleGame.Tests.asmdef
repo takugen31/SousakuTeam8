@@ -1,0 +1,23 @@
+{
+  "name": "SousakuTeam8.PuzzleGame.Tests",
+  "rootNamespace": "SousakuTeam8.PuzzleGame.Tests",
+  "references": [
+    "SousakuTeam8.PuzzleGame"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

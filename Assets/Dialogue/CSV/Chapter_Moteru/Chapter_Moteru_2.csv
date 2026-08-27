@@ -1,0 +1,13 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_moteru_2_001,,,Assets/Art/Backgrounds/white_room.png,（——数時間後。）,chapter_moteru_2_002,,,,
+chapter_moteru_2_002,moteru,normal,,——で、ドウテくんはやっぱり……あれ、そういえばなんの話をしてたんだっけ……？,chapter_moteru_2_003,,,,
+chapter_moteru_2_003,doute,normal,,……はっ！長すぎて数時間分の思考がトリップしてた……。えっと、一応モテルの話をしてた……はずだ。なんかいつの間にかそれて俺の話になってたけど,chapter_moteru_2_004,,,,
+chapter_moteru_2_004,moteru,normal,,えっ？！つ、つい……！ごめんなさいっ！楽しくなっちゃって……！,chapter_moteru_2_005,,,,
+chapter_moteru_2_005,doute,normal,,モテルって意外と面白いやつだな……。なぜお世辞がここまで盛り上がったのか分からんが,chapter_moteru_2_006,,,,
+chapter_moteru_2_006,moteru,normal,,お世辞なんかじゃないよっ！ドウテくんは本当にステキな人だから……！,chapter_moteru_2_007,,,,
+chapter_moteru_2_007,doute,normal,,そう言ってくれるのは嬉しいけど、知り合ったばっかでよくそんなに言えるな〜？やっぱりモテるやつは褒めるのも上手いのか……！,chapter_moteru_2_008,,,,
+chapter_moteru_2_008,moteru,normal,,知り合ったばっかり……か、そうだねっドウテくんも色々な子に話を聞くといいと思うよ……！応援してるからっ……！,chapter_moteru_2_009,,,,
+chapter_moteru_2_009,doute,normal,,モテルと話してるとなんだか懐かしい感じがして……もう少し話してもいいか？,chapter_moteru_2_010,,,,
+chapter_moteru_2_010,moteru,normal,,それは——,chapter_moteru_2_011,,,,
+chapter_moteru_2_011,moteru,normal,,嬉しいよ、すっごく、すっごく嬉しいけど……僕も他の子と話してみなきゃ。ドウテくんも僕とばっかり話してても仕方ないでしょ？部屋の指示の通りなら最終的には男女でペアにならなきゃなんだろうし……,chapter_moteru_2_012,,,,
+chapter_moteru_2_012,doute,normal,,その通りです……俺も2人に話しかけてくるわ！また後でなモテルっ！,,,,,
