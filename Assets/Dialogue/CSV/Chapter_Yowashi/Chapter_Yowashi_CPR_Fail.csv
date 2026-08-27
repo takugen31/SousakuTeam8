@@ -1,0 +1,5 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_yowashi_cpr_fail_001,doute,normal,,ヨワシちゃん！ヨワシちゃん！！,chapter_yowashi_cpr_fail_002,,,,,,,,
+chapter_yowashi_cpr_fail_002,yowashi,normal,,……,chapter_yowashi_cpr_fail_003,,,,,,,,
+chapter_yowashi_cpr_fail_003,doute,normal,,ヨワシちゃん！！,chapter_yowashi_cpr_fail_004,,,,,,,,
+chapter_yowashi_cpr_fail_004,,,,その後、ヨワシの声を聞くことはできず、ただただ無駄とわかっていても心臓マッサージを続けるしかなかった。なぜ俺は……こういうところでやりきれないんだ……,,,,,,,,,Assets/Scenes/GameMap/Title.unity

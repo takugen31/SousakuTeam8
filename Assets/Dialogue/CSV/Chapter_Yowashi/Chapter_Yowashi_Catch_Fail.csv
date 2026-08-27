@@ -1,0 +1,11 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_yowashi_catch_fail_001,doute,normal,,（何か変なものまで飛んできてなかった……？）,chapter_yowashi_catch_fail_002,,,,,,,,
+chapter_yowashi_catch_fail_002,yowashi,normal,,まだまだだな……ドウテ卿……鍛え直して……また来るといい……,chapter_yowashi_catch_fail_003,,,,,,,,
+chapter_yowashi_catch_fail_003,doute,normal,,ヨワシちゃんもバテバテじゃん……\nやったの2分とかだよ？,chapter_yowashi_catch_fail_004,,,,,,,,
+chapter_yowashi_catch_fail_004,yowashi,normal,,我が体に……巣食うベルゼバブが……少し暴れ始めただけだ……まだまだいくぞ……ドウテ卿！！,chapter_yowashi_catch_fail_005,,,,,,,,
+chapter_yowashi_catch_fail_005,doute,normal,,いいよ！どんと来い！！,chapter_yowashi_catch_fail_006,,,,,,,,
+chapter_yowashi_catch_fail_006,,,,（暗転）,chapter_yowashi_catch_fail_007,,,,,,,,
+chapter_yowashi_catch_fail_007,,,,その後のことはあまり覚えていない。,chapter_yowashi_catch_fail_008,,,,,,,,
+chapter_yowashi_catch_fail_008,,,,ヨワシちゃんが倒れ、救急隊員らしき人に運ばれていった。俺はそれを見ていることしかできず、立ち尽くしていた。,chapter_yowashi_catch_fail_009,,,,,,,,
+chapter_yowashi_catch_fail_009,,,,気がつくと俺は俺の家にいて、白いあの部屋なんて見当たらなくなっていた。しかし俺の手には、自販機で買ったあのボールだけが残されていた。,chapter_yowashi_catch_fail_010,,,,,,,,
+chapter_yowashi_catch_fail_010,,,,きっと夢だ。あんな部屋なんてあるわけないんだ。俺はそう思うことしかできなかった。,,,,,,,,,Assets/Scenes/GameMap/Title.unity
