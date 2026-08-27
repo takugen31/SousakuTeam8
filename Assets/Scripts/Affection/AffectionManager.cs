@@ -322,6 +322,13 @@ public sealed class AffectionManager : MonoBehaviour
             "保存された好感度データを削除しました。",
             "OK");
     }
+
+    [InitializeOnEnterPlayMode]
+    private static void ClearAffectionProgressOnEnterPlayMode()
+    {
+        PlayerPrefs.DeleteKey(DefaultSaveKey);
+        PlayerPrefs.Save();
+    }
 #endif
 }
 

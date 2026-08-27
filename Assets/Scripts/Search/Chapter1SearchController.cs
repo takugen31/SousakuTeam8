@@ -1116,6 +1116,13 @@ public sealed class Chapter1SearchController : MonoBehaviour
         PlayerPrefs.Save();
         Debug.Log("Chapter 1探索の取得済みデータを削除しました。");
     }
+
+    [UnityEditor.InitializeOnEnterPlayMode]
+    private static void ClearChapter1SearchProgressOnEnterPlayMode()
+    {
+        PlayerPrefs.DeleteKey(SaveKey);
+        PlayerPrefs.Save();
+    }
 #endif
 }
 

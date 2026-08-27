@@ -19,9 +19,16 @@ public sealed class KayoSearchController : MonoBehaviour
     private static readonly Color DarkPanel = new Color(0.018f, 0.027f, 0.04f, 0.84f);
     private static readonly Color MainText = new Color(0.96f, 0.97f, 0.94f, 1f);
 
-    [Header("Background")]
+    [Header("Backgrounds")]
     [SerializeField]
-    private Sprite roomBackground;
+    private Sprite room1Background;
+
+    [SerializeField]
+    private Sprite room2Background;
+
+    [SerializeField]
+    [Tooltip("本棚の会話終了後に部屋1へ表示する背景です。")]
+    private Sprite room1PaperBackground;
 
     [Header("UI")]
     [SerializeField]
@@ -59,6 +66,9 @@ public sealed class KayoSearchController : MonoBehaviour
     private Canvas canvas;
     private RectTransform backgroundFrame;
     private Image backgroundImage;
+    private Button leftArrow;
+    private Button rightArrow;
+    private TMP_Text roomIndicator;
     private GameObject modalRoot;
     private RawImage modalStill;
     private AspectRatioFitter modalStillAspect;
@@ -67,8 +77,11 @@ public sealed class KayoSearchController : MonoBehaviour
     private NovelDialogueController itemDialogueController;
     private GameObject itemDialogueRoot;
     private ItemDefinition inspectedItem;
+    private ItemDefinition currentDialogueItem;
     private Image completionFadeOverlay;
     private int modalOpenedFrame = -1;
+    private RoomView currentRoom = RoomView.Room1;
+    private Sprite currentRoom1Sprite;
     private bool isModalOpen;
     private bool isDialogueOpen;
     private bool isFadingIn;
@@ -77,25 +90,40 @@ public sealed class KayoSearchController : MonoBehaviour
     private CursorLockMode previousCursorLock;
     private bool previousCursorVisible;
 
+    private enum RoomView
+    {
+        Room1,
+        Room2
+    }
+
     private void Awake()
     {
-        if (roomBackground == null)
+        if (room1Background == null || room2Background == null)
         {
             Debug.LogError(
-                "KayoSearchControllerにroomBackgroundが設定されていません。",
+                "KayoSearchControllerにroom1Background / room2Backgroundが設定されていません。",
                 this);
             enabled = false;
             return;
         }
 
+        currentRoom1Sprite = room1Background;
+
         CaptureAndShowCursor();
         LoadProgress();
+
+        if (acquiredItemIds.Contains("bookshelf") &&
+            room1PaperBackground != null)
+        {
+            currentRoom1Sprite = room1PaperBackground;
+        }
+
         BuildItemDefinitions();
         EnsureEventSystem();
         BuildUI();
         bool hasCompletedSearch = HasAcquiredAllItems();
         isFadingIn = !hasCompletedSearch;
-        ShowBackground();
+        ShowRoom(RoomView.Room1);
 
         if (hasCompletedSearch)
         {
@@ -168,7 +196,7 @@ public sealed class KayoSearchController : MonoBehaviour
 
         ItemDefinition item = items.Find(candidate => candidate.Id == itemId);
 
-        if (item == null)
+        if (item == null || item.Room != currentRoom)
         {
             return;
         }
@@ -203,37 +231,42 @@ public sealed class KayoSearchController : MonoBehaviour
 
         items.Add(
             new ItemDefinition(
-                "floor",
-                "chapter_kayo.floor_dent",
-                "床のくぼみ",
-                new Vector2(0.42f, 0.03f),
-                new Vector2(0.80f, 0.30f),
-                new Rect(0.40f, 0.03f, 0.40f, 0.28f),
-                roomBackground,
-                "search_kayo_floor_001",
-                "search_kayo_floor_001"));
-
-        items.Add(
-            new ItemDefinition(
                 "bookshelf",
                 "chapter_kayo.bookshelf",
                 "本棚",
+                RoomView.Room1,
                 new Vector2(0.12f, 0.11f),
                 new Vector2(0.34f, 0.66f),
                 new Rect(0.095f, 0.08f, 0.27f, 0.64f),
-                roomBackground,
+                room1Background,
                 "search_kayo_bookshelf_001",
-                "search_kayo_bookshelf_004"));
+                "search_kayo_bookshelf_004",
+                null,
+                true));
+
+        items.Add(
+            new ItemDefinition(
+                "floor",
+                "chapter_kayo.floor_dent",
+                "床のくぼみ",
+                RoomView.Room2,
+                new Vector2(0.30f, 0.05f),
+                new Vector2(0.72f, 0.34f),
+                new Rect(0.28f, 0.04f, 0.46f, 0.31f),
+                room2Background,
+                "search_kayo_floor_001",
+                "search_kayo_floor_001"));
 
         items.Add(
             new ItemDefinition(
                 "paper_scrap",
                 "chapter_kayo.paper_scrap",
                 "紙片",
-                new Vector2(0.13f, 0.11f),
-                new Vector2(0.33f, 0.27f),
-                new Rect(0.12f, 0.09f, 0.22f, 0.19f),
-                roomBackground,
+                RoomView.Room1,
+                new Vector2(0.50f, 0.04f),
+                new Vector2(0.76f, 0.27f),
+                new Rect(0.48f, 0.03f, 0.30f, 0.26f),
+                room1PaperBackground,
                 "search_kayo_paper_001",
                 "search_kayo_paper_003",
                 "bookshelf"));
@@ -290,6 +323,7 @@ public sealed class KayoSearchController : MonoBehaviour
             CreateHotspot(item);
         }
 
+        BuildNavigation(canvasObject.transform);
         BuildHeader(canvasObject.transform);
         BuildModal(canvasObject.transform);
         BuildItemDialogue(canvasObject.transform);
@@ -300,6 +334,37 @@ public sealed class KayoSearchController : MonoBehaviour
             new Color(0f, 0f, 0f, 0f),
             false).GetComponent<Image>();
         Stretch(completionFadeOverlay.rectTransform);
+    }
+
+    private void BuildNavigation(Transform parent)
+    {
+        leftArrow = CreateButton("LeftArrow", parent, "＜", 48f);
+        SetAnchors(
+            leftArrow.gameObject,
+            new Vector2(0.018f, 0.42f),
+            new Vector2(0.082f, 0.58f));
+        leftArrow.onClick.AddListener(() => ShowRoom(RoomView.Room1));
+
+        rightArrow = CreateButton("RightArrow", parent, "＞", 48f);
+        SetAnchors(
+            rightArrow.gameObject,
+            new Vector2(0.918f, 0.42f),
+            new Vector2(0.982f, 0.58f));
+        rightArrow.onClick.AddListener(() => ShowRoom(RoomView.Room2));
+
+        roomIndicator = CreateText(
+            "RoomIndicator",
+            parent,
+            string.Empty,
+            17f,
+            MainText,
+            FontStyles.Bold);
+        SetAnchors(
+            roomIndicator.gameObject,
+            new Vector2(0.43f, 0.035f),
+            new Vector2(0.57f, 0.09f));
+        roomIndicator.alignment = TextAlignmentOptions.Center;
+        roomIndicator.characterSpacing = 4f;
     }
 
     private void BuildHeader(Transform parent)
@@ -544,9 +609,19 @@ public sealed class KayoSearchController : MonoBehaviour
         hotspots.Add(hotspot);
     }
 
-    private void ShowBackground()
+    private void ShowRoom(RoomView room)
     {
-        backgroundImage.sprite = roomBackground;
+        if (isModalOpen || isDialogueOpen || isCompleting)
+        {
+            return;
+        }
+
+        currentRoom = room;
+        backgroundImage.sprite =
+            room == RoomView.Room1 ? currentRoom1Sprite : room2Background;
+        leftArrow.gameObject.SetActive(room == RoomView.Room2);
+        rightArrow.gameObject.SetActive(room == RoomView.Room1);
+        roomIndicator.text = room == RoomView.Room1 ? "●  ○" : "○  ●";
         RefreshHotspots();
     }
 
@@ -556,6 +631,7 @@ public sealed class KayoSearchController : MonoBehaviour
         {
             ItemDefinition item = items.Find(candidate => candidate.Id == hotspot.ItemId);
             bool visible = item != null &&
+                item.Room == currentRoom &&
                 !acquiredItemIds.Contains(item.Id) &&
                 IsPrerequisiteMet(item) &&
                 !isModalOpen &&
@@ -578,6 +654,8 @@ public sealed class KayoSearchController : MonoBehaviour
             (item.StillUv.width * item.SourceSprite.texture.width) /
             (item.StillUv.height * item.SourceSprite.texture.height);
         modalRoot.SetActive(true);
+        leftArrow.gameObject.SetActive(false);
+        rightArrow.gameObject.SetActive(false);
         RefreshHotspots();
     }
 
@@ -617,7 +695,10 @@ public sealed class KayoSearchController : MonoBehaviour
             return false;
         }
 
+        currentDialogueItem = item;
         isDialogueOpen = true;
+        leftArrow.gameObject.SetActive(false);
+        rightArrow.gameObject.SetActive(false);
         RefreshHotspots();
         StartCoroutine(StartItemDialogueNextFrame(item));
         return true;
@@ -640,7 +721,17 @@ public sealed class KayoSearchController : MonoBehaviour
 
     private void OnItemDialogueCompleted()
     {
+        ItemDefinition completedItem = currentDialogueItem;
+        currentDialogueItem = null;
         isDialogueOpen = false;
+
+        if (completedItem != null &&
+            completedItem.SwapRoom1BackgroundAfterDialogue &&
+            room1PaperBackground != null)
+        {
+            currentRoom1Sprite = room1PaperBackground;
+        }
+
         FinishAcquisitionSequence();
     }
 
@@ -652,7 +743,7 @@ public sealed class KayoSearchController : MonoBehaviour
             return;
         }
 
-        ShowBackground();
+        ShowRoom(currentRoom);
     }
 
     private bool HasAcquiredAllItems()
@@ -688,7 +779,7 @@ public sealed class KayoSearchController : MonoBehaviour
         canvas.sortingOrder = SearchCanvasSortingOrder;
         ArchiveManager.Close();
         isFadingIn = false;
-        ShowBackground();
+        ShowRoom(currentRoom);
     }
 
     private void BeginCompletionTransition()
@@ -701,6 +792,9 @@ public sealed class KayoSearchController : MonoBehaviour
         isCompleting = true;
         ArchiveManager.Close();
         canvas.sortingOrder = short.MaxValue;
+        leftArrow.gameObject.SetActive(false);
+        rightArrow.gameObject.SetActive(false);
+        roomIndicator.gameObject.SetActive(false);
         RefreshHotspots();
 
         completionFadeOverlay.raycastTarget = true;
@@ -828,6 +922,40 @@ public sealed class KayoSearchController : MonoBehaviour
         return text;
     }
 
+    private Button CreateButton(
+        string name,
+        Transform parent,
+        string label,
+        float labelSize)
+    {
+        GameObject buttonObject = CreateImage(name, parent, DarkPanel, true);
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = buttonObject.GetComponent<Image>();
+
+        ColorBlock colors = button.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(1.2f, 1.1f, 0.75f, 1f);
+        colors.pressedColor = new Color(0.9f, 0.68f, 0.24f, 1f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.fadeDuration = 0.08f;
+        button.colors = colors;
+
+        Outline outline = buttonObject.AddComponent<Outline>();
+        outline.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.72f);
+        outline.effectDistance = new Vector2(2f, -2f);
+
+        TMP_Text buttonText = CreateText(
+            "Label",
+            buttonObject.transform,
+            label,
+            labelSize,
+            MainText,
+            FontStyles.Bold);
+        Stretch(buttonText.rectTransform);
+        buttonText.alignment = TextAlignmentOptions.Center;
+        return button;
+    }
+
     private void AddBorder(Transform parent, float thickness, Color color)
     {
         GameObject borderRoot = new GameObject("Border", typeof(RectTransform));
@@ -897,6 +1025,7 @@ public sealed class KayoSearchController : MonoBehaviour
         public string Id { get; }
         public string ArchiveId { get; }
         public string Title { get; }
+        public RoomView Room { get; }
         public Vector2 HotspotMin { get; }
         public Vector2 HotspotMax { get; }
         public Rect StillUv { get; }
@@ -904,22 +1033,26 @@ public sealed class KayoSearchController : MonoBehaviour
         public string DialogueStartLineId { get; }
         public string DialogueEndLineId { get; }
         public string RequiresItemId { get; }
+        public bool SwapRoom1BackgroundAfterDialogue { get; }
 
         public ItemDefinition(
             string id,
             string archiveId,
             string title,
+            RoomView room,
             Vector2 hotspotMin,
             Vector2 hotspotMax,
             Rect stillUv,
             Sprite sourceSprite,
             string dialogueStartLineId,
             string dialogueEndLineId,
-            string requiresItemId = null)
+            string requiresItemId = null,
+            bool swapRoom1BackgroundAfterDialogue = false)
         {
             Id = id;
             ArchiveId = archiveId;
             Title = title;
+            Room = room;
             HotspotMin = hotspotMin;
             HotspotMax = hotspotMax;
             StillUv = stillUv;
@@ -927,6 +1060,7 @@ public sealed class KayoSearchController : MonoBehaviour
             DialogueStartLineId = dialogueStartLineId;
             DialogueEndLineId = dialogueEndLineId;
             RequiresItemId = requiresItemId;
+            SwapRoom1BackgroundAfterDialogue = swapRoom1BackgroundAfterDialogue;
         }
     }
 
@@ -937,6 +1071,13 @@ public sealed class KayoSearchController : MonoBehaviour
         PlayerPrefs.DeleteKey(SaveKey);
         PlayerPrefs.Save();
         Debug.Log("カヨ探索の取得済みデータを削除しました。");
+    }
+
+    [UnityEditor.InitializeOnEnterPlayMode]
+    private static void ClearSearchProgressOnEnterPlayMode()
+    {
+        PlayerPrefs.DeleteKey(SaveKey);
+        PlayerPrefs.Save();
     }
 #endif
 }

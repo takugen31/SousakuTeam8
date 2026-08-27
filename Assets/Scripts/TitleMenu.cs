@@ -28,6 +28,7 @@ public class TitleMenu : MonoBehaviour
         if (isTransitioning)
             return;
 
+        GameProgress.ResetAll();
         StartCoroutine(FadeOutAndLoadScene());
     }
 
