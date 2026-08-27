@@ -1,0 +1,17 @@
+{
+  "name": "SousakuTeam8.PuzzleGame",
+  "rootNamespace": "SousakuTeam8.PuzzleGame",
+  "references": [
+    "Unity.InputSystem",
+    "Unity.ugui"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
