@@ -346,6 +346,11 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     ? branchesRaw.Trim()
                     : string.Empty;
 
+            string archiveUnlockIdsText =
+                record.TryGet("archiveUnlockIds", out string archiveIdsRaw)
+                    ? archiveIdsRaw.Trim()
+                    : string.Empty;
+
             List<AffectionDelta> affectionChanges =
                 ParseAffectionChanges(
                     affectionChangesText,
@@ -357,6 +362,9 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     branchesText,
                     record.RowNumber,
                     characterById);
+
+            List<string> archiveUnlockIds =
+                ParseArchiveUnlockIds(archiveUnlockIdsText);
 
             if (!lineIds.Add(lineId))
             {
@@ -448,6 +456,7 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     nextLineId = nextLineId,
                     choices = choices,
                     affectionChanges = affectionChanges,
+                    archiveUnlockIds = archiveUnlockIds,
                     branches = branches
                 });
         }
@@ -644,6 +653,31 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     text = choiceText.Replace("\\n", "\n"),
                     nextLineId = choiceNextLineId
                 });
+        }
+
+        return result;
+    }
+
+    private static List<string> ParseArchiveUnlockIds(string text)
+    {
+        List<string> result = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return result;
+        }
+
+        HashSet<string> uniqueIds =
+            new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (string rawId in text.Split(';'))
+        {
+            string entryId = rawId.Trim();
+
+            if (entryId.Length > 0 && uniqueIds.Add(entryId))
+            {
+                result.Add(entryId);
+            }
         }
 
         return result;

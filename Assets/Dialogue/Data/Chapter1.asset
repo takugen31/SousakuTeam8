@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter1
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+  lines:
+  - lineId: chapter1_001
+    speakerId: moteru
+    expressionId: normal
+    text: "いたた……私のベッド固くないかい……？"
+    nextLineId: chapter1_002
+  - lineId: chapter1_002
+    speakerId: moteru
+    expressionId: normal
+    text: "……すぅ"
+    nextLineId: chapter1_003
+  - lineId: chapter1_003
+    speakerId: moteru
+    expressionId: normal
+    text: "ここは……どこ？！誘拐……？"
+    nextLineId: chapter1_004
+  - lineId: chapter1_004
+    speakerId: doute
+    expressionId: normal
+    text: "わっ俺以外にも人がいたのか！色々ありすぎて気づかなかった……"
+    nextLineId: chapter1_005
+  - lineId: chapter1_005
+    speakerId: doute
+    expressionId: normal
+    text: "とりあえずこの部屋の手がかりも欲しいし探索してみようかな……？"
+    nextScenePath: Assets/Scenes/GameMap/Chapter1_SearchScene.unity
+    nextLineId: chapter1_006
+  - lineId: chapter1_006
+    speakerId: doute
+    expressionId: normal
+    text: "ひと通り探索したけど、出口がない、よな？あったのは変な扉だけ……プレイヤーさぁん……！"
+    nextLineId: chapter1_007
+  - lineId: chapter1_007
+    speakerId: moteru
+    expressionId: normal
+    text: "あの……大丈夫？"
+    nextLineId: chapter1_008
+  - lineId: chapter1_008
+    speakerId: doute
+    expressionId: normal
+    text: "うわっえっとその……これは一人で喋ってたわけではなくてですね……！"
+    nextLineId: chapter1_009
+  - lineId: chapter1_009
+    speakerId: moteru
+    expressionId: normal
+    text: "えっと……なんのこと？"
+    nextLineId: chapter1_010
+  - lineId: chapter1_010
+    speakerId: doute
+    expressionId: normal
+    text: "（もしかしてプレイヤーさんとの会話は他には聞こえてないのか……？）"
+    nextLineId: chapter1_011
+  - lineId: chapter1_011
+    speakerId: moteru
+    expressionId: normal
+    text: "もし何か邪魔しちゃったのならごめんね。他の子に話しかけるのは緊張しちゃいそうで……君に話しかけたんだけど"
+    nextLineId: chapter1_012
+  - lineId: chapter1_012
+    speakerId: doute
+    expressionId: normal
+    text: "あ、いや大丈夫だよっ！"
+    nextLineId: chapter1_013
+  - lineId: chapter1_013
+    speakerId: moteru
+    expressionId: normal
+    text: "そう？ならよかった……！その、この部屋を出るためには少しでも手掛かりがほしいし落ち着くためにもみんなで協力出来ないかなって"
+    nextLineId: chapter1_014
+  - lineId: chapter1_014
+    speakerId: doute
+    expressionId: normal
+    text: "それはそうだね！緊張しいって言ってたし他の2人は俺が呼んだ方がいいかな？"
+    nextLineId: chapter1_015
+  - lineId: chapter1_015
+    speakerId: moteru
+    expressionId: normal
+    text: "いいの？"
+    nextLineId: chapter1_016
+  - lineId: chapter1_016
+    speakerId: doute
+    expressionId: normal
+    text: "モーマンタイ！俺に任せてっ！"
+    nextLineId: 

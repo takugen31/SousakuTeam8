@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -10,6 +11,24 @@ using UnityEngine.UI;
 
 public sealed class NovelDialogueController : MonoBehaviour
 {
+    private static string pendingResumeLineId;
+
+    public event Action DialogueCompleted;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetPendingResumeLine()
+    {
+        pendingResumeLineId = null;
+    }
+
+    public static void QueueResumeLine(string lineId)
+    {
+        pendingResumeLineId =
+            string.IsNullOrWhiteSpace(lineId)
+                ? null
+                : lineId.Trim();
+    }
+
     [Header("Dialogue Data")]
     [SerializeField]
     [Tooltip("最初に再生するシナリオです。通常はプロローグを登録します。")]
@@ -67,6 +86,17 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     [Tooltip("チャプター切替時に画面を覆う色です。")]
     private Color chapterFadeColor = Color.black;
+
+    [Header("Scene Transition")]
+    [SerializeField]
+    [Tooltip("別のUnity Sceneへ移動する際の暗転を有効にします。")]
+    private bool useSceneTransitionFade = true;
+
+    [SerializeField, Min(0f)]
+    private float sceneFadeOutDuration = 1f;
+
+    [SerializeField, Min(0f)]
+    private float sceneFadeHoldDuration = 0.15f;
 
     [Header("UI")]
     [SerializeField]
@@ -170,6 +200,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool isSceneLoading;
     private bool isSkipConfirmationOpen;
     private bool isTyping;
+    private string stopAfterLineId;
 
     private void Awake()
     {
@@ -214,7 +245,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
-        if (isChapterTransitioning ||
+        if (ArchiveManager.IsOpen ||
+            isChapterTransitioning ||
             isSceneLoading ||
             isSkipConfirmationOpen ||
             isChoiceSelectionOpen)
@@ -244,6 +276,72 @@ public sealed class NovelDialogueController : MonoBehaviour
     }
 
     public void StartDialogue()
+    {
+        stopAfterLineId = null;
+
+        if (TryStartPendingResumeLine())
+        {
+            return;
+        }
+
+        StartDialogueInternal();
+    }
+
+    private bool TryStartPendingResumeLine()
+    {
+        string resumeLineId = pendingResumeLineId;
+        pendingResumeLineId = null;
+
+        if (string.IsNullOrWhiteSpace(resumeLineId))
+        {
+            return false;
+        }
+
+        if (characterDatabase == null)
+        {
+            Debug.LogError("CharacterDatabaseが設定されていません。");
+            return false;
+        }
+
+        int scenarioCount = 1 + (followingScenarios?.Count ?? 0);
+
+        for (int index = 0; index < scenarioCount; index++)
+        {
+            DialogueScenarioSO candidate =
+                index == 0 ? scenario : followingScenarios[index - 1];
+
+            if (candidate == null ||
+                !candidate.TryGetLine(resumeLineId, out DialogueLine resumeLine))
+            {
+                continue;
+            }
+
+            CancelChapterTransition();
+            HideChoices();
+            ResetKnownCharacterNames();
+            currentScenario = candidate;
+            currentScenarioIndex = index;
+            isPlaying = true;
+
+            if (dialogueRoot != null)
+            {
+                dialogueRoot.SetActive(true);
+            }
+
+            ResetBackgroundForScenario();
+            ResetPortraitsForScenario();
+            ShowLine(resumeLine);
+            return true;
+        }
+
+        Debug.LogWarning(
+            $"再開セリフ「{resumeLineId}」が登録シナリオ内に存在しません。" +
+            "通常の開始位置から再生します。",
+            this);
+        return false;
+    }
+
+    private void StartDialogueInternal()
     {
         CancelChapterTransition();
         HideChoices();
@@ -306,7 +404,45 @@ public sealed class NovelDialogueController : MonoBehaviour
     public void StartDialogueAt(string lineId)
     {
         startLineId = lineId;
-        StartDialogue();
+        stopAfterLineId = null;
+        StartDialogueInternal();
+    }
+
+    public void ConfigureEmbeddedDialogue(
+        DialogueScenarioSO scenarioData,
+        CharacterDatabaseSO database,
+        GameObject root,
+        GameObject speakerPlate,
+        TMP_Text speakerText,
+        TMP_Text dialogueText,
+        Image leftPortrait,
+        Image rightPortrait)
+    {
+        scenario = scenarioData;
+        followingScenarios.Clear();
+        characterDatabase = database;
+        backgroundImage = null;
+        dialogueRoot = root;
+        namePlate = speakerPlate;
+        speakerNameText = speakerText;
+        bodyText = dialogueText;
+        leftPortraitImage = leftPortrait;
+        rightPortraitImage = rightPortrait;
+        playbackControlsRoot = null;
+        autoPlayOnStart = false;
+        playOnStart = false;
+    }
+
+    public void PlayDialogueRange(
+        DialogueScenarioSO scenarioData,
+        string firstLineId,
+        string lastLineId)
+    {
+        scenario = scenarioData;
+        followingScenarios.Clear();
+        startLineId = firstLineId;
+        stopAfterLineId = lastLineId;
+        StartDialogueInternal();
     }
 
     public void Advance()
@@ -328,9 +464,19 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
+        if (!string.IsNullOrWhiteSpace(stopAfterLineId) &&
+            string.Equals(
+                currentLine.lineId,
+                stopAfterLineId,
+                StringComparison.Ordinal))
+        {
+            EndDialogue();
+            return;
+        }
+
         if (currentLine.HasSceneTransition)
         {
-            LoadDialogueScene(currentLine.nextScenePath);
+            LoadDialogueScene(currentLine.nextScenePath, currentLine);
             return;
         }
 
@@ -827,6 +973,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         ApplyBackground(line);
         ApplyAffectionChanges(line);
+        ApplyArchiveUnlocks(line);
         ApplyCharacter(line);
         StartTyping(line.text);
     }
@@ -880,6 +1027,22 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         affection.ApplyDeltas(line.affectionChanges);
+    }
+
+    private static void ApplyArchiveUnlocks(DialogueLine line)
+    {
+        if (line == null || line.archiveUnlockIds == null)
+        {
+            return;
+        }
+
+        foreach (string entryId in line.archiveUnlockIds)
+        {
+            if (!string.IsNullOrWhiteSpace(entryId))
+            {
+                ArchiveManager.Unlock(entryId.Trim());
+            }
+        }
     }
 
     private void ApplyCharacter(DialogueLine line)
@@ -1124,7 +1287,9 @@ public sealed class NovelDialogueController : MonoBehaviour
                 currentLine.lineId,
                 out DialogueLine currentTransition))
         {
-            LoadDialogueScene(currentTransition.nextScenePath);
+            LoadDialogueScene(
+                currentTransition.nextScenePath,
+                currentTransition);
             return true;
         }
 
@@ -1145,50 +1310,142 @@ public sealed class NovelDialogueController : MonoBehaviour
                 continue;
             }
 
-            LoadDialogueScene(nextTransition.nextScenePath);
+            LoadDialogueScene(
+                nextTransition.nextScenePath,
+                nextTransition);
             return true;
         }
 
         return false;
     }
 
-    private void LoadDialogueScene(string scenePath)
+    private void LoadDialogueScene(
+        string scenePath,
+        DialogueLine transitionLine)
     {
         if (isSceneLoading || string.IsNullOrWhiteSpace(scenePath))
         {
             return;
         }
 
+        string resumeLineId = transitionLine?.nextLineId;
+
+        if (string.IsNullOrWhiteSpace(resumeLineId) &&
+            transitionLine != null &&
+            currentScenario != null &&
+            currentScenario.TryGetNextLine(
+                transitionLine.lineId,
+                out DialogueLine nextLine))
+        {
+            resumeLineId = nextLine.lineId;
+        }
+
+        string runtimeSceneName;
+
+        try
+        {
+            runtimeSceneName = GetRuntimeSceneName(scenePath);
+
+            if (!Application.CanStreamedLevelBeLoaded(runtimeSceneName))
+            {
+                throw new InvalidOperationException(
+                    $"シーン「{runtimeSceneName}」が有効なScene Listにありません。");
+            }
+        }
+        catch (System.Exception exception)
+        {
+            HandleSceneLoadFailure(scenePath, exception);
+            return;
+        }
+
+        QueueResumeLine(resumeLineId);
         isSceneLoading = true;
         isPlaying = false;
         autoAdvanceAt = -1f;
 
         StopTypingAndRevealText();
         HideChoices();
+        StartCoroutine(
+            LoadDialogueSceneAfterFade(runtimeSceneName, scenePath));
+    }
+
+    private IEnumerator LoadDialogueSceneAfterFade(
+        string runtimeSceneName,
+        string sourceScenePath)
+    {
+        Image overlay =
+            useSceneTransitionFade
+                ? EnsureChapterTransitionOverlay()
+                : null;
+
+        if (overlay != null)
+        {
+            overlay.gameObject.SetActive(true);
+            overlay.rectTransform.SetAsLastSibling();
+
+            yield return FadeChapterTransition(
+                0f,
+                1f,
+                sceneFadeOutDuration);
+
+            if (sceneFadeHoldDuration > 0f)
+            {
+                yield return new WaitForSecondsRealtime(
+                    sceneFadeHoldDuration);
+            }
+        }
 
         try
         {
-            string runtimeScenePath = scenePath.EndsWith(
-                    ".unity",
-                    System.StringComparison.OrdinalIgnoreCase)
-                ? scenePath.Substring(
-                    0,
-                    scenePath.Length - ".unity".Length)
-                : scenePath;
-
-            SceneManager.LoadScene(runtimeScenePath);
+            SceneManager.LoadScene(runtimeSceneName, LoadSceneMode.Single);
         }
         catch (System.Exception exception)
         {
-            isSceneLoading = false;
-            isPlaying = true;
-
-            Debug.LogError(
-                $"Unity Scene「{scenePath}」を読み込めませんでした。" +
-                "Build ProfilesのScene Listへ追加されているか" +
-                "確認してください。\n" +
-                exception);
+            HandleSceneLoadFailure(sourceScenePath, exception);
         }
+    }
+
+    private void HandleSceneLoadFailure(
+        string scenePath,
+        System.Exception exception)
+    {
+        QueueResumeLine(null);
+        isSceneLoading = false;
+        isPlaying = true;
+
+        if (chapterTransitionOverlay != null)
+        {
+            SetChapterTransitionAlpha(0f);
+            chapterTransitionOverlay.gameObject.SetActive(false);
+        }
+
+        Debug.LogError(
+            $"Unity Scene「{scenePath}」を読み込めませんでした。" +
+            "Build ProfilesのScene Listへ追加されているか" +
+            "確認してください。\n" +
+            exception);
+    }
+
+    private static string GetRuntimeSceneName(string scenePath)
+    {
+        string normalizedPath = scenePath.Trim().Replace('\\', '/');
+        int lastSlash = normalizedPath.LastIndexOf('/');
+
+        if (lastSlash >= 0 && lastSlash < normalizedPath.Length - 1)
+        {
+            normalizedPath = normalizedPath.Substring(lastSlash + 1);
+        }
+
+        if (normalizedPath.EndsWith(
+                ".unity",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            normalizedPath = normalizedPath.Substring(
+                0,
+                normalizedPath.Length - ".unity".Length);
+        }
+
+        return normalizedPath;
     }
 
     private void ShowChoices(IReadOnlyList<DialogueChoice> choices)
@@ -1424,6 +1681,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         currentLine = null;
         currentScenario = null;
         currentScenarioIndex = -1;
+        stopAfterLineId = null;
         autoAdvanceAt = -1f;
 
         if (dialogueRoot != null)
@@ -1434,5 +1692,6 @@ public sealed class NovelDialogueController : MonoBehaviour
         SetBackground(null);
 
         onDialogueCompleted?.Invoke();
+        DialogueCompleted?.Invoke();
     }
 }
