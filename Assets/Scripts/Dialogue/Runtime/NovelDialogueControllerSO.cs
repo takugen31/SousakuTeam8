@@ -12,6 +12,9 @@ using UnityEngine.UI;
 public sealed class NovelDialogueController : MonoBehaviour
 {
     private static string pendingResumeLineId;
+    private static bool pendingSceneFadeIn;
+    private static readonly HashSet<string> revealedCharacterIds =
+        new HashSet<string>(System.StringComparer.Ordinal);
 
     public event Action DialogueCompleted;
 
@@ -19,14 +22,38 @@ public sealed class NovelDialogueController : MonoBehaviour
     private static void ResetPendingResumeLine()
     {
         pendingResumeLineId = null;
+        pendingSceneFadeIn = false;
+        revealedCharacterIds.Clear();
     }
 
     public static void QueueResumeLine(string lineId)
+    {
+        QueueResumeLine(lineId, false);
+    }
+
+    public static void QueueResumeLine(
+        string lineId,
+        bool fadeInAfterSceneLoad)
     {
         pendingResumeLineId =
             string.IsNullOrWhiteSpace(lineId)
                 ? null
                 : lineId.Trim();
+        pendingSceneFadeIn = fadeInAfterSceneLoad;
+    }
+
+    public static void QueueResumeLineIfEmpty(
+        string fallbackLineId,
+        bool fadeInAfterSceneLoad)
+    {
+        if (string.IsNullOrWhiteSpace(pendingResumeLineId))
+        {
+            pendingResumeLineId = string.IsNullOrWhiteSpace(fallbackLineId)
+                ? null
+                : fallbackLineId.Trim();
+        }
+
+        pendingSceneFadeIn = fadeInAfterSceneLoad;
     }
 
     [Header("Dialogue Data")]
@@ -86,6 +113,20 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     [Tooltip("チャプター切替時に画面を覆う色です。")]
     private Color chapterFadeColor = Color.black;
+
+    [Header("Consultation Transition")]
+    [SerializeField]
+    [Tooltip("consultationTitleが設定されたセリフの直前に相談開始演出を再生します。")]
+    private bool useConsultationTransition = true;
+
+    [SerializeField, Min(0f)]
+    private float consultationFadeOutDuration = 0.55f;
+
+    [SerializeField, Min(0f)]
+    private float consultationTitleHoldDuration = 1.25f;
+
+    [SerializeField, Min(0f)]
+    private float consultationFadeInDuration = 0.55f;
 
     [Header("Scene Transition")]
     [SerializeField]
@@ -182,11 +223,15 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Coroutine choiceActivationCoroutine;
     private Coroutine typingCoroutine;
     private Image chapterTransitionOverlay;
+    private TMP_Text consultationTransitionTitle;
 
     private readonly List<Button> spawnedChoiceButtons =
         new List<Button>();
 
     private readonly HashSet<string> knownCharacterIds =
+        new HashSet<string>(System.StringComparer.Ordinal);
+
+    private readonly HashSet<string> shownConsultationLineIds =
         new HashSet<string>(System.StringComparer.Ordinal);
 
     private int currentScenarioIndex = -1;
@@ -278,13 +323,18 @@ public sealed class NovelDialogueController : MonoBehaviour
     public void StartDialogue()
     {
         stopAfterLineId = null;
+        bool shouldFadeIn = pendingSceneFadeIn;
+        pendingSceneFadeIn = false;
 
-        if (TryStartPendingResumeLine())
+        if (!TryStartPendingResumeLine())
         {
-            return;
+            StartDialogueInternal();
         }
 
-        StartDialogueInternal();
+        if (shouldFadeIn && isPlaying)
+        {
+            BeginSceneEntryFadeIn();
+        }
     }
 
     private bool TryStartPendingResumeLine()
@@ -319,6 +369,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             CancelChapterTransition();
             HideChoices();
             ResetKnownCharacterNames();
+            shownConsultationLineIds.Clear();
             currentScenario = candidate;
             currentScenarioIndex = index;
             isPlaying = true;
@@ -359,6 +410,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         ResetKnownCharacterNames();
+        shownConsultationLineIds.Clear();
 
         currentScenario = scenario;
         currentScenarioIndex = 0;
@@ -416,12 +468,13 @@ public sealed class NovelDialogueController : MonoBehaviour
         TMP_Text speakerText,
         TMP_Text dialogueText,
         Image leftPortrait,
-        Image rightPortrait)
+        Image rightPortrait,
+        Image dialogueBackground = null)
     {
         scenario = scenarioData;
         followingScenarios.Clear();
         characterDatabase = database;
-        backgroundImage = null;
+        backgroundImage = dialogueBackground;
         dialogueRoot = root;
         namePlate = speakerPlate;
         speakerNameText = speakerText;
@@ -431,6 +484,34 @@ public sealed class NovelDialogueController : MonoBehaviour
         playbackControlsRoot = null;
         autoPlayOnStart = false;
         playOnStart = false;
+    }
+
+    public void ConfigureScenarioSequence(
+        IReadOnlyList<DialogueScenarioSO> scenarios)
+    {
+        scenario = null;
+        followingScenarios.Clear();
+
+        if (scenarios == null || scenarios.Count == 0)
+        {
+            return;
+        }
+
+        scenario = scenarios[0];
+
+        for (int index = 1; index < scenarios.Count; index++)
+        {
+            if (scenarios[index] != null)
+            {
+                followingScenarios.Add(scenarios[index]);
+            }
+        }
+    }
+
+    public void StartEmbeddedDialogue()
+    {
+        stopAfterLineId = null;
+        StartDialogueInternal();
     }
 
     public void PlayDialogueRange(
@@ -847,6 +928,34 @@ public sealed class NovelDialogueController : MonoBehaviour
         chapterTransitionCoroutine = null;
     }
 
+    private void BeginSceneEntryFadeIn()
+    {
+        Image overlay = EnsureChapterTransitionOverlay();
+        if (overlay == null)
+        {
+            return;
+        }
+
+        isChapterTransitioning = true;
+        overlay.transform.SetAsLastSibling();
+        overlay.gameObject.SetActive(true);
+        SetChapterTransitionAlpha(1f);
+        chapterTransitionCoroutine = StartCoroutine(FadeInAtSceneEntry());
+    }
+
+    private IEnumerator FadeInAtSceneEntry()
+    {
+        yield return FadeChapterTransition(1f, 0f, chapterFadeInDuration);
+
+        if (chapterTransitionOverlay != null)
+        {
+            chapterTransitionOverlay.gameObject.SetActive(false);
+        }
+
+        isChapterTransitioning = false;
+        chapterTransitionCoroutine = null;
+    }
+
     private void StartScenario(
         DialogueScenarioSO nextScenario,
         DialogueLine firstLine,
@@ -954,6 +1063,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         isChapterTransitioning = false;
+        SetConsultationTransitionTitle(null, false);
 
         if (chapterTransitionOverlay == null)
         {
@@ -966,6 +1076,22 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ShowLine(DialogueLine line)
     {
+        if (TryStartConsultationTransition(line))
+        {
+            return;
+        }
+
+        ShowLineImmediately(line);
+    }
+
+    private void ShowLineImmediately(DialogueLine line)
+    {
+        PrepareLine(line);
+        StartTyping(line.text);
+    }
+
+    private void PrepareLine(DialogueLine line)
+    {
         HideChoices();
 
         currentLine = line;
@@ -975,7 +1101,140 @@ public sealed class NovelDialogueController : MonoBehaviour
         ApplyAffectionChanges(line);
         ApplyArchiveUnlocks(line);
         ApplyCharacter(line);
+    }
+
+    private bool TryStartConsultationTransition(DialogueLine line)
+    {
+        if (!useConsultationTransition ||
+            line == null ||
+            string.IsNullOrWhiteSpace(line.consultationTitle) ||
+            isChapterTransitioning ||
+            !shownConsultationLineIds.Add(line.lineId))
+        {
+            return false;
+        }
+
+        Image overlay = EnsureChapterTransitionOverlay();
+
+        if (overlay == null)
+        {
+            Debug.LogWarning(
+                "相談開始演出用のCanvasが見つからないため、" +
+                "フェードせずに相談パートを開始します。");
+            return false;
+        }
+
+        EnsureConsultationTransitionTitle(overlay.transform);
+        StopTypingAndRevealText();
+        HideChoices();
+        autoAdvanceAt = -1f;
+        isChapterTransitioning = true;
+
+        overlay.transform.SetAsLastSibling();
+        overlay.gameObject.SetActive(true);
+        SetConsultationTransitionTitle(null, false);
+        SetChapterTransitionAlpha(0f);
+
+        chapterTransitionCoroutine = StartCoroutine(
+            TransitionToConsultation(line));
+        return true;
+    }
+
+    private IEnumerator TransitionToConsultation(DialogueLine line)
+    {
+        yield return FadeChapterTransition(
+            0f,
+            1f,
+            consultationFadeOutDuration);
+
+        SetConsultationTransitionTitle(line.consultationTitle, true);
+
+        if (consultationTitleHoldDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(
+                consultationTitleHoldDuration);
+        }
+
+        SetConsultationTransitionTitle(null, false);
+        PrepareLine(line);
+
+        if (bodyText != null)
+        {
+            bodyText.text = string.Empty;
+            bodyText.maxVisibleCharacters = 0;
+        }
+
+        yield return FadeChapterTransition(
+            1f,
+            0f,
+            consultationFadeInDuration);
+
+        if (chapterTransitionOverlay != null)
+        {
+            chapterTransitionOverlay.gameObject.SetActive(false);
+        }
+
+        isChapterTransitioning = false;
+        chapterTransitionCoroutine = null;
         StartTyping(line.text);
+    }
+
+    private void EnsureConsultationTransitionTitle(Transform overlayTransform)
+    {
+        if (consultationTransitionTitle != null || overlayTransform == null)
+        {
+            return;
+        }
+
+        GameObject titleObject = new GameObject(
+            "ConsultationTransitionTitle",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(TextMeshProUGUI));
+
+        RectTransform titleRect =
+            titleObject.GetComponent<RectTransform>();
+        titleRect.SetParent(overlayTransform, false);
+        titleRect.anchorMin = new Vector2(0.1f, 0.32f);
+        titleRect.anchorMax = new Vector2(0.9f, 0.68f);
+        titleRect.offsetMin = Vector2.zero;
+        titleRect.offsetMax = Vector2.zero;
+
+        consultationTransitionTitle =
+            titleObject.GetComponent<TextMeshProUGUI>();
+        consultationTransitionTitle.alignment =
+            TextAlignmentOptions.Center;
+        consultationTransitionTitle.fontSize = 46f;
+        consultationTransitionTitle.fontStyle = FontStyles.Bold;
+        consultationTransitionTitle.textWrappingMode =
+            TextWrappingModes.NoWrap;
+        consultationTransitionTitle.raycastTarget = false;
+
+        if (bodyText != null && bodyText.font != null)
+        {
+            consultationTransitionTitle.font = bodyText.font;
+        }
+
+        titleObject.SetActive(false);
+    }
+
+    private void SetConsultationTransitionTitle(
+        string title,
+        bool visible)
+    {
+        if (consultationTransitionTitle == null)
+        {
+            return;
+        }
+
+        consultationTransitionTitle.text =
+            visible
+                ? "<size=58%><color=#D7B56D>CONSULTATION</color></size>\n" +
+                  "相談パート\n" +
+                  $"<size=72%>— {title} —</size>"
+                : string.Empty;
+        consultationTransitionTitle.color = Color.white;
+        consultationTransitionTitle.gameObject.SetActive(visible);
     }
 
     private void ResetBackgroundForScenario()
@@ -1255,6 +1514,11 @@ public sealed class NovelDialogueController : MonoBehaviour
 
             knownCharacterIds.Add(character.characterId);
         }
+
+        foreach (string characterId in revealedCharacterIds)
+        {
+            knownCharacterIds.Add(characterId);
+        }
     }
 
     private void RevealCurrentSpeakerName()
@@ -1267,6 +1531,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         knownCharacterIds.Add(currentLine.speakerId);
+        revealedCharacterIds.Add(currentLine.speakerId);
 
         if (speakerNameText == null ||
             !characterDatabase.TryGetCharacter(

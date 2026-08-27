@@ -1,0 +1,8 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,revealSpeakerName
+kayo_catch_success_after_001,kayo,normal,,ほ、ほんとにケガしてない……！うそ……,kayo_catch_success_after_002,true
+kayo_catch_success_after_002,doute,normal,,カヨちゃん、終わった……？,kayo_catch_success_after_003,true
+kayo_catch_success_after_003,kayo,normal,,えぇ、大丈夫……ってなんでこんなに近くにいるのっ？！,kayo_catch_success_after_004,true
+kayo_catch_success_after_004,doute,normal,,カヨちゃんがそうしてきたんじゃ……,kayo_catch_success_after_005,
+kayo_catch_success_after_005,,,（反論しようとするも顔を真っ赤にしたカヨちゃんに弱い力で突き飛ばされた。）,kayo_catch_success_after_006,
+kayo_catch_success_after_006,kayo,normal,,い、いいから離れてっ！,kayo_catch_success_after_007,
+kayo_catch_success_after_007,kayo,normal,,と、とにかくケガがなくてよかったわ……！,,

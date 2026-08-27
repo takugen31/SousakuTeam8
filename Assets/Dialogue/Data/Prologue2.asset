@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
   m_Name: Prologue2
   m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
-  defaultBackground: {fileID: 0}
+  defaultBackground: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
   lines:
   - lineId: prologue2_001
     speakerId: doute
     expressionId: normal
     text: "\u3093\u3093\u2026\u2026\u306F\u3063\uFF01\u4ECA\u4F55\u6642\u2026\u2026\u3063\u3066\u3001\u3069\u3053\u3060\u3053\u3053\uFF01"
-    background: {fileID: 0}
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     nextLineId: prologue2_002
     choices: []
     affectionChanges: []

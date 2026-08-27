@@ -1,3 +1,3 @@
 lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
-chapter_kayo_1_001,doute,normal,Assets/Art/Backgrounds/white_room.png,カヨちゃん！少し話を……って何持ってるの？！,chapter_kayo_1_002,,,,,,,,
-chapter_kayo_1_002,kayo,normal,,あ、あんた……ドウテ？！あ、危ないからどいてーーーー！！！,,,,,,,,,
+chapter_kayo_1_001,doute,normal,Assets/Art/Backgrounds/white_room.png,カヨちゃん！少し話を……って何持ってるの？！,chapter_kayo_1_002,,,,,,,true,
+chapter_kayo_1_002,kayo,normal,,あ、あんた……ドウテ？！あ、危ないからどいてーーーー！！！,,,,,,,,,Assets/FallingGame/Scenes/falling_verKayo.unity

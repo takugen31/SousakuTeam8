@@ -1,0 +1,13 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,revealSpeakerName
+kayo_catch_success_before_001,doute,normal,,な、何とか怪我せずに耐え……っわっとと,kayo_catch_success_before_002,true
+kayo_catch_success_before_002,,,（足を引っ掛けて転びそうなのをギリギリ耐える。）,kayo_catch_success_before_003,
+kayo_catch_success_before_003,kayo,normal,,ドウテ！なんで私に近づいてきたのよ！,kayo_catch_success_before_004,true
+kayo_catch_success_before_004,kayo,normal,,まさか、ケガなんてしてないわよね……！？,kayo_catch_success_before_005,
+kayo_catch_success_before_005,doute,normal,,見ての通り大丈夫だよ。カヨちゃんの方こそ大丈夫……って,kayo_catch_success_before_006,
+kayo_catch_success_before_006,,,（無事を伝えたはずなのにカヨちゃんがとんでもない至近距離に近づいてきていて思わず転びかけたのを耐える。）,kayo_catch_success_before_007,
+kayo_catch_success_before_007,doute,normal,,うわぁああ！！カヨちゃん待って近い近い近い！,kayo_catch_success_before_008,
+kayo_catch_success_before_008,kayo,normal,,まさか、ほんとに怪我してないわけ……足は、大丈夫。お腹も……,kayo_catch_success_before_009,
+kayo_catch_success_before_009,doute,normal,,（カヨちゃんの柔らかい手が素肌に何度も触れる。）,kayo_catch_success_before_010,
+kayo_catch_success_before_010,doute,normal,,（うぅぅ……頭がおかしくなりそうだぞ……！）,kayo_catch_success_before_011,
+kayo_catch_success_before_011,doute,normal,,カヨちゃん…あの……！,kayo_catch_success_before_012,
+kayo_catch_success_before_012,,,（何度も声をかけるがカヨちゃんはなおも懸命に触診をしていた。）,,

@@ -14,6 +14,21 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameMap/Chapter1_SearchScene.unity
     guid: 2abb7c5daa9fd514d817fbd9ce9d858d
+  - enabled: 1
+    path: Assets/Scenes/GameMap/SelectionPart.unity
+    guid: ef24960e6ff35154f84c143c7b8d1f9e
+  - enabled: 1
+    path: Assets/Scenes/GameMap/NovelScene_Kayo.unity
+    guid: 9104798ec8f554849b72560b4bbb18a5
+  - enabled: 1
+    path: Assets/Scenes/GameMap/NovelScene_Moteru.unity
+    guid: d31423593815a3b48ab238bf17d64c8c
+  - enabled: 1
+    path: Assets/Scenes/GameMap/NovelScene_Yowashi.unity
+    guid: b191abd42fb64d9ca50e4c31c68dd150
+  - enabled: 1
+    path: Assets/FallingGame/Scenes/falling_verKayo.unity
+    guid: 7de36e39e3fc4864ea400d848c625992
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

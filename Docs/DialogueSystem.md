@@ -144,7 +144,7 @@ chapter1_002,kayo,よろしくね,,
 ### 列構成
 
 ```csv
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,revealSpeakerName,nextScenePath
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,revealSpeakerName,consultationTitle,nextScenePath
 ```
 
 | 列 | 必須 | 説明 |
@@ -158,6 +158,7 @@ lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1
 | `choiceNText` | 任意 | プレイヤーへ表示する選択肢。`N`は1以上の連番 |
 | `choiceNNextLineId` | 選択肢使用時は必須 | 対応する選択肢を押したときの遷移先ID |
 | `revealSpeakerName` | 任意 | `true`なら、このセリフの全文表示後に話者の本名を公開する |
+| `consultationTitle` | 任意 | 値がある場合、このセリフの直前に相談パート開始の暗転・タイトル・復帰演出を再生する |
 | `nextScenePath` | 任意 | このセリフの次操作で読み込むUnity Sceneの`Assets/...unity`パス |
 
 例：
@@ -171,6 +172,17 @@ chapter1_002,doute,normal,Assets/Art/Backgrounds/station_platform_twilight.png,�
 ### 背景の切り替え
 
 `DialogueScenarioSO` の `Default Background` はチャプター開始時に毎回適用されます。チャプターの途中で背景を変える場合は、対象セリフの `backgroundPath` へSpriteのパスを設定します。以降の空欄行ではその背景が維持され、次のチャプターに進むとそのチャプターの既定背景へ切り替わります。
+
+### 相談パート開始演出
+
+相談を開始する最初のセリフの`consultationTitle`へタイトルを設定すると、そのセリフを表示する直前に専用演出が再生されます。
+
+```csv
+lineId,speakerId,text,nextLineId,consultationTitle
+chapter3_004,doute,プレイヤーさん！今までの聞いてましたよねっ？！,chapter3_005,恋愛をするかしないか
+```
+
+NovelSceneでは0.55秒で暗転し、「相談パート」と指定タイトルを1.25秒表示した後、0.55秒で元の画面へ戻ります。演出中は会話送り、AUTO、SKIPを停止し、復帰後に対象セリフのタイプライター表示を開始します。同じセリフへ分岐で戻った場合、同一のDialogue再生中は演出を繰り返しません。
 
 ### Unity Sceneへの遷移
 
