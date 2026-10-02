@@ -730,8 +730,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NovelDialogueController
   scenario: {fileID: 11400000, guid: cf8d3c86502709540a8bcadb9944ddf1, type: 2}
   followingScenarios:
-  - {fileID: 11400000, guid: 32de4174b15050344a870acf28ebf99a, type: 2}
-  - {fileID: 11400000, guid: a41c6e59be1b4aa1a0e87a0b2c9135f7, type: 2}
+  - {fileID: 11400000, guid: 7c2d17fc8e5c4a249ac0360000010001, type: 2}
+  - {fileID: 11400000, guid: 99888807a1a947eca129f7c3180e42d6, type: 2}
+  - {fileID: 11400000, guid: 3d8b3b48e42f46ab97877070de81983d, type: 2}
+  - {fileID: 11400000, guid: b50468850c92402a96156cecb24996f6, type: 2}
+  - {fileID: 11400000, guid: 38d2a551960f434a91822659b3ef846a, type: 2}
+  - {fileID: 11400000, guid: d3a8d6ccf1a34f8fb5853b1bd6ae6c8c, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???
@@ -743,6 +747,10 @@ MonoBehaviour:
   chapterFadeHoldDuration: 1.7
   chapterFadeInDuration: 1
   chapterFadeColor: {r: 0, g: 0, b: 0, a: 1}
+  useConsultationTransition: 1
+  consultationFadeOutDuration: 0.55
+  consultationTitleHoldDuration: 1.25
+  consultationFadeInDuration: 0.55
   useSceneTransitionFade: 1
   sceneFadeOutDuration: 1
   sceneFadeHoldDuration: 0.15
