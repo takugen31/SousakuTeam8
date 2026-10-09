@@ -253,6 +253,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     private string stopAfterLineId;
 
     public string CurrentSpeakerId => currentLine?.speakerId;
+    // Opt-in for an embedded scene whose owner fades out the last dialogue frame.
+    public bool KeepPresentationOnCompletion { get; set; }
     public bool CanAdvanceCurrentPage => isActiveAndEnabled && isPlaying &&
         currentLine != null && !isTyping && !currentLine.HasChoices &&
         !isChoiceSelectionOpen && !isChapterTransitioning && !isSceneLoading &&
@@ -1993,12 +1995,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         stopAfterLineId = null;
         autoAdvanceAt = -1f;
 
-        if (dialogueRoot != null)
+        if (!KeepPresentationOnCompletion)
         {
-            dialogueRoot.SetActive(false);
+            if (dialogueRoot != null) dialogueRoot.SetActive(false);
+            SetBackground(null);
         }
-
-        SetBackground(null);
 
         onDialogueCompleted?.Invoke();
         DialogueCompleted?.Invoke();

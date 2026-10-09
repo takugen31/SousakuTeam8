@@ -271,6 +271,8 @@ namespace Sousakusai8.MiniGame
             GameObject controllerObject = new("KayoCatchEventDialogueController", typeof(RectTransform));
             controllerObject.transform.SetParent(canvasObject.transform, false);
             eventDialogueController = controllerObject.AddComponent<NovelDialogueController>();
+            // Keep the room, portraits and last page behind the fade, never the finished game.
+            eventDialogueController.KeepPresentationOnCompletion = true;
             eventDialogueController.ConfigureEmbeddedDialogue(
                 failureScenario,
                 characterDatabase,
@@ -307,6 +309,8 @@ namespace Sousakusai8.MiniGame
 
         private IEnumerator Fade(float startAlpha, float endAlpha)
         {
+            // Prevent another page/transition from starting during the current fade.
+            eventDialogueController.enabled = false;
             fadeOverlay.gameObject.SetActive(true);
             fadeOverlay.transform.SetAsLastSibling();
             fadeOverlay.raycastTarget = true;
@@ -325,6 +329,7 @@ namespace Sousakusai8.MiniGame
 
             SetFadeAlpha(endAlpha);
             fadeOverlay.raycastTarget = endAlpha > 0f;
+            eventDialogueController.enabled = endAlpha <= 0f;
         }
 
         private void SetFadeAlpha(float alpha)
