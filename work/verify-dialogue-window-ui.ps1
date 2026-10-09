@@ -8,7 +8,7 @@ foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi')) {
     $scene = Get-Content (Join-Path $projectRoot "Assets/Scenes/GameMap/$name.unity") -Raw
     $panel = Get-Block $scene '2100000001'
     $plate = Get-Block $scene '2100000101'
-    Assert-True ($panel.Contains('m_AnchorMin: {x: 0.075, y: 0.045}') -and $panel.Contains('m_AnchorMax: {x: 0.925, y: 0.24575}')) 'Window width/bottom/top changed incorrectly'
+    Assert-True ($panel.Contains('m_AnchorMin: {x: 0.075, y: 0.0148875}') -and $panel.Contains('m_AnchorMax: {x: 0.925, y: 0.2758625}')) 'Window must retain original width and enlarge height 30 percent about the original center'
     Assert-True ($plate.Contains('m_AnchorMin: {x: 0.10475, y: 0.24575}') -and $plate.Contains('m_AnchorMax: {x: 0.2875, y: 0.3145}')) 'Name plate original screen position/size lost'
     Assert-True ($plate.Contains('m_Father: {fileID: 1164511897}')) 'Name box cannot remain relative to resized panel'
     Assert-True ((Get-Block $scene '1164511897').Contains('  - {fileID: 2100000101}') -and -not $panel.Contains('  - {fileID: 2100000101}')) 'Hierarchy parent/children mismatch'
@@ -20,10 +20,12 @@ foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi')) {
     $body = Get-Block $scene '1664412071'
     Assert-True ($body.Contains('m_AnchorMin: {x: 0.05, y: 0.1}') -and $body.Contains('m_AnchorMax: {x: 0.95, y: 0.86}')) 'Text needs readable edge padding'
     foreach ($height in 720,1080,1440,2160) {
-        $nameBottom = (0.045 + (0.32-0.045)*0.73) * $height
-        $panelTop = 0.24575 * $height
-        Assert-True ([Math]::Abs($nameBottom-$panelTop) -lt 0.00001) 'Top/name-bottom mismatch under screen scaling'
-        $bodyHeight = (0.24575-0.045)*($height)*(0.86-0.1)
+        $oldCenter = (0.045 + 0.24575) * 0.5 * $height
+        $newCenter = (0.0148875 + 0.2758625) * 0.5 * $height
+        Assert-True ([Math]::Abs($oldCenter-$newCenter) -lt 0.00001) 'Window center moved under screen scaling'
+        Assert-True ([Math]::Abs((0.2758625-0.0148875)/(0.24575-0.045)-1.3) -lt 0.00001) 'Height must increase exactly 30 percent'
+        Assert-True ($panel.Contains('m_AnchorMin: {x: 0.075,') -and $panel.Contains('m_AnchorMax: {x: 0.925,')) 'Width must match the original window'
+        $bodyHeight = (0.2758625-0.0148875)*($height)*(0.86-0.1)
         Assert-True ($bodyHeight -gt 100) 'Text area collapsed'
     }
     $ids = @([regex]::Matches($scene,'(?m)^--- !u!\d+ &(\d+)') | ForEach-Object { $_.Groups[1].Value })
@@ -131,6 +133,6 @@ public static class FeatherMeshCheck {
 $source = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/DialogueWindowFeather.cs') -Raw
 Add-Type -TypeDefinition ($harness + ($source -replace '(?m)^using .*;\s*$',''))
 [FeatherMeshCheck]::Run()
-Write-Output 'PASS: Three scenes retain window width/bottom and original name-box position; window top matches name-box bottom at four resolutions.'
+Write-Output 'PASS: Three scene windows retain original width and are 30 percent taller with the same center at four resolutions; name-box position is unchanged.'
 Write-Output 'PASS: Actual mesh generator has transparent edges, 72% black center, smooth symmetric fade and valid triangles; tiny/zero/disabled cases pass.'
 Write-Output 'PASS: Scene hierarchy/references are intact; Moteru scene is unchanged.'
