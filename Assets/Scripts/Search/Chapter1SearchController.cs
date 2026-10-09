@@ -392,14 +392,6 @@ public sealed class Chapter1SearchController : MonoBehaviour
         SetAnchors(title.gameObject, new Vector2(0.035f, 0f), new Vector2(0.5f, 1f));
         title.alignment = TextAlignmentOptions.MidlineLeft;
 
-        TMP_Text help = CreateText(
-            "Help",
-            header.transform,
-            "マウスで選択   /   B 情報",
-            16f,
-            new Color(0.72f, 0.76f, 0.76f, 1f));
-        SetAnchors(help.gameObject, new Vector2(0.62f, 0f), new Vector2(0.965f, 1f));
-        help.alignment = TextAlignmentOptions.MidlineRight;
     }
 
     private void BuildModal(Transform parent)
@@ -411,29 +403,33 @@ public sealed class Chapter1SearchController : MonoBehaviour
             true);
         Stretch(modalRoot.GetComponent<RectTransform>());
 
-        GameObject stillFrame = CreateImage(
-            "StillFrame",
-            modalRoot.transform,
-            new Color(0.035f, 0.04f, 0.04f, 0.98f),
-            false);
+        GameObject stillBounds = new GameObject("StillBounds", typeof(RectTransform));
+        stillBounds.transform.SetParent(modalRoot.transform, false);
         SetAnchors(
-            stillFrame,
+            stillBounds,
             new Vector2(0.21f, 0.28f),
             new Vector2(0.79f, 0.79f));
+
+        // 背景と枠も画像と同じ縦横比で収め、左右に黒い余白を残さない。
+        GameObject stillFrame = CreateImage(
+            "StillFrame",
+            stillBounds.transform,
+            new Color(0.035f, 0.04f, 0.04f, 0.98f),
+            false);
+        Stretch(stillFrame.GetComponent<RectTransform>());
+        modalStillAspect = stillFrame.AddComponent<AspectRatioFitter>();
+        modalStillAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
 
         GameObject stillObject = new GameObject(
             "ItemStill",
             typeof(RectTransform),
             typeof(CanvasRenderer),
-            typeof(RawImage),
-            typeof(AspectRatioFitter));
+            typeof(RawImage));
         stillObject.transform.SetParent(stillFrame.transform, false);
         modalStill = stillObject.GetComponent<RawImage>();
         modalStill.color = Color.white;
         modalStill.raycastTarget = false;
-        modalStillAspect = stillObject.GetComponent<AspectRatioFitter>();
-        modalStillAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-        Stretch(modalStill.rectTransform, 10f, 10f, 10f, 10f);
+        Stretch(modalStill.rectTransform);
         AddBorder(stillFrame.transform, 4f, Gold);
 
         modalTitle = CreateText(
@@ -463,17 +459,6 @@ public sealed class Chapter1SearchController : MonoBehaviour
         savedMessage.alignment = TextAlignmentOptions.Center;
         savedMessage.characterSpacing = 2f;
 
-        TMP_Text closeHint = CreateText(
-            "CloseHint",
-            modalRoot.transform,
-            "左クリックで戻る",
-            16f,
-            new Color(0.67f, 0.71f, 0.72f, 1f));
-        SetAnchors(
-            closeHint.gameObject,
-            new Vector2(0.35f, 0.09f),
-            new Vector2(0.65f, 0.145f));
-        closeHint.alignment = TextAlignmentOptions.Center;
 
         modalRoot.SetActive(false);
     }
