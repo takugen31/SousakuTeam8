@@ -253,6 +253,12 @@ public sealed class SelectionPartController : MonoBehaviour
     private void SetHoveredCharacter(string displayName, bool hovered)
     {
         if (hoverNameRoot == null) return;
+        if (!introDismissed)
+        {
+            hoveredCharacterName = null;
+            hoverNameRoot.SetActive(false);
+            return;
+        }
         if (hovered) hoveredCharacterName = displayName;
         else if (hoveredCharacterName == displayName) hoveredCharacterName = null;
         hoverNameText.text = hoveredCharacterName ?? string.Empty;
@@ -632,6 +638,8 @@ internal sealed class SelectionItemMotion : MonoBehaviour, IPointerEnterHandler,
     private Vector2 basePosition;
     private float phase;
     private bool isHovered;
+    private bool pointerInside;
+    private Button selectionButton;
     private System.Action<bool> hoverChanged;
 
     public void Initialize(float animationPhase, System.Action<bool> onHoverChanged)
@@ -640,6 +648,7 @@ internal sealed class SelectionItemMotion : MonoBehaviour, IPointerEnterHandler,
         basePosition = rectTransform.anchoredPosition;
         phase = animationPhase;
         hoverChanged = onHoverChanged;
+        selectionButton = GetComponent<Button>();
     }
 
     private void Update()
@@ -648,6 +657,8 @@ internal sealed class SelectionItemMotion : MonoBehaviour, IPointerEnterHandler,
         {
             return;
         }
+
+        RefreshHoverState();
 
         float offset = Mathf.Sin(Time.unscaledTime * FloatSpeed + phase) * FloatAmplitude;
         rectTransform.anchoredPosition = basePosition + Vector2.up * offset;
@@ -661,18 +672,27 @@ internal sealed class SelectionItemMotion : MonoBehaviour, IPointerEnterHandler,
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        isHovered = true;
-        hoverChanged?.Invoke(true);
+        pointerInside = true;
+        RefreshHoverState();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        isHovered = false;
-        hoverChanged?.Invoke(false);
+        pointerInside = false;
+        RefreshHoverState();
+    }
+
+    private void RefreshHoverState()
+    {
+        bool hovered = pointerInside && selectionButton != null && selectionButton.IsInteractable();
+        if (hovered == isHovered) return;
+        isHovered = hovered;
+        hoverChanged?.Invoke(hovered);
     }
 
     private void OnDisable()
     {
+        pointerInside = false;
         isHovered = false;
         hoverChanged?.Invoke(false);
     }
