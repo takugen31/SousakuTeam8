@@ -2402,6 +2402,7 @@ GameObject:
   - component: {fileID: 1900000212}
   - component: {fileID: 1900000213}
   - component: {fileID: 1900000214}
+  - component: {fileID: 1900000215}
   m_Layer: 5
   m_Name: ChoiceButtonTemplate
   m_TagString: Untagged
@@ -2409,6 +2410,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
+--- !u!114 &1900000215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b510a11c49f74e5b9e44e378dc2b7059, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceButtonHoverScale
+  hoverScale: 1.05
+  transitionDuration: 0.12
 --- !u!224 &1900000211
 RectTransform:
   m_ObjectHideFlags: 0
