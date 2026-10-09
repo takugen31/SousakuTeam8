@@ -60,7 +60,7 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
-    nextScenePath: Assets/Scenes/Title.unity
+    nextScenePath: Assets/Scenes/GameMap/Title.unity
     nextLineId: 
     choices: []
     affectionChanges: []
