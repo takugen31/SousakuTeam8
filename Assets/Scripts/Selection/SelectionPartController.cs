@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -38,11 +39,61 @@ public sealed class SelectionPartController : MonoBehaviour
     private GameObject introDialoguePanel;
     private GameObject introSpeakerPlate;
     private readonly List<Button> selectionButtons = new List<Button>();
+    private InputAction introAdvanceAction;
+    private int introDismissedFrame = -1;
+
+    private void OnEnable()
+    {
+        introAdvanceAction = new InputAction("SelectionIntroAdvance", InputActionType.Button,
+            "<Mouse>/rightButton");
+        introAdvanceAction.AddBinding("<Mouse>/leftButton");
+        introAdvanceAction.performed += OnIntroAdvancePerformed;
+        introAdvanceAction.Enable();
+    }
+
+    private void OnDisable()
+    {
+        if (introAdvanceAction == null) return;
+        introAdvanceAction.performed -= OnIntroAdvancePerformed;
+        introAdvanceAction.Dispose();
+        introAdvanceAction = null;
+    }
+
+    private void OnIntroAdvancePerformed(InputAction.CallbackContext context)
+    {
+        TryDismissIntroAtPointer();
+    }
 
     private void Awake()
     {
         EnsureEventSystem();
         BuildInterface();
+    }
+
+    private void Update()
+    {
+        // Accept clicks anywhere except the three character item areas.
+        if (!introDismissed && !isTransitioning && Mouse.current != null &&
+            (Mouse.current.leftButton.wasPressedThisFrame ||
+             Mouse.current.rightButton.wasPressedThisFrame))
+        {
+            TryDismissIntroAtPointer();
+        }
+    }
+
+    private void TryDismissIntroAtPointer()
+    {
+        if (introDismissed || isTransitioning || Mouse.current == null ||
+            introDialoguePanel == null || introSpeakerPlate == null) return;
+        Vector2 pointer = Mouse.current.position.ReadValue();
+        if (pointer.x < 0f || pointer.y < 0f ||
+            pointer.x >= Screen.width || pointer.y >= Screen.height) return;
+        foreach (Button button in selectionButtons)
+        {
+            if (button != null && RectTransformUtility.RectangleContainsScreenPoint(
+                (RectTransform)button.transform, pointer, null)) return;
+        }
+        DismissIntro();
     }
 
     private void BuildInterface()
@@ -154,6 +205,8 @@ public sealed class SelectionPartController : MonoBehaviour
 
         ColorBlock colors = button.colors;
         colors.normalColor = Color.white;
+        // Waiting for the intro must not tint/fade the original item artwork.
+        colors.disabledColor = Color.white;
         colors.highlightedColor = new Color(1.08f, 1.04f, 0.88f, 1f);
         colors.pressedColor = new Color(0.88f, 0.76f, 0.5f, 1f);
         colors.selectedColor = colors.highlightedColor;
@@ -266,6 +319,7 @@ public sealed class SelectionPartController : MonoBehaviour
     {
         if (introDismissed || isTransitioning) return;
         introDismissed = true;
+        introDismissedFrame = Time.frameCount;
         introDialoguePanel.SetActive(false);
         introSpeakerPlate.SetActive(false);
         foreach (Button button in selectionButtons) button.interactable = true;
@@ -319,7 +373,7 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void ShowConfirmation(string displayName, string destinationScene)
     {
-        if (isTransitioning || !introDismissed)
+        if (isTransitioning || !introDismissed || Time.frameCount == introDismissedFrame)
         {
             return;
         }
