@@ -1,0 +1,16 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId
+chapter_kayo_diary_001,doute,normal,Assets/Art/Backgrounds/white_room.png,"よし！組み立て成功！手がかりかもしれないし、内容を見てみよう……！",chapter_kayo_diary_002
+chapter_kayo_diary_002,,,,"『20XX年月日』",chapter_kayo_diary_003
+chapter_kayo_diary_003,,,,"『きょうも完ぺき！テストも100点まん点！ままとぱぱとねぇねにたくさんほめられた！これからもがんばる！』",chapter_kayo_diary_004
+chapter_kayo_diary_004,,,,"『20XX年月日』",chapter_kayo_diary_005
+chapter_kayo_diary_005,,,,"『最近、ママはぐあいが悪いみたい。ママもパパもお姉ちゃんもすぐ良くなるって言うけど心配だなぁ……そうだ！わたしががんばってテストもおうちのお手伝いもしたらきっとすぐ元気になるよね！』",chapter_kayo_diary_006
+chapter_kayo_diary_006,,,,"『20XX年月日』",chapter_kayo_diary_007
+chapter_kayo_diary_007,,,,"『ママとパパは今日も褒めてくれた、嬉れしい！これくらい当然だもの！けど、前はしなかったようなミスが増えちゃった、きっと努力が足りてない証拠よね……！もっと、頑張らないと……』",chapter_kayo_diary_008
+chapter_kayo_diary_008,,,,"『20XX年6月15日』",chapter_kayo_diary_009
+chapter_kayo_diary_009,,,,"『お母さんが亡くなった。わたしのせいだ……！わたしがミスをしつずけてお母さんに芯配をかけさせたから、病気が悪くなっちゃったんだ……っ！お母さんがいない分もわたしがもっと、もっとがんばらなきゃ……！』",chapter_kayo_diary_010
+chapter_kayo_diary_010,,,,"『20XX年6月15日』",chapter_kayo_diary_011
+chapter_kayo_diary_011,,,,"『また、ドジをしてしまった……。子供の頃はこんなにドジをしなかったのに。先生の手伝いで本を運んでいたら転んでしまって危うく友達にケガをさせるところだった。幸運なことにケガはしてなかったらしいけど、本がその子の足に落ちて痛い思いをさせちゃった。明日、ちゃんと謝らないと。』",chapter_kayo_diary_012
+chapter_kayo_diary_012,,,,"『20XX年6月19日』",chapter_kayo_diary_013
+chapter_kayo_diary_013,,,,"『ごめんなさい、わたしのせいだ。友達が広めたうそのうわさのせいでお父さんが学校に呼び出されちゃった。お父さんはわたしが暴力を振るうわけないってわかってくれてるけど、忙しいのに迷惑かけちゃった。先生との面談で片親だから仕方ないって言われた。悔しい……！悔しかったけど、何もできないんだ……。』",chapter_kayo_diary_014
+chapter_kayo_diary_014,,,,"『20XX年6月30日』",chapter_kayo_diary_015
+chapter_kayo_diary_015,,,,"『誰にも、あんなこと言わせないって頑張ったのに……ダメだった。お姉ちゃんもお父さんも無理しなくていいって言ってくれたけど、結果が出なきゃ努力なんて無意味じゃない……！悔しくて涙が出るとそれを2人が慰めてくれて、また悔しくて涙が出た。ドジのままでいいわけなんてない！』",

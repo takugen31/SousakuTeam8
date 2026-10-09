@@ -235,7 +235,9 @@ MonoBehaviour:
   fadeOutDuration: 2.5
   postFadeDelay: 2
   completionSceneName: NovelScene_Kayo
-  completionResumeLineId: chapter_kayo_3_001
+  completionResumeLineId: chapter_kayo_diary_001
+  puzzleSceneName: PuzzleGame
+  diaryPuzzleImage: {fileID: 0}
 --- !u!114 &1950354246
 MonoBehaviour:
   m_ObjectHideFlags: 0
