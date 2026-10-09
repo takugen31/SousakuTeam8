@@ -15,8 +15,8 @@ MonoBehaviour:
   defaultBackground: {fileID: 0}
   lines:
   - lineId: chapter_yowashi_consultation_001
-    speakerId: 
-    expressionId: 
+    speakerId: player
+    expressionId: normal
     text: "一回状況を整理しよう"
     background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
@@ -41,8 +41,8 @@ MonoBehaviour:
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_consultation_003
-    speakerId: 
-    expressionId: 
+    speakerId: player
+    expressionId: normal
     text: "僕は特別な存在だから。僕と話してる間は時間は進まないよ。"
     background: {fileID: 0}
     revealSpeakerName: 0
@@ -105,8 +105,8 @@ MonoBehaviour:
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_consultation_007
-    speakerId: 
-    expressionId: 
+    speakerId: player
+    expressionId: normal
     text: "おそらくね。あとは頑張ってね"
     background: {fileID: 0}
     revealSpeakerName: 0
@@ -131,8 +131,8 @@ MonoBehaviour:
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_consultation_009
-    speakerId: 
-    expressionId: 
+    speakerId: player
+    expressionId: normal
     text: "そっちはきっと大丈夫だよ"
     background: {fileID: 0}
     revealSpeakerName: 0

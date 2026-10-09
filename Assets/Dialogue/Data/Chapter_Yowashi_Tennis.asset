@@ -184,8 +184,8 @@ MonoBehaviour:
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_tennis_014
-    speakerId: 
-    expressionId: 
+    speakerId: three_characters
+    expressionId: normal
     text: "いいよ！"
     background: {fileID: 0}
     revealSpeakerName: 0
@@ -197,8 +197,8 @@ MonoBehaviour:
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_tennis_015
-    speakerId: 
-    expressionId: 
+    speakerId: three_characters
+    expressionId: normal
     text: "大丈夫"
     background: {fileID: 0}
     revealSpeakerName: 0
@@ -210,8 +210,8 @@ MonoBehaviour:
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_tennis_016
-    speakerId: 
-    expressionId: 
+    speakerId: three_characters
+    expressionId: normal
     text: "し、仕方ないわね！"
     background: {fileID: 0}
     revealSpeakerName: 0

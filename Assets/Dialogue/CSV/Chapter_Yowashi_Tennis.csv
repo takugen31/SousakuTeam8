@@ -13,9 +13,9 @@ chapter_yowashi_tennis_010,doute,normal,,じゃあやってみよっか！2人�
 chapter_yowashi_tennis_011,moteru,normal,,ドウテくんがやるなら僕もやろうかな。テニスはやったことないんだけど……,chapter_yowashi_tennis_012,,,,,,,,
 chapter_yowashi_tennis_012,kayo,normal,,3人がやるなら私も……べ、別にやりたいってわけじゃないんだからね！！,chapter_yowashi_tennis_013,,,,,,,,
 chapter_yowashi_tennis_013,yowashi,normal,,じゃあすぐやろう！！チームは私とドウテくん、カヨちゃんとモテルくんでいい？,chapter_yowashi_tennis_014,,,,,,,,
-chapter_yowashi_tennis_014,,,,いいよ！,chapter_yowashi_tennis_015,,,,,,,,
-chapter_yowashi_tennis_015,,,,大丈夫,chapter_yowashi_tennis_016,,,,,,,,
-chapter_yowashi_tennis_016,,,,し、仕方ないわね！,chapter_yowashi_tennis_017,,,,,,,,
+chapter_yowashi_tennis_014,three_characters,normal,,いいよ！,chapter_yowashi_tennis_015,,,,,,,,
+chapter_yowashi_tennis_015,three_characters,normal,,大丈夫,chapter_yowashi_tennis_016,,,,,,,,
+chapter_yowashi_tennis_016,three_characters,normal,,し、仕方ないわね！,chapter_yowashi_tennis_017,,,,,,,,
 chapter_yowashi_tennis_017,doute,normal,,"よし、ヨワシちゃん一緒に頑張ろう！
 　昨日かなり息切れしてたけど体調は大丈夫そう？",chapter_yowashi_tennis_018,,,,,,,,
 chapter_yowashi_tennis_018,yowashi,normal,,もちのろんですよ！！たっぷり休んだし、何よりドウテくんもいるしね〜,chapter_yowashi_tennis_019,,,,,,,,

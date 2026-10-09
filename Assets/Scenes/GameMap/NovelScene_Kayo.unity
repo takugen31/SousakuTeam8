@@ -758,6 +758,7 @@ MonoBehaviour:
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???
+  omitOuterDialogueQuotes: 1
   startLineId: 
   affectionManager: {fileID: 0}
   backgroundImage: {fileID: 2000001002}

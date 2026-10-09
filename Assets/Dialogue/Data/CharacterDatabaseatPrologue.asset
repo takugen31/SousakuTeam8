@@ -13,6 +13,20 @@ MonoBehaviour:
   m_Name: CharacterDatabaseatPrologue
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDatabaseSO
   characters:
+  - characterId: player
+    displayName: "プレイヤー"
+    nameColor: {r: 1, g: 1, b: 1, a: 1}
+    nameKnownInitially: 1
+    expressions:
+    - expressionId: normal
+      portrait: {fileID: 0}
+  - characterId: three_characters
+    displayName: "3人"
+    nameColor: {r: 1, g: 1, b: 1, a: 1}
+    nameKnownInitially: 1
+    expressions:
+    - expressionId: normal
+      portrait: {fileID: 0}
   - characterId: doute
     displayName: "\u30C9\u30A6\u30C6"
     nameColor: {r: 1, g: 1, b: 1, a: 1}

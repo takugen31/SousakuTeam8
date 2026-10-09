@@ -4,3 +4,5 @@ doute,,#FFFFFF,surprised,Assets/Art/Portraits/doute_normal.png,
 kayo,カヨ,#80C8FF,normal,Assets/Art/Portraits/kayo_normal.png,false
 moteru,モテル,#80C8FF,normal,Assets/Art/Portraits/moteru_normal.png,false
 yowashi,ヨワシ,#80C8FF,normal,Assets/Art/Portraits/yowashi_normal.png,false
+player,プレイヤー,#FFFFFF,normal,,true
+three_characters,3人,#FFFFFF,normal,,true

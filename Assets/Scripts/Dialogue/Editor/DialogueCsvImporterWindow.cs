@@ -172,7 +172,7 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                 record.GetRequired("expressionId").Trim();
 
             string portraitPath =
-                record.GetRequired("portraitPath").Trim();
+                record.Get("portraitPath").Trim();
 
             if (!characterById.TryGetValue(
                     characterId,
@@ -231,11 +231,11 @@ public sealed class DialogueCsvImporterWindow : EditorWindow
                     $"「{expressionId}」が重複しています。");
             }
 
-            Sprite portrait =
-                AssetDatabase.LoadAssetAtPath<Sprite>(
-                    portraitPath);
+            // プレイヤーや複数人の声には立ち絵がない。空欄のみ許可し、不正な画像パスは引き続きエラー。
+            Sprite portrait = string.IsNullOrEmpty(portraitPath) ? null :
+                AssetDatabase.LoadAssetAtPath<Sprite>(portraitPath);
 
-            if (portrait == null)
+            if (!string.IsNullOrEmpty(portraitPath) && portrait == null)
             {
                 throw new FormatException(
                     $"{record.RowNumber}行目: " +

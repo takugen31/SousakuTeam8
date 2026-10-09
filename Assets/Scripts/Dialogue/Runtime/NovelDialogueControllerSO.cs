@@ -154,6 +154,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     private TMP_Text bodyText;
 
+    [SerializeField, Tooltip("名前付きのセリフは、表示時だけ外側の「」を省略します。原文データは変更しません。")]
+    private bool omitOuterDialogueQuotes;
+
     [SerializeField]
     [FormerlySerializedAs("portraitImage")]
     private Image leftPortraitImage;
@@ -481,6 +484,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         namePlate = speakerPlate;
         speakerNameText = speakerText;
         bodyText = dialogueText;
+        omitOuterDialogueQuotes = true;
         leftPortraitImage = leftPortrait;
         rightPortraitImage = rightPortrait;
         playbackControlsRoot = null;
@@ -1109,7 +1113,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void ShowLineImmediately(DialogueLine line)
     {
         PrepareLine(line);
-        StartTyping(line.text);
+        StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
     private void PrepareLine(DialogueLine line)
@@ -1199,7 +1203,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         isChapterTransitioning = false;
         chapterTransitionCoroutine = null;
-        StartTyping(line.text);
+        StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
     private void EnsureConsultationTransitionTitle(Transform overlayTransform)
@@ -1424,6 +1428,15 @@ public sealed class NovelDialogueController : MonoBehaviour
         image.sprite = portrait;
         image.preserveAspect = true;
         image.enabled = portrait != null;
+    }
+
+    public static string GetDialogueDisplayText(DialogueLine line, bool omitQuotes)
+    {
+        string text = line?.text ?? string.Empty;
+        if (omitQuotes && !string.IsNullOrWhiteSpace(line?.speakerId) &&
+            text.Length >= 2 && text[0] == '「' && text[text.Length - 1] == '」')
+            return text.Substring(1, text.Length - 2);
+        return text;
     }
 
     private void StartTyping(string text)
