@@ -2,8 +2,9 @@
   <!-- Include the new script even before Unity regenerates its IDE project. -->
   <Target Name="IncludeKayoPuzzleBridge" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
     <ItemGroup>
+      <_KayoExistingBridge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoPuzzleGameFlowController'" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoPuzzleGameFlowController.cs"
-               Exclude="@(Compile)" />
+               Condition="'@(_KayoExistingBridge)' == ''" />
     </ItemGroup>
   </Target>
 </Project>
