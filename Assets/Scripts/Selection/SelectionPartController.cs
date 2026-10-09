@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -33,6 +34,10 @@ public sealed class SelectionPartController : MonoBehaviour
     private Image fadeOverlay;
     private string pendingSceneName;
     private bool isTransitioning;
+    private bool introDismissed;
+    private GameObject introDialoguePanel;
+    private GameObject introSpeakerPlate;
+    private readonly List<Button> selectionButtons = new List<Button>();
 
     private void Awake()
     {
@@ -155,6 +160,8 @@ public sealed class SelectionPartController : MonoBehaviour
         colors.fadeDuration = 0.12f;
         button.colors = colors;
         button.onClick.AddListener(() => ShowConfirmation(displayName, destinationScene));
+        button.interactable = false;
+        selectionButtons.Add(button);
 
         Outline hoverFrame = itemImage.gameObject.AddComponent<Outline>();
         hoverFrame.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.72f);
@@ -224,6 +231,44 @@ public sealed class SelectionPartController : MonoBehaviour
             new Vector2(0.05f, 0.1f),
             new Vector2(0.95f, 0.86f));
         dialogue.alignment = TextAlignmentOptions.TopLeft;
+
+        introDialoguePanel = dialoguePanel.gameObject;
+        introSpeakerPlate = speakerPlate.gameObject;
+        Image advanceHitArea = CreateImage("AdvanceButton", dialoguePanel.transform, Color.clear, true);
+        RectTransform advanceRect = advanceHitArea.rectTransform;
+        advanceRect.anchorMin = advanceRect.anchorMax = new Vector2(0.88f, 0.38f);
+        advanceRect.anchoredPosition = Vector2.zero;
+        advanceRect.sizeDelta = new Vector2(56.16f, 56.16f);
+        Button advanceButton = advanceHitArea.gameObject.AddComponent<Button>();
+        advanceButton.targetGraphic = advanceHitArea;
+        advanceButton.navigation = new Navigation { mode = Navigation.Mode.None };
+        advanceButton.onClick.AddListener(DismissIntro);
+
+        TMP_Text mark = CreateText("AdvanceMark", advanceHitArea.transform, "▼", 27f, Color.white);
+        Stretch(mark.rectTransform);
+        mark.alignment = TextAlignmentOptions.Center;
+        mark.enableAutoSizing = false;
+        StartCoroutine(AnimateIntroMark(mark.rectTransform));
+    }
+
+    private IEnumerator AnimateIntroMark(RectTransform mark)
+    {
+        float elapsed = 0f;
+        while (!introDismissed && mark != null)
+        {
+            elapsed = Mathf.Repeat(elapsed + Time.unscaledDeltaTime, 1.8f);
+            mark.anchoredPosition = new Vector2(0f, Mathf.Sin(elapsed * 2f * Mathf.PI / 1.8f) * 2f);
+            yield return null;
+        }
+    }
+
+    private void DismissIntro()
+    {
+        if (introDismissed || isTransitioning) return;
+        introDismissed = true;
+        introDialoguePanel.SetActive(false);
+        introSpeakerPlate.SetActive(false);
+        foreach (Button button in selectionButtons) button.interactable = true;
     }
 
     private void BuildConfirmation(Transform parent)
@@ -274,7 +319,7 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void ShowConfirmation(string displayName, string destinationScene)
     {
-        if (isTransitioning)
+        if (isTransitioning || !introDismissed)
         {
             return;
         }
