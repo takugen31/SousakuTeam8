@@ -690,6 +690,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1633669556}
   - component: {fileID: 1633669557}
+  - component: {fileID: 1633669558}
   m_Layer: 5
   m_Name: DialogueController
   m_TagString: Untagged
@@ -697,6 +698,23 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1633669558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633669555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 761eff87b8124c01b83ac55d48822da1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::YowashiPuzzleEntryController
+  dialogueController: {fileID: 1633669557}
+  puzzleSceneName: PuzzleGame
+  puzzleEntryLineId: chapter_yowashi_1_035
+  diaryResumeLineId: chapter_yowashi_diary_001
+  diaryPuzzleImage: {fileID: 0}
 --- !u!224 &1633669556
 RectTransform:
   m_ObjectHideFlags: 0
@@ -728,10 +746,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e628b47772e4bed449c9e78833eb4135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NovelDialogueController
-  scenario: {fileID: 11400000, guid: cf8d3c86502709540a8bcadb9944ddf1, type: 2}
+  scenario: {fileID: 11400000, guid: 826dba538b03427a814f588cb5de2b8b, type: 2}
   followingScenarios:
-  - {fileID: 11400000, guid: 32de4174b15050344a870acf28ebf99a, type: 2}
-  - {fileID: 11400000, guid: a41c6e59be1b4aa1a0e87a0b2c9135f7, type: 2}
+  - {fileID: 11400000, guid: d6f53c2278014a839a4d38961e7f4372, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???

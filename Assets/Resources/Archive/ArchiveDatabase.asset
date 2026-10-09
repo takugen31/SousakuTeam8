@@ -104,3 +104,33 @@ MonoBehaviour:
     sortOrder: 220
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_yowashi.bandage
+    category: 2
+    title: ヨワシの腕の包帯
+    subtitle:
+    body: "これは我が腕に宿しベルゼバブを封じ込める封印……\n　絶対に中を見てはいけないよ、少年"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 300
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_yowashi.manga
+    category: 2
+    title: ヨワシの好きな漫画
+    subtitle:
+    body: "わかるわかる！しかしこの本棚に大量のラノベや漫画があることには気づいていたかい……？"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 310
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_yowashi.diary
+    category: 3
+    title: 誰かの日記
+    subtitle:
+    body: "『20XX年4月8日』\n今年も入学式に行けなかった。いくら私が体調は大丈夫だって言っても、ママは聞いてくれない。なんで私の言うことを信じてくれないんだろう。\n『20XX年5月12日』\n今年初めて学校に行けた。何回もママにおねだりした甲斐があったかも。とても嬉しかったのに、学校に行ってみたら咳が止まらなくなった。なんで？友達はすごく心配してくれたのに、私は、私は、私は\n『20XX年5月13日』\n私は今日から弱音を吐かないことにした。そのためには明るくいよう。だって漫画のキャラクターで弱音吐いてる子なんて誰もいない。あのキャラみたいになりたい。\n『20XX年6月6日』\n大丈夫、私は明るい子、強い子、大丈夫。\n『20XX年6月7日』\n大丈夫、私は明るい子、強い子、大丈夫。\n『20XX年9月11日』\n大丈夫、私は明るい子、強い子、大丈夫\n(これ以降、同じ言葉が時々書かれているだけだ)"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 320
+    unlockedAtStart: 0
+    showBeforeUnlock: 0

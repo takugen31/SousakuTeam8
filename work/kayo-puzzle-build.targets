@@ -6,6 +6,9 @@
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoPuzzleGameFlowController.cs"
                Condition="'@(_KayoExistingBridge)' == ''" />
       <_KayoExistingGauge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoGaugeOutcomeController'" />
+      <_YowashiExistingPuzzle Include="@(Compile)" Condition="'%(Compile.Filename)' == 'YowashiPuzzleEntryController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\YowashiPuzzleEntryController.cs"
+               Condition="'@(_YowashiExistingPuzzle)' == ''" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoGaugeOutcomeController.cs"
                Condition="'@(_KayoExistingGauge)' == ''" />
     </ItemGroup>

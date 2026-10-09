@@ -18,6 +18,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public event Action DialogueCompleted;
     public event Action<DialogueLine> LineStarted;
+    public event Action<DialogueLine> SceneTransitionStarting;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetPendingResumeLine()
@@ -1639,6 +1640,7 @@ public sealed class NovelDialogueController : MonoBehaviour
                 throw new InvalidOperationException(
                     $"シーン「{runtimeSceneName}」が有効なScene Listにありません。");
             }
+            SceneTransitionStarting?.Invoke(transitionLine);
         }
         catch (System.Exception exception)
         {

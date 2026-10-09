@@ -1,0 +1,473 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_1
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_1_001
+    speakerId: doute
+    expressionId: normal
+    text: "こんにちは、えっと、ヨワシちゃんであってるよね？"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_002
+    speakerId: yowashi
+    expressionId: normal
+    text: "我が下僕よ、今日もいい日だな！\n　ドウテくんだよね〜、どしたの？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_003
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん、その包帯ってどうしたの？\n　なんかさっき凄く怖いものが見えた気がしたんだけど……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_004
+    speakerId: yowashi
+    expressionId: normal
+    text: "これは我が腕に宿しベルゼバブを封じ込める封印……\n　絶対に中を見てはいけないよ、少年"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_005
+    speakerId: doute
+    expressionId: normal
+    text: "少年って……ヨワシちゃん何歳？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_006
+    speakerId: yowashi
+    expressionId: normal
+    text: "ぴっちぴちの16歳！\n　ていうか、細かいことを気にする男はモテないよ〜？\n　恋人を作らないと出れない部屋なんだから、今からでもちょっとずつ意識しよっ、ね？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_007
+    speakerId: doute
+    expressionId: normal
+    text: "は、はぁ……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_008
+    speakerId: doute
+    expressionId: normal
+    text: "(何かはぐらかされたような気がするなぁ)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_009
+    speakerId: 
+    expressionId: 
+    text: "［情報］ヨワシの腕の包帯　を手に入れた！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds:
+    - chapter_yowashi.bandage
+    branches: []
+  - lineId: chapter_yowashi_1_010
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃんの服ってなんというか……独特？だね？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_011
+    speakerId: yowashi
+    expressionId: normal
+    text: "むっ、失礼な。これは城の中で過ごすにあたってのの正装であるぞ。可愛いであろう？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_012
+    speakerId: doute
+    expressionId: normal
+    text: "城の中の正装……？服は可愛いと思うよ。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_013
+    speakerId: yowashi
+    expressionId: normal
+    text: "そうであろうそうであろう！\n　ちなみに、城の中での正装っていうのはパジャマのことね。まだまだ私への理解が足りないね〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_014
+    speakerId: doute
+    expressionId: normal
+    text: "パジャマだったのか、なるほどね〜。\n　僕らは普段着る服っぽいのに、なんでヨワシちゃんだけパジャマなんだろうね？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_015
+    speakerId: yowashi
+    expressionId: normal
+    text: "それは私が普段からパジャマで生活をしてるからじゃない？我の体にはベルゼバブが取り憑いているが故、あまり外には出られんのだ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_016
+    speakerId: doute
+    expressionId: normal
+    text: "ベルゼバブが取り憑いて……それは病気ってこと！？大丈夫なの！？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_017
+    speakerId: yowashi
+    expressionId: normal
+    text: "そこまで心配せんでも、母上が心配性であるだけじゃ。それよりも余は下僕が我が言葉を理解できるようになったことが喜ばしいぞ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_018
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_018
+    speakerId: doute
+    expressionId: normal
+    text: "まだまだです、ヨワシ様。これからも精進して参ります。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_019
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_019
+    speakerId: yowashi
+    expressionId: normal
+    text: "苦しゅうない！\n　ドウテくん最高だね！しかもそれ、『転生したらゴブリンだった件』のセリフじゃない？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_020
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_020
+    speakerId: doute
+    expressionId: normal
+    text: "え、知ってるの？じゃあ、『社蓄転生』は？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_021
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_021
+    speakerId: yowashi
+    expressionId: normal
+    text: "もちろん知ってるよ！『強がりペダル』は？『レッドロック』は？『排球！！！』は？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_022
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_022
+    speakerId: doute
+    expressionId: normal
+    text: "もちのろんですよ！強がりペダルは主人公の強がりが段々弱音になっていくのが最高だよね〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_023
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_023
+    speakerId: yowashi
+    expressionId: normal
+    text: "わかるわかる！しかしこの本棚に大量のラノベや漫画があることには気づいていたかい……？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_024
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_024
+    speakerId: doute
+    expressionId: normal
+    text: "もちろん！！おすすめの本布教しあおうよ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_025
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_025
+    speakerId: yowashi
+    expressionId: normal
+    text: "最高！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_026
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_026
+    speakerId: doute
+    expressionId: normal
+    text: "(スポ根漫画多かったな〜\n　俺も好きだし嬉しい！！)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_027
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_027
+    speakerId: 
+    expressionId: 
+    text: "［情報］ヨワシの好きな漫画　を手に入れた"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_028
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds:
+    - chapter_yowashi.manga
+    branches: []
+  - lineId: chapter_yowashi_1_028
+    speakerId: doute
+    expressionId: normal
+    text: "(30分ほど熱心に話し込んでいると、ヨワシちゃんの息が切れていることに気がついた)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_029
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_029
+    speakerId: yowashi
+    expressionId: normal
+    text: "それでね…このシリーズのこの…お決まりの文章が……最高なんだよね"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_030
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_030
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん、息切れしてない？大丈夫？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_031
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_031
+    speakerId: yowashi
+    expressionId: normal
+    text: "大丈夫だよぉ…\n　ただちょっと…興奮しすぎたみたいだから…今日は休もうかな…"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_032
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_032
+    speakerId: doute
+    expressionId: normal
+    text: "うん、それがいいと思う。明日またじっくり話そうよ〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_033
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_033
+    speakerId: yowashi
+    expressionId: normal
+    text: "うん、じゃあね〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_034
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_034
+    speakerId: doute
+    expressionId: normal
+    text: "息切れしてた……？気のせいかな"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_1_035
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_035
+    speakerId: doute
+    expressionId: normal
+    text: "(ん？この本棚の下に本なんて落ちてたかな？)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: Assets/PuzzleGame/Scenes/PuzzleGame.unity
+    nextLineId:
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

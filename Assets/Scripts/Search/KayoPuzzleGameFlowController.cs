@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Only a request from Kayo's search activates this bridge. Opening PuzzleGame
+/// Only a route's diary request activates this bridge. Opening PuzzleGame
 /// directly keeps the existing standalone puzzle behaviour.
 /// </summary>
 [DisallowMultipleComponent]
@@ -63,7 +63,7 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
         puzzle = FindFirstObjectByType<PuzzleGameController>();
         if (puzzle == null)
         {
-            Debug.LogError("カヨの日記パズルのコントローラーが見つかりません。", this);
+            Debug.LogError("日記パズルのコントローラーが見つかりません。", this);
             return;
         }
 
@@ -108,7 +108,7 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
         if (string.IsNullOrWhiteSpace(activeRequest.ResumeLineId) ||
             !Application.CanStreamedLevelBeLoaded(activeRequest.ReturnSceneName))
         {
-            Debug.LogError("カヨの日記パズルの戻り先・再開位置が不正です。", this);
+            Debug.LogError("日記パズルの戻り先・再開位置が不正です。", this);
             return;
         }
 
