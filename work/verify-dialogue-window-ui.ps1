@@ -95,6 +95,7 @@ namespace UnityEngine.UI {
         public Rect rect = new Rect(-816,-108.405f,1632,216.81f);
         public Color color = new Color(0,0,0,0.72f);
         public Rect GetPixelAdjustedRect() => rect;
+        public void SetVerticesDirty() {}
     }
     public class Image : Graphic {
         public bool isActiveAndEnabled=true;
@@ -168,10 +169,7 @@ public static class FeatherMeshCheck {
         var namePlate=new DialogueWindowFeather();
         namePlate.graphic.rect=new Rect(-175.44f,-37.125f,350.88f,74.25f);
         namePlate.graphic.rectTransform.offset=new Vector3(-583.44f,302.535f,0);
-        var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
-        typeof(DialogueWindowFeather).GetField("separateVerticalEdges",flags).SetValue(namePlate,true);
-        typeof(DialogueWindowFeather).GetField("featherWidth",flags).SetValue(namePlate,new Vector2(48,0));
-        typeof(DialogueWindowFeather).GetField("blendIntoImage",flags).SetValue(namePlate,target);
+        namePlate.ConfigureNamePlate(target);
         mesh=Seed();namePlate.ModifyMesh(mesh);
         bool sawMildTop=false, sawClearBottom=false;
         foreach(var v in mesh.vertices) {

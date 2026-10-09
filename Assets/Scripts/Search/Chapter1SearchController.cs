@@ -497,7 +497,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         rightPortrait.enabled = false;
 
         Color dialoguePlateColor =
-            new Color(0.012f, 0.02f, 0.032f, 0.94f);
+            new Color(0f, 0f, 0f, 0.72f);
 
         GameObject dialoguePanel = CreateImage(
             "DialoguePanel",
@@ -506,41 +506,42 @@ public sealed class Chapter1SearchController : MonoBehaviour
             false);
         SetAnchors(
             dialoguePanel,
-            new Vector2(0.075f, 0.045f),
-            new Vector2(0.925f, 0.32f));
-        AddBorder(dialoguePanel.transform, 3f, Gold);
+            new Vector2(0.075f, 0.0148875f),
+            new Vector2(0.925f, 0.2758625f));
+        dialoguePanel.AddComponent<DialogueWindowFeather>();
 
         GameObject speakerPlate = CreateImage(
             "SpeakerPlate",
-            dialoguePanel.transform,
+            itemDialogueRoot.transform,
             dialoguePlateColor,
             false);
         SetAnchors(
             speakerPlate,
-            new Vector2(0.035f, 0.73f),
-            new Vector2(0.25f, 0.98f));
-        AddBorder(speakerPlate.transform, 3f, Gold);
+            new Vector2(0.10475f, 0.24575f),
+            new Vector2(0.2875f, 0.3145f));
+        speakerPlate.AddComponent<DialogueWindowFeather>()
+            .ConfigureNamePlate(dialoguePanel.GetComponent<Image>());
 
         TMP_Text speakerText = CreateText(
             "SpeakerName",
             speakerPlate.transform,
             string.Empty,
-            22f,
+            40f,
             MainText,
             FontStyles.Bold);
         Stretch(speakerText.rectTransform, 18f, 18f, 0f, 0f);
-        speakerText.alignment = TextAlignmentOptions.MidlineLeft;
+        speakerText.alignment = TextAlignmentOptions.Center;
 
         TMP_Text dialogueText = CreateText(
             "DialogueText",
             dialoguePanel.transform,
             string.Empty,
-            29f,
+            36.685f,
             MainText);
         SetAnchors(
             dialogueText.gameObject,
-            new Vector2(0.05f, 0.16f),
-            new Vector2(0.95f, 0.72f));
+            new Vector2(0.05f, 0.1f),
+            new Vector2(0.95f, 0.86f));
         dialogueText.alignment = TextAlignmentOptions.TopLeft;
 
         TMP_Text advanceHint = CreateText(
