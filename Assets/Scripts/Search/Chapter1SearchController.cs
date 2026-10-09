@@ -318,7 +318,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
         Stretch(backgroundFrame);
 
         AspectRatioFitter frameAspect = frameObject.GetComponent<AspectRatioFitter>();
-        frameAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+        // Fill the screen without stretching the art; hotspots share this frame.
+        frameAspect.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
         frameAspect.aspectRatio = ReferenceAspect;
 
         backgroundImage = CreateImage(
