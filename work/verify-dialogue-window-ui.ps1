@@ -7,6 +7,8 @@ function Get-Block([string]$scene, [string]$id) {
 foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi')) {
     $scene = Get-Content (Join-Path $projectRoot "Assets/Scenes/GameMap/$name.unity") -Raw
     $panel = Get-Block $scene '2100000001'
+    $choices = Get-Block $scene '1900000201'
+    Assert-True ($choices.Contains('m_AnchoredPosition: {x: 0, y: 80}') -and $choices.Contains('m_SizeDelta: {x: 760, y: 216}')) 'Choice list must sit above the message window without changing its width'
     $plate = Get-Block $scene '2100000101'
     $speakerText = Get-Block $scene '2096725564'
     Assert-True ($speakerText.Contains('m_fontSize: 40') -and $speakerText.Contains('m_fontSizeBase: 40')) 'Speaker name font size must suit the name box'
