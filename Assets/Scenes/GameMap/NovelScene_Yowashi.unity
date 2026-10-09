@@ -748,6 +748,10 @@ MonoBehaviour:
   scenario: {fileID: 11400000, guid: 826dba538b03427a814f588cb5de2b8b, type: 2}
   followingScenarios:
   - {fileID: 11400000, guid: d6f53c2278014a839a4d38961e7f4372, type: 2}
+  - {fileID: 11400000, guid: c3a54410a71e44e7a3593740a1365eed, type: 2}
+  - {fileID: 11400000, guid: f85aecf746b74f9a8b291b164e18c5b0, type: 2}
+  - {fileID: 11400000, guid: d8c43b29dff94652b0e318e0b7c07cbd, type: 2}
+  - {fileID: 11400000, guid: 80fefbecf55c419cb3fcbddc688ffb14, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???

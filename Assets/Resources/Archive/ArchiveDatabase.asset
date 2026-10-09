@@ -134,3 +134,33 @@ MonoBehaviour:
     sortOrder: 320
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_yowashi.unknown_book
+    category: 2
+    title: 何かの本
+    subtitle:
+    body: "この……試練に……合格した……証として……この本を……やろう"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 330
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_yowashi.breathlessness
+    category: 2
+    title: ヨワシは息切れしやすい
+    subtitle:
+    body: "(おかしいな、キャッチボールって言っても2分くらいしかやってないと思うんだけど……あんなに息切れするもんかな？)"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 340
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_yowashi.medical_knowledge
+    category: 2
+    title: 医学書の知識
+    subtitle:
+    body: "これは……僕もそこまでよく分からないけど、医学書じゃないかな？SpO2っていうのは聞いたことあるよ。確か……血管の中の酸素濃度じゃなかった？\nうん。このあたり、喘息について書いてあるよ。こんな本ドウテくんは持ってたんだね！やっぱり凄いよ！！"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 350
+    unlockedAtStart: 0
+    showBeforeUnlock: 0

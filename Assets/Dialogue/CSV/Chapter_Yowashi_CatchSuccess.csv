@@ -1,0 +1,17 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,nextScenePath,archiveUnlockIds
+chapter_yowashi_catchsuccess_001,doute,normal,Assets/Art/Backgrounds/white_room.png,"(何か変なものまで飛んできてなかった……？)",chapter_yowashi_catchsuccess_002,,
+chapter_yowashi_catchsuccess_002,yowashi,normal,,"よく……やったぞ……ドウテ卿！！",chapter_yowashi_catchsuccess_003,,
+chapter_yowashi_catchsuccess_003,doute,normal,,"光栄です、ヨワシ様",chapter_yowashi_catchsuccess_004,,
+chapter_yowashi_catchsuccess_004,yowashi,normal,,"この……試練に……合格した……証として……この本を……やろう",chapter_yowashi_catchsuccess_005,,
+chapter_yowashi_catchsuccess_005,doute,normal,,"こ、この本は！？",chapter_yowashi_catchsuccess_006,,
+chapter_yowashi_catchsuccess_006,yowashi,normal,,"実は……ここに……たまたま……落ちてた……だけだから……私も……読んだこと……なくて……何の本かすら……知らない……",chapter_yowashi_catchsuccess_007,,
+chapter_yowashi_catchsuccess_007,doute,normal,,"えぇ……
+　まあヨワシちゃんからのプレゼントだからこそ、ありがたくもらうよ！ありがとう！",chapter_yowashi_catchsuccess_008,,
+chapter_yowashi_catchsuccess_008,,,,"［何かの本］を手に入れた！",chapter_yowashi_catchsuccess_009,,chapter_yowashi.unknown_book
+chapter_yowashi_catchsuccess_009,yowashi,normal,,"うむ……苦しゅう……ない……",chapter_yowashi_catchsuccess_010,,
+chapter_yowashi_catchsuccess_010,doute,normal,,"いや苦しゅうないは嘘じゃない？めっちゃ苦しそうだけど……",chapter_yowashi_catchsuccess_011,,
+chapter_yowashi_catchsuccess_011,yowashi,normal,,"仕方ない……ひとまず……今日はこれで……撤退しよう……",chapter_yowashi_catchsuccess_012,,
+chapter_yowashi_catchsuccess_012,doute,normal,,"ゆっくり休んでね、ヨワシちゃん",chapter_yowashi_catchsuccess_013,,
+chapter_yowashi_catchsuccess_013,doute,normal,,"(おかしいな、キャッチボールって言っても2分くらいしかやってないと思うんだけど……あんなに息切れするもんかな？)",chapter_yowashi_catchsuccess_014,,
+chapter_yowashi_catchsuccess_014,,,,"［情報］ヨワシは息切れしやすい　を手に入れた",chapter_yowashi_catchsuccess_015,,chapter_yowashi.breathlessness
+chapter_yowashi_catchsuccess_015,doute,normal,,"ヨワシちゃんからもらった本、せっかくなら見てみようかな",,,

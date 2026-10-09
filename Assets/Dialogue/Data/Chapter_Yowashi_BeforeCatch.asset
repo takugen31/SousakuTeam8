@@ -1,0 +1,263 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_BeforeCatch
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_beforecatch_001
+    speakerId: doute
+    expressionId: normal
+    text: "おはようドウテ卿！いい朝だねぇ"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_002
+    speakerId: doute
+    expressionId: normal
+    text: "なんか出世してる！下僕だったのに！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_003
+    speakerId: yowashi
+    expressionId: normal
+    text: "それはそうであろう。なにせ聖典について熱く語り合ったのだから！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_004
+    speakerId: doute
+    expressionId: normal
+    text: "それで上がる地位とは？って感じだけどね〜\n　そういえば、この本みたいなものが落ちてたんだけど、見覚えとかない？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_005
+    speakerId: yowashi
+    expressionId: normal
+    text: "……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_006
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_007
+    speakerId: yowashi
+    expressionId: normal
+    text: "はっ！！いや、この日記は知らんぞ。見たこともない！ただ魔力を感じるからこれは私が預かろう。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_008
+    speakerId: doute
+    expressionId: normal
+    text: "(あれ？俺、日記って言ったっけ？)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_009
+    speakerId: doute
+    expressionId: normal
+    text: "りょ、りょうかいです！ヨワシ様に捧げます"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_010
+    speakerId: yowashi
+    expressionId: normal
+    text: "うむ、苦しゅうない！ところで、余は今日やってみたいことがあるのだが、付き合ってくれるな？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_011
+    speakerId: doute
+    expressionId: normal
+    text: "もちろんです！具体的に何するの？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_012
+    speakerId: yowashi
+    expressionId: normal
+    text: "それはずばり……野球だ！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_013
+    speakerId: doute
+    expressionId: normal
+    text: "や、野球？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_014
+    speakerId: yowashi
+    expressionId: normal
+    text: "うむ。『スペードのエース』がどうしてもかっこよくてな。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_015
+    speakerId: doute
+    expressionId: normal
+    text: "野球か。やったことないな〜\n　2人でやるならキャッチボール？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_016
+    speakerId: yowashi
+    expressionId: normal
+    text: "やった！じゃあ自販機でボールを買ってきてよ〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_017
+    speakerId: doute
+    expressionId: normal
+    text: "りょーかい！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_018
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_018
+    speakerId: doute
+    expressionId: normal
+    text: "(ボール購入)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_beforecatch_019
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_beforecatch_019
+    speakerId: yowashi
+    expressionId: normal
+    text: "じゃあ早速始めよう！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: Assets/FallingGame/Scenes/falling_verYowashi.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

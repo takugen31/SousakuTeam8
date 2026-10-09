@@ -2,6 +2,9 @@
   <!-- Include the new script even before Unity regenerates its IDE project. -->
   <Target Name="IncludeKayoPuzzleBridge" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
     <ItemGroup>
+      <_YowashiExistingCatch Include="@(Compile)" Condition="'%(Compile.Filename)' == 'YowashiCatchGameFlowController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\FallingGame\Scripts\YowashiCatchGameFlowController.cs"
+               Condition="'@(_YowashiExistingCatch)' == ''" />
       <_KayoExistingBridge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoPuzzleGameFlowController'" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoPuzzleGameFlowController.cs"
                Condition="'@(_KayoExistingBridge)' == ''" />
