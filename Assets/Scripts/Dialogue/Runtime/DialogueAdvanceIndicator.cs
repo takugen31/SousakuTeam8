@@ -9,8 +9,14 @@ public sealed class DialogueAdvanceIndicator : MaskableGraphic
     [SerializeField] private Sprite kayoMark;
     [SerializeField] private Sprite moteruMark;
     [SerializeField] private Sprite yowashiMark;
+    [Header("Idle Motion")]
+    [SerializeField, Min(0f)] private float bobAmplitude = 2f;
+    [SerializeField, Min(0.1f)] private float bobPeriod = 1.8f;
     private Sprite currentSprite;
     private bool pageReady;
+    private float idleTime;
+    private float verticalOffset;
+    private static DialogueAdvanceMarkSet defaultMarks;
 
     public override Texture mainTexture => currentSprite != null
         ? currentSprite.texture : Texture2D.whiteTexture;
@@ -22,8 +28,8 @@ public sealed class DialogueAdvanceIndicator : MaskableGraphic
             typeof(RectTransform), typeof(CanvasRenderer));
         markerObject.transform.SetParent(parent, false);
         var rect = (RectTransform)markerObject.transform;
-        rect.anchorMin = rect.anchorMax = new Vector2(0.95f, 0.14f);
-        rect.sizeDelta = new Vector2(36f, 36f);
+        rect.anchorMin = rect.anchorMax = new Vector2(0.88f, 0.38f);
+        rect.sizeDelta = new Vector2(56.16f, 56.16f);
         var marker = markerObject.AddComponent<DialogueAdvanceIndicator>();
         marker.dialogueController = controller;
         marker.kayoMark = kayo;
@@ -36,14 +42,52 @@ public sealed class DialogueAdvanceIndicator : MaskableGraphic
     {
         bool ready = dialogueController != null && dialogueController.CanAdvanceCurrentPage;
         string speaker = dialogueController != null ? dialogueController.CurrentSpeakerId : null;
+        // A scene already loaded during editing can still have empty new fields.
+        // Resolve original art from a build-included asset, independent of visible names (???).
+        if ((speaker == "kayo" && kayoMark == null) ||
+            (speaker == "moteru" && moteruMark == null) ||
+            (speaker == "yowashi" && yowashiMark == null))
+        {
+            if (defaultMarks == null)
+                defaultMarks = Resources.Load<DialogueAdvanceMarkSet>("DialogueAdvanceMarks");
+            if (defaultMarks != null)
+            {
+                if (kayoMark == null) kayoMark = defaultMarks.kayo;
+                if (moteruMark == null) moteruMark = defaultMarks.moteru;
+                if (yowashiMark == null) yowashiMark = defaultMarks.yowashi;
+            }
+        }
         Sprite sprite = speaker == "kayo" ? kayoMark
             : speaker == "moteru" ? moteruMark
             : speaker == "yowashi" ? yowashiMark : null;
-        if (ready == pageReady && sprite == currentSprite) return;
-        pageReady = ready;
-        currentSprite = sprite;
+        bool stateChanged = ready != pageReady || sprite != currentSprite;
+        if (stateChanged)
+        {
+            pageReady = ready;
+            currentSprite = sprite;
+            idleTime = 0f;
+            verticalOffset = 0f;
+            SetVerticesDirty();
+            SetMaterialDirty();
+        }
+
+        if (!pageReady) return;
+        // Animate the drawn mark, leaving the editable anchor and size untouched.
+        // Unscaled time keeps the page-ready cue moving independently of game time.
+        idleTime = Mathf.Repeat(idleTime + Time.unscaledDeltaTime, Mathf.Max(0.1f, bobPeriod));
+        float offset = Mathf.Sin(idleTime * (2f * Mathf.PI) / Mathf.Max(0.1f, bobPeriod))
+            * Mathf.Max(0f, bobAmplitude);
+        if (Mathf.Approximately(offset, verticalOffset)) return;
+        verticalOffset = offset;
         SetVerticesDirty();
-        SetMaterialDirty();
+    }
+
+    protected override void OnDisable()
+    {
+        idleTime = 0f;
+        verticalOffset = 0f;
+        pageReady = false;
+        base.OnDisable();
     }
 
     protected override void OnPopulateMesh(VertexHelper mesh)
@@ -51,6 +95,7 @@ public sealed class DialogueAdvanceIndicator : MaskableGraphic
         mesh.Clear();
         if (!pageReady) return;
         Rect rect = GetPixelAdjustedRect();
+        rect.y += verticalOffset;
         if (currentSprite == null)
         {
             float radius = Mathf.Min(rect.width, rect.height) * 0.24f;
