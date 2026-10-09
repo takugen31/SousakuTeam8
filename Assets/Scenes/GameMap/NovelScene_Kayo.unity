@@ -689,6 +689,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1633669556}
   - component: {fileID: 1633669557}
+  - component: {fileID: 1633669558}
   m_Layer: 5
   m_Name: DialogueController
   m_TagString: Untagged
@@ -696,6 +697,23 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1633669558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633669555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 149634d7d7ea4c92ad58e82ebdab40dd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KayoGaugeOutcomeController
+  dialogueController: {fileID: 1633669557}
+  rescueAftermath: {fileID: 11400000, guid: e14a15a7cd9633d4086f60f632e145a5, type: 2}
+  successLineId: chapter_kayo_5_success_001
+  failureLineId: chapter_kayo_5_failure_001
+  lastCommonLineId: chapter_kayo_6_056
 --- !u!224 &1633669556
 RectTransform:
   m_ObjectHideFlags: 0

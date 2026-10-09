@@ -5,6 +5,9 @@
       <_KayoExistingBridge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoPuzzleGameFlowController'" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoPuzzleGameFlowController.cs"
                Condition="'@(_KayoExistingBridge)' == ''" />
+      <_KayoExistingGauge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoGaugeOutcomeController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoGaugeOutcomeController.cs"
+               Condition="'@(_KayoExistingGauge)' == ''" />
     </ItemGroup>
   </Target>
 </Project>
