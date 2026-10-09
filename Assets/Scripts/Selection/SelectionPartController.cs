@@ -54,7 +54,7 @@ public sealed class SelectionPartController : MonoBehaviour
 
         CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = new Vector2(1672f, 941f);
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 0.5f;
 
@@ -138,7 +138,8 @@ public sealed class SelectionPartController : MonoBehaviour
         rect.anchorMin = anchor;
         rect.anchorMax = anchor;
         rect.anchoredPosition = Vector2.zero;
-        rect.sizeDelta = size;
+        // Preserve the existing artwork footprint after unifying canvas resolution.
+        rect.sizeDelta = size * (1672f / 1920f);
         itemImage.sprite = sprite;
         itemImage.preserveAspect = true;
 
@@ -166,14 +167,14 @@ public sealed class SelectionPartController : MonoBehaviour
         Image namePlate = CreateImage(
             "NamePlate",
             itemImage.transform,
-            DarkPanel,
+            new Color(0f, 0f, 0f, 0.72f),
             false);
         RectTransform nameRect = namePlate.rectTransform;
         nameRect.anchorMin = new Vector2(0.5f, 0f);
         nameRect.anchorMax = new Vector2(0.5f, 0f);
         nameRect.anchoredPosition = new Vector2(0f, -24f);
         nameRect.sizeDelta = new Vector2(170f, 42f);
-        AddBorder(namePlate.transform, 2f, Gold);
+        namePlate.gameObject.AddComponent<DialogueWindowFeather>();
 
         TMP_Text label = CreateText(
             "Name",
@@ -188,40 +189,40 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void BuildDialoguePanel(Transform parent)
     {
-        Image dialoguePanel = CreateImage("DialoguePanel", parent, DarkPanel, false);
+        Image dialoguePanel = CreateImage("DialoguePanel", parent, new Color(0f, 0f, 0f, 0.72f), false);
         SetAnchors(
             dialoguePanel.gameObject,
-            new Vector2(0.075f, 0.045f),
-            new Vector2(0.925f, 0.32f));
-        AddBorder(dialoguePanel.transform, 3f, Gold);
+            new Vector2(0.075f, 0.0148875f),
+            new Vector2(0.925f, 0.2758625f));
+        dialoguePanel.gameObject.AddComponent<DialogueWindowFeather>();
 
-        Image speakerPlate = CreateImage("SpeakerPlate", dialoguePanel.transform, DarkPanel, false);
+        Image speakerPlate = CreateImage("SpeakerPlate", parent, new Color(0f, 0f, 0f, 0.72f), false);
         SetAnchors(
             speakerPlate.gameObject,
-            new Vector2(0.035f, 0.73f),
-            new Vector2(0.25f, 0.98f));
-        AddBorder(speakerPlate.transform, 3f, Gold);
+            new Vector2(0.10475f, 0.24575f),
+            new Vector2(0.2875f, 0.3145f));
+        speakerPlate.gameObject.AddComponent<DialogueWindowFeather>().ConfigureNamePlate(dialoguePanel);
 
         TMP_Text speaker = CreateText(
             "SpeakerName",
             speakerPlate.transform,
             "ドウテ",
-            22f,
+            40f,
             MainText,
             FontStyles.Bold);
         Stretch(speaker.rectTransform, 18f, 18f, 0f, 0f);
-        speaker.alignment = TextAlignmentOptions.MidlineLeft;
+        speaker.alignment = TextAlignmentOptions.Center;
 
         TMP_Text dialogue = CreateText(
             "DialogueText",
             dialoguePanel.transform,
             "ひとまず誰から話しかけようかな……？",
-            29f,
+            36.685f,
             MainText);
         SetAnchors(
             dialogue.gameObject,
-            new Vector2(0.05f, 0.16f),
-            new Vector2(0.95f, 0.72f));
+            new Vector2(0.05f, 0.1f),
+            new Vector2(0.95f, 0.86f));
         dialogue.alignment = TextAlignmentOptions.TopLeft;
     }
 
@@ -234,12 +235,12 @@ public sealed class SelectionPartController : MonoBehaviour
             true).gameObject;
         Stretch(confirmationRoot.GetComponent<RectTransform>());
 
-        Image panel = CreateImage("ConfirmationPanel", confirmationRoot.transform, DarkPanel, false);
+        Image panel = CreateImage("ConfirmationPanel", confirmationRoot.transform, new Color(0f, 0f, 0f, 0.72f), false);
         RectTransform panelRect = panel.rectTransform;
         panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
         panelRect.anchoredPosition = new Vector2(0f, 30f);
         panelRect.sizeDelta = new Vector2(760f, 270f);
-        AddBorder(panel.transform, 3f, Gold);
+        panel.gameObject.AddComponent<DialogueWindowFeather>();
 
         confirmationText = CreateText(
             "ConfirmationText",
@@ -335,8 +336,7 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private Button CreateTextButton(Transform parent, string objectName, string labelText)
     {
-        Image image = CreateImage(objectName, parent, new Color(0.055f, 0.065f, 0.08f, 0.98f), true);
-        AddBorder(image.transform, 2f, Gold);
+        Image image = CreateImage(objectName, parent, new Color(0f, 0f, 0f, 0.72f), true);
 
         Button button = image.gameObject.AddComponent<Button>();
         button.targetGraphic = image;
@@ -349,6 +349,8 @@ public sealed class SelectionPartController : MonoBehaviour
         colors.selectedColor = colors.highlightedColor;
         colors.fadeDuration = 0.1f;
         button.colors = colors;
+
+        image.gameObject.AddComponent<ChoiceButtonHoverScale>();
 
         TMP_Text label = CreateText("Label", image.transform, labelText, 22f, MainText, FontStyles.Bold);
         Stretch(label.rectTransform, 8f, 8f, 4f, 4f);
