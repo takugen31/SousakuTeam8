@@ -2,6 +2,9 @@
   <!-- Include the new script even before Unity regenerates its IDE project. -->
   <Target Name="IncludeKayoPuzzleBridge" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
     <ItemGroup>
+      <_ExistingAdvanceIndicator Include="@(Compile)" Condition="'%(Compile.Filename)' == 'DialogueAdvanceIndicator'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\DialogueAdvanceIndicator.cs"
+               Condition="'@(_ExistingAdvanceIndicator)' == ''" />
       <_ExistingChoiceHover Include="@(Compile)" Condition="'%(Compile.Filename)' == 'ChoiceButtonHoverScale'" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\ChoiceButtonHoverScale.cs"
                Condition="'@(_ExistingChoiceHover)' == ''" />

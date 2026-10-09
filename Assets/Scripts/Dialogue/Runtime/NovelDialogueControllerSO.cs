@@ -252,6 +252,12 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool isTyping;
     private string stopAfterLineId;
 
+    public string CurrentSpeakerId => currentLine?.speakerId;
+    public bool CanAdvanceCurrentPage => isActiveAndEnabled && isPlaying &&
+        currentLine != null && !isTyping && !currentLine.HasChoices &&
+        !isChoiceSelectionOpen && !isChapterTransitioning && !isSceneLoading &&
+        !isSkipConfirmationOpen && !ArchiveManager.IsOpen;
+
     private void Awake()
     {
         if (autoPlayButton != null)

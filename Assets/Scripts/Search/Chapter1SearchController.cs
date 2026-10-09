@@ -37,6 +37,11 @@ public sealed class Chapter1SearchController : MonoBehaviour
     [SerializeField]
     private CharacterDatabaseSO dialogueCharacterDatabase;
 
+    [Header("Page Advance Marks")]
+    [SerializeField] private Sprite kayoAdvanceMark;
+    [SerializeField] private Sprite moteruAdvanceMark;
+    [SerializeField] private Sprite yowashiAdvanceMark;
+
     [Header("Completion Transition")]
     [SerializeField, Min(0f)]
     private float sceneFadeInDuration = 1f;
@@ -544,17 +549,6 @@ public sealed class Chapter1SearchController : MonoBehaviour
             new Vector2(0.95f, 0.86f));
         dialogueText.alignment = TextAlignmentOptions.TopLeft;
 
-        TMP_Text advanceHint = CreateText(
-            "AdvanceHint",
-            dialoguePanel.transform,
-            "左クリックで進む",
-            15f,
-            new Color(0.67f, 0.71f, 0.72f, 1f));
-        SetAnchors(
-            advanceHint.gameObject,
-            new Vector2(0.72f, 0.02f),
-            new Vector2(0.95f, 0.16f));
-        advanceHint.alignment = TextAlignmentOptions.MidlineRight;
 
         GameObject controllerObject = new GameObject(
             "EmbeddedItemDialogueController",
@@ -572,6 +566,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
             leftPortrait,
             rightPortrait);
         itemDialogueController.DialogueCompleted += OnItemDialogueCompleted;
+        DialogueAdvanceIndicator.Create(dialoguePanel.transform, itemDialogueController,
+            kayoAdvanceMark, moteruAdvanceMark, yowashiAdvanceMark);
 
         itemDialogueRoot.SetActive(false);
     }
