@@ -26,9 +26,13 @@ public sealed class SelectionPartController : MonoBehaviour
     [SerializeField] private string moteruSceneName = "NovelScene_Moteru";
     [SerializeField] private string yowashiSceneName = "NovelScene_Yowashi";
     [SerializeField, Min(0f)] private float fadeOutDuration = 1f;
+    [Header("Confirmation UI")]
+    [SerializeField, Min(0f)] private float confirmationFadeDuration = 0.25f;
 
     private Canvas canvas;
     private GameObject confirmationRoot;
+    private CanvasGroup confirmationGroup;
+    private bool isConfirmationFading;
     private TMP_Text confirmationText;
     private Button confirmButton;
     private Button cancelButton;
@@ -41,6 +45,10 @@ public sealed class SelectionPartController : MonoBehaviour
     private readonly List<Button> selectionButtons = new List<Button>();
     private InputAction introAdvanceAction;
     private int introDismissedFrame = -1;
+    private GameObject hoverNameRoot;
+    private TMP_Text hoverNameText;
+    private GameObject selectionTitleRoot;
+    private string hoveredCharacterName;
 
     private void OnEnable()
     {
@@ -131,7 +139,7 @@ public sealed class SelectionPartController : MonoBehaviour
             kayoItem,
             "カヨ",
             new Vector2(0.5f, 0.76f),
-            new Vector2(310f, 310f),
+            new Vector2(356.5f, 356.5f),
             0f,
             kayoSceneName);
 
@@ -140,8 +148,8 @@ public sealed class SelectionPartController : MonoBehaviour
             canvasObject.transform,
             moteruItem,
             "モテル",
-            new Vector2(0.17f, 0.51f),
-            new Vector2(310f, 310f),
+            new Vector2(0.27f, 0.43f),
+            new Vector2(356.5f, 356.5f),
             2.1f,
             moteruSceneName);
 
@@ -150,12 +158,13 @@ public sealed class SelectionPartController : MonoBehaviour
             canvasObject.transform,
             yowashiItem,
             "ヨワシ",
-            new Vector2(0.83f, 0.51f),
-            new Vector2(360f, 270f),
+            new Vector2(0.73f, 0.43f),
+            new Vector2(414f, 310.5f),
             4.2f,
             yowashiSceneName);
 
         BuildDialoguePanel(canvasObject.transform);
+        BuildHoverName(canvasObject.transform);
         BuildConfirmation(canvasObject.transform);
 
         fadeOverlay = CreateImage(
@@ -172,11 +181,12 @@ public sealed class SelectionPartController : MonoBehaviour
             "SelectionTitle",
             parent,
             "誰と話してみる？",
-            34f,
-            Gold,
+            46f,
+            new Color(0.08f, 0.08f, 0.08f, 1f),
             FontStyles.Bold);
-        SetAnchors(title.gameObject, new Vector2(0.32f, 0.93f), new Vector2(0.68f, 0.995f));
+        SetAnchors(title.gameObject, new Vector2(0.32f, 0.44f), new Vector2(0.68f, 0.51f));
         title.alignment = TextAlignmentOptions.Center;
+        selectionTitleRoot = title.gameObject;
     }
 
     private void CreateSelectionItem(
@@ -222,29 +232,35 @@ public sealed class SelectionPartController : MonoBehaviour
         hoverFrame.useGraphicAlpha = false;
 
         SelectionItemMotion motion = itemImage.gameObject.AddComponent<SelectionItemMotion>();
-        motion.Initialize(phase);
+        motion.Initialize(phase, hovered => SetHoveredCharacter(displayName, hovered));
 
-        Image namePlate = CreateImage(
-            "NamePlate",
-            itemImage.transform,
-            new Color(0f, 0f, 0f, 0.72f),
-            false);
-        RectTransform nameRect = namePlate.rectTransform;
-        nameRect.anchorMin = new Vector2(0.5f, 0f);
-        nameRect.anchorMax = new Vector2(0.5f, 0f);
-        nameRect.anchoredPosition = new Vector2(0f, -24f);
-        nameRect.sizeDelta = new Vector2(170f, 42f);
-        namePlate.gameObject.AddComponent<DialogueWindowFeather>();
+    }
 
-        TMP_Text label = CreateText(
-            "Name",
-            namePlate.transform,
-            displayName,
-            21f,
-            MainText,
-            FontStyles.Bold);
-        Stretch(label.rectTransform, 12f, 12f, 2f, 2f);
-        label.alignment = TextAlignmentOptions.Center;
+    private void BuildHoverName(Transform parent)
+    {
+        Image plate = CreateImage("HoveredCharacterName", parent, new Color(0f, 0f, 0f, 0.72f), false);
+        SetAnchors(plate.gameObject, new Vector2(0.5f, 0.31f), new Vector2(0.5f, 0.43f));
+        plate.rectTransform.sizeDelta = new Vector2(250f, 0f);
+        plate.gameObject.AddComponent<DialogueWindowFeather>();
+        hoverNameRoot = plate.gameObject;
+        hoverNameText = CreateText("Name", plate.transform, string.Empty, 60f, MainText, FontStyles.Bold);
+        Stretch(hoverNameText.rectTransform, 18f, 18f, 8f, 8f);
+        hoverNameText.alignment = TextAlignmentOptions.Center;
+        hoverNameText.enableAutoSizing = false;
+        hoverNameRoot.SetActive(false);
+    }
+
+    private void SetHoveredCharacter(string displayName, bool hovered)
+    {
+        if (hoverNameRoot == null) return;
+        if (hovered) hoveredCharacterName = displayName;
+        else if (hoveredCharacterName == displayName) hoveredCharacterName = null;
+        hoverNameText.text = hoveredCharacterName ?? string.Empty;
+        // Fit the original name plus comfortable padding, not a wide screen fraction.
+        ((RectTransform)hoverNameRoot.transform).sizeDelta = new Vector2(
+            Mathf.Max(160f, hoverNameText.GetPreferredValues(hoverNameText.text).x + 112f), 0f);
+        hoverNameRoot.SetActive(!string.IsNullOrEmpty(hoveredCharacterName) && !isTransitioning &&
+            (confirmationRoot == null || !confirmationRoot.activeSelf));
     }
 
     private void BuildDialoguePanel(Transform parent)
@@ -333,6 +349,9 @@ public sealed class SelectionPartController : MonoBehaviour
             new Color(0f, 0f, 0f, 0.62f),
             true).gameObject;
         Stretch(confirmationRoot.GetComponent<RectTransform>());
+        confirmationGroup = confirmationRoot.AddComponent<CanvasGroup>();
+        confirmationGroup.alpha = 0f;
+        confirmationGroup.interactable = false;
 
         Image panel = CreateImage("ConfirmationPanel", confirmationRoot.transform, new Color(0f, 0f, 0f, 0.72f), false);
         RectTransform panelRect = panel.rectTransform;
@@ -373,32 +392,62 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void ShowConfirmation(string displayName, string destinationScene)
     {
-        if (isTransitioning || !introDismissed || Time.frameCount == introDismissedFrame)
+        if (isTransitioning || isConfirmationFading || confirmationRoot.activeSelf ||
+            !introDismissed || Time.frameCount == introDismissedFrame)
         {
             return;
         }
 
         pendingSceneName = destinationScene;
+        hoverNameRoot.SetActive(false);
+        selectionTitleRoot.SetActive(false);
         confirmationText.text = $"{displayName}と話してみますか？";
         confirmationRoot.SetActive(true);
         confirmationRoot.transform.SetAsLastSibling();
         fadeOverlay.transform.SetAsLastSibling();
+        StartCoroutine(FadeConfirmation(true));
     }
 
     private void HideConfirmation()
     {
-        if (isTransitioning)
+        if (isTransitioning || isConfirmationFading)
         {
             return;
         }
 
         pendingSceneName = null;
-        confirmationRoot.SetActive(false);
+        StartCoroutine(FadeConfirmation(false));
+    }
+
+    private IEnumerator FadeConfirmation(bool show)
+    {
+        isConfirmationFading = true;
+        confirmationGroup.interactable = false;
+        // Keep the full-screen blocker during both fades to prevent click-through.
+        confirmationGroup.blocksRaycasts = true;
+        float startAlpha = confirmationGroup.alpha;
+        float targetAlpha = show ? 1f : 0f;
+        float elapsed = 0f;
+        while (elapsed < confirmationFadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / confirmationFadeDuration);
+            confirmationGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, Mathf.SmoothStep(0f, 1f, t));
+            yield return null;
+        }
+        confirmationGroup.alpha = targetAlpha;
+        confirmationGroup.interactable = show;
+        isConfirmationFading = false;
+        if (!show)
+        {
+            confirmationRoot.SetActive(false);
+            selectionTitleRoot.SetActive(true);
+        }
     }
 
     private void ConfirmSelection()
     {
-        if (isTransitioning || string.IsNullOrWhiteSpace(pendingSceneName))
+        if (isTransitioning || isConfirmationFading || string.IsNullOrWhiteSpace(pendingSceneName))
         {
             return;
         }
@@ -435,23 +484,29 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private Button CreateTextButton(Transform parent, string objectName, string labelText)
     {
-        Image image = CreateImage(objectName, parent, new Color(0f, 0f, 0f, 0.72f), true);
+        // A white base lets Button colors control both brightness and transparency.
+        Image image = CreateImage(objectName, parent, Color.white, true);
+        image.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(14f, 8f));
 
         Button button = image.gameObject.AddComponent<Button>();
         button.targetGraphic = image;
         button.navigation = new Navigation { mode = Navigation.Mode.None };
 
         ColorBlock colors = button.colors;
-        colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(1.14f, 1.04f, 0.75f, 1f);
-        colors.pressedColor = new Color(0.86f, 0.68f, 0.3f, 1f);
-        colors.selectedColor = colors.highlightedColor;
-        colors.fadeDuration = 0.1f;
+        bool primary = objectName == "ConfirmButton";
+        colors.normalColor = primary
+            ? new Color(0.14f, 0.14f, 0.14f, 0.55f)
+            : new Color(0.06f, 0.06f, 0.06f, 0.4f);
+        colors.highlightedColor = new Color(0.25f, 0.25f, 0.25f, 0.68f);
+        colors.pressedColor = new Color(0.03f, 0.03f, 0.03f, 0.72f);
+        colors.selectedColor = colors.normalColor;
+        colors.disabledColor = new Color(0.06f, 0.06f, 0.06f, 0.25f);
+        colors.fadeDuration = 0.15f;
         button.colors = colors;
 
         image.gameObject.AddComponent<ChoiceButtonHoverScale>();
 
-        TMP_Text label = CreateText("Label", image.transform, labelText, 22f, MainText, FontStyles.Bold);
+        TMP_Text label = CreateText("Label", image.transform, labelText, 26f, Color.white, FontStyles.Bold);
         Stretch(label.rectTransform, 8f, 8f, 4f, 4f);
         label.alignment = TextAlignmentOptions.Center;
         return button;
@@ -577,12 +632,14 @@ internal sealed class SelectionItemMotion : MonoBehaviour, IPointerEnterHandler,
     private Vector2 basePosition;
     private float phase;
     private bool isHovered;
+    private System.Action<bool> hoverChanged;
 
-    public void Initialize(float animationPhase)
+    public void Initialize(float animationPhase, System.Action<bool> onHoverChanged)
     {
         rectTransform = (RectTransform)transform;
         basePosition = rectTransform.anchoredPosition;
         phase = animationPhase;
+        hoverChanged = onHoverChanged;
     }
 
     private void Update()
@@ -605,10 +662,18 @@ internal sealed class SelectionItemMotion : MonoBehaviour, IPointerEnterHandler,
     public void OnPointerEnter(PointerEventData eventData)
     {
         isHovered = true;
+        hoverChanged?.Invoke(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         isHovered = false;
+        hoverChanged?.Invoke(false);
+    }
+
+    private void OnDisable()
+    {
+        isHovered = false;
+        hoverChanged?.Invoke(false);
     }
 }

@@ -22,6 +22,12 @@ public sealed class DialogueWindowFeather : BaseMeshEffect
     [SerializeField, Tooltip("重なる本文のImage。重なり部分が二重に暗くなるのを防ぎます。")]
     private Image blendIntoImage;
 
+    public void ConfigureFeather(Vector2 width)
+    {
+        featherWidth = width;
+        if (graphic != null) graphic.SetVerticesDirty();
+    }
+
     public void ConfigureNamePlate(Image messageWindow)
     {
         featherWidth = new Vector2(48f, 0f);
