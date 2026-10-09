@@ -752,6 +752,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f85aecf746b74f9a8b291b164e18c5b0, type: 2}
   - {fileID: 11400000, guid: d8c43b29dff94652b0e318e0b7c07cbd, type: 2}
   - {fileID: 11400000, guid: 80fefbecf55c419cb3fcbddc688ffb14, type: 2}
+  - {fileID: 11400000, guid: a592ec6a731644879bf62a97688e824a, type: 2}
+  - {fileID: 11400000, guid: af0a183b132a498fac8e85252db919b0, type: 2}
+  - {fileID: 11400000, guid: 320a3c5a5d9b4b77810653dca6e3615e, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???
@@ -2395,7 +2398,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -80}
+  m_AnchoredPosition: {x: 0, y: 80}
   m_SizeDelta: {x: 760, y: 216}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1900000210

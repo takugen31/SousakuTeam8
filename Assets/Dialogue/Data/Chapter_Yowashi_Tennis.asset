@@ -1,0 +1,445 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_Tennis
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_tennis_001
+    speakerId: 
+    expressionId: 
+    text: "翌日……"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_002
+    speakerId: 
+    expressionId: 
+    text: "(朝起きたらすぐヨワシちゃんに呼ばれて部屋の真ん中に集まった。どうやらみんなも呼ばれているみたいだ。)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_003
+    speakerId: yowashi
+    expressionId: normal
+    text: "やあやあ諸君！元気していたかね？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_004
+    speakerId: doute
+    expressionId: normal
+    text: "変わらず快調です、ヨワシ様"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_005
+    speakerId: moteru
+    expressionId: normal
+    text: "……？\n　あ、僕も元気だよ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_006
+    speakerId: kayo
+    expressionId: normal
+    text: "わ、私も元気だけど……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_007
+    speakerId: yowashi
+    expressionId: normal
+    text: "うむ、それは苦しゅうない！じゃあ4人とも、テニスやろっか！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_008
+    speakerId: doute
+    expressionId: normal
+    text: "え？テニス？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_009
+    speakerId: yowashi
+    expressionId: normal
+    text: "うん、テニスの女王様って漫画面白いじゃん？前からやってみたくてさ〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_010
+    speakerId: doute
+    expressionId: normal
+    text: "じゃあやってみよっか！2人はどう？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_011
+    speakerId: moteru
+    expressionId: normal
+    text: "ドウテくんがやるなら僕もやろうかな。テニスはやったことないんだけど……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_012
+    speakerId: kayo
+    expressionId: normal
+    text: "3人がやるなら私も……べ、別にやりたいってわけじゃないんだからね！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_013
+    speakerId: yowashi
+    expressionId: normal
+    text: "じゃあすぐやろう！！チームは私とドウテくん、カヨちゃんとモテルくんでいい？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_014
+    speakerId: 
+    expressionId: 
+    text: "いいよ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_015
+    speakerId: 
+    expressionId: 
+    text: "大丈夫"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_016
+    speakerId: 
+    expressionId: 
+    text: "し、仕方ないわね！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_017
+    speakerId: doute
+    expressionId: normal
+    text: "よし、ヨワシちゃん一緒に頑張ろう！\n　昨日かなり息切れしてたけど体調は大丈夫そう？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_018
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_018
+    speakerId: yowashi
+    expressionId: normal
+    text: "もちのろんですよ！！たっぷり休んだし、何よりドウテくんもいるしね〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_019
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_019
+    speakerId: doute
+    expressionId: normal
+    text: "え、それってどういう……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_020
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_020
+    speakerId: yowashi
+    expressionId: normal
+    text: "さ、あの2人も盛り上がってるし、早速始めよ〜！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_021
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_021
+    speakerId: doute
+    expressionId: normal
+    text: "(初めてやったテニスはとても楽しかった。みんな初めてだったみたいでぎこちなかったけれど、それでも女の友達とスポーツをするという初めての経験もあいまってとても楽しかった。みんな笑顔だ。)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_022
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_022
+    speakerId: doute
+    expressionId: normal
+    text: "(あれ、そういえばヨワシちゃんがやけに静かじゃないか？いつもはあんなに元気にはしゃいでるのに……)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_023
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_023
+    speakerId: yowashi
+    expressionId: normal
+    text: "…………"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_024
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_024
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん大丈夫？めっちゃ息切れしてるけど……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_025
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_025
+    speakerId: yowashi
+    expressionId: normal
+    text: "…………"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_026
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_026
+    speakerId: doute
+    expressionId: normal
+    text: "ヨ、ヨワシちゃん……？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_027
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_027
+    speakerId: 
+    expressionId: 
+    text: "(突然ヨワシちゃんがパタリと倒れた。)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_028
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_028
+    speakerId: kayo
+    expressionId: normal
+    text: "ヨ、ヨワシ！？大丈夫！？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_029
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_029
+    speakerId: moteru
+    expressionId: normal
+    text: "カヨさんそんなに走ると危ないよ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_030
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_030
+    speakerId: 
+    expressionId: 
+    text: "(とモテルが言い終わる前にカヨちゃんが本棚に思いっきりぶつかり、カチリという音がして本棚がカヨちゃんの方に倒れ込んできた)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_031
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_031
+    speakerId: moteru
+    expressionId: normal
+    text: "カヨさん大丈夫！？意識あるなら何か返事して！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_032
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_032
+    speakerId: kayo
+    expressionId: normal
+    text: "わ、私は大丈夫……それよりヨワシは……ヨワシは大丈夫なの……？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_033
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_033
+    speakerId: doute
+    expressionId: normal
+    text: "少なくともさっきので怪我とかはしてないよ。だけどこれじゃ……どうすれば！！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
