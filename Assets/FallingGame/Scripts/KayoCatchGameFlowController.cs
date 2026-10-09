@@ -221,7 +221,7 @@ namespace Sousakusai8.MiniGame
 
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.referenceResolution = new Vector2(1672f, 941f);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f;
 
@@ -251,21 +251,21 @@ namespace Sousakusai8.MiniGame
             rightPortrait.preserveAspect = true;
             rightPortrait.enabled = false;
 
-            Image dialoguePanel = CreateImage("DialoguePanel", dialogueRoot.transform, DarkPanel, false);
-            SetAnchors(dialoguePanel.gameObject, new Vector2(0.075f, 0.045f), new Vector2(0.925f, 0.32f));
-            AddBorder(dialoguePanel.transform, 3f, Gold);
+            Image dialoguePanel = CreateImage("DialoguePanel", dialogueRoot.transform, new Color(0f, 0f, 0f, 0.72f), false);
+            SetAnchors(dialoguePanel.gameObject, new Vector2(0.075f, 0.0148875f), new Vector2(0.925f, 0.2758625f));
+            dialoguePanel.gameObject.AddComponent<DialogueWindowFeather>();
 
-            Image speaker = CreateImage("SpeakerPlate", dialoguePanel.transform, DarkPanel, false);
+            Image speaker = CreateImage("SpeakerPlate", dialogueRoot.transform, new Color(0f, 0f, 0f, 0.72f), false);
             speakerPlate = speaker.gameObject;
-            SetAnchors(speakerPlate, new Vector2(0.035f, 0.73f), new Vector2(0.25f, 0.98f));
-            AddBorder(speakerPlate.transform, 3f, Gold);
+            SetAnchors(speakerPlate, new Vector2(0.10475f, 0.24575f), new Vector2(0.2875f, 0.3145f));
+            speaker.gameObject.AddComponent<DialogueWindowFeather>().ConfigureNamePlate(dialoguePanel);
 
-            speakerText = CreateText("SpeakerName", speakerPlate.transform, string.Empty, 22f, MainText, FontStyles.Bold);
+            speakerText = CreateText("SpeakerName", speakerPlate.transform, string.Empty, 40f, MainText, FontStyles.Bold);
             Stretch(speakerText.rectTransform, 18f, 18f, 0f, 0f);
-            speakerText.alignment = TextAlignmentOptions.MidlineLeft;
+            speakerText.alignment = TextAlignmentOptions.Center;
 
-            dialogueText = CreateText("DialogueText", dialoguePanel.transform, string.Empty, 29f, MainText);
-            SetAnchors(dialogueText.gameObject, new Vector2(0.05f, 0.16f), new Vector2(0.95f, 0.72f));
+            dialogueText = CreateText("DialogueText", dialoguePanel.transform, string.Empty, 36.685f, MainText);
+            SetAnchors(dialogueText.gameObject, new Vector2(0.05f, 0.1f), new Vector2(0.95f, 0.86f));
             dialogueText.alignment = TextAlignmentOptions.TopLeft;
 
             GameObject controllerObject = new("KayoCatchEventDialogueController", typeof(RectTransform));
@@ -282,6 +282,8 @@ namespace Sousakusai8.MiniGame
                 rightPortrait,
                 dialogueBackground);
             eventDialogueController.DialogueCompleted += OnEventDialogueCompleted;
+            // Original character marks are resolved from the shared resource asset.
+            DialogueAdvanceIndicator.Create(dialoguePanel.transform, eventDialogueController, null, null, null);
             dialogueRoot.SetActive(false);
 
             fadeOverlay = CreateImage(
