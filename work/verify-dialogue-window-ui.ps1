@@ -7,6 +7,9 @@ function Get-Block([string]$scene, [string]$id) {
 foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi')) {
     $scene = Get-Content (Join-Path $projectRoot "Assets/Scenes/GameMap/$name.unity") -Raw
     $panel = Get-Block $scene '2100000001'
+    Assert-True ($scene.Contains('m_ReferenceResolution: {x: 1672, y: 941}') -and $scene.Contains('m_MatchWidthOrHeight: 0.5')) 'Novel canvas scaling must match search dialogue'
+    $bodyText = Get-Block $scene '1664412072'
+    Assert-True ($bodyText.Contains('m_fontSize: 36.685') -and $bodyText.Contains('m_enableAutoSizing: 0')) 'Novel body text must match search font size without auto shrinking'
     $choices = Get-Block $scene '1900000201'
     Assert-True ($choices.Contains('m_AnchoredPosition: {x: 0, y: 80}') -and $choices.Contains('m_SizeDelta: {x: 760, y: 216}')) 'Choice list must sit above the message window without changing its width'
     $plate = Get-Block $scene '2100000101'
@@ -44,6 +47,11 @@ foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi')) {
     }
 }
 $moteruHash = (Get-FileHash (Join-Path $projectRoot 'Assets/Scenes/GameMap/NovelScene_Moteru.unity') -Algorithm SHA256).Hash
+foreach ($controller in @('Chapter1SearchController','KayoSearchController')) {
+    $source = Get-Content (Join-Path $projectRoot "Assets/Scripts/Search/$controller.cs") -Raw
+    Assert-True ($source.Contains('scaler.referenceResolution = new Vector2(1672f, 941f)') -and $source.Contains('scaler.matchWidthOrHeight = 0.5f') -and $source.Contains('36.685f')) 'Search and novel dialogue scale/font settings must stay aligned'
+}
+Write-Output 'PASS: Novel and search dialogue share font size 36.685, reference resolution 1672x941 and width/height match 0.5.'
 Assert-True ($moteruHash -ceq 'DE0C96BD54F54957C2AE77E76A3524B826F3048858BBF3D9902B204A5C8B50B8') 'Moteru scene must not change'
 
 # Compile/run the actual mesh generator with a minimal non-rendering UI harness.
