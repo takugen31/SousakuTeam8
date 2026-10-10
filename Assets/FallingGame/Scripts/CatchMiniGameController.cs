@@ -161,6 +161,20 @@ namespace Sousakusai8.MiniGame
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
         public bool CanPlayerSweep => sweepUnlocked;
+        public bool CanSkipRound => phase == GamePhase.AwaitingInput ||
+            phase == GamePhase.Countdown || phase == GamePhase.Playing;
+        public bool SkippedSuccessfully { get; private set; }
+        public bool IsSuccessfulResult(int finalScore, int thresholdExclusive) =>
+            SkippedSuccessfully || finalScore > thresholdExclusive;
+        public void SkipRoundSuccessfully()
+        {
+            if (!CanSkipRound || ArchiveManager.IsOpen) return;
+            SkippedSuccessfully = true;
+            if (startPromptText != null) startPromptText.gameObject.SetActive(false);
+            if (jumpUnlockText != null) jumpUnlockText.gameObject.SetActive(false);
+            if (sweepUnlockText != null) sweepUnlockText.gameObject.SetActive(false);
+            EndRound();
+        }
         public void UseTouchSweep()
         {
             if (IsGameRunning && sweepUnlocked && !ArchiveManager.IsOpen) TryUseSweep();
@@ -676,6 +690,7 @@ namespace Sousakusai8.MiniGame
 
         private void PrepareForStart()
         {
+            SkippedSuccessfully = false;
             score = 0;
             collectedGoodItemCount = 0;
             collectedBadItemCount = 0;
@@ -768,7 +783,7 @@ namespace Sousakusai8.MiniGame
             }
 
             UpdateTimeText();
-            ShowGameOverPresentation();
+            if (!SkippedSuccessfully) ShowGameOverPresentation();
             RoundEnded?.Invoke(score);
         }
 

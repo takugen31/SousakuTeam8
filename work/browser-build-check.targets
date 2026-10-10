@@ -2,10 +2,14 @@
   <Import Project="$(MSBuildProjectDirectory)\work\kayo-puzzle-build.targets" />
   <Target Name="IncludeBrowserBuildScripts" BeforeTargets="CoreCompile">
     <ItemGroup Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
-      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\BrowserGameControls.cs" />
+      <_BrowserExisting Include="@(Compile)" Condition="'%(Compile.Filename)' == 'BrowserGameControls'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\BrowserGameControls.cs" Condition="'@(_BrowserExisting)' == ''" />
     </ItemGroup>
     <ItemGroup Condition="'$(AssemblyName)' == 'Assembly-CSharp-Editor'">
-      <Compile Include="$(MSBuildProjectDirectory)\Assets\Editor\BrowserGameBuild.cs" />
+      <_BuildExisting Include="@(Compile)" Condition="'%(Compile.Filename)' == 'BrowserGameBuild'" />
+      <_SkipChecksExisting Include="@(Compile)" Condition="'%(Compile.Filename)' == 'CatchSkipChecks'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Editor\BrowserGameBuild.cs" Condition="'@(_BuildExisting)' == ''" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Editor\CatchSkipChecks.cs" Condition="'@(_SkipChecksExisting)' == ''" />
     </ItemGroup>
   </Target>
 </Project>

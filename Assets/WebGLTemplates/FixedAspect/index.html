@@ -11,8 +11,8 @@
     #stage { position: relative; flex: none; background: black; }
     canvas { display: block; width: 100%; height: 100%; touch-action: none; }
     #status { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; background: #171717; padding: 16px; }
-    #controls { display: none; flex: none; height: 48px; gap: 12px; align-items: center; justify-content: center; }
-    #controls button { color: white; background: #333; border: 1px solid #777; border-radius: 8px; padding: 8px 20px; min-height: 42px; touch-action: manipulation; }
+    #controls { display: none; flex: none; height: 48px; gap: 8px; align-items: center; justify-content: center; }
+    #controls button { color: white; background: #333; border: 1px solid #777; border-radius: 8px; padding: 8px 10px; font-size: 14px; min-height: 42px; touch-action: manipulation; }
     [hidden] { display: none !important; }
     @media (pointer: coarse) { #controls { display: flex; } }
   </style>
@@ -20,7 +20,7 @@
 <body>
   <div id="stage"><canvas id="unity-canvas" tabindex="-1"></canvas><div id="status">読み込み中…</div></div>
   <div id="controls" aria-label="ゲーム操作">
-    <button id="menu" hidden>メニュー</button><button id="jump" hidden>ジャンプ</button><button id="sweep" hidden>一掃</button>
+    <button id="menu" hidden>メニュー</button><button id="jump" hidden>ジャンプ</button><button id="sweep" hidden>一掃</button><button id="skip-catch" aria-label="キャッチゲームをスキップ" hidden>スキップ</button>
   </div>
   <script>
     const stage = document.getElementById('stage');
@@ -40,8 +40,9 @@
       document.getElementById('menu').hidden = !(state & 1);
       document.getElementById('jump').hidden = !(state & 2);
       document.getElementById('sweep').hidden = !(state & 4);
+      document.getElementById('skip-catch').hidden = !(state & 8);
     };
-    for (const [id, action] of [['menu', 'ToggleMenu'], ['jump', 'Jump'], ['sweep', 'Sweep']]) {
+    for (const [id, action] of [['menu', 'ToggleMenu'], ['jump', 'Jump'], ['sweep', 'Sweep'], ['skip-catch', 'SkipCatch']]) {
       document.getElementById(id).addEventListener('click', () => {
         if (instance) instance.SendMessage('Browser Game Controls', action);
       });

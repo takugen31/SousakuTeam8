@@ -118,13 +118,14 @@ namespace Sousakusai8.MiniGame
 
         private IEnumerator ShowEventAfterResult(int finalScore)
         {
-            yield return new WaitForSecondsRealtime(resultDisplayDuration);
+            if (!miniGame.SkippedSuccessfully)
+                yield return new WaitForSecondsRealtime(resultDisplayDuration);
             yield return Fade(0f, 1f);
 
             miniGame.HideGameOverPresentation();
             DialogueScenarioSO scenario;
 
-            if (finalScore > successScoreExclusive)
+            if (miniGame.IsSuccessfulResult(finalScore, successScoreExclusive))
             {
                 eventPhase = EventPhase.SuccessBeforeTenMinutes;
                 scenario = successBeforeScenario;

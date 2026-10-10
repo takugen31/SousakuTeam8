@@ -49,10 +49,18 @@ public sealed class BrowserGameControls : MonoBehaviour
             FindFirstObjectByType<CatchMiniGameController>()?.UseTouchSweep();
     }
 
+    [UnityEngine.Scripting.Preserve]
+    public void SkipCatch()
+    {
+        if (!ArchiveManager.IsOpen)
+            FindFirstObjectByType<CatchMiniGameController>()?.SkipRoundSuccessfully();
+    }
+
     private void Update()
     {
         var game = FindFirstObjectByType<CatchMiniGameController>();
         int state = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Title" ? 0 : 1;
+        if (!ArchiveManager.IsOpen && game != null && game.CanSkipRound) state |= 8;
         if (!ArchiveManager.IsOpen && game != null && game.IsGameRunning)
         {
             if (game.CanPlayerJump) state |= 2;

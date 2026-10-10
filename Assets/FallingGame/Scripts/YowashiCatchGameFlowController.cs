@@ -37,7 +37,7 @@ namespace Sousakusai8.MiniGame
         private void OnRoundEnded(int finalScore)
         {
             if (returning) return;
-            string resume = IsSuccess(finalScore, successScoreExclusive)
+            string resume = miniGame.IsSuccessfulResult(finalScore, successScoreExclusive)
                 ? successResumeLineId : failureResumeLineId;
             if (string.IsNullOrWhiteSpace(resume) ||
                 !Application.CanStreamedLevelBeLoaded(returnSceneName))
@@ -51,7 +51,8 @@ namespace Sousakusai8.MiniGame
 
         private IEnumerator ReturnToNovel(string resumeLineId)
         {
-            yield return new WaitForSecondsRealtime(resultDisplayDuration);
+            if (!miniGame.SkippedSuccessfully)
+                yield return new WaitForSecondsRealtime(resultDisplayDuration);
             ArchiveManager.Close();
             // ゲーム前の会話を繰り返さず、結果に対応した原文の位置へ戻る。
             NovelDialogueController.QueueResumeLine(resumeLineId, true);
