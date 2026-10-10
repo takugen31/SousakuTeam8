@@ -409,7 +409,7 @@ public sealed class KayoSearchController : MonoBehaviour
         Stretch(title.rectTransform);
         title.rectTransform.offsetMin = new Vector2(26f, 8f);
         title.rectTransform.offsetMax = new Vector2(-26f, -8f);
-        title.alignment = TextAlignmentOptions.MidlineLeft;
+        title.alignment = TextAlignmentOptions.Center;
 
     }
 
