@@ -1414,7 +1414,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             rightPortraitBaseScale = rect.localScale;
             rightPortraitBaseCaptured = true;
         }
-        float factor = characterId == "moteru" ? 0.85f : 1f;
+        float factor = characterId == "moteru" ? 0.68f : 1f;
         rect.localScale = rightPortraitBaseScale * factor;
         // Zoom out around the top center, retaining the head's vertical placement.
         rect.anchoredPosition = rightPortraitBasePosition + Vector2.up *
