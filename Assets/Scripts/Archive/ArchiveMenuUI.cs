@@ -408,7 +408,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         BuildSidebar(informationRoot.transform);
         BuildMainContent(informationRoot.transform);
         BuildOperations(frame.transform);
-        BuildFooter(frame.transform);
         BuildMenu();
         BuildNotification(canvasObject.transform);
 
@@ -473,6 +472,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         countText = CreateText("Count", sidebar.transform, string.Empty, 15f, MutedTextColor);
         SetAnchors(countText.gameObject, new Vector2(0.1f, 0.035f), new Vector2(0.9f, 0.11f), Vector2.zero, Vector2.zero);
         countText.alignment = TextAlignmentOptions.BottomLeft;
+        countText.gameObject.SetActive(false);
     }
 
     private void AddCategoryButton(
@@ -655,6 +655,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         TMP_Text acquired = CreateText("Acquired", detailContent.transform, "取得した情報", 16f, MutedTextColor, FontStyles.Bold);
         SetAnchors(acquired.gameObject, new Vector2(0f, 0f), new Vector2(0.55f, 0.045f), Vector2.zero, Vector2.zero);
         acquired.characterSpacing = 1.5f;
+        acquired.gameObject.SetActive(false);
 
         detailContent.SetActive(false);
     }
