@@ -10,9 +10,9 @@ using UnityEngine.UI;
 
 public sealed class ArchiveMenuUI : MonoBehaviour
 {
-    private static readonly Color BackdropColor = new Color(0f, 0f, 0f, 0.25f);
-    private static readonly Color PanelColor = new Color(0f, 0f, 0f, 0.72f);
-    private static readonly Color PanelLightColor = new Color(0f, 0f, 0f, 0.28f);
+    private static readonly Color BackdropColor = new Color(0f, 0f, 0f, 0.45f);
+    private static readonly Color PanelColor = new Color(0f, 0f, 0f, 0.88f);
+    private static readonly Color PanelLightColor = new Color(0f, 0f, 0f, 0.42f);
     private static readonly Color AccentColor = Color.white;
     private static readonly Color AccentSoftColor = new Color(0f, 0f, 0f, 0.5f);
     private static readonly Color PrimaryTextColor = Color.white;
@@ -32,7 +32,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private TMP_Text detailTitle;
     private TMP_Text detailSubtitle;
     private TMP_Text detailBody;
-    private TMP_Text detailStatus;
     private Image detailIcon;
     private GameObject detailEmpty;
     private GameObject detailContent;
@@ -404,8 +403,8 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         GameObject header = CreatePanel("Header", parent, Color.clear);
         SetAnchors(header, new Vector2(0f, 0.875f), Vector2.one, Vector2.zero, Vector2.zero);
 
-        TMP_Text title = CreateText("Title", header.transform, "アーカイブ", 42f, PrimaryTextColor, FontStyles.Bold);
-        SetAnchors(title.gameObject, new Vector2(0.06f, 0.1f), new Vector2(0.6f, 0.85f), Vector2.zero, Vector2.zero);
+        TMP_Text title = CreateText("Title", header.transform, "アーカイブ", 50f, PrimaryTextColor, FontStyles.Bold);
+        SetAnchors(title.gameObject, new Vector2(0.10f, 0f), new Vector2(0.65f, 0.72f), Vector2.zero, Vector2.zero);
         title.alignment = TextAlignmentOptions.MidlineLeft;
         title.characterSpacing = 5f;
 
@@ -420,9 +419,10 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         GameObject sidebar = CreatePanel("Sidebar", parent, Color.clear);
         SetAnchors(sidebar, new Vector2(0.04f, 0.14f), new Vector2(0.23f, 0.84f), Vector2.zero, Vector2.zero);
 
-        TMP_Text categoryLabel = CreateText("CategoryLabel", sidebar.transform, "分類", 20f, MutedTextColor, FontStyles.Bold);
+        TMP_Text categoryLabel = CreateText("CategoryLabel", sidebar.transform, "分類", 28f, PrimaryTextColor, FontStyles.Bold);
         SetAnchors(categoryLabel.gameObject, new Vector2(0.1f, 0.86f), new Vector2(0.9f, 0.96f), Vector2.zero, Vector2.zero);
         categoryLabel.characterSpacing = 3f;
+        categoryLabel.alignment = TextAlignmentOptions.Center;
 
         AddCategoryButton(sidebar.transform, "すべて", null, 0.72f);
         AddCategoryButton(sidebar.transform, "人物", ArchiveCategory.Person, 0.60f);
@@ -535,10 +535,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         detailCategory = CreateText("Category", detailContent.transform, string.Empty, 15f, AccentColor, FontStyles.Bold);
         SetAnchors(detailCategory.gameObject, new Vector2(0f, 0.9f), new Vector2(0.7f, 0.98f), Vector2.zero, Vector2.zero);
         detailCategory.characterSpacing = 2f;
-
-        detailStatus = CreateText("Status", detailContent.transform, string.Empty, 14f, MutedTextColor, FontStyles.Bold);
-        SetAnchors(detailStatus.gameObject, new Vector2(0.72f, 0.91f), new Vector2(1f, 0.98f), Vector2.zero, Vector2.zero);
-        detailStatus.alignment = TextAlignmentOptions.TopRight;
 
         detailTitle = CreateText("Title", detailContent.transform, string.Empty, 34f, PrimaryTextColor, FontStyles.Bold);
         SetAnchors(detailTitle.gameObject, new Vector2(0f, 0.72f), new Vector2(0.82f, 0.91f), Vector2.zero, Vector2.zero);
@@ -768,7 +764,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         detailTitle.text = selectedEntry.Title;
         detailSubtitle.text = selectedEntry.Subtitle;
         detailBody.text = selectedEntry.Body;
-        detailStatus.text = $"ID  {selectedEntry.Id}";
         detailIcon.sprite = selectedEntry.Icon;
         detailIcon.color = selectedEntry.Icon != null ? Color.white : AccentSoftColor;
         detailIcon.enabled = selectedEntry.Icon != null;
