@@ -236,7 +236,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         items.Add(
             new ItemDefinition(
                 "door",
-                "chapter1.door",
+                "chapter1.nameplate",
                 "ドア",
                 RoomView.Room1,
                 new Vector2(0.43f, 0.79f),
