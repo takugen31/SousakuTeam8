@@ -935,28 +935,28 @@ public sealed class KayoSearchController : MonoBehaviour
         string label,
         float labelSize)
     {
-        GameObject buttonObject = CreateImage(name, parent, DarkPanel, true);
+        GameObject buttonObject = CreateImage(name, parent, new Color(0f, 0f, 0f, 0.72f), true);
+        buttonObject.AddComponent<RoomNavigationCircleMesh>();
+        AspectRatioFitter circleAspect = buttonObject.AddComponent<AspectRatioFitter>();
+        circleAspect.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+        circleAspect.aspectRatio = 1f;
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = buttonObject.GetComponent<Image>();
 
         ColorBlock colors = button.colors;
         colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(1.2f, 1.1f, 0.75f, 1f);
-        colors.pressedColor = new Color(0.9f, 0.68f, 0.24f, 1f);
+        colors.highlightedColor = Color.white;
+        colors.pressedColor = new Color(1f, 1f, 1f, 0.8f);
         colors.selectedColor = colors.highlightedColor;
         colors.fadeDuration = 0.08f;
         button.colors = colors;
-
-        Outline outline = buttonObject.AddComponent<Outline>();
-        outline.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.72f);
-        outline.effectDistance = new Vector2(2f, -2f);
 
         TMP_Text buttonText = CreateText(
             "Label",
             buttonObject.transform,
             label,
             labelSize,
-            MainText,
+            Color.white,
             FontStyles.Bold);
         Stretch(buttonText.rectTransform);
         buttonText.alignment = TextAlignmentOptions.Center;

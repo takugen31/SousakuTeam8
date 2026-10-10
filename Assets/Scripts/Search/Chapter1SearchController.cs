@@ -965,28 +965,28 @@ public sealed class Chapter1SearchController : MonoBehaviour
         string label,
         float labelSize)
     {
-        GameObject buttonObject = CreateImage(name, parent, DarkPanel, true);
+        GameObject buttonObject = CreateImage(name, parent, new Color(0f, 0f, 0f, 0.72f), true);
+        buttonObject.AddComponent<RoomNavigationCircleMesh>();
+        AspectRatioFitter circleAspect = buttonObject.AddComponent<AspectRatioFitter>();
+        circleAspect.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+        circleAspect.aspectRatio = 1f;
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = buttonObject.GetComponent<Image>();
 
         ColorBlock colors = button.colors;
         colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(1.2f, 1.1f, 0.75f, 1f);
-        colors.pressedColor = new Color(0.9f, 0.68f, 0.24f, 1f);
+        colors.highlightedColor = Color.white;
+        colors.pressedColor = new Color(1f, 1f, 1f, 0.8f);
         colors.selectedColor = colors.highlightedColor;
         colors.fadeDuration = 0.08f;
         button.colors = colors;
-
-        Outline outline = buttonObject.AddComponent<Outline>();
-        outline.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.72f);
-        outline.effectDistance = new Vector2(2f, -2f);
 
         TMP_Text buttonText = CreateText(
             "Label",
             buttonObject.transform,
             label,
             labelSize,
-            MainText,
+            Color.white,
             FontStyles.Bold);
         Stretch(buttonText.rectTransform);
         buttonText.alignment = TextAlignmentOptions.Center;
@@ -1118,6 +1118,39 @@ public sealed class Chapter1SearchController : MonoBehaviour
         PlayerPrefs.Save();
     }
 #endif
+}
+
+// A geometry-only circle: no new illustration or texture asset is required.
+internal sealed class RoomNavigationCircleMesh : BaseMeshEffect, ICanvasRaycastFilter
+{
+    public override void ModifyMesh(VertexHelper mesh)
+    {
+        if (!IsActive() || mesh.currentVertCount == 0) return;
+        UIVertex vertex = UIVertex.simpleVert;
+        mesh.PopulateUIVertex(ref vertex, 0);
+        mesh.Clear();
+        Rect rect = graphic.GetPixelAdjustedRect();
+        Vector2 center = rect.center;
+        float radius = Mathf.Min(rect.width, rect.height) * 0.5f;
+        vertex.position = center;
+        mesh.AddVert(vertex);
+        const int segments = 96;
+        for (int i = 0; i < segments; i++)
+        {
+            float angle = i * 2f * Mathf.PI / segments;
+            vertex.position = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            mesh.AddVert(vertex);
+        }
+        for (int i = 0; i < segments; i++) mesh.AddTriangle(0, i + 1, (i + 1) % segments + 1);
+    }
+
+    public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
+    {
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(graphic.rectTransform, screenPoint, eventCamera, out Vector2 point)) return false;
+        Rect rect = graphic.rectTransform.rect;
+        float radius = Mathf.Min(rect.width, rect.height) * 0.5f;
+        return (point - rect.center).sqrMagnitude <= radius * radius;
+    }
 }
 
 internal sealed class Chapter1SearchHotspot :
