@@ -1,11 +1,11 @@
 lineId,speakerId,expressionId,backgroundPath,text,nextLineId,nextScenePath,archiveUnlockIds,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,choice3Text,choice3NextLineId
-chapter_yowashi_consultation_001,,,Assets/Art/Backgrounds/white_room.png,一回状況を整理しよう,chapter_yowashi_consultation_002,,,,,,,,
+chapter_yowashi_consultation_001,player,normal,Assets/Art/Backgrounds/white_room.png,一回状況を整理しよう,chapter_yowashi_consultation_002,,,,,,,,
 chapter_yowashi_consultation_002,doute,normal,,整理してる暇なんて！みんな危ない状況なんですよ！,chapter_yowashi_consultation_003,,,,,,,,
-chapter_yowashi_consultation_003,,,,僕は特別な存在だから。僕と話してる間は時間は進まないよ。,chapter_yowashi_consultation_004,,,,,,,,
+chapter_yowashi_consultation_003,player,normal,,僕は特別な存在だから。僕と話してる間は時間は進まないよ。,chapter_yowashi_consultation_004,,,,,,,,
 chapter_yowashi_consultation_004,doute,normal,,そ、そうなんですか……じゃあひとまず、ヨワシちゃんが倒れたのって……,,,,［情報］ヨワシちゃんは息切れしやすい？,chapter_yowashi_consultation_005,［情報］医学書の内容,chapter_yowashi_consultation_004,［情報］ヨワシの好きな漫画,chapter_yowashi_consultation_004
 chapter_yowashi_consultation_005,doute,normal,,"なるほど、確かに普段から息切れしてましたね……
 　じゃあ今のヨワシちゃんには何をしてあげれば！？",,,,［情報］ヨワシの好きな漫画,chapter_yowashi_consultation_005,［情報］医学書の内容,chapter_yowashi_consultation_006,［情報］ヨワシの腕の包帯,chapter_yowashi_consultation_005
 chapter_yowashi_consultation_006,doute,normal,,そうか、あの本！もしかしてあそこにあった内容さえあれば、応急措置ができる？,chapter_yowashi_consultation_007,,,,,,,,
-chapter_yowashi_consultation_007,,,,おそらくね。あとは頑張ってね,chapter_yowashi_consultation_008,,,,,,,,
+chapter_yowashi_consultation_007,player,normal,,おそらくね。あとは頑張ってね,chapter_yowashi_consultation_008,,,,,,,,
 chapter_yowashi_consultation_008,doute,normal,,待ってください、カヨちゃんは……,chapter_yowashi_consultation_009,,,,,,,,
-chapter_yowashi_consultation_009,,,,そっちはきっと大丈夫だよ,,,,,,,,,
+chapter_yowashi_consultation_009,player,normal,,そっちはきっと大丈夫だよ,,,,,,,,,

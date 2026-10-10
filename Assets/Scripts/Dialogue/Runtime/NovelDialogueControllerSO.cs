@@ -33,6 +33,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         QueueResumeLine(lineId, false);
     }
 
+    public static void ResetStoryState()
+    {
+        ResetPendingResumeLine();
+    }
+
     public static void QueueResumeLine(
         string lineId,
         bool fadeInAfterSceneLoad)
@@ -154,6 +159,17 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     private TMP_Text bodyText;
 
+    [SerializeField, Tooltip("名前付きのセリフは、表示時だけ外側の「」を省略します。原文データは変更しません。")]
+    private bool omitOuterDialogueQuotes;
+
+    [SerializeField] private bool normalizeBustPortraitSizes;
+    [SerializeField] private bool mirrorDoutePortrait;
+    [SerializeField, Min(0.01f)] private float kayoPortraitScale = 1.0f;
+    [SerializeField] private float kayoPortraitUpwardOffset = 0.09f;
+    private bool rightPortraitBaseCaptured;
+    private Vector2 rightPortraitBasePosition;
+    private Vector3 rightPortraitBaseScale;
+
     [SerializeField]
     [FormerlySerializedAs("portraitImage")]
     private Image leftPortraitImage;
@@ -249,8 +265,93 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool isTyping;
     private string stopAfterLineId;
 
+    public string CurrentSpeakerId => currentLine?.speakerId;
+    // Opt-in for an embedded scene whose owner fades out the last dialogue frame.
+    public bool KeepPresentationOnCompletion { get; set; }
+    public bool CanAdvanceCurrentPage => isActiveAndEnabled && isPlaying &&
+        currentLine != null && !isTyping && !currentLine.HasChoices &&
+        !isChoiceSelectionOpen && !isChapterTransitioning && !isSceneLoading &&
+        !isSkipConfirmationOpen && !ArchiveManager.IsOpen;
+
+    private void OnEnable()
+    {
+        BindSkipConfirmationButtons();
+    }
+
+    private void BindSkipConfirmationButtons()
+    {
+        if (confirmSkipButton != null)
+        {
+            confirmSkipButton.onClick.RemoveListener(ConfirmSkip);
+            confirmSkipButton.onClick.AddListener(ConfirmSkip);
+        }
+        if (cancelSkipButton != null)
+        {
+            cancelSkipButton.onClick.RemoveListener(CancelSkip);
+            cancelSkipButton.onClick.AddListener(CancelSkip);
+        }
+    }
+
+    private void ConfigureSkipConfirmationUI()
+    {
+        if (skipConfirmationRoot == null) return;
+        Image backdrop = skipConfirmationRoot.GetComponent<Image>();
+        if (backdrop != null) backdrop.color = new Color(0f, 0f, 0f, 0.45f);
+        if (skipConfirmationRoot.transform.childCount > 0)
+        {
+            GameObject panel = skipConfirmationRoot.transform.GetChild(0).gameObject;
+            Image image = panel.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.color = new Color(0f, 0f, 0f, 0.90f);
+                if (panel.GetComponent<DialogueWindowFeather>() == null) panel.AddComponent<DialogueWindowFeather>();
+            }
+        }
+        foreach (TMP_Text text in skipConfirmationRoot.GetComponentsInChildren<TMP_Text>(true))
+        {
+            text.color = Color.white;
+            text.raycastTarget = false;
+            if (text.gameObject.name == "ConfirmationMessage")
+            {
+                text.text = "現在の章をスキップします、\n本当によろしいですか？";
+                text.fontSize = 32f;
+                text.enableAutoSizing = false;
+                text.alignment = TextAlignmentOptions.Center;
+            }
+        }
+        foreach (Button button in new[] { confirmSkipButton, cancelSkipButton })
+        {
+            if (button == null) continue;
+            Image image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.color = Color.white;
+                button.targetGraphic = image;
+            }
+            ColorBlock colors = button.colors;
+            colors.normalColor = new Color(0.08f, 0.08f, 0.08f, 0.92f);
+            colors.highlightedColor = new Color(0.32f, 0.32f, 0.32f, 1f);
+            colors.pressedColor = new Color(0.03f, 0.03f, 0.03f, 1f);
+            colors.selectedColor = colors.normalColor;
+            button.colors = colors;
+            if (button.targetGraphic != null)
+                button.targetGraphic.CrossFadeColor(colors.normalColor, 0f, true, true);
+            if (button.GetComponent<DialogueWindowFeather>() == null)
+                button.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(24f, 10f));
+            if (button.GetComponent<ChoiceButtonHoverScale>() == null)
+                button.gameObject.AddComponent<ChoiceButtonHoverScale>();
+        }
+    }
+
     private void Awake()
     {
+        // Playback controls now live in the Esc menu.
+        if (autoPlayButton != null) autoPlayButton.gameObject.SetActive(false);
+        if (skipChapterButton != null) skipChapterButton.gameObject.SetActive(false);
         if (autoPlayButton != null)
         {
             autoPlayButton.onClick.AddListener(ToggleAutoPlay);
@@ -261,15 +362,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             skipChapterButton.onClick.AddListener(ShowSkipConfirmation);
         }
 
-        if (confirmSkipButton != null)
-        {
-            confirmSkipButton.onClick.AddListener(ConfirmSkip);
-        }
-
-        if (cancelSkipButton != null)
-        {
-            cancelSkipButton.onClick.AddListener(CancelSkip);
-        }
+        BindSkipConfirmationButtons();
+        ConfigureSkipConfirmationUI();
 
         if (skipConfirmationRoot != null)
         {
@@ -481,6 +575,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         namePlate = speakerPlate;
         speakerNameText = speakerText;
         bodyText = dialogueText;
+        omitOuterDialogueQuotes = true;
+        normalizeBustPortraitSizes = true;
+        mirrorDoutePortrait = true;
         leftPortraitImage = leftPortrait;
         rightPortraitImage = rightPortrait;
         playbackControlsRoot = null;
@@ -690,6 +787,17 @@ public sealed class NovelDialogueController : MonoBehaviour
         return AffectionManager.Instance;
     }
 
+    public bool IsDialoguePlaying => isActiveAndEnabled && isPlaying && !isSceneLoading;
+    public bool IsAutoPlayEnabled => autoPlayEnabled;
+    public RectTransform ChoiceOptionsRoot => choiceOptionsRoot;
+    public string CurrentOperationHelp => isChoiceSelectionOpen
+        ? "選択肢を選ぶ：左クリック"
+        : isSkipConfirmationOpen
+            ? "確認・戻るを選ぶ：左クリック"
+            : "会話を送る：左クリック\n文字を全て表示：左クリック";
+    public bool CanSkipFromMenu => IsDialoguePlaying && currentScenario != null &&
+        !isChapterTransitioning && !isSkipConfirmationOpen && skipConfirmationRoot != null;
+
     public void ToggleAutoPlay()
     {
         autoPlayEnabled = !autoPlayEnabled;
@@ -734,7 +842,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         autoAdvanceAt = -1f;
         timeScaleBeforeConfirmation = Time.timeScale;
         isSkipConfirmationOpen = true;
-
+        BindSkipConfirmationButtons();
+        ConfigureSkipConfirmationUI();
         skipConfirmationRoot.SetActive(true);
         Time.timeScale = 0f;
     }
@@ -752,7 +861,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void CancelSkip()
     {
-        if (!isSkipConfirmationOpen)
+        if (!isSkipConfirmationOpen && (skipConfirmationRoot == null || !skipConfirmationRoot.activeSelf))
         {
             return;
         }
@@ -1109,7 +1218,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void ShowLineImmediately(DialogueLine line)
     {
         PrepareLine(line);
-        StartTyping(line.text);
+        StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
     private void PrepareLine(DialogueLine line)
@@ -1199,7 +1308,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         isChapterTransitioning = false;
         chapterTransitionCoroutine = null;
-        StartTyping(line.text);
+        StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
     private void EnsureConsultationTransitionTitle(Transform overlayTransform)
@@ -1378,16 +1487,49 @@ public sealed class NovelDialogueController : MonoBehaviour
                 System.StringComparison.Ordinal))
         {
             SetPortrait(leftPortraitImage, portrait);
+            ApplyProtagonistFacing();
         }
         else
         {
             SetPortrait(rightPortraitImage, portrait);
+            ApplyBustPortraitSize(line.speakerId);
         }
+    }
+
+    private void ApplyBustPortraitSize(string characterId)
+    {
+        if (!normalizeBustPortraitSizes || rightPortraitImage == null) return;
+        RectTransform rect = rightPortraitImage.rectTransform;
+        if (!rightPortraitBaseCaptured)
+        {
+            rightPortraitBasePosition = rect.anchoredPosition;
+            rightPortraitBaseScale = rect.localScale;
+            rightPortraitBaseCaptured = true;
+        }
+        float factor = characterId == "moteru" ? 0.68f
+            : characterId == "kayo" ? kayoPortraitScale : 1f;
+        rect.localScale = rightPortraitBaseScale * factor;
+        // Zoom out around the top center, retaining the head's vertical placement.
+        rect.anchoredPosition = rightPortraitBasePosition + Vector2.up *
+            (rect.rect.height * (1f - rect.pivot.y) * rightPortraitBaseScale.y * (1f - factor));
+        // The formal Kayo image has extra space above the head compared with Doute.
+        if (characterId == "kayo")
+            rect.anchoredPosition += Vector2.up *
+                (rect.rect.height * rightPortraitBaseScale.y * kayoPortraitUpwardOffset);
+    }
+
+    private void ApplyProtagonistFacing()
+    {
+        if (!mirrorDoutePortrait || protagonistCharacterId != "doute" || leftPortraitImage == null) return;
+        Vector3 scale = leftPortraitImage.rectTransform.localScale;
+        scale.x = -Mathf.Abs(scale.x);
+        leftPortraitImage.rectTransform.localScale = scale;
     }
 
     private void ResetPortraitsForScenario()
     {
         SetPortrait(rightPortraitImage, null);
+        ApplyBustPortraitSize(null);
 
         if (string.IsNullOrWhiteSpace(protagonistCharacterId))
         {
@@ -1410,6 +1552,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         SetPortrait(
             leftPortraitImage,
             protagonist.GetPortrait(null));
+        ApplyProtagonistFacing();
     }
 
     private static void SetPortrait(
@@ -1424,6 +1567,15 @@ public sealed class NovelDialogueController : MonoBehaviour
         image.sprite = portrait;
         image.preserveAspect = true;
         image.enabled = portrait != null;
+    }
+
+    public static string GetDialogueDisplayText(DialogueLine line, bool omitQuotes)
+    {
+        string text = line?.text ?? string.Empty;
+        if (omitQuotes && !string.IsNullOrWhiteSpace(line?.speakerId) &&
+            text.Length >= 2 && text[0] == '「' && text[text.Length - 1] == '」')
+            return text.Substring(1, text.Length - 2);
+        return text;
     }
 
     private void StartTyping(string text)
@@ -1974,12 +2126,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         stopAfterLineId = null;
         autoAdvanceAt = -1f;
 
-        if (dialogueRoot != null)
+        if (!KeepPresentationOnCompletion)
         {
-            dialogueRoot.SetActive(false);
+            if (dialogueRoot != null) dialogueRoot.SetActive(false);
+            SetBackground(null);
         }
-
-        SetBackground(null);
 
         onDialogueCompleted?.Invoke();
         DialogueCompleted?.Invoke();

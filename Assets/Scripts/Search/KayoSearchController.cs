@@ -41,6 +41,11 @@ public sealed class KayoSearchController : MonoBehaviour
     [SerializeField]
     private CharacterDatabaseSO dialogueCharacterDatabase;
 
+    [Header("Page Advance Marks")]
+    [SerializeField] private Sprite kayoAdvanceMark;
+    [SerializeField] private Sprite moteruAdvanceMark;
+    [SerializeField] private Sprite yowashiAdvanceMark;
+
     [Header("Completion Transition")]
     [SerializeField, Min(0f)]
     private float sceneFadeInDuration = 1f;
@@ -162,6 +167,10 @@ public sealed class KayoSearchController : MonoBehaviour
             CloseInspection();
         }
     }
+
+    public string CurrentOperationHelp => isModalOpen
+        ? "調査画面を閉じる：左クリック"
+        : "気になる場所を調べる：左クリック\n部屋を切り替える：矢印を左クリック";
 
     private void OnDestroy()
     {
@@ -315,7 +324,8 @@ public sealed class KayoSearchController : MonoBehaviour
         Stretch(backgroundFrame);
 
         AspectRatioFitter frameAspect = frameObject.GetComponent<AspectRatioFitter>();
-        frameAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+        // Fill the screen without stretching the art; hotspots share this frame.
+        frameAspect.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
         frameAspect.aspectRatio = ReferenceAspect;
 
         backgroundImage = CreateImage(
@@ -380,28 +390,27 @@ public sealed class KayoSearchController : MonoBehaviour
         GameObject header = CreateImage(
             "SearchHeader",
             parent,
-            new Color(0.015f, 0.023f, 0.035f, 0.76f),
+            new Color(0f, 0f, 0f, 0.82f),
             false);
-        SetAnchors(header, new Vector2(0f, 0.92f), Vector2.one);
+        RectTransform headerRect = header.GetComponent<RectTransform>();
+        headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.035f, 1f);
+        headerRect.pivot = new Vector2(0f, 1f);
+        headerRect.anchoredPosition = new Vector2(0f, -16f);
+        headerRect.sizeDelta = new Vector2(430f, 72f);
+        header.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(32f, 14f));
 
         TMP_Text title = CreateText(
             "Title",
             header.transform,
             "気になる場所を調べる",
-            22f,
+            30f,
             MainText,
             FontStyles.Bold);
-        SetAnchors(title.gameObject, new Vector2(0.035f, 0f), new Vector2(0.5f, 1f));
-        title.alignment = TextAlignmentOptions.MidlineLeft;
+        Stretch(title.rectTransform);
+        title.rectTransform.offsetMin = new Vector2(26f, 8f);
+        title.rectTransform.offsetMax = new Vector2(-26f, -8f);
+        title.alignment = TextAlignmentOptions.Center;
 
-        TMP_Text help = CreateText(
-            "Help",
-            header.transform,
-            "マウスで選択   /   B 情報",
-            16f,
-            new Color(0.72f, 0.76f, 0.76f, 1f));
-        SetAnchors(help.gameObject, new Vector2(0.62f, 0f), new Vector2(0.965f, 1f));
-        help.alignment = TextAlignmentOptions.MidlineRight;
     }
 
     private void BuildModal(Transform parent)
@@ -413,69 +422,62 @@ public sealed class KayoSearchController : MonoBehaviour
             true);
         Stretch(modalRoot.GetComponent<RectTransform>());
 
-        GameObject stillFrame = CreateImage(
-            "StillFrame",
-            modalRoot.transform,
-            new Color(0.035f, 0.04f, 0.04f, 0.98f),
-            false);
+        GameObject stillBounds = new GameObject("StillBounds", typeof(RectTransform));
+        stillBounds.transform.SetParent(modalRoot.transform, false);
         SetAnchors(
-            stillFrame,
+            stillBounds,
             new Vector2(0.21f, 0.28f),
             new Vector2(0.79f, 0.79f));
+
+        // 背景と枠も画像と同じ縦横比で収め、左右に黒い余白を残さない。
+        GameObject stillFrame = CreateImage(
+            "StillFrame",
+            stillBounds.transform,
+            new Color(0.035f, 0.04f, 0.04f, 0.98f),
+            false);
+        Stretch(stillFrame.GetComponent<RectTransform>());
+        modalStillAspect = stillFrame.AddComponent<AspectRatioFitter>();
+        modalStillAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
 
         GameObject stillObject = new GameObject(
             "ItemStill",
             typeof(RectTransform),
             typeof(CanvasRenderer),
-            typeof(RawImage),
-            typeof(AspectRatioFitter));
+            typeof(RawImage));
         stillObject.transform.SetParent(stillFrame.transform, false);
         modalStill = stillObject.GetComponent<RawImage>();
         modalStill.color = Color.white;
         modalStill.raycastTarget = false;
-        modalStillAspect = stillObject.GetComponent<AspectRatioFitter>();
-        modalStillAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-        Stretch(modalStill.rectTransform, 10f, 10f, 10f, 10f);
+        Stretch(modalStill.rectTransform);
         AddBorder(stillFrame.transform, 4f, Gold);
 
         modalTitle = CreateText(
             "ItemTitle",
             modalRoot.transform,
             string.Empty,
-            25f,
+            36f,
             Gold,
             FontStyles.Bold);
         SetAnchors(
             modalTitle.gameObject,
-            new Vector2(0.22f, 0.80f),
-            new Vector2(0.78f, 0.87f));
+            new Vector2(0.20f, 0.20f),
+            new Vector2(0.80f, 0.28f));
         modalTitle.alignment = TextAlignmentOptions.Center;
 
         savedMessage = CreateText(
             "SavedMessage",
             modalRoot.transform,
             "情報を保存しました",
-            31f,
+            23f,
             MainText,
             FontStyles.Bold);
         SetAnchors(
             savedMessage.gameObject,
-            new Vector2(0.2f, 0.16f),
-            new Vector2(0.8f, 0.25f));
+            new Vector2(0.2f, 0.13f),
+            new Vector2(0.8f, 0.20f));
         savedMessage.alignment = TextAlignmentOptions.Center;
         savedMessage.characterSpacing = 2f;
 
-        TMP_Text closeHint = CreateText(
-            "CloseHint",
-            modalRoot.transform,
-            "左クリックで戻る",
-            16f,
-            new Color(0.67f, 0.71f, 0.72f, 1f));
-        SetAnchors(
-            closeHint.gameObject,
-            new Vector2(0.35f, 0.09f),
-            new Vector2(0.65f, 0.145f));
-        closeHint.alignment = TextAlignmentOptions.Center;
 
         modalRoot.SetActive(false);
     }
@@ -496,8 +498,8 @@ public sealed class KayoSearchController : MonoBehaviour
             false).GetComponent<Image>();
         SetAnchors(
             leftPortrait.gameObject,
-            new Vector2(0.015f, 0.12f),
-            new Vector2(0.30f, 0.89f));
+            new Vector2(-0.018f, -0.792f),
+            new Vector2(0.478f, 0.92f));
         leftPortrait.preserveAspect = true;
         leftPortrait.enabled = false;
 
@@ -508,13 +510,13 @@ public sealed class KayoSearchController : MonoBehaviour
             false).GetComponent<Image>();
         SetAnchors(
             rightPortrait.gameObject,
-            new Vector2(0.70f, 0.12f),
-            new Vector2(0.985f, 0.89f));
+            new Vector2(0.522f, -0.792f),
+            new Vector2(1.018f, 0.92f));
         rightPortrait.preserveAspect = true;
         rightPortrait.enabled = false;
 
         Color dialoguePlateColor =
-            new Color(0.012f, 0.02f, 0.032f, 0.94f);
+            new Color(0f, 0f, 0f, 0.72f);
 
         GameObject dialoguePanel = CreateImage(
             "DialoguePanel",
@@ -523,54 +525,44 @@ public sealed class KayoSearchController : MonoBehaviour
             false);
         SetAnchors(
             dialoguePanel,
-            new Vector2(0.075f, 0.045f),
-            new Vector2(0.925f, 0.32f));
-        AddBorder(dialoguePanel.transform, 3f, Gold);
+            new Vector2(0.075f, 0.0148875f),
+            new Vector2(0.925f, 0.2758625f));
+        dialoguePanel.AddComponent<DialogueWindowFeather>();
 
         GameObject speakerPlate = CreateImage(
             "SpeakerPlate",
-            dialoguePanel.transform,
+            itemDialogueRoot.transform,
             dialoguePlateColor,
             false);
         SetAnchors(
             speakerPlate,
-            new Vector2(0.035f, 0.73f),
-            new Vector2(0.25f, 0.98f));
-        AddBorder(speakerPlate.transform, 3f, Gold);
+            new Vector2(0.10475f, 0.24575f),
+            new Vector2(0.2875f, 0.3145f));
+        speakerPlate.AddComponent<DialogueWindowFeather>()
+            .ConfigureNamePlate(dialoguePanel.GetComponent<Image>());
 
         TMP_Text speakerText = CreateText(
             "SpeakerName",
             speakerPlate.transform,
             string.Empty,
-            22f,
+            40f,
             MainText,
             FontStyles.Bold);
         Stretch(speakerText.rectTransform, 18f, 18f, 0f, 0f);
-        speakerText.alignment = TextAlignmentOptions.MidlineLeft;
+        speakerText.alignment = TextAlignmentOptions.Center;
 
         TMP_Text dialogueText = CreateText(
             "DialogueText",
             dialoguePanel.transform,
             string.Empty,
-            29f,
+            36.685f,
             MainText);
         SetAnchors(
             dialogueText.gameObject,
-            new Vector2(0.05f, 0.16f),
-            new Vector2(0.95f, 0.72f));
+            new Vector2(0.05f, 0.1f),
+            new Vector2(0.95f, 0.86f));
         dialogueText.alignment = TextAlignmentOptions.TopLeft;
 
-        TMP_Text advanceHint = CreateText(
-            "AdvanceHint",
-            dialoguePanel.transform,
-            "左クリックで進む",
-            15f,
-            new Color(0.67f, 0.71f, 0.72f, 1f));
-        SetAnchors(
-            advanceHint.gameObject,
-            new Vector2(0.72f, 0.02f),
-            new Vector2(0.95f, 0.16f));
-        advanceHint.alignment = TextAlignmentOptions.MidlineRight;
 
         GameObject controllerObject = new GameObject(
             "EmbeddedItemDialogueController",
@@ -588,6 +580,8 @@ public sealed class KayoSearchController : MonoBehaviour
             leftPortrait,
             rightPortrait);
         itemDialogueController.DialogueCompleted += OnItemDialogueCompleted;
+        DialogueAdvanceIndicator.Create(dialoguePanel.transform, itemDialogueController,
+            kayoAdvanceMark, moteruAdvanceMark, yowashiAdvanceMark);
 
         itemDialogueRoot.SetActive(false);
     }
@@ -941,28 +935,28 @@ public sealed class KayoSearchController : MonoBehaviour
         string label,
         float labelSize)
     {
-        GameObject buttonObject = CreateImage(name, parent, DarkPanel, true);
+        GameObject buttonObject = CreateImage(name, parent, new Color(0f, 0f, 0f, 0.72f), true);
+        buttonObject.AddComponent<RoomNavigationCircleMesh>();
+        AspectRatioFitter circleAspect = buttonObject.AddComponent<AspectRatioFitter>();
+        circleAspect.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+        circleAspect.aspectRatio = 1f;
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = buttonObject.GetComponent<Image>();
 
         ColorBlock colors = button.colors;
         colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(1.2f, 1.1f, 0.75f, 1f);
-        colors.pressedColor = new Color(0.9f, 0.68f, 0.24f, 1f);
+        colors.highlightedColor = Color.white;
+        colors.pressedColor = new Color(1f, 1f, 1f, 0.8f);
         colors.selectedColor = colors.highlightedColor;
         colors.fadeDuration = 0.08f;
         button.colors = colors;
-
-        Outline outline = buttonObject.AddComponent<Outline>();
-        outline.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.72f);
-        outline.effectDistance = new Vector2(2f, -2f);
 
         TMP_Text buttonText = CreateText(
             "Label",
             buttonObject.transform,
             label,
             labelSize,
-            MainText,
+            Color.white,
             FontStyles.Bold);
         Stretch(buttonText.rectTransform);
         buttonText.alignment = TextAlignmentOptions.Center;

@@ -120,7 +120,7 @@ public sealed class ArchiveDatabase : ScriptableObject
                 ArchiveCategory.Tips,
                 "アーカイブについて",
                 "獲得した情報を、いつでも振り返ることができます。",
-                "人物・場所・手がかり・記録など、ゲーム中に獲得した情報がここへ追加されます。\n\nBキーで開閉し、情報タブから項目を選択してください。",
+                "人物・場所・手がかり・記録など、ゲーム中に獲得した情報がここへ追加されます。\n\nEscキーで開閉し、情報タブから項目を選択してください。",
                 0,
                 true));
         return database;

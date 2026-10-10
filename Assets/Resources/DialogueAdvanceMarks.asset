@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4987212ca4048d08c75a8f3ae286eda, type: 3}
+  m_Name: DialogueAdvanceMarks
+  m_EditorClassIdentifier:
+  kayo: {fileID: -3340895152570392092, guid: e035f7301bbad7c4e8f00898dff70e7b, type: 3}
+  moteru: {fileID: -1701044484411470299, guid: 5abaf35f412e3ca4099b5d1ccaf51fe3, type: 3}
+  yowashi: {fileID: -7030727773173699788, guid: f1b4c9f048c99ac4fa412de3909a4448, type: 3}
