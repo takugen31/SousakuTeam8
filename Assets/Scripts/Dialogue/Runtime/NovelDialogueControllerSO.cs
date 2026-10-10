@@ -270,6 +270,9 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Awake()
     {
+        // Playback controls now live in the Esc menu.
+        if (autoPlayButton != null) autoPlayButton.gameObject.SetActive(false);
+        if (skipChapterButton != null) skipChapterButton.gameObject.SetActive(false);
         if (autoPlayButton != null)
         {
             autoPlayButton.onClick.AddListener(ToggleAutoPlay);
@@ -711,6 +714,11 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         return AffectionManager.Instance;
     }
+
+    public bool IsDialoguePlaying => isActiveAndEnabled && isPlaying && !isSceneLoading;
+    public bool IsAutoPlayEnabled => autoPlayEnabled;
+    public bool CanSkipFromMenu => IsDialoguePlaying && currentScenario != null &&
+        !isChapterTransitioning && !isSkipConfirmationOpen && skipConfirmationRoot != null;
 
     public void ToggleAutoPlay()
     {
