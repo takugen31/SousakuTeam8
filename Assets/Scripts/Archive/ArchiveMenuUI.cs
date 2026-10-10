@@ -432,8 +432,14 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         ArchiveCategory? category,
         float yMin)
     {
-        Button button = CreateButton($"Category_{label}", parent, $"  {label}", 24f, AccentSoftColor);
-        SetAnchors(button.gameObject, new Vector2(0.08f, yMin), new Vector2(0.92f, yMin + 0.075f), Vector2.zero, Vector2.zero);
+        Button button = CreateButton($"Category_{label}", parent, label, 24f, new Color(0f, 0f, 0f, 0.72f));
+        SetAnchors(button.gameObject, new Vector2(0.08f, yMin), new Vector2(0.92f, yMin + 0.10f), Vector2.zero, Vector2.zero);
+        TMP_Text categoryText = button.GetComponentInChildren<TMP_Text>();
+        Stretch(categoryText.rectTransform, 10f, 10f, 2f, 2f);
+        categoryText.alignment = TextAlignmentOptions.Center;
+        categoryText.textWrappingMode = TextWrappingModes.NoWrap;
+        categoryText.overflowMode = TextOverflowModes.Overflow;
+        categoryText.color = Color.white;
         button.onClick.AddListener(() =>
         {
             selectedCategory = category;

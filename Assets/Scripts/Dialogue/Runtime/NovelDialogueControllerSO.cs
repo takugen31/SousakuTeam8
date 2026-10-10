@@ -273,6 +273,78 @@ public sealed class NovelDialogueController : MonoBehaviour
         !isChoiceSelectionOpen && !isChapterTransitioning && !isSceneLoading &&
         !isSkipConfirmationOpen && !ArchiveManager.IsOpen;
 
+    private void OnEnable()
+    {
+        BindSkipConfirmationButtons();
+    }
+
+    private void BindSkipConfirmationButtons()
+    {
+        if (confirmSkipButton != null)
+        {
+            confirmSkipButton.onClick.RemoveListener(ConfirmSkip);
+            confirmSkipButton.onClick.AddListener(ConfirmSkip);
+        }
+        if (cancelSkipButton != null)
+        {
+            cancelSkipButton.onClick.RemoveListener(CancelSkip);
+            cancelSkipButton.onClick.AddListener(CancelSkip);
+        }
+    }
+
+    private void ConfigureSkipConfirmationUI()
+    {
+        if (skipConfirmationRoot == null) return;
+        Image backdrop = skipConfirmationRoot.GetComponent<Image>();
+        if (backdrop != null) backdrop.color = new Color(0f, 0f, 0f, 0.3f);
+        if (skipConfirmationRoot.transform.childCount > 0)
+        {
+            GameObject panel = skipConfirmationRoot.transform.GetChild(0).gameObject;
+            Image image = panel.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.color = new Color(0f, 0f, 0f, 0.72f);
+                if (panel.GetComponent<DialogueWindowFeather>() == null) panel.AddComponent<DialogueWindowFeather>();
+            }
+        }
+        foreach (TMP_Text text in skipConfirmationRoot.GetComponentsInChildren<TMP_Text>(true))
+        {
+            text.color = Color.white;
+            text.raycastTarget = false;
+            if (text.gameObject.name == "ConfirmationMessage")
+            {
+                text.text = "現在の章をスキップします、\n本当によろしいですか？";
+                text.fontSize = 32f;
+                text.enableAutoSizing = false;
+                text.alignment = TextAlignmentOptions.Center;
+            }
+        }
+        foreach (Button button in new[] { confirmSkipButton, cancelSkipButton })
+        {
+            if (button == null) continue;
+            Image image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.color = Color.white;
+                button.targetGraphic = image;
+            }
+            ColorBlock colors = button.colors;
+            colors.normalColor = new Color(0f, 0f, 0f, 0.5f);
+            colors.highlightedColor = new Color(0.28f, 0.28f, 0.28f, 0.85f);
+            colors.pressedColor = new Color(0.08f, 0.08f, 0.08f, 0.85f);
+            colors.selectedColor = colors.normalColor;
+            button.colors = colors;
+            if (button.GetComponent<DialogueWindowFeather>() == null)
+                button.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(24f, 10f));
+            if (button.GetComponent<ChoiceButtonHoverScale>() == null)
+                button.gameObject.AddComponent<ChoiceButtonHoverScale>();
+        }
+    }
+
     private void Awake()
     {
         // Playback controls now live in the Esc menu.
@@ -288,15 +360,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             skipChapterButton.onClick.AddListener(ShowSkipConfirmation);
         }
 
-        if (confirmSkipButton != null)
-        {
-            confirmSkipButton.onClick.AddListener(ConfirmSkip);
-        }
-
-        if (cancelSkipButton != null)
-        {
-            cancelSkipButton.onClick.AddListener(CancelSkip);
-        }
+        BindSkipConfirmationButtons();
+        ConfigureSkipConfirmationUI();
 
         if (skipConfirmationRoot != null)
         {
@@ -774,7 +839,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         autoAdvanceAt = -1f;
         timeScaleBeforeConfirmation = Time.timeScale;
         isSkipConfirmationOpen = true;
-
+        BindSkipConfirmationButtons();
+        ConfigureSkipConfirmationUI();
         skipConfirmationRoot.SetActive(true);
         Time.timeScale = 0f;
     }
@@ -792,7 +858,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void CancelSkip()
     {
-        if (!isSkipConfirmationOpen)
+        if (!isSkipConfirmationOpen && (skipConfirmationRoot == null || !skipConfirmationRoot.activeSelf))
         {
             return;
         }
