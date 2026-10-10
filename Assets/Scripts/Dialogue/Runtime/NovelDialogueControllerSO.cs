@@ -159,6 +159,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     [SerializeField] private bool normalizeBustPortraitSizes;
     [SerializeField] private bool mirrorDoutePortrait;
+    [SerializeField, Min(0.01f)] private float kayoPortraitScale = 1.0f;
+    [SerializeField] private float kayoPortraitUpwardOffset = 0.09f;
     private bool rightPortraitBaseCaptured;
     private Vector2 rightPortraitBasePosition;
     private Vector3 rightPortraitBaseScale;
@@ -1417,11 +1419,16 @@ public sealed class NovelDialogueController : MonoBehaviour
             rightPortraitBaseScale = rect.localScale;
             rightPortraitBaseCaptured = true;
         }
-        float factor = characterId == "moteru" ? 0.68f : 1f;
+        float factor = characterId == "moteru" ? 0.68f
+            : characterId == "kayo" ? kayoPortraitScale : 1f;
         rect.localScale = rightPortraitBaseScale * factor;
         // Zoom out around the top center, retaining the head's vertical placement.
         rect.anchoredPosition = rightPortraitBasePosition + Vector2.up *
             (rect.rect.height * (1f - rect.pivot.y) * rightPortraitBaseScale.y * (1f - factor));
+        // The formal Kayo image has extra space above the head compared with Doute.
+        if (characterId == "kayo")
+            rect.anchoredPosition += Vector2.up *
+                (rect.rect.height * rightPortraitBaseScale.y * kayoPortraitUpwardOffset);
     }
 
     private void ApplyProtagonistFacing()
