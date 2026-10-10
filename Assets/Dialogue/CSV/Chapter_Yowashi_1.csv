@@ -1,0 +1,46 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,nextScenePath,archiveUnlockIds
+chapter_yowashi_1_001,doute,normal,Assets/Art/Backgrounds/white_room.png,"こんにちは、えっと、ヨワシちゃんであってるよね？",chapter_yowashi_1_002,,
+chapter_yowashi_1_002,yowashi,normal,,"我が下僕よ、今日もいい日だな！
+　ドウテくんだよね〜、どしたの？",chapter_yowashi_1_003,,
+chapter_yowashi_1_003,doute,normal,,"ヨワシちゃん、その包帯ってどうしたの？
+　なんかさっき凄く怖いものが見えた気がしたんだけど……",chapter_yowashi_1_004,,
+chapter_yowashi_1_004,yowashi,normal,,"これは我が腕に宿しベルゼバブを封じ込める封印……
+　絶対に中を見てはいけないよ、少年",chapter_yowashi_1_005,,
+chapter_yowashi_1_005,doute,normal,,"少年って……ヨワシちゃん何歳？",chapter_yowashi_1_006,,
+chapter_yowashi_1_006,yowashi,normal,,"ぴっちぴちの16歳！
+　ていうか、細かいことを気にする男はモテないよ〜？
+　恋人を作らないと出れない部屋なんだから、今からでもちょっとずつ意識しよっ、ね？",chapter_yowashi_1_007,,
+chapter_yowashi_1_007,doute,normal,,"は、はぁ……",chapter_yowashi_1_008,,
+chapter_yowashi_1_008,doute,normal,,"(何かはぐらかされたような気がするなぁ)",chapter_yowashi_1_009,,
+chapter_yowashi_1_009,,,,"［情報］ヨワシの腕の包帯　を手に入れた！",chapter_yowashi_1_010,,chapter_yowashi.bandage
+chapter_yowashi_1_010,doute,normal,,"ヨワシちゃんの服ってなんというか……独特？だね？",chapter_yowashi_1_011,,
+chapter_yowashi_1_011,yowashi,normal,,"むっ、失礼な。これは城の中で過ごすにあたってのの正装であるぞ。可愛いであろう？",chapter_yowashi_1_012,,
+chapter_yowashi_1_012,doute,normal,,"城の中の正装……？服は可愛いと思うよ。",chapter_yowashi_1_013,,
+chapter_yowashi_1_013,yowashi,normal,,"そうであろうそうであろう！
+　ちなみに、城の中での正装っていうのはパジャマのことね。まだまだ私への理解が足りないね〜",chapter_yowashi_1_014,,
+chapter_yowashi_1_014,doute,normal,,"パジャマだったのか、なるほどね〜。
+　僕らは普段着る服っぽいのに、なんでヨワシちゃんだけパジャマなんだろうね？",chapter_yowashi_1_015,,
+chapter_yowashi_1_015,yowashi,normal,,"それは私が普段からパジャマで生活をしてるからじゃない？我の体にはベルゼバブが取り憑いているが故、あまり外には出られんのだ",chapter_yowashi_1_016,,
+chapter_yowashi_1_016,doute,normal,,"ベルゼバブが取り憑いて……それは病気ってこと！？大丈夫なの！？",chapter_yowashi_1_017,,
+chapter_yowashi_1_017,yowashi,normal,,"そこまで心配せんでも、母上が心配性であるだけじゃ。それよりも余は下僕が我が言葉を理解できるようになったことが喜ばしいぞ",chapter_yowashi_1_018,,
+chapter_yowashi_1_018,doute,normal,,"まだまだです、ヨワシ様。これからも精進して参ります。",chapter_yowashi_1_019,,
+chapter_yowashi_1_019,yowashi,normal,,"苦しゅうない！
+　ドウテくん最高だね！しかもそれ、『転生したらゴブリンだった件』のセリフじゃない？",chapter_yowashi_1_020,,
+chapter_yowashi_1_020,doute,normal,,"え、知ってるの？じゃあ、『社蓄転生』は？",chapter_yowashi_1_021,,
+chapter_yowashi_1_021,yowashi,normal,,"もちろん知ってるよ！『強がりペダル』は？『レッドロック』は？『排球！！！』は？",chapter_yowashi_1_022,,
+chapter_yowashi_1_022,doute,normal,,"もちのろんですよ！強がりペダルは主人公の強がりが段々弱音になっていくのが最高だよね〜",chapter_yowashi_1_023,,
+chapter_yowashi_1_023,yowashi,normal,,"わかるわかる！しかしこの本棚に大量のラノベや漫画があることには気づいていたかい……？",chapter_yowashi_1_024,,
+chapter_yowashi_1_024,doute,normal,,"もちろん！！おすすめの本布教しあおうよ！",chapter_yowashi_1_025,,
+chapter_yowashi_1_025,yowashi,normal,,"最高！",chapter_yowashi_1_026,,
+chapter_yowashi_1_026,doute,normal,,"(スポ根漫画多かったな〜
+　俺も好きだし嬉しい！！)",chapter_yowashi_1_027,,
+chapter_yowashi_1_027,,,,"［情報］ヨワシの好きな漫画　を手に入れた",chapter_yowashi_1_028,,chapter_yowashi.manga
+chapter_yowashi_1_028,doute,normal,,"(30分ほど熱心に話し込んでいると、ヨワシちゃんの息が切れていることに気がついた)",chapter_yowashi_1_029,,
+chapter_yowashi_1_029,yowashi,normal,,"それでね…このシリーズのこの…お決まりの文章が……最高なんだよね",chapter_yowashi_1_030,,
+chapter_yowashi_1_030,doute,normal,,"ヨワシちゃん、息切れしてない？大丈夫？",chapter_yowashi_1_031,,
+chapter_yowashi_1_031,yowashi,normal,,"大丈夫だよぉ…
+　ただちょっと…興奮しすぎたみたいだから…今日は休もうかな…",chapter_yowashi_1_032,,
+chapter_yowashi_1_032,doute,normal,,"うん、それがいいと思う。明日またじっくり話そうよ〜",chapter_yowashi_1_033,,
+chapter_yowashi_1_033,yowashi,normal,,"うん、じゃあね〜",chapter_yowashi_1_034,,
+chapter_yowashi_1_034,doute,normal,,"息切れしてた……？気のせいかな",chapter_yowashi_1_035,,
+chapter_yowashi_1_035,doute,normal,,"(ん？この本棚の下に本なんて落ちてたかな？)",,Assets/PuzzleGame/Scenes/PuzzleGame.unity,

@@ -1,0 +1,225 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_Diary
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_diary_001
+    speakerId: doute
+    expressionId: normal
+    text: "これは……日記？"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_002
+    speakerId: 
+    expressionId: 
+    text: "『20XX年4月8日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_003
+    speakerId: 
+    expressionId: 
+    text: "今年も入学式に行けなかった。いくら私が体調は大丈夫だって言っても、ママは聞いてくれない。なんで私の言うことを信じてくれないんだろう。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_004
+    speakerId: 
+    expressionId: 
+    text: "『20XX年5月12日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_005
+    speakerId: 
+    expressionId: 
+    text: "今年初めて学校に行けた。何回もママにおねだりした甲斐があったかも。とても嬉しかったのに、学校に行ってみたら咳が止まらなくなった。なんで？友達はすごく心配してくれたのに、私は、私は、私は"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_006
+    speakerId: 
+    expressionId: 
+    text: "『20XX年5月13日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_007
+    speakerId: 
+    expressionId: 
+    text: "私は今日から弱音を吐かないことにした。そのためには明るくいよう。だって漫画のキャラクターで弱音吐いてる子なんて誰もいない。あのキャラみたいになりたい。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_008
+    speakerId: 
+    expressionId: 
+    text: "『20XX年6月6日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_009
+    speakerId: 
+    expressionId: 
+    text: "大丈夫、私は明るい子、強い子、大丈夫。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_010
+    speakerId: 
+    expressionId: 
+    text: "『20XX年6月7日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_011
+    speakerId: 
+    expressionId: 
+    text: "大丈夫、私は明るい子、強い子、大丈夫。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_012
+    speakerId: 
+    expressionId: 
+    text: "『20XX年9月11日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_013
+    speakerId: 
+    expressionId: 
+    text: "大丈夫、私は明るい子、強い子、大丈夫"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_014
+    speakerId: 
+    expressionId: 
+    text: "(これ以降、同じ言葉が時々書かれているだけだ)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_015
+    speakerId: doute
+    expressionId: normal
+    text: "(これは……誰かの日記？まさかヨワシちゃん……？いやまさかね。あんなに明るい子なのにそんなことないよね！一応ヨワシちゃんに確認してみよう)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_diary_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_diary_016
+    speakerId: 
+    expressionId: 
+    text: "［誰かの日記］を手に入れた"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds:
+    - chapter_yowashi.diary
+    branches: []

@@ -1,0 +1,22 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,nextScenePath,archiveUnlockIds
+chapter_yowashi_beforecatch_001,doute,normal,Assets/Art/Backgrounds/white_room.png,"おはようドウテ卿！いい朝だねぇ",chapter_yowashi_beforecatch_002,,
+chapter_yowashi_beforecatch_002,doute,normal,,"なんか出世してる！下僕だったのに！",chapter_yowashi_beforecatch_003,,
+chapter_yowashi_beforecatch_003,yowashi,normal,,"それはそうであろう。なにせ聖典について熱く語り合ったのだから！！",chapter_yowashi_beforecatch_004,,
+chapter_yowashi_beforecatch_004,doute,normal,,"それで上がる地位とは？って感じだけどね〜
+　そういえば、この本みたいなものが落ちてたんだけど、見覚えとかない？",chapter_yowashi_beforecatch_005,,
+chapter_yowashi_beforecatch_005,yowashi,normal,,"……",chapter_yowashi_beforecatch_006,,
+chapter_yowashi_beforecatch_006,doute,normal,,"ヨワシちゃん？",chapter_yowashi_beforecatch_007,,
+chapter_yowashi_beforecatch_007,yowashi,normal,,"はっ！！いや、この日記は知らんぞ。見たこともない！ただ魔力を感じるからこれは私が預かろう。",chapter_yowashi_beforecatch_008,,
+chapter_yowashi_beforecatch_008,doute,normal,,"(あれ？俺、日記って言ったっけ？)",chapter_yowashi_beforecatch_009,,
+chapter_yowashi_beforecatch_009,doute,normal,,"りょ、りょうかいです！ヨワシ様に捧げます",chapter_yowashi_beforecatch_010,,
+chapter_yowashi_beforecatch_010,yowashi,normal,,"うむ、苦しゅうない！ところで、余は今日やってみたいことがあるのだが、付き合ってくれるな？",chapter_yowashi_beforecatch_011,,
+chapter_yowashi_beforecatch_011,doute,normal,,"もちろんです！具体的に何するの？",chapter_yowashi_beforecatch_012,,
+chapter_yowashi_beforecatch_012,yowashi,normal,,"それはずばり……野球だ！！",chapter_yowashi_beforecatch_013,,
+chapter_yowashi_beforecatch_013,doute,normal,,"や、野球？",chapter_yowashi_beforecatch_014,,
+chapter_yowashi_beforecatch_014,yowashi,normal,,"うむ。『スペードのエース』がどうしてもかっこよくてな。",chapter_yowashi_beforecatch_015,,
+chapter_yowashi_beforecatch_015,doute,normal,,"野球か。やったことないな〜
+　2人でやるならキャッチボール？",chapter_yowashi_beforecatch_016,,
+chapter_yowashi_beforecatch_016,yowashi,normal,,"やった！じゃあ自販機でボールを買ってきてよ〜",chapter_yowashi_beforecatch_017,,
+chapter_yowashi_beforecatch_017,doute,normal,,"りょーかい！",chapter_yowashi_beforecatch_018,,
+chapter_yowashi_beforecatch_018,doute,normal,,"(ボール購入)",chapter_yowashi_beforecatch_019,,
+chapter_yowashi_beforecatch_019,yowashi,normal,,"じゃあ早速始めよう！！",,Assets/FallingGame/Scenes/falling_verYowashi.unity,

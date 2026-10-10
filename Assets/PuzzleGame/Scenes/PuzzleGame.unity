@@ -266,6 +266,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1584477323}
   - component: {fileID: 1584477322}
+  - component: {fileID: 1584477324}
   m_Layer: 0
   m_Name: Puzzle Game
   m_TagString: Untagged
@@ -285,6 +286,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37324b62b6e1f504687f86c2167dc9cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: SousakuTeam8.PuzzleGame::SousakuTeam8.PuzzleGame.PuzzleGameStandaloneBootstrap
+--- !u!114 &1584477324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584477321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ac902dc5bae4d0ca9d6df46b8df9c67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KayoPuzzleGameFlowController
+  completedDisplayDuration: 1
+  fadeDuration: 0.8
 --- !u!4 &1584477323
 Transform:
   m_ObjectHideFlags: 0

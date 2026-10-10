@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/PuzzleGame/Scenes/PuzzleGame.unity
     guid: fa513a0f908a563429d7026f597f2c1c
+  - enabled: 1
+    path: Assets/FallingGame/Scenes/falling_verYowashi.unity
+    guid: 9d8df832c5b242c9b7fa980d3c24aa2a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

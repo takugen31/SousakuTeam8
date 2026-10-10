@@ -55,7 +55,15 @@ public sealed class KayoSearchController : MonoBehaviour
     private string completionSceneName = "NovelScene_Kayo";
 
     [SerializeField]
-    private string completionResumeLineId = "chapter_kayo_3_001";
+    private string completionResumeLineId = "chapter_kayo_diary_001";
+
+    [Header("Diary Puzzle")]
+    [SerializeField]
+    private string puzzleSceneName = "PuzzleGame";
+
+    [SerializeField]
+    [Tooltip("カヨの日記用パズル画像。未設定の場合は既存パズルの仮画像を使用します。")]
+    private Texture2D diaryPuzzleImage;
 
     private readonly HashSet<string> acquiredItemIds =
         new HashSet<string>(StringComparer.Ordinal);
@@ -822,17 +830,22 @@ public sealed class KayoSearchController : MonoBehaviour
             yield return new WaitForSecondsRealtime(postFadeDelay);
         }
 
-        if (!Application.CanStreamedLevelBeLoaded(completionSceneName))
+        if (!Application.CanStreamedLevelBeLoaded(puzzleSceneName) ||
+            !Application.CanStreamedLevelBeLoaded(completionSceneName))
         {
             Debug.LogError(
-                $"遷移先シーン '{completionSceneName}' がBuild Settingsに登録されていません。",
+                $"カヨ探索の遷移先 '{puzzleSceneName}' / '{completionSceneName}' がBuild Settingsに登録されていません。",
                 this);
             yield break;
         }
 
         ArchiveManager.Close();
-        NovelDialogueController.QueueResumeLine(completionResumeLineId);
-        SceneManager.LoadScene(completionSceneName, LoadSceneMode.Single);
+        KayoPuzzleGameFlowController.Queue(
+            puzzleSceneName,
+            completionSceneName,
+            completionResumeLineId,
+            diaryPuzzleImage);
+        SceneManager.LoadScene(puzzleSceneName, LoadSceneMode.Single);
     }
 
     private void LoadProgress()

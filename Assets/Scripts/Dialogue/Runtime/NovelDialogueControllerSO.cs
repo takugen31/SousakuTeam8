@@ -17,6 +17,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         new HashSet<string>(System.StringComparer.Ordinal);
 
     public event Action DialogueCompleted;
+    public event Action<DialogueLine> LineStarted;
+    public event Action<DialogueLine> SceneTransitionStarting;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetPendingResumeLine()
@@ -506,6 +508,26 @@ public sealed class NovelDialogueController : MonoBehaviour
                 followingScenarios.Add(scenarios[index]);
             }
         }
+    }
+
+    // Replace only an upcoming chapter; the current dialogue and playback settings stay intact.
+    public bool ReplaceFollowingScenario(
+        DialogueScenarioSO original,
+        DialogueScenarioSO replacement)
+    {
+        if (original == null || replacement == null)
+        {
+            return false;
+        }
+
+        int index = followingScenarios.IndexOf(original);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        followingScenarios[index] = replacement;
+        return true;
     }
 
     public void StartEmbeddedDialogue()
@@ -1101,6 +1123,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         ApplyAffectionChanges(line);
         ApplyArchiveUnlocks(line);
         ApplyCharacter(line);
+        LineStarted?.Invoke(line);
     }
 
     private bool TryStartConsultationTransition(DialogueLine line)
@@ -1617,6 +1640,7 @@ public sealed class NovelDialogueController : MonoBehaviour
                 throw new InvalidOperationException(
                     $"シーン「{runtimeSceneName}」が有効なScene Listにありません。");
             }
+            SceneTransitionStarting?.Invoke(transitionLine);
         }
         catch (System.Exception exception)
         {

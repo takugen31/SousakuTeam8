@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_Consultation
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_consultation_001
+    speakerId: 
+    expressionId: 
+    text: "一回状況を整理しよう"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_consultation_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_002
+    speakerId: doute
+    expressionId: normal
+    text: "整理してる暇なんて！みんな危ない状況なんですよ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_consultation_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_003
+    speakerId: 
+    expressionId: 
+    text: "僕は特別な存在だから。僕と話してる間は時間は進まないよ。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_consultation_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_004
+    speakerId: doute
+    expressionId: normal
+    text: "そ、そうなんですか……じゃあひとまず、ヨワシちゃんが倒れたのって……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: 
+    choices:
+    - text: "［情報］ヨワシちゃんは息切れしやすい？"
+      nextLineId: chapter_yowashi_consultation_005
+    - text: "［情報］医学書の内容"
+      nextLineId: chapter_yowashi_consultation_004
+    - text: "［情報］ヨワシの好きな漫画"
+      nextLineId: chapter_yowashi_consultation_004
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_005
+    speakerId: doute
+    expressionId: normal
+    text: "なるほど、確かに普段から息切れしてましたね……\n　じゃあ今のヨワシちゃんには何をしてあげれば！？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: 
+    choices:
+    - text: "［情報］ヨワシの好きな漫画"
+      nextLineId: chapter_yowashi_consultation_005
+    - text: "［情報］医学書の内容"
+      nextLineId: chapter_yowashi_consultation_006
+    - text: "［情報］ヨワシの腕の包帯"
+      nextLineId: chapter_yowashi_consultation_005
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_006
+    speakerId: doute
+    expressionId: normal
+    text: "そうか、あの本！もしかしてあそこにあった内容さえあれば、応急措置ができる？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_consultation_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_007
+    speakerId: 
+    expressionId: 
+    text: "おそらくね。あとは頑張ってね"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_consultation_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_008
+    speakerId: doute
+    expressionId: normal
+    text: "待ってください、カヨちゃんは……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_consultation_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_009
+    speakerId: 
+    expressionId: 
+    text: "そっちはきっと大丈夫だよ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

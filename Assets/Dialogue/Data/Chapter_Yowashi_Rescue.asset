@@ -1,0 +1,566 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_Rescue
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_rescue_001
+    speakerId: moteru
+    expressionId: normal
+    text: "ドウテくん！僕はカヨちゃんを本棚の下から助けるから、ヨワシちゃんの手当をしてあげて！"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_002
+    speakerId: doute
+    expressionId: normal
+    text: "わかった！モテル、ありがとな"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_003
+    speakerId: moteru
+    expressionId: normal
+    text: "こちらこそだよ、ありがとう、ドウテくん！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_004
+    speakerId: doute
+    expressionId: normal
+    text: "(モテルならきっと大丈夫だ。俺はヨワシちゃんを助けてあげないと……！)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_005
+    speakerId: doute
+    expressionId: normal
+    text: "(確かまずは意識の確認……)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_006
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん聞こえる？聞こえたら何でもいいから合図して！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_007
+    speakerId: yowashi
+    expressionId: normal
+    text: "……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_008
+    speakerId: doute
+    expressionId: normal
+    text: "(意識はなさそうだ……次は心拍と呼吸の確認だけど……)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_009
+    speakerId: yowashi
+    expressionId: normal
+    text: "…"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_010
+    speakerId: doute
+    expressionId: normal
+    text: "(明らかに呼吸数が減ってきてる。心拍は……ない)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_011
+    speakerId: doute
+    expressionId: normal
+    text: "(やばいやばいやばい！！\n　一度深呼吸しよう。そうだ、そういえばあのヨワシちゃんの言葉……)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_012
+    speakerId: yowashi
+    expressionId: normal
+    text: "何よりドウテくんもいるしね〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_013
+    speakerId: doute
+    expressionId: normal
+    text: "(そうだ、ヨワシちゃんはきっと俺なら助けてくれると信じてたんだ。それにヨワシちゃんがくれた医学書も、そんなに都合よく喘息の本が落ちてると思えないし……\n　きっともし自分に何かあった時に助けてくれると信じて、俺に医学書を渡してくれたんじゃないか？)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_014
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃんは俺が必ず助ける！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: 
+    choices:
+    - text: "成功"
+      nextLineId: chapter_yowashi_rescue_015
+    - text: "失敗"
+      nextLineId: chapter_yowashi_rescue_039
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_015
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん聞こえる？大丈夫？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_016
+    speakerId: yowashi
+    expressionId: normal
+    text: "……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_017
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん！！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_018
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_018
+    speakerId: yowashi
+    expressionId: normal
+    text: "ドウテくん……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_019
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_019
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_020
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_020
+    speakerId: yowashi
+    expressionId: normal
+    text: "信じてたよ、ドウテくん"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_021
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_021
+    speakerId: moteru
+    expressionId: normal
+    text: "ドウテくん！ヨワシさん！大丈夫？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_022
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_022
+    speakerId: doute
+    expressionId: normal
+    text: "モテル！そっちこそ大丈夫か？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_023
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_023
+    speakerId: moteru
+    expressionId: normal
+    text: "うん、なんとか大丈夫だったよ。ただ、部屋がひび割れてきてる。カヨさんも歩けるそうだから、一緒に逃げよう"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_024
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_024
+    speakerId: doute
+    expressionId: normal
+    text: "おう！\n　ヨワシちゃん、立てそう……？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_025
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_025
+    speakerId: yowashi
+    expressionId: normal
+    text: "むりだから……おんぶして……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_026
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_026
+    speakerId: doute
+    expressionId: normal
+    text: "！！\n　が、頑張ります！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_027
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_027
+    speakerId: doute
+    expressionId: normal
+    text: "(初めて背負った女の子は、とてもとても軽かった。)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_028
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_028
+    speakerId: yowashi
+    expressionId: normal
+    text: "ドウテくん……背中に乗ってる私が……いうのはあれなんだけど……これってなんだか……漫画のワンシーン……みたいじゃない？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_029
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_029
+    speakerId: doute
+    expressionId: normal
+    text: "確かに。漫画だとこのあと……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_030
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_030
+    speakerId: doute
+    expressionId: normal
+    text: "(はっ。このあと告白する流れでは？いやでも流石に会ったばっかりだし……)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_031
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_031
+    speakerId: yowashi
+    expressionId: normal
+    text: "このあとなーに？私、期待しちゃうかも〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_032
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_032
+    speakerId: doute
+    expressionId: normal
+    text: "うぐっ。そういうの俺初めてだから……ちゃんとしたのはまた今度しようと思ってたんだけど……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_033
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_033
+    speakerId: yowashi
+    expressionId: normal
+    text: "いいのいいの、こういうのはなんぼ言ってもいいんですから〜"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_034
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_034
+    speakerId: doute
+    expressionId: normal
+    text: "わかったよ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_035
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_035
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん。俺はあなたのことが好きです。付き合ってください！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_036
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_036
+    speakerId: yowashi
+    expressionId: normal
+    text: "……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_037
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_037
+    speakerId: doute
+    expressionId: normal
+    text: "えっ、ヨワシちゃん、どうしたの？泣いてる！？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_038
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_038
+    speakerId: yowashi
+    expressionId: normal
+    text: "私も……初めてだったの。\n　ドウテくん、私も好きだよ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: Assets/Scenes/GameMap/Title.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_039
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん！ヨワシちゃん！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_040
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_040
+    speakerId: yowashi
+    expressionId: normal
+    text: "……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_041
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_041
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃん！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_rescue_042
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_rescue_042
+    speakerId: 
+    expressionId: 
+    text: "(その後、ヨワシの声を聞くことはできず、ただただ無駄とわかっていても心臓マッサージを続けるしかなかった。なぜ俺は……こういうところでやりきれないんだ……)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: Assets/Scenes/GameMap/Title.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

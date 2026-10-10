@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_CatchFailure
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_catchfailure_001
+    speakerId: doute
+    expressionId: normal
+    text: "(何か変なものまで飛んできてなかった……？)"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_002
+    speakerId: yowashi
+    expressionId: normal
+    text: "まだまだだな……ドウテ卿……鍛え直して……また来るといい……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_003
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃんもバテバテじゃん……\n　やったの2分とかだよ？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_004
+    speakerId: yowashi
+    expressionId: normal
+    text: "我が体に……巣食うベルゼバブが……少し暴れ始めただけだ……まだまだいくぞ……ドウテ卿！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_005
+    speakerId: doute
+    expressionId: normal
+    text: "いいよ！どんと来い！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_006
+    speakerId: doute
+    expressionId: normal
+    text: "その後のことはあまり覚えていない。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_007
+    speakerId: doute
+    expressionId: normal
+    text: "ヨワシちゃんが倒れ、救急隊員らしき人に運ばれていった。俺はそれを見ていることしかできず、立ち尽くしていた。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_008
+    speakerId: doute
+    expressionId: normal
+    text: "気がつくと俺は俺の家にいて、白いあの部屋なんて見当たらなくなっていた。しかし俺の手には、自販機で買ったあのボールだけが残されていた。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_catchfailure_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_catchfailure_009
+    speakerId: doute
+    expressionId: normal
+    text: "きっと夢だ。あんな部屋なんてあるわけないんだ。俺はそう思うことしかできなかった。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: Assets/Scenes/GameMap/Title.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

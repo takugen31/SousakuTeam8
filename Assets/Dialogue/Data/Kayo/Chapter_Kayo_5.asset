@@ -329,7 +329,63 @@ MonoBehaviour:
   - lineId: chapter_kayo_5_025
     speakerId: doute
     expressionId: normal
-    text: "\uFF08\u3055\u3066\u2026\u20262\u4EBA\u3092\u52A9\u3051\u306A\u304D\u3083\uFF01\uFF09"
+    text: "（さて……2人を助けなきゃ！）"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: 
+    choices:
+    - text: 成功
+      nextLineId: chapter_kayo_5_success_001
+    - text: 失敗
+      nextLineId: chapter_kayo_5_failure_001
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_5_success_001
+    speakerId: doute
+    expressionId: normal
+    text: "よし、壊すことが出来たぞ……！ってあれ？今、なにか落ちてきたような……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_5_success_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_5_success_002
+    speakerId: doute
+    expressionId: normal
+    text: "なんだ、これ……紙？って、そんな場合じゃないっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_5_result_exit
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_5_failure_001
+    speakerId: doute
+    expressionId: normal
+    text: "時間はかかっちゃったけど、なんとか壊すことが出来たぞ……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    nextScenePath: 
+    nextLineId: chapter_kayo_5_result_exit
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_5_result_exit
+    speakerId: doute
+    expressionId: normal
+    text: "カヨちゃん！今のうちにこっちへ！"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 

@@ -457,8 +457,20 @@ MonoBehaviour:
     revealSpeakerName: 0
     consultationTitle: 
     nextScenePath: 
-    nextLineId: chapter_kayo_3_035
-    choices: []
+    nextLineId: 
+    choices:
+    - text: "カヨのドジ"
+      nextLineId: chapter_kayo_3_035
+    - text: "カヨの家族"
+      nextLineId: chapter_kayo_3_034
+    - text: "蓮愛ドウテ"
+      nextLineId: chapter_kayo_3_034
+    - text: "空田ヨワシ"
+      nextLineId: chapter_kayo_3_034
+    - text: "大葉カヨ"
+      nextLineId: chapter_kayo_3_034
+    - text: "凄久モテル"
+      nextLineId: chapter_kayo_3_034
     affectionChanges: []
     archiveUnlockIds: []
     branches: []
@@ -496,8 +508,20 @@ MonoBehaviour:
     revealSpeakerName: 0
     consultationTitle: 
     nextScenePath: 
-    nextLineId: chapter_kayo_3_038
-    choices: []
+    nextLineId: 
+    choices:
+    - text: "カヨのドジ"
+      nextLineId: chapter_kayo_3_037
+    - text: "カヨの家族"
+      nextLineId: chapter_kayo_3_038
+    - text: "蓮愛ドウテ"
+      nextLineId: chapter_kayo_3_037
+    - text: "空田ヨワシ"
+      nextLineId: chapter_kayo_3_037
+    - text: "大葉カヨ"
+      nextLineId: chapter_kayo_3_037
+    - text: "凄久モテル"
+      nextLineId: chapter_kayo_3_037
     affectionChanges: []
     archiveUnlockIds: []
     branches: []
@@ -535,8 +559,20 @@ MonoBehaviour:
     revealSpeakerName: 0
     consultationTitle: 
     nextScenePath: 
-    nextLineId: chapter_kayo_3_041
-    choices: []
+    nextLineId: 
+    choices:
+    - text: "カヨのドジ"
+      nextLineId: chapter_kayo_3_040
+    - text: "カヨの家族"
+      nextLineId: chapter_kayo_3_040
+    - text: "蓮愛ドウテ"
+      nextLineId: chapter_kayo_3_040
+    - text: "空田ヨワシ"
+      nextLineId: chapter_kayo_3_040
+    - text: "大葉カヨ"
+      nextLineId: chapter_kayo_3_041
+    - text: "凄久モテル"
+      nextLineId: chapter_kayo_3_040
     affectionChanges: []
     archiveUnlockIds: []
     branches: []
