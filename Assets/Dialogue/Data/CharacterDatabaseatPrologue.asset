@@ -42,7 +42,7 @@ MonoBehaviour:
     nameKnownInitially: 0
     expressions:
     - expressionId: normal
-      portrait: {fileID: 1240851174394323274, guid: b239034ee8fcad04788dfe82fda004a4, type: 3}
+      portrait: {fileID: 21300000, guid: bbf89f33fc7045a39d78eccd93dd8cb5, type: 3}
   - characterId: moteru
     displayName: "\u30E2\u30C6\u30EB"
     nameColor: {r: 0.5019608, g: 0.78431374, b: 1, a: 1}
