@@ -10,14 +10,14 @@ using UnityEngine.UI;
 
 public sealed class ArchiveMenuUI : MonoBehaviour
 {
-    private static readonly Color BackdropColor = new Color(0.015f, 0.025f, 0.045f, 0.94f);
-    private static readonly Color PanelColor = new Color(0.035f, 0.065f, 0.095f, 0.98f);
-    private static readonly Color PanelLightColor = new Color(0.055f, 0.105f, 0.14f, 0.98f);
-    private static readonly Color AccentColor = new Color(0.18f, 0.82f, 0.9f, 1f);
-    private static readonly Color AccentSoftColor = new Color(0.11f, 0.34f, 0.39f, 1f);
-    private static readonly Color PrimaryTextColor = new Color(0.9f, 0.96f, 0.98f, 1f);
-    private static readonly Color MutedTextColor = new Color(0.54f, 0.65f, 0.7f, 1f);
-    private static readonly Color LockedTextColor = new Color(0.38f, 0.46f, 0.5f, 1f);
+    private static readonly Color BackdropColor = new Color(0f, 0f, 0f, 0.25f);
+    private static readonly Color PanelColor = new Color(0f, 0f, 0f, 0.72f);
+    private static readonly Color PanelLightColor = new Color(0f, 0f, 0f, 0.28f);
+    private static readonly Color AccentColor = Color.white;
+    private static readonly Color AccentSoftColor = new Color(0f, 0f, 0f, 0.5f);
+    private static readonly Color PrimaryTextColor = Color.white;
+    private static readonly Color MutedTextColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+    private static readonly Color LockedTextColor = new Color(0.58f, 0.58f, 0.58f, 1f);
 
     private readonly List<ArchiveEntry> filteredEntries = new List<ArchiveEntry>();
     private readonly List<Button> entryButtons = new List<Button>();
@@ -157,8 +157,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         colors.selectedColor = colors.normalColor;
         colors.disabledColor = new Color(0f, 0f, 0f, 0.25f);
         button.colors = colors;
-        button.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(30f, 12f));
-        button.gameObject.AddComponent<ChoiceButtonHoverScale>();
+        button.GetComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(30f, 12f));
         return button;
     }
 
@@ -398,6 +397,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         Stretch(windowRoot.GetComponent<RectTransform>());
 
         GameObject frame = CreatePanel("Frame", windowRoot.transform, PanelColor);
+        frame.AddComponent<DialogueWindowFeather>();
         archiveFrame = frame;
         SetAnchors(frame, new Vector2(0.045f, 0.055f), new Vector2(0.955f, 0.945f), Vector2.zero, Vector2.zero);
 
@@ -418,15 +418,15 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void BuildHeader(Transform parent)
     {
-        GameObject header = CreatePanel("Header", parent, new Color(0.025f, 0.052f, 0.075f, 1f));
+        GameObject header = CreatePanel("Header", parent, Color.clear);
         SetAnchors(header, new Vector2(0f, 0.875f), Vector2.one, Vector2.zero, Vector2.zero);
 
-        TMP_Text eyebrow = CreateText("Eyebrow", header.transform, "INFORMATION DATABASE", 17f, AccentColor, FontStyles.Bold);
+        TMP_Text eyebrow = CreateText("Eyebrow", header.transform, "集めた情報", 20f, MutedTextColor, FontStyles.Bold);
         SetAnchors(eyebrow.gameObject, new Vector2(0.028f, 0.57f), new Vector2(0.5f, 0.9f), Vector2.zero, Vector2.zero);
         eyebrow.alignment = TextAlignmentOptions.BottomLeft;
         eyebrow.characterSpacing = 4f;
 
-        TMP_Text title = CreateText("Title", header.transform, "ARCHIVE", 42f, PrimaryTextColor, FontStyles.Bold);
+        TMP_Text title = CreateText("Title", header.transform, "アーカイブ", 42f, PrimaryTextColor, FontStyles.Bold);
         SetAnchors(title.gameObject, new Vector2(0.026f, 0.08f), new Vector2(0.5f, 0.62f), Vector2.zero, Vector2.zero);
         title.alignment = TextAlignmentOptions.MidlineLeft;
         title.characterSpacing = 5f;
@@ -448,10 +448,10 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void BuildSidebar(Transform parent)
     {
-        GameObject sidebar = CreatePanel("Sidebar", parent, new Color(0.025f, 0.05f, 0.07f, 1f));
+        GameObject sidebar = CreatePanel("Sidebar", parent, Color.clear);
         SetAnchors(sidebar, new Vector2(0f, 0.07f), new Vector2(0.205f, 0.875f), Vector2.zero, Vector2.zero);
 
-        TMP_Text menuLabel = CreateText("MenuLabel", sidebar.transform, "MENU", 15f, MutedTextColor, FontStyles.Bold);
+        TMP_Text menuLabel = CreateText("MenuLabel", sidebar.transform, "情報一覧", 20f, MutedTextColor, FontStyles.Bold);
         SetAnchors(menuLabel.gameObject, new Vector2(0.1f, 0.91f), new Vector2(0.9f, 0.97f), Vector2.zero, Vector2.zero);
         menuLabel.characterSpacing = 3f;
 
@@ -459,7 +459,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         SetAnchors(infoTab.gameObject, new Vector2(0.07f, 0.81f), new Vector2(0.93f, 0.9f), Vector2.zero, Vector2.zero);
         infoTab.interactable = false;
 
-        TMP_Text categoryLabel = CreateText("CategoryLabel", sidebar.transform, "CATEGORY", 15f, MutedTextColor, FontStyles.Bold);
+        TMP_Text categoryLabel = CreateText("CategoryLabel", sidebar.transform, "分類", 20f, MutedTextColor, FontStyles.Bold);
         SetAnchors(categoryLabel.gameObject, new Vector2(0.1f, 0.70f), new Vector2(0.9f, 0.76f), Vector2.zero, Vector2.zero);
         categoryLabel.characterSpacing = 3f;
 
@@ -481,7 +481,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         ArchiveCategory? category,
         float yMin)
     {
-        Button button = CreateButton($"Category_{label}", parent, $"  {label}", 18f, Color.clear);
+        Button button = CreateButton($"Category_{label}", parent, $"  {label}", 24f, AccentSoftColor);
         SetAnchors(button.gameObject, new Vector2(0.08f, yMin), new Vector2(0.92f, yMin + 0.075f), Vector2.zero, Vector2.zero);
         button.onClick.AddListener(() =>
         {
@@ -492,7 +492,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void BuildMainContent(Transform parent)
     {
-        GameObject main = CreatePanel("InformationContent", parent, PanelColor);
+        GameObject main = CreatePanel("InformationContent", parent, Color.clear);
         SetAnchors(main, new Vector2(0.205f, 0.07f), new Vector2(1f, 0.875f), Vector2.zero, Vector2.zero);
 
         BuildToolbar(main.transform);
@@ -513,12 +513,12 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         textArea.transform.SetParent(searchBackground.transform, false);
         SetAnchors(textArea, new Vector2(0.06f, 0f), new Vector2(0.94f, 1f), Vector2.zero, Vector2.zero);
 
-        TMP_Text placeholder = CreateText("Placeholder", textArea.transform, "タイトル・本文を検索", 16f, MutedTextColor);
+        TMP_Text placeholder = CreateText("Placeholder", textArea.transform, "タイトル・本文を検索", 20f, MutedTextColor);
         Stretch(placeholder.rectTransform);
         placeholder.alignment = TextAlignmentOptions.MidlineLeft;
         placeholder.fontStyle = FontStyles.Italic;
 
-        TMP_Text inputText = CreateText("Text", textArea.transform, string.Empty, 16f, PrimaryTextColor);
+        TMP_Text inputText = CreateText("Text", textArea.transform, string.Empty, 20f, PrimaryTextColor);
         Stretch(inputText.rectTransform);
         inputText.alignment = TextAlignmentOptions.MidlineLeft;
 
@@ -532,7 +532,8 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void BuildEntryList(Transform parent)
     {
-        GameObject listPanel = CreatePanel("EntryListPanel", parent, new Color(0.025f, 0.052f, 0.073f, 1f));
+        GameObject listPanel = CreatePanel("EntryListPanel", parent, PanelLightColor);
+        listPanel.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(24f, 20f));
         SetAnchors(listPanel, new Vector2(0.03f, 0.04f), new Vector2(0.405f, 0.85f), Vector2.zero, Vector2.zero);
 
         GameObject viewport = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
@@ -575,6 +576,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private void BuildDetail(Transform parent)
     {
         GameObject panel = CreatePanel("DetailPanel", parent, PanelLightColor);
+        panel.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(32f, 24f));
         SetAnchors(panel, new Vector2(0.425f, 0.04f), new Vector2(0.97f, 0.85f), Vector2.zero, Vector2.zero);
 
         detailEmpty = new GameObject("Empty", typeof(RectTransform));
@@ -610,7 +612,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         SetAnchors(detailIcon.gameObject, new Vector2(0.84f, 0.75f), new Vector2(1f, 0.9f), Vector2.zero, Vector2.zero);
         detailIcon.preserveAspect = true;
 
-        detailSubtitle = CreateText("Subtitle", detailContent.transform, string.Empty, 17f, MutedTextColor);
+        detailSubtitle = CreateText("Subtitle", detailContent.transform, string.Empty, 22f, MutedTextColor);
         SetAnchors(detailSubtitle.gameObject, new Vector2(0f, 0.62f), new Vector2(1f, 0.72f), Vector2.zero, Vector2.zero);
         detailSubtitle.alignment = TextAlignmentOptions.TopLeft;
         detailSubtitle.textWrappingMode = TextWrappingModes.Normal;
@@ -628,7 +630,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         SetAnchors(bodyViewport, new Vector2(0f, 0.06f), new Vector2(1f, 0.56f), Vector2.zero, Vector2.zero);
         bodyViewport.GetComponent<Image>().color = Color.clear;
 
-        detailBody = CreateText("Body", bodyViewport.transform, string.Empty, 19f, PrimaryTextColor);
+        detailBody = CreateText("Body", bodyViewport.transform, string.Empty, 26f, PrimaryTextColor);
         RectTransform bodyRect = detailBody.rectTransform;
         bodyRect.anchorMin = new Vector2(0f, 1f);
         bodyRect.anchorMax = new Vector2(1f, 1f);
@@ -650,7 +652,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         bodyScroll.scrollSensitivity = 24f;
         bodyScroll.movementType = ScrollRect.MovementType.Clamped;
 
-        TMP_Text acquired = CreateText("Acquired", detailContent.transform, "● ACQUIRED INFORMATION", 13f, AccentColor, FontStyles.Bold);
+        TMP_Text acquired = CreateText("Acquired", detailContent.transform, "取得した情報", 16f, MutedTextColor, FontStyles.Bold);
         SetAnchors(acquired.gameObject, new Vector2(0f, 0f), new Vector2(0.55f, 0.045f), Vector2.zero, Vector2.zero);
         acquired.characterSpacing = 1.5f;
 
@@ -659,14 +661,14 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void BuildFooter(Transform parent)
     {
-        GameObject footer = CreatePanel("Footer", parent, new Color(0.02f, 0.043f, 0.06f, 1f));
+        GameObject footer = CreatePanel("Footer", parent, Color.clear);
         SetAnchors(footer, Vector2.zero, new Vector2(1f, 0.07f), Vector2.zero, Vector2.zero);
 
         TMP_Text help = CreateText("Help", footer.transform, "↑ ↓  項目選択     マウスホイール  スクロール     ESC  閉じる", 15f, MutedTextColor);
         SetAnchors(help.gameObject, new Vector2(0.025f, 0f), new Vector2(0.75f, 1f), Vector2.zero, Vector2.zero);
         help.alignment = TextAlignmentOptions.MidlineLeft;
 
-        TMP_Text tab = CreateText("Tab", footer.transform, "INFORMATION TAB", 14f, AccentColor, FontStyles.Bold);
+        TMP_Text tab = CreateText("Tab", footer.transform, "アーカイブ", 16f, MutedTextColor, FontStyles.Bold);
         SetAnchors(tab.gameObject, new Vector2(0.76f, 0f), new Vector2(0.97f, 1f), Vector2.zero, Vector2.zero);
         tab.alignment = TextAlignmentOptions.MidlineRight;
         tab.characterSpacing = 2f;
@@ -912,13 +914,16 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         GameObject buttonObject = CreatePanel(name, parent, normalColor);
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = buttonObject.GetComponent<Image>();
+        button.targetGraphic.color = Color.white;
+        buttonObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(24f, 10f));
+        buttonObject.AddComponent<ChoiceButtonHoverScale>();
 
         ColorBlock colors = button.colors;
-        colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(1.2f, 1.2f, 1.2f, 1f);
-        colors.pressedColor = new Color(0.72f, 0.9f, 0.92f, 1f);
+        colors.normalColor = normalColor;
+        colors.highlightedColor = new Color(0.28f, 0.28f, 0.28f, 0.85f);
+        colors.pressedColor = new Color(0.08f, 0.08f, 0.08f, 0.85f);
         colors.selectedColor = colors.highlightedColor;
-        colors.disabledColor = new Color(0.65f, 0.65f, 0.65f, 0.72f);
+        colors.disabledColor = new Color(0f, 0f, 0f, 0.3f);
         colors.colorMultiplier = 1f;
         colors.fadeDuration = 0.08f;
         button.colors = colors;
