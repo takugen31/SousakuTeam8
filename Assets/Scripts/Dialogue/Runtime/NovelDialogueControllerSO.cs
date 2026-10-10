@@ -296,7 +296,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (skipConfirmationRoot == null) return;
         Image backdrop = skipConfirmationRoot.GetComponent<Image>();
-        if (backdrop != null) backdrop.color = new Color(0f, 0f, 0f, 0.3f);
+        if (backdrop != null) backdrop.color = new Color(0f, 0f, 0f, 0.45f);
         if (skipConfirmationRoot.transform.childCount > 0)
         {
             GameObject panel = skipConfirmationRoot.transform.GetChild(0).gameObject;
@@ -305,7 +305,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             {
                 image.sprite = null;
                 image.type = Image.Type.Simple;
-                image.color = new Color(0f, 0f, 0f, 0.72f);
+                image.color = new Color(0f, 0f, 0f, 0.90f);
                 if (panel.GetComponent<DialogueWindowFeather>() == null) panel.AddComponent<DialogueWindowFeather>();
             }
         }
@@ -333,11 +333,13 @@ public sealed class NovelDialogueController : MonoBehaviour
                 button.targetGraphic = image;
             }
             ColorBlock colors = button.colors;
-            colors.normalColor = new Color(0f, 0f, 0f, 0.5f);
-            colors.highlightedColor = new Color(0.28f, 0.28f, 0.28f, 0.85f);
-            colors.pressedColor = new Color(0.08f, 0.08f, 0.08f, 0.85f);
+            colors.normalColor = new Color(0.08f, 0.08f, 0.08f, 0.92f);
+            colors.highlightedColor = new Color(0.32f, 0.32f, 0.32f, 1f);
+            colors.pressedColor = new Color(0.03f, 0.03f, 0.03f, 1f);
             colors.selectedColor = colors.normalColor;
             button.colors = colors;
+            if (button.targetGraphic != null)
+                button.targetGraphic.CrossFadeColor(colors.normalColor, 0f, true, true);
             if (button.GetComponent<DialogueWindowFeather>() == null)
                 button.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(24f, 10f));
             if (button.GetComponent<ChoiceButtonHoverScale>() == null)
