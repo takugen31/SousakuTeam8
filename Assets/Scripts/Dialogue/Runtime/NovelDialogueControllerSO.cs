@@ -787,6 +787,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public bool IsDialoguePlaying => isActiveAndEnabled && isPlaying && !isSceneLoading;
     public bool IsAutoPlayEnabled => autoPlayEnabled;
+    public RectTransform ChoiceOptionsRoot => choiceOptionsRoot;
     public string CurrentOperationHelp => isChoiceSelectionOpen
         ? "選択肢を選ぶ：左クリック"
         : isSkipConfirmationOpen

@@ -110,6 +110,17 @@ public sealed class ArchiveMenuUI : MonoBehaviour
             group.interactable = false;
             group.blocksRaycasts = false;
         }
+        foreach (NovelDialogueController dialogue in FindObjectsByType<NovelDialogueController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            RectTransform choices = dialogue.ChoiceOptionsRoot;
+            if (choices == null) continue;
+            CanvasGroup group = choices.GetComponent<CanvasGroup>();
+            if (group == null) group = choices.gameObject.AddComponent<CanvasGroup>();
+            hiddenDialogueWindows.Add((group, group.alpha, group.interactable, group.blocksRaycasts));
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+        }
     }
 
     private void RestoreDialogueWindows()
@@ -180,7 +191,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
         autoButton.onClick.AddListener(() => FindCurrentDialogue()?.ToggleAutoPlay());
         CreateMenuItem("Restart", "最初から", 0.25f).onClick.AddListener(() => restartConfirmation.SetActive(true));
-        contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, Color.black);
+        contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, new Color(0.95f, 0.95f, 0.95f, 1f));
         SetAnchors(contextHelp.gameObject, new Vector2(0.555f, 0.02f), new Vector2(0.555f, 0.22f), Vector2.zero, Vector2.zero);
         contextHelp.alignment = TextAlignmentOptions.MidlineLeft;
         contextHelp.textWrappingMode = TextWrappingModes.NoWrap;
