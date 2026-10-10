@@ -48,6 +48,55 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private GameObject menuRoot;
     private GameObject archiveFrame;
     private GameObject restartConfirmation;
+    private TMP_Text contextHelp;
+
+    private void UpdateContextHelp()
+    {
+        string[] rows = GetCurrentOperationHelp().Split('\n');
+        float labelWidth = 0f;
+        float keyWidth = 0f;
+        float plainWidth = 0f;
+        foreach (string row in rows)
+        {
+            int separator = row.IndexOf('：');
+            if (separator < 0)
+            {
+                plainWidth = Mathf.Max(plainWidth, contextHelp.GetPreferredValues(row).x);
+                continue;
+            }
+            labelWidth = Mathf.Max(labelWidth, contextHelp.GetPreferredValues(row.Substring(0, separator)).x);
+            keyWidth = Mathf.Max(keyWidth, contextHelp.GetPreferredValues(row.Substring(separator + 1)).x);
+        }
+        float colonPosition = labelWidth + 8f;
+        float keyPosition = colonPosition + 25f;
+        var formatted = new List<string>();
+        foreach (string row in rows)
+        {
+            int separator = row.IndexOf('：');
+            formatted.Add(separator < 0 ? row : row.Substring(0, separator) +
+                "<pos=" + colonPosition.ToString(System.Globalization.CultureInfo.InvariantCulture) + ">：<pos=" +
+                keyPosition.ToString(System.Globalization.CultureInfo.InvariantCulture) + ">" + row.Substring(separator + 1));
+        }
+        contextHelp.text = string.Join("\n", formatted);
+        contextHelp.rectTransform.sizeDelta = new Vector2(Mathf.Max(plainWidth, keyPosition + keyWidth) + 4f, 0f);
+    }
+
+    private string GetCurrentOperationHelp()
+    {
+        NovelDialogueController dialogue = FindCurrentDialogue();
+        if (dialogue != null) return dialogue.CurrentOperationHelp;
+        SelectionPartController selection = FindFirstObjectByType<SelectionPartController>();
+        if (selection != null) return selection.CurrentOperationHelp;
+        Chapter1SearchController commonSearch = FindFirstObjectByType<Chapter1SearchController>();
+        if (commonSearch != null) return commonSearch.CurrentOperationHelp;
+        KayoSearchController kayoSearch = FindFirstObjectByType<KayoSearchController>();
+        if (kayoSearch != null) return kayoSearch.CurrentOperationHelp;
+        SousakuTeam8.PuzzleGame.PuzzleGameController puzzle = FindFirstObjectByType<SousakuTeam8.PuzzleGame.PuzzleGameController>();
+        if (puzzle != null) return "ピースを移動：左ドラッグ＆ドロップ";
+        Sousakusai8.MiniGame.CatchMiniGameController catcher = FindFirstObjectByType<Sousakusai8.MiniGame.CatchMiniGameController>();
+        if (catcher != null) return catcher.CurrentOperationHelp;
+        return "ボタンを選ぶ：左クリック";
+    }
     private readonly List<(CanvasGroup group, float alpha, bool interactable, bool blocksRaycasts)> hiddenDialogueWindows = new();
 
     private void HideDialogueWindows()
@@ -99,6 +148,15 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         Button button = CreateButton(name, menuRoot.transform, label, 38f, new Color(0f, 0f, 0f, 0.22f));
         SetAnchors(button.gameObject, new Vector2(0.20f, bottom), new Vector2(0.91f, bottom + 0.09f), Vector2.zero, Vector2.zero);
         button.GetComponentInChildren<TMP_Text>().alignment = TextAlignmentOptions.Center;
+        button.GetComponentInChildren<TMP_Text>().color = Color.white;
+        button.targetGraphic.color = Color.white;
+        ColorBlock colors = button.colors;
+        colors.normalColor = new Color(0f, 0f, 0f, 0.5f);
+        colors.highlightedColor = new Color(0.28f, 0.28f, 0.28f, 0.85f);
+        colors.pressedColor = new Color(0.08f, 0.08f, 0.08f, 0.85f);
+        colors.selectedColor = colors.normalColor;
+        colors.disabledColor = new Color(0f, 0f, 0f, 0.25f);
+        button.colors = colors;
         button.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(30f, 12f));
         button.gameObject.AddComponent<ChoiceButtonHoverScale>();
         return button;
@@ -125,9 +183,11 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
         autoButton.onClick.AddListener(() => FindCurrentDialogue()?.ToggleAutoPlay());
         CreateMenuItem("Restart", "最初から", 0.25f).onClick.AddListener(() => restartConfirmation.SetActive(true));
-        TMP_Text hint = CreateText("CloseHint", menuRoot.transform, "Escで閉じる", 22f, Color.white);
-        SetAnchors(hint.gameObject, new Vector2(0.20f, 0.10f), new Vector2(0.91f, 0.18f), Vector2.zero, Vector2.zero);
-        hint.alignment = TextAlignmentOptions.Center;
+        contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, Color.black);
+        SetAnchors(contextHelp.gameObject, new Vector2(0.555f, 0.02f), new Vector2(0.555f, 0.22f), Vector2.zero, Vector2.zero);
+        contextHelp.alignment = TextAlignmentOptions.MidlineLeft;
+        contextHelp.textWrappingMode = TextWrappingModes.NoWrap;
+        contextHelp.richText = true;
 
         restartConfirmation = CreatePanel("RestartConfirmation", windowRoot.transform, new Color(0f, 0f, 0f, 0.72f));
         Stretch(restartConfirmation.GetComponent<RectTransform>());
@@ -165,6 +225,9 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         NovelDialogueController dialogue = FindCurrentDialogue();
         autoButton.interactable = dialogue != null;
         skipButton.interactable = dialogue != null && dialogue.CanSkipFromMenu;
+        autoLabel.color = autoButton.interactable ? Color.white : new Color(0.65f, 0.65f, 0.65f, 1f);
+        skipButton.GetComponentInChildren<TMP_Text>().color = skipButton.interactable
+            ? Color.white : new Color(0.65f, 0.65f, 0.65f, 1f);
         autoLabel.text = "オート：" + (dialogue != null && dialogue.IsAutoPlayEnabled ? "ON" : "OFF");
     }
 
@@ -232,6 +295,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         Cursor.visible = true;
 
         windowRoot.SetActive(true);
+        UpdateContextHelp();
         HideDialogueWindows();
         ShowMenu();
         canvas.transform.SetAsLastSibling();

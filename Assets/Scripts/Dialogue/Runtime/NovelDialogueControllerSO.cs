@@ -722,6 +722,11 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public bool IsDialoguePlaying => isActiveAndEnabled && isPlaying && !isSceneLoading;
     public bool IsAutoPlayEnabled => autoPlayEnabled;
+    public string CurrentOperationHelp => isChoiceSelectionOpen
+        ? "選択肢を選ぶ：左クリック"
+        : isSkipConfirmationOpen
+            ? "確認・戻るを選ぶ：左クリック"
+            : "会話を送る：左クリック\n文字を全て表示：左クリック";
     public bool CanSkipFromMenu => IsDialoguePlaying && currentScenario != null &&
         !isChapterTransitioning && !isSkipConfirmationOpen && skipConfirmationRoot != null;
 

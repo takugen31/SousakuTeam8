@@ -40,6 +40,11 @@ public sealed class SelectionPartController : MonoBehaviour
     private string pendingSceneName;
     private bool isTransitioning;
     private bool introDismissed;
+    public string CurrentOperationHelp => !introDismissed
+        ? "会話を送る：左／右クリック\n（キャラのアイテム以外）"
+        : confirmationRoot != null && confirmationRoot.activeSelf
+            ? "話す・戻るを選ぶ：左クリック"
+            : "キャラ名を見る：アイテムにカーソル\n話す相手を選ぶ：左クリック";
     private GameObject introDialoguePanel;
     private GameObject introSpeakerPlate;
     private readonly List<Button> selectionButtons = new List<Button>();

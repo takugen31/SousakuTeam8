@@ -145,6 +145,10 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
     }
 
+    public string CurrentOperationHelp => isModalOpen
+        ? "調査画面を閉じる：左クリック"
+        : "気になる場所を調べる：左クリック\n部屋を切り替える：矢印を左クリック";
+
     private void OnDestroy()
     {
         if (itemDialogueController != null)
