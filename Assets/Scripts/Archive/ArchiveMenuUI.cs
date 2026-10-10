@@ -212,7 +212,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         title.alignment = TextAlignmentOptions.MidlineLeft;
         title.characterSpacing = 5f;
 
-        TMP_Text shortcut = CreateText("Shortcut", header.transform, "B  CLOSE", 17f, MutedTextColor, FontStyles.Bold);
+        TMP_Text shortcut = CreateText("Shortcut", header.transform, "ESC  CLOSE", 17f, MutedTextColor, FontStyles.Bold);
         SetAnchors(shortcut.gameObject, new Vector2(0.82f, 0.25f), new Vector2(0.965f, 0.75f), Vector2.zero, Vector2.zero);
         shortcut.alignment = TextAlignmentOptions.Center;
     }
@@ -433,7 +433,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         GameObject footer = CreatePanel("Footer", parent, new Color(0.02f, 0.043f, 0.06f, 1f));
         SetAnchors(footer, Vector2.zero, new Vector2(1f, 0.07f), Vector2.zero, Vector2.zero);
 
-        TMP_Text help = CreateText("Help", footer.transform, "↑ ↓  項目選択     マウスホイール  スクロール     ESC / B  閉じる", 15f, MutedTextColor);
+        TMP_Text help = CreateText("Help", footer.transform, "↑ ↓  項目選択     マウスホイール  スクロール     ESC  閉じる", 15f, MutedTextColor);
         SetAnchors(help.gameObject, new Vector2(0.025f, 0f), new Vector2(0.75f, 1f), Vector2.zero, Vector2.zero);
         help.alignment = TextAlignmentOptions.MidlineLeft;
 
