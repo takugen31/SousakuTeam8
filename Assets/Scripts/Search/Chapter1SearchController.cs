@@ -485,8 +485,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
             false).GetComponent<Image>();
         SetAnchors(
             leftPortrait.gameObject,
-            new Vector2(-0.018f, -0.752f),
-            new Vector2(0.478f, 0.96f));
+            new Vector2(-0.018f, -0.792f),
+            new Vector2(0.478f, 0.92f));
         leftPortrait.preserveAspect = true;
         leftPortrait.enabled = false;
 
@@ -497,8 +497,8 @@ public sealed class Chapter1SearchController : MonoBehaviour
             false).GetComponent<Image>();
         SetAnchors(
             rightPortrait.gameObject,
-            new Vector2(0.522f, -0.752f),
-            new Vector2(1.018f, 0.96f));
+            new Vector2(0.522f, -0.792f),
+            new Vector2(1.018f, 0.92f));
         rightPortrait.preserveAspect = true;
         rightPortrait.enabled = false;
 

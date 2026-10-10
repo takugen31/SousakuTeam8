@@ -158,6 +158,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool omitOuterDialogueQuotes;
 
     [SerializeField] private bool normalizeBustPortraitSizes;
+    [SerializeField] private bool mirrorDoutePortrait;
     private bool rightPortraitBaseCaptured;
     private Vector2 rightPortraitBasePosition;
     private Vector3 rightPortraitBaseScale;
@@ -499,6 +500,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         bodyText = dialogueText;
         omitOuterDialogueQuotes = true;
         normalizeBustPortraitSizes = true;
+        mirrorDoutePortrait = true;
         leftPortraitImage = leftPortrait;
         rightPortraitImage = rightPortrait;
         playbackControlsRoot = null;
@@ -1396,6 +1398,7 @@ public sealed class NovelDialogueController : MonoBehaviour
                 System.StringComparison.Ordinal))
         {
             SetPortrait(leftPortraitImage, portrait);
+            ApplyProtagonistFacing();
         }
         else
         {
@@ -1419,6 +1422,14 @@ public sealed class NovelDialogueController : MonoBehaviour
         // Zoom out around the top center, retaining the head's vertical placement.
         rect.anchoredPosition = rightPortraitBasePosition + Vector2.up *
             (rect.rect.height * (1f - rect.pivot.y) * rightPortraitBaseScale.y * (1f - factor));
+    }
+
+    private void ApplyProtagonistFacing()
+    {
+        if (!mirrorDoutePortrait || protagonistCharacterId != "doute" || leftPortraitImage == null) return;
+        Vector3 scale = leftPortraitImage.rectTransform.localScale;
+        scale.x = -Mathf.Abs(scale.x);
+        leftPortraitImage.rectTransform.localScale = scale;
     }
 
     private void ResetPortraitsForScenario()
@@ -1447,6 +1458,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         SetPortrait(
             leftPortraitImage,
             protagonist.GetPortrait(null));
+        ApplyProtagonistFacing();
     }
 
     private static void SetPortrait(

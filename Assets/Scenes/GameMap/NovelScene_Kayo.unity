@@ -372,8 +372,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1164511897}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: -0.018, y: -0.752}
-  m_AnchorMax: {x: 0.478, y: 0.96}
+  m_AnchorMin: {x: -0.018, y: -0.792}
+  m_AnchorMax: {x: 0.478, y: 0.92}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -760,6 +760,7 @@ MonoBehaviour:
   unknownSpeakerName: ???
   omitOuterDialogueQuotes: 1
   normalizeBustPortraitSizes: 1
+  mirrorDoutePortrait: 1
   startLineId: 
   affectionManager: {fileID: 0}
   backgroundImage: {fileID: 2000001002}
@@ -968,8 +969,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1164511897}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.522, y: -0.752}
-  m_AnchorMax: {x: 1.018, y: 0.96}
+  m_AnchorMin: {x: 0.522, y: -0.792}
+  m_AnchorMax: {x: 1.018, y: 0.92}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
