@@ -2042,10 +2042,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private bool WasDialogueAdvancePressed()
     {
-        Pointer pointer = Pointer.current;
-
-        if (pointer == null ||
-            !pointer.press.wasPressedThisFrame)
+        if (!BrowserGameControls.AdvancePressed)
         {
             return false;
         }
@@ -2057,7 +2054,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         return !RectTransformUtility.RectangleContainsScreenPoint(
             playbackControlsRoot,
-            pointer.position.ReadValue());
+            BrowserGameControls.PointerPosition);
     }
 
     private void ScheduleAutoAdvance()

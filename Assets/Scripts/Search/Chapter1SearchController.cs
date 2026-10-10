@@ -135,10 +135,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
             return;
         }
 
-        Mouse mouse = Mouse.current;
-
-        if (mouse != null &&
-            mouse.leftButton.wasPressedThisFrame &&
+        if (BrowserGameControls.AdvancePressed &&
             Time.frameCount > modalOpenedFrame)
         {
             CloseInspection();

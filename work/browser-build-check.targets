@@ -1,0 +1,11 @@
+<Project>
+  <Import Project="$(MSBuildProjectDirectory)\work\kayo-puzzle-build.targets" />
+  <Target Name="IncludeBrowserBuildScripts" BeforeTargets="CoreCompile">
+    <ItemGroup Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\BrowserGameControls.cs" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(AssemblyName)' == 'Assembly-CSharp-Editor'">
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Editor\BrowserGameBuild.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

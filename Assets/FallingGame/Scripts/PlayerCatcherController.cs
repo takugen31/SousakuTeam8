@@ -36,7 +36,7 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
-            if (game == null || gameCamera == null)
+            if (game == null || gameCamera == null || ArchiveManager.IsOpen)
             {
                 return;
             }
@@ -63,7 +63,8 @@ namespace Sousakusai8.MiniGame
             {
                 targetX += keyboardDirection * keyboardMoveSpeed * Time.deltaTime;
             }
-            else if (canPlayerMove && Mouse.current != null)
+            else if (canPlayerMove && ((!Application.isMobilePlatform && Mouse.current != null) ||
+                Touchscreen.current?.primaryTouch.press.isPressed == true))
             {
                 float distanceToGamePlane = Mathf.Abs(gameCamera.transform.position.z - transform.position.z);
                 Vector3 worldPosition = gameCamera.ScreenToWorldPoint(
@@ -105,7 +106,7 @@ namespace Sousakusai8.MiniGame
 
         private static bool WasJumpPressed()
         {
-            return Keyboard.current != null &&
+            return BrowserGameControls.ConsumeJump() || Keyboard.current != null &&
                 (Keyboard.current.spaceKey.wasPressedThisFrame ||
                  Keyboard.current.wKey.wasPressedThisFrame);
         }
@@ -133,6 +134,13 @@ namespace Sousakusai8.MiniGame
 
         private bool DidMouseMove(out Vector2 currentPosition)
         {
+            if (Touchscreen.current?.primaryTouch.press.isPressed == true)
+            {
+                currentPosition = Touchscreen.current.primaryTouch.position.ReadValue();
+                previousMousePosition = currentPosition;
+                mousePositionInitialized = true;
+                return true;
+            }
             if (Mouse.current == null)
             {
                 currentPosition = previousMousePosition;

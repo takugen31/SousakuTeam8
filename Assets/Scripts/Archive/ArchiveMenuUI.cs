@@ -49,7 +49,17 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void UpdateContextHelp()
     {
-        string[] rows = GetCurrentOperationHelp().Split('\n');
+        string help = GetCurrentOperationHelp();
+        if (Application.isMobilePlatform)
+        {
+            help = help.Replace("左／右クリック", "タップ").Replace("左クリック", "タップ")
+                .Replace("右クリック", "タップ").Replace("左ドラッグ＆ドロップ", "指でドラッグ＆ドロップ")
+                .Replace("アイテムにカーソル", "アイテムをタップ")
+                .Replace("キー／マウスクリック", "画面をタップ")
+                .Replace("A／D・マウス移動", "画面を左右にドラッグ")
+                .Replace("Space／W", "ジャンプボタン").Replace("Shift／タップ", "一掃ボタン");
+        }
+        string[] rows = help.Split('\n');
         float labelWidth = 0f;
         float keyWidth = 0f;
         float plainWidth = 0f;

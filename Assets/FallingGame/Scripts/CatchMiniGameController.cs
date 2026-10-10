@@ -160,6 +160,11 @@ namespace Sousakusai8.MiniGame
         public bool IsGameRunning => phase == GamePhase.Playing;
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
+        public bool CanPlayerSweep => sweepUnlocked;
+        public void UseTouchSweep()
+        {
+            if (IsGameRunning && sweepUnlocked && !ArchiveManager.IsOpen) TryUseSweep();
+        }
         public int CurrentScore => score;
         public string CurrentOperationHelp => phase == GamePhase.AwaitingInput
             ? "ゲーム開始：キー／マウスクリック"
@@ -258,6 +263,7 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
+            if (ArchiveManager.IsOpen) return;
             if (phase == GamePhase.AwaitingInput && WasAnyStartButtonPressed())
             {
                 BeginCountdown();
@@ -322,7 +328,7 @@ namespace Sousakusai8.MiniGame
                 runtimeRenderPipeline = Instantiate(sourcePipelineAsset);
                 runtimeRenderPipeline.name = $"{sourcePipelineAsset.name} (Mini Game Runtime)";
                 runtimeRenderPipeline.hideFlags = HideFlags.HideAndDontSave;
-                runtimeRenderPipeline.renderScale = renderScale;
+                runtimeRenderPipeline.renderScale = Application.isMobilePlatform ? 1f : renderScale;
                 runtimeRenderPipeline.msaaSampleCount = antiAliasingSamples;
                 QualitySettings.renderPipeline = runtimeRenderPipeline;
             }
@@ -940,6 +946,8 @@ namespace Sousakusai8.MiniGame
 
         private static bool WasAnyStartButtonPressed()
         {
+            if (ArchiveManager.IsOpen) return false;
+            if (BrowserGameControls.AdvancePressed) return true;
             if (UnityEngine.InputSystem.Keyboard.current?.anyKey.wasPressedThisFrame == true)
             {
                 return true;

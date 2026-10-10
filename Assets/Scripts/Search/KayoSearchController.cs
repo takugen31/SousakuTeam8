@@ -158,10 +158,7 @@ public sealed class KayoSearchController : MonoBehaviour
             return;
         }
 
-        Mouse mouse = Mouse.current;
-
-        if (mouse != null &&
-            mouse.leftButton.wasPressedThisFrame &&
+        if (BrowserGameControls.AdvancePressed &&
             Time.frameCount > modalOpenedFrame)
         {
             CloseInspection();
