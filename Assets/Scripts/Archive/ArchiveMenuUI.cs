@@ -27,7 +27,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private Canvas canvas;
     private GameObject windowRoot;
     private RectTransform listContent;
-    private TMP_InputField searchInput;
     private TMP_Text countText;
     private TMP_Text detailCategory;
     private TMP_Text detailTitle;
@@ -41,7 +40,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private TMP_Text notificationText;
     private Coroutine notificationCoroutine;
     private GameObject informationRoot;
-    private GameObject operationsRoot;
     private Button autoButton;
     private Button skipButton;
     private TMP_Text autoLabel;
@@ -139,7 +137,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         menuRoot.SetActive(false);
         archiveFrame.SetActive(true);
         windowRoot.GetComponent<Image>().color = BackdropColor;
-        ShowOperations(false);
+        informationRoot.SetActive(true);
         RefreshAll();
     }
 
@@ -230,24 +228,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         autoLabel.text = "オート：" + (dialogue != null && dialogue.IsAutoPlayEnabled ? "ON" : "OFF");
     }
 
-    private void ShowOperations(bool show)
-    {
-        informationRoot.SetActive(!show);
-        operationsRoot.SetActive(show);
-    }
-
-    private void BuildOperations(Transform parent)
-    {
-        operationsRoot = CreatePanel("Operations", parent, PanelColor);
-        SetAnchors(operationsRoot, new Vector2(0f, 0.07f), new Vector2(1f, 0.875f), Vector2.zero, Vector2.zero);
-        TMP_Text heading = CreateText("OperationsHeading", operationsRoot.transform, "操作一覧", 32f, PrimaryTextColor, FontStyles.Bold);
-        SetAnchors(heading.gameObject, new Vector2(0.07f, 0.83f), new Vector2(0.93f, 0.95f), Vector2.zero, Vector2.zero);
-        TMP_Text help = CreateText("OperationsList", operationsRoot.transform,
-            "Esc　：　メニューを閉じる\n↑／↓　：　情報一覧の項目を選択\nマウスホイール　：　情報一覧・本文をスクロール\n左クリック　：　タブ・項目・ボタンを選択\n検索欄をクリックして文字入力　：　情報を検索\n\nオート・スキップ　：　メニューのボタンを左クリック\n（会話中のみ使用できます）", 26f, PrimaryTextColor);
-        SetAnchors(help.gameObject, new Vector2(0.07f, 0.30f), new Vector2(0.93f, 0.82f), Vector2.zero, Vector2.zero);
-        operationsRoot.SetActive(false);
-    }
-
     private ArchiveCategory? selectedCategory;
     private ArchiveEntry selectedEntry;
     private bool isRefreshing;
@@ -257,7 +237,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private bool cursorVisibleBeforeOpen;
 
     public bool IsOpen => windowRoot != null && windowRoot.activeSelf;
-    public bool IsEditingSearch => searchInput != null && searchInput.isFocused;
 
     public void Initialize(ArchiveManager archiveManager, TMP_FontAsset uiFont)
     {
@@ -308,18 +287,13 @@ public sealed class ArchiveMenuUI : MonoBehaviour
             return;
         }
 
-        if (searchInput != null)
-        {
-            searchInput.DeactivateInputField();
-        }
-
         windowRoot.SetActive(false);
         RestoreGameState();
     }
 
     public void HandleKeyboard(Keyboard keyboard)
     {
-        if (keyboard == null || !archiveFrame.activeSelf || !informationRoot.activeSelf || IsEditingSearch || filteredEntries.Count == 0)
+        if (keyboard == null || !archiveFrame.activeSelf || filteredEntries.Count == 0)
         {
             return;
         }
@@ -399,7 +373,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         GameObject frame = CreatePanel("Frame", windowRoot.transform, PanelColor);
         frame.AddComponent<DialogueWindowFeather>();
         archiveFrame = frame;
-        SetAnchors(frame, new Vector2(0.045f, 0.055f), new Vector2(0.955f, 0.945f), Vector2.zero, Vector2.zero);
+        SetAnchors(frame, new Vector2(0.08f, 0.07f), new Vector2(0.92f, 0.93f), Vector2.zero, Vector2.zero);
 
         BuildHeader(frame.transform);
         informationRoot = new GameObject("Information", typeof(RectTransform));
@@ -407,7 +381,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         Stretch(informationRoot.GetComponent<RectTransform>());
         BuildSidebar(informationRoot.transform);
         BuildMainContent(informationRoot.transform);
-        BuildOperations(frame.transform);
         BuildMenu();
         BuildNotification(canvasObject.transform);
 
@@ -420,54 +393,32 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         GameObject header = CreatePanel("Header", parent, Color.clear);
         SetAnchors(header, new Vector2(0f, 0.875f), Vector2.one, Vector2.zero, Vector2.zero);
 
-        TMP_Text eyebrow = CreateText("Eyebrow", header.transform, "集めた情報", 20f, MutedTextColor, FontStyles.Bold);
-        SetAnchors(eyebrow.gameObject, new Vector2(0.028f, 0.57f), new Vector2(0.5f, 0.9f), Vector2.zero, Vector2.zero);
-        eyebrow.alignment = TextAlignmentOptions.BottomLeft;
-        eyebrow.characterSpacing = 4f;
-
         TMP_Text title = CreateText("Title", header.transform, "アーカイブ", 42f, PrimaryTextColor, FontStyles.Bold);
-        SetAnchors(title.gameObject, new Vector2(0.026f, 0.08f), new Vector2(0.5f, 0.62f), Vector2.zero, Vector2.zero);
+        SetAnchors(title.gameObject, new Vector2(0.06f, 0.1f), new Vector2(0.6f, 0.85f), Vector2.zero, Vector2.zero);
         title.alignment = TextAlignmentOptions.MidlineLeft;
         title.characterSpacing = 5f;
 
-        TMP_Text shortcut = CreateText("Shortcut", header.transform, "ESC  CLOSE", 17f, MutedTextColor, FontStyles.Bold);
-        SetAnchors(shortcut.gameObject, new Vector2(0.82f, 0.25f), new Vector2(0.965f, 0.75f), Vector2.zero, Vector2.zero);
-        shortcut.alignment = TextAlignmentOptions.Center;
-        Button back = CreateButton("BackToMenu", header.transform, "メニュー", 22f, AccentSoftColor);
-        SetAnchors(back.gameObject, new Vector2(0.82f, 0.1f), new Vector2(0.965f, 0.9f), Vector2.zero, Vector2.zero);
+        Button back = CreateButton("BackToMenu", parent, "← メニュー", 24f, AccentSoftColor);
+        SetAnchors(back.gameObject, new Vector2(0.78f, 0.03f), new Vector2(0.94f, 0.11f), Vector2.zero, Vector2.zero);
+        back.GetComponentInChildren<TMP_Text>().alignment = TextAlignmentOptions.Center;
         back.onClick.AddListener(ShowMenu);
-        shortcut.gameObject.SetActive(false);
-        Button information = CreateButton("InformationTab", header.transform, "情報", 24f, AccentSoftColor);
-        SetAnchors(information.gameObject, new Vector2(0.51f, 0.2f), new Vector2(0.63f, 0.8f), Vector2.zero, Vector2.zero);
-        information.onClick.AddListener(() => ShowOperations(false));
-        Button operations = CreateButton("OperationsTab", header.transform, "操作・会話", 24f, AccentSoftColor);
-        SetAnchors(operations.gameObject, new Vector2(0.65f, 0.2f), new Vector2(0.8f, 0.8f), Vector2.zero, Vector2.zero);
-        operations.onClick.AddListener(() => ShowOperations(true));
     }
 
     private void BuildSidebar(Transform parent)
     {
         GameObject sidebar = CreatePanel("Sidebar", parent, Color.clear);
-        SetAnchors(sidebar, new Vector2(0f, 0.07f), new Vector2(0.205f, 0.875f), Vector2.zero, Vector2.zero);
-
-        TMP_Text menuLabel = CreateText("MenuLabel", sidebar.transform, "情報一覧", 20f, MutedTextColor, FontStyles.Bold);
-        SetAnchors(menuLabel.gameObject, new Vector2(0.1f, 0.91f), new Vector2(0.9f, 0.97f), Vector2.zero, Vector2.zero);
-        menuLabel.characterSpacing = 3f;
-
-        Button infoTab = CreateButton("InformationTab", sidebar.transform, "◆  情報", 23f, AccentSoftColor);
-        SetAnchors(infoTab.gameObject, new Vector2(0.07f, 0.81f), new Vector2(0.93f, 0.9f), Vector2.zero, Vector2.zero);
-        infoTab.interactable = false;
+        SetAnchors(sidebar, new Vector2(0.04f, 0.14f), new Vector2(0.23f, 0.84f), Vector2.zero, Vector2.zero);
 
         TMP_Text categoryLabel = CreateText("CategoryLabel", sidebar.transform, "分類", 20f, MutedTextColor, FontStyles.Bold);
-        SetAnchors(categoryLabel.gameObject, new Vector2(0.1f, 0.70f), new Vector2(0.9f, 0.76f), Vector2.zero, Vector2.zero);
+        SetAnchors(categoryLabel.gameObject, new Vector2(0.1f, 0.86f), new Vector2(0.9f, 0.96f), Vector2.zero, Vector2.zero);
         categoryLabel.characterSpacing = 3f;
 
-        AddCategoryButton(sidebar.transform, "すべて", null, 0.61f);
-        AddCategoryButton(sidebar.transform, "人物", ArchiveCategory.Person, 0.52f);
-        AddCategoryButton(sidebar.transform, "場所", ArchiveCategory.Place, 0.43f);
-        AddCategoryButton(sidebar.transform, "手がかり", ArchiveCategory.Clue, 0.34f);
-        AddCategoryButton(sidebar.transform, "記録", ArchiveCategory.Record, 0.25f);
-        AddCategoryButton(sidebar.transform, "ガイド", ArchiveCategory.Tips, 0.16f);
+        AddCategoryButton(sidebar.transform, "すべて", null, 0.72f);
+        AddCategoryButton(sidebar.transform, "人物", ArchiveCategory.Person, 0.60f);
+        AddCategoryButton(sidebar.transform, "場所", ArchiveCategory.Place, 0.48f);
+        AddCategoryButton(sidebar.transform, "手がかり", ArchiveCategory.Clue, 0.36f);
+        AddCategoryButton(sidebar.transform, "記録", ArchiveCategory.Record, 0.24f);
+        AddCategoryButton(sidebar.transform, "ガイド", ArchiveCategory.Tips, 0.12f);
 
         countText = CreateText("Count", sidebar.transform, string.Empty, 15f, MutedTextColor);
         SetAnchors(countText.gameObject, new Vector2(0.1f, 0.035f), new Vector2(0.9f, 0.11f), Vector2.zero, Vector2.zero);
@@ -493,48 +444,17 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private void BuildMainContent(Transform parent)
     {
         GameObject main = CreatePanel("InformationContent", parent, Color.clear);
-        SetAnchors(main, new Vector2(0.205f, 0.07f), new Vector2(1f, 0.875f), Vector2.zero, Vector2.zero);
+        SetAnchors(main, new Vector2(0.25f, 0.14f), new Vector2(0.96f, 0.84f), Vector2.zero, Vector2.zero);
 
-        BuildToolbar(main.transform);
         BuildEntryList(main.transform);
         BuildDetail(main.transform);
-    }
-
-    private void BuildToolbar(Transform parent)
-    {
-        TMP_Text heading = CreateText("InformationHeading", parent, "情報アーカイブ", 28f, PrimaryTextColor, FontStyles.Bold);
-        SetAnchors(heading.gameObject, new Vector2(0.035f, 0.875f), new Vector2(0.45f, 0.97f), Vector2.zero, Vector2.zero);
-        heading.alignment = TextAlignmentOptions.MidlineLeft;
-
-        GameObject searchBackground = CreatePanel("Search", parent, PanelLightColor);
-        SetAnchors(searchBackground, new Vector2(0.62f, 0.89f), new Vector2(0.965f, 0.955f), Vector2.zero, Vector2.zero);
-
-        GameObject textArea = new GameObject("Text Area", typeof(RectTransform), typeof(RectMask2D));
-        textArea.transform.SetParent(searchBackground.transform, false);
-        SetAnchors(textArea, new Vector2(0.06f, 0f), new Vector2(0.94f, 1f), Vector2.zero, Vector2.zero);
-
-        TMP_Text placeholder = CreateText("Placeholder", textArea.transform, "タイトル・本文を検索", 20f, MutedTextColor);
-        Stretch(placeholder.rectTransform);
-        placeholder.alignment = TextAlignmentOptions.MidlineLeft;
-        placeholder.fontStyle = FontStyles.Italic;
-
-        TMP_Text inputText = CreateText("Text", textArea.transform, string.Empty, 20f, PrimaryTextColor);
-        Stretch(inputText.rectTransform);
-        inputText.alignment = TextAlignmentOptions.MidlineLeft;
-
-        searchInput = searchBackground.AddComponent<TMP_InputField>();
-        searchInput.textViewport = textArea.GetComponent<RectTransform>();
-        searchInput.textComponent = inputText;
-        searchInput.placeholder = placeholder;
-        searchInput.lineType = TMP_InputField.LineType.SingleLine;
-        searchInput.onValueChanged.AddListener(_ => RefreshAll());
     }
 
     private void BuildEntryList(Transform parent)
     {
         GameObject listPanel = CreatePanel("EntryListPanel", parent, PanelLightColor);
         listPanel.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(24f, 20f));
-        SetAnchors(listPanel, new Vector2(0.03f, 0.04f), new Vector2(0.405f, 0.85f), Vector2.zero, Vector2.zero);
+        SetAnchors(listPanel, new Vector2(0.02f, 0.02f), new Vector2(0.36f, 0.98f), Vector2.zero, Vector2.zero);
 
         GameObject viewport = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
         viewport.transform.SetParent(listPanel.transform, false);
@@ -577,7 +497,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     {
         GameObject panel = CreatePanel("DetailPanel", parent, PanelLightColor);
         panel.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(32f, 24f));
-        SetAnchors(panel, new Vector2(0.425f, 0.04f), new Vector2(0.97f, 0.85f), Vector2.zero, Vector2.zero);
+        SetAnchors(panel, new Vector2(0.39f, 0.02f), new Vector2(0.98f, 0.98f), Vector2.zero, Vector2.zero);
 
         detailEmpty = new GameObject("Empty", typeof(RectTransform));
         detailEmpty.transform.SetParent(panel.transform, false);
@@ -731,18 +651,12 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private void BuildFilteredEntries()
     {
         filteredEntries.Clear();
-        string query = searchInput == null ? string.Empty : searchInput.text.Trim();
 
         foreach (ArchiveEntry entry in manager.Entries)
         {
             if (entry == null ||
                 (!manager.IsEntryUnlocked(entry) && !entry.ShowBeforeUnlock) ||
                 (selectedCategory.HasValue && entry.Category != selectedCategory.Value))
-            {
-                continue;
-            }
-
-            if (!string.IsNullOrEmpty(query) && !MatchesSearch(entry, query))
             {
                 continue;
             }
@@ -757,19 +671,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
                 ? order
                 : string.Compare(left.Title, right.Title, StringComparison.CurrentCulture);
         });
-    }
-
-    private static bool MatchesSearch(ArchiveEntry entry, string query)
-    {
-        return Contains(entry.Title, query) ||
-            Contains(entry.Subtitle, query) ||
-            Contains(entry.Body, query);
-    }
-
-    private static bool Contains(string source, string query)
-    {
-        return !string.IsNullOrEmpty(source) &&
-            source.IndexOf(query, StringComparison.CurrentCultureIgnoreCase) >= 0;
     }
 
     private void RebuildEntryButtons()
