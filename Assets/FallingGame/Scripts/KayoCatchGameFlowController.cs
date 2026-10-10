@@ -242,12 +242,12 @@ namespace Sousakusai8.MiniGame
             dialogueBackground.preserveAspect = false;
 
             leftPortrait = CreateImage("LeftPortrait", dialogueRoot.transform, Color.white, false);
-            SetAnchors(leftPortrait.gameObject, new Vector2(-0.08f, -1.18f), new Vector2(0.54f, 0.96f));
+            SetAnchors(leftPortrait.gameObject, new Vector2(-0.018f, -0.752f), new Vector2(0.478f, 0.96f));
             leftPortrait.preserveAspect = true;
             leftPortrait.enabled = false;
 
             rightPortrait = CreateImage("RightPortrait", dialogueRoot.transform, Color.white, false);
-            SetAnchors(rightPortrait.gameObject, new Vector2(0.46f, -1.18f), new Vector2(1.08f, 0.96f));
+            SetAnchors(rightPortrait.gameObject, new Vector2(0.522f, -0.752f), new Vector2(1.018f, 0.96f));
             rightPortrait.preserveAspect = true;
             rightPortrait.enabled = false;
 

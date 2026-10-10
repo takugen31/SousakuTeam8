@@ -157,6 +157,11 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField, Tooltip("名前付きのセリフは、表示時だけ外側の「」を省略します。原文データは変更しません。")]
     private bool omitOuterDialogueQuotes;
 
+    [SerializeField] private bool normalizeBustPortraitSizes;
+    private bool rightPortraitBaseCaptured;
+    private Vector2 rightPortraitBasePosition;
+    private Vector3 rightPortraitBaseScale;
+
     [SerializeField]
     [FormerlySerializedAs("portraitImage")]
     private Image leftPortraitImage;
@@ -493,6 +498,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         speakerNameText = speakerText;
         bodyText = dialogueText;
         omitOuterDialogueQuotes = true;
+        normalizeBustPortraitSizes = true;
         leftPortraitImage = leftPortrait;
         rightPortraitImage = rightPortrait;
         playbackControlsRoot = null;
@@ -1394,12 +1400,31 @@ public sealed class NovelDialogueController : MonoBehaviour
         else
         {
             SetPortrait(rightPortraitImage, portrait);
+            ApplyBustPortraitSize(line.speakerId);
         }
+    }
+
+    private void ApplyBustPortraitSize(string characterId)
+    {
+        if (!normalizeBustPortraitSizes || rightPortraitImage == null) return;
+        RectTransform rect = rightPortraitImage.rectTransform;
+        if (!rightPortraitBaseCaptured)
+        {
+            rightPortraitBasePosition = rect.anchoredPosition;
+            rightPortraitBaseScale = rect.localScale;
+            rightPortraitBaseCaptured = true;
+        }
+        float factor = characterId == "moteru" ? 0.85f : 1f;
+        rect.localScale = rightPortraitBaseScale * factor;
+        // Zoom out around the top center, retaining the head's vertical placement.
+        rect.anchoredPosition = rightPortraitBasePosition + Vector2.up *
+            (rect.rect.height * (1f - rect.pivot.y) * rightPortraitBaseScale.y * (1f - factor));
     }
 
     private void ResetPortraitsForScenario()
     {
         SetPortrait(rightPortraitImage, null);
+        ApplyBustPortraitSize(null);
 
         if (string.IsNullOrWhiteSpace(protagonistCharacterId))
         {
