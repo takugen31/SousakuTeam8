@@ -36,6 +36,15 @@ public sealed class DialogueWindowFeather : BaseMeshEffect
         if (graphic != null) graphic.SetVerticesDirty();
     }
 
+    public void ConfigureLeftEdgeOnly(float width)
+    {
+        featherWidth = new Vector2(width, 0f);
+        keepRightEdgeOpaque = true;
+        separateVerticalEdges = false;
+        blendIntoImage = null;
+        if (graphic != null) graphic.SetVerticesDirty();
+    }
+
     public void ConfigureNamePlate(Image messageWindow)
     {
         featherWidth = new Vector2(48f, 0f);

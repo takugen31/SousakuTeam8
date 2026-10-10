@@ -335,13 +335,31 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private IEnumerator ShowNotificationRoutine(string entryTitle)
     {
-        notificationText.text = $"NEW INFORMATION  /  {entryTitle}";
+        notificationText.text = $"<color=#FFD34D>New!</color>  /  {entryTitle}";
         notificationRoot.SetActive(true);
-
+        Canvas.ForceUpdateCanvases();
+        RectTransform rect = notificationRoot.GetComponent<RectTransform>();
+        float hiddenX = rect.rect.width + 20f;
+        yield return SlideNotification(rect, hiddenX, 0f);
         yield return new WaitForSecondsRealtime(3.2f);
-
+        yield return SlideNotification(rect, 0f, hiddenX);
         notificationRoot.SetActive(false);
         notificationCoroutine = null;
+    }
+
+    private IEnumerator SlideNotification(RectTransform rect, float startX, float endX)
+    {
+        const float duration = 0.3f;
+        float elapsed = 0f;
+        rect.anchoredPosition = new Vector2(startX, 0f);
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            rect.anchoredPosition = new Vector2(Mathf.Lerp(startX, endX, progress), 0f);
+            yield return null;
+        }
+        rect.anchoredPosition = new Vector2(endX, 0f);
     }
 
     private void RestoreGameState()
@@ -610,17 +628,15 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void BuildNotification(Transform parent)
     {
-        notificationRoot = CreatePanel("ArchiveNotification", parent, new Color(0.025f, 0.12f, 0.15f, 0.97f));
-        SetAnchors(notificationRoot, new Vector2(0.65f, 0.87f), new Vector2(0.97f, 0.95f), Vector2.zero, Vector2.zero);
+        notificationRoot = CreatePanel("ArchiveNotification", parent, new Color(0f, 0f, 0f, 0.82f));
+        SetAnchors(notificationRoot, new Vector2(0.65f, 0.87f), new Vector2(1f, 0.95f), Vector2.zero, Vector2.zero);
         notificationRoot.GetComponent<Image>().raycastTarget = false;
-
-        GameObject accent = CreatePanel("Accent", notificationRoot.transform, AccentColor);
-        SetAnchors(accent, Vector2.zero, new Vector2(0.018f, 1f), Vector2.zero, Vector2.zero);
-        accent.GetComponent<Image>().raycastTarget = false;
+        notificationRoot.AddComponent<DialogueWindowFeather>().ConfigureLeftEdgeOnly(64f);
 
         notificationText = CreateText("Text", notificationRoot.transform, string.Empty, 16f, PrimaryTextColor, FontStyles.Bold);
         SetAnchors(notificationText.gameObject, new Vector2(0.06f, 0f), new Vector2(0.95f, 1f), Vector2.zero, Vector2.zero);
         notificationText.alignment = TextAlignmentOptions.MidlineLeft;
+        notificationText.richText = true;
     }
 
     private void RefreshAll()
