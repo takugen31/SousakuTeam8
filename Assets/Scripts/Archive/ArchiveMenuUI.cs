@@ -688,6 +688,28 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void RebuildEntryButtons()
     {
+        bool sameEntries = entryButtons.Count > 0 && entryButtons.Count == filteredEntries.Count;
+        for (int i = 0; sameEntries && i < entryButtons.Count; i++)
+            sameEntries = entryButtons[i] != null && entryButtons[i].name == $"Entry_{filteredEntries[i].Id}";
+        if (sameEntries)
+        {
+            for (int i = 0; i < entryButtons.Count; i++)
+            {
+                ArchiveEntry entry = filteredEntries[i];
+                Button button = entryButtons[i];
+                bool unlocked = manager.IsEntryUnlocked(entry);
+                bool unread = unlocked && !manager.IsEntryRead(entry);
+                string prefix = unread ? "NEW   " : string.Empty;
+                string title = unlocked ? entry.Title : "？？？？？？";
+                button.GetComponentInChildren<TMP_Text>().text =
+                    $"<color=#{ColorUtility.ToHtmlStringRGB(unread ? AccentColor : MutedTextColor)}>{prefix}{GetCategoryLabel(entry.Category)}</color>\n{title}";
+                ColorBlock colors = button.colors;
+                colors.normalColor = entry == selectedEntry ? AccentSoftColor : PanelLightColor;
+                button.colors = colors;
+                button.interactable = unlocked;
+            }
+            return;
+        }
         foreach (Transform child in listContent)
         {
             child.gameObject.SetActive(false);
@@ -847,6 +869,8 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         text.alignment = TextAlignmentOptions.MidlineLeft;
         text.richText = true;
         text.overflowMode = TextOverflowModes.Ellipsis;
+        // The new Image starts white; apply the initial tint without a transition.
+        button.targetGraphic.CrossFadeColor(colors.normalColor, 0f, true, true);
         return button;
     }
 
