@@ -455,26 +455,26 @@ public sealed class KayoSearchController : MonoBehaviour
             "ItemTitle",
             modalRoot.transform,
             string.Empty,
-            25f,
+            36f,
             Gold,
             FontStyles.Bold);
         SetAnchors(
             modalTitle.gameObject,
-            new Vector2(0.22f, 0.80f),
-            new Vector2(0.78f, 0.87f));
+            new Vector2(0.20f, 0.20f),
+            new Vector2(0.80f, 0.28f));
         modalTitle.alignment = TextAlignmentOptions.Center;
 
         savedMessage = CreateText(
             "SavedMessage",
             modalRoot.transform,
             "情報を保存しました",
-            31f,
+            23f,
             MainText,
             FontStyles.Bold);
         SetAnchors(
             savedMessage.gameObject,
-            new Vector2(0.2f, 0.16f),
-            new Vector2(0.8f, 0.25f));
+            new Vector2(0.2f, 0.13f),
+            new Vector2(0.8f, 0.20f));
         savedMessage.alignment = TextAlignmentOptions.Center;
         savedMessage.characterSpacing = 2f;
 
