@@ -48,6 +48,34 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private GameObject menuRoot;
     private GameObject archiveFrame;
     private GameObject restartConfirmation;
+    private readonly List<(CanvasGroup group, float alpha, bool interactable, bool blocksRaycasts)> hiddenDialogueWindows = new();
+
+    private void HideDialogueWindows()
+    {
+        foreach (DialogueWindowFeather window in FindObjectsByType<DialogueWindowFeather>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            // Hide only the dialogue surfaces, not portraits or the menu itself.
+            if (window.gameObject.name != "DialoguePanel" && window.gameObject.name != "SpeakerPlate") continue;
+            CanvasGroup group = window.GetComponent<CanvasGroup>();
+            if (group == null) group = window.gameObject.AddComponent<CanvasGroup>();
+            hiddenDialogueWindows.Add((group, group.alpha, group.interactable, group.blocksRaycasts));
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+        }
+    }
+
+    private void RestoreDialogueWindows()
+    {
+        foreach (var state in hiddenDialogueWindows)
+        {
+            if (state.group == null) continue;
+            state.group.alpha = state.alpha;
+            state.group.interactable = state.interactable;
+            state.group.blocksRaycasts = state.blocksRaycasts;
+        }
+        hiddenDialogueWindows.Clear();
+    }
 
     private void ShowMenu()
     {
@@ -78,7 +106,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void BuildMenu()
     {
-        menuRoot = CreatePanel("SystemMenu", windowRoot.transform, new Color(0f, 0f, 0f, 0.72f));
+        menuRoot = CreatePanel("SystemMenu", windowRoot.transform, new Color(0f, 0f, 0f, 0.90f));
         SetAnchors(menuRoot, new Vector2(0.66f, 0f), Vector2.one, Vector2.zero, Vector2.zero);
         menuRoot.AddComponent<DialogueWindowFeather>().ConfigureRightMenu();
         TMP_Text title = CreateText("MenuTitle", menuRoot.transform, "メニュー", 46f, Color.white, FontStyles.Bold);
@@ -204,6 +232,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         Cursor.visible = true;
 
         windowRoot.SetActive(true);
+        HideDialogueWindows();
         ShowMenu();
         canvas.transform.SetAsLastSibling();
         RefreshAll();
@@ -270,6 +299,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void RestoreGameState()
     {
+        RestoreDialogueWindows();
         if (!hasCapturedGameState)
         {
             return;
