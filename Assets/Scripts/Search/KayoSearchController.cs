@@ -390,18 +390,25 @@ public sealed class KayoSearchController : MonoBehaviour
         GameObject header = CreateImage(
             "SearchHeader",
             parent,
-            new Color(0.015f, 0.023f, 0.035f, 0.76f),
+            new Color(0f, 0f, 0f, 0.82f),
             false);
-        SetAnchors(header, new Vector2(0f, 0.92f), Vector2.one);
+        RectTransform headerRect = header.GetComponent<RectTransform>();
+        headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.035f, 1f);
+        headerRect.pivot = new Vector2(0f, 1f);
+        headerRect.anchoredPosition = new Vector2(0f, -16f);
+        headerRect.sizeDelta = new Vector2(430f, 72f);
+        header.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(32f, 14f));
 
         TMP_Text title = CreateText(
             "Title",
             header.transform,
             "気になる場所を調べる",
-            22f,
+            30f,
             MainText,
             FontStyles.Bold);
-        SetAnchors(title.gameObject, new Vector2(0.035f, 0f), new Vector2(0.5f, 1f));
+        Stretch(title.rectTransform);
+        title.rectTransform.offsetMin = new Vector2(26f, 8f);
+        title.rectTransform.offsetMax = new Vector2(-26f, -8f);
         title.alignment = TextAlignmentOptions.MidlineLeft;
 
     }
