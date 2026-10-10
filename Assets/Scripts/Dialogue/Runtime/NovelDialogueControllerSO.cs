@@ -33,6 +33,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         QueueResumeLine(lineId, false);
     }
 
+    public static void ResetStoryState()
+    {
+        ResetPendingResumeLine();
+    }
+
     public static void QueueResumeLine(
         string lineId,
         bool fadeInAfterSceneLoad)

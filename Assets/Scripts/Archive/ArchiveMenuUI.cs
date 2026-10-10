@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class ArchiveMenuUI : MonoBehaviour
@@ -44,6 +45,84 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private Button autoButton;
     private Button skipButton;
     private TMP_Text autoLabel;
+    private GameObject menuRoot;
+    private GameObject archiveFrame;
+    private GameObject restartConfirmation;
+
+    private void ShowMenu()
+    {
+        archiveFrame.SetActive(false);
+        menuRoot.SetActive(true);
+        restartConfirmation.SetActive(false);
+        windowRoot.GetComponent<Image>().color = Color.clear;
+    }
+
+    private void ShowArchive()
+    {
+        menuRoot.SetActive(false);
+        archiveFrame.SetActive(true);
+        windowRoot.GetComponent<Image>().color = BackdropColor;
+        ShowOperations(false);
+        RefreshAll();
+    }
+
+    private Button CreateMenuItem(string name, string label, float bottom)
+    {
+        Button button = CreateButton(name, menuRoot.transform, label, 38f, new Color(0f, 0f, 0f, 0.22f));
+        SetAnchors(button.gameObject, new Vector2(0.20f, bottom), new Vector2(0.91f, bottom + 0.09f), Vector2.zero, Vector2.zero);
+        button.GetComponentInChildren<TMP_Text>().alignment = TextAlignmentOptions.Center;
+        button.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(30f, 12f));
+        button.gameObject.AddComponent<ChoiceButtonHoverScale>();
+        return button;
+    }
+
+    private void BuildMenu()
+    {
+        menuRoot = CreatePanel("SystemMenu", windowRoot.transform, new Color(0f, 0f, 0f, 0.72f));
+        SetAnchors(menuRoot, new Vector2(0.66f, 0f), Vector2.one, Vector2.zero, Vector2.zero);
+        menuRoot.AddComponent<DialogueWindowFeather>().ConfigureRightMenu();
+        TMP_Text title = CreateText("MenuTitle", menuRoot.transform, "メニュー", 46f, Color.white, FontStyles.Bold);
+        SetAnchors(title.gameObject, new Vector2(0.20f, 0.79f), new Vector2(0.91f, 0.89f), Vector2.zero, Vector2.zero);
+        title.alignment = TextAlignmentOptions.Center;
+        CreateMenuItem("Archive", "アーカイブ", 0.64f).onClick.AddListener(ShowArchive);
+        skipButton = CreateMenuItem("Skip", "スキップ", 0.51f);
+        skipButton.onClick.AddListener(() =>
+        {
+            NovelDialogueController dialogue = FindCurrentDialogue();
+            if (dialogue == null || !dialogue.CanSkipFromMenu) return;
+            manager.CloseArchive();
+            dialogue.ShowSkipConfirmation();
+        });
+        autoButton = CreateMenuItem("AutoPlay", "オート：OFF", 0.38f);
+        autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
+        autoButton.onClick.AddListener(() => FindCurrentDialogue()?.ToggleAutoPlay());
+        CreateMenuItem("Restart", "最初から", 0.25f).onClick.AddListener(() => restartConfirmation.SetActive(true));
+        TMP_Text hint = CreateText("CloseHint", menuRoot.transform, "Escで閉じる", 22f, Color.white);
+        SetAnchors(hint.gameObject, new Vector2(0.20f, 0.10f), new Vector2(0.91f, 0.18f), Vector2.zero, Vector2.zero);
+        hint.alignment = TextAlignmentOptions.Center;
+
+        restartConfirmation = CreatePanel("RestartConfirmation", windowRoot.transform, new Color(0f, 0f, 0f, 0.72f));
+        Stretch(restartConfirmation.GetComponent<RectTransform>());
+        GameObject box = CreatePanel("Confirmation", restartConfirmation.transform, new Color(0f, 0f, 0f, 0.8f));
+        SetAnchors(box, new Vector2(0.27f, 0.33f), new Vector2(0.73f, 0.67f), Vector2.zero, Vector2.zero);
+        box.AddComponent<DialogueWindowFeather>();
+        TMP_Text warning = CreateText("Warning", box.transform, "進行状況を初期化して、最初から始めますか？", 30f, Color.white, FontStyles.Bold);
+        SetAnchors(warning.gameObject, new Vector2(0.08f, 0.48f), new Vector2(0.92f, 0.86f), Vector2.zero, Vector2.zero);
+        warning.alignment = TextAlignmentOptions.Center;
+        Button restart = CreateButton("Confirm", box.transform, "最初から", 28f, new Color(0.15f, 0.15f, 0.15f, 0.8f));
+        SetAnchors(restart.gameObject, new Vector2(0.10f, 0.16f), new Vector2(0.46f, 0.38f), Vector2.zero, Vector2.zero);
+        restart.onClick.AddListener(() =>
+        {
+            manager.CloseArchive();
+            GameProgress.ResetAll();
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("NovelScene", LoadSceneMode.Single);
+        });
+        Button cancel = CreateButton("Cancel", box.transform, "戻る", 28f, new Color(0.15f, 0.15f, 0.15f, 0.8f));
+        SetAnchors(cancel.gameObject, new Vector2(0.54f, 0.16f), new Vector2(0.90f, 0.38f), Vector2.zero, Vector2.zero);
+        cancel.onClick.AddListener(() => restartConfirmation.SetActive(false));
+        restartConfirmation.SetActive(false);
+    }
 
     private NovelDialogueController FindCurrentDialogue()
     {
@@ -58,7 +137,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         NovelDialogueController dialogue = FindCurrentDialogue();
         autoButton.interactable = dialogue != null;
         skipButton.interactable = dialogue != null && dialogue.CanSkipFromMenu;
-        autoLabel.text = "自動送り：" + (dialogue != null && dialogue.IsAutoPlayEnabled ? "ON" : "OFF");
+        autoLabel.text = "オート：" + (dialogue != null && dialogue.IsAutoPlayEnabled ? "ON" : "OFF");
     }
 
     private void ShowOperations(bool show)
@@ -74,21 +153,8 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         TMP_Text heading = CreateText("OperationsHeading", operationsRoot.transform, "操作一覧", 32f, PrimaryTextColor, FontStyles.Bold);
         SetAnchors(heading.gameObject, new Vector2(0.07f, 0.83f), new Vector2(0.93f, 0.95f), Vector2.zero, Vector2.zero);
         TMP_Text help = CreateText("OperationsList", operationsRoot.transform,
-            "Esc　：　この画面を開く／閉じる\n↑／↓　：　情報一覧の項目を選択\nマウスホイール　：　情報一覧・本文をスクロール\n左クリック　：　タブ・項目・ボタンを選択\n検索欄をクリックして文字入力　：　情報を検索\n\n自動送り・スキップ　：　下のボタンを左クリック\n（会話中のみ使用できます）", 26f, PrimaryTextColor);
+            "Esc　：　メニューを閉じる\n↑／↓　：　情報一覧の項目を選択\nマウスホイール　：　情報一覧・本文をスクロール\n左クリック　：　タブ・項目・ボタンを選択\n検索欄をクリックして文字入力　：　情報を検索\n\nオート・スキップ　：　メニューのボタンを左クリック\n（会話中のみ使用できます）", 26f, PrimaryTextColor);
         SetAnchors(help.gameObject, new Vector2(0.07f, 0.30f), new Vector2(0.93f, 0.82f), Vector2.zero, Vector2.zero);
-        autoButton = CreateButton("AutoPlay", operationsRoot.transform, "自動送り：OFF", 27f, AccentSoftColor);
-        SetAnchors(autoButton.gameObject, new Vector2(0.07f, 0.13f), new Vector2(0.46f, 0.25f), Vector2.zero, Vector2.zero);
-        autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
-        autoButton.onClick.AddListener(() => { FindCurrentDialogue()?.ToggleAutoPlay(); });
-        skipButton = CreateButton("Skip", operationsRoot.transform, "スキップ", 27f, AccentSoftColor);
-        SetAnchors(skipButton.gameObject, new Vector2(0.54f, 0.13f), new Vector2(0.93f, 0.25f), Vector2.zero, Vector2.zero);
-        skipButton.onClick.AddListener(() =>
-        {
-            NovelDialogueController dialogue = FindCurrentDialogue();
-            if (dialogue == null || !dialogue.CanSkipFromMenu) return;
-            manager.CloseArchive();
-            dialogue.ShowSkipConfirmation();
-        });
         operationsRoot.SetActive(false);
     }
 
@@ -138,6 +204,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         Cursor.visible = true;
 
         windowRoot.SetActive(true);
+        ShowMenu();
         canvas.transform.SetAsLastSibling();
         RefreshAll();
     }
@@ -160,7 +227,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     public void HandleKeyboard(Keyboard keyboard)
     {
-        if (keyboard == null || IsEditingSearch || filteredEntries.Count == 0)
+        if (keyboard == null || !archiveFrame.activeSelf || !informationRoot.activeSelf || IsEditingSearch || filteredEntries.Count == 0)
         {
             return;
         }
@@ -237,6 +304,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         Stretch(windowRoot.GetComponent<RectTransform>());
 
         GameObject frame = CreatePanel("Frame", windowRoot.transform, PanelColor);
+        archiveFrame = frame;
         SetAnchors(frame, new Vector2(0.045f, 0.055f), new Vector2(0.955f, 0.945f), Vector2.zero, Vector2.zero);
 
         BuildHeader(frame.transform);
@@ -247,6 +315,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         BuildMainContent(informationRoot.transform);
         BuildOperations(frame.transform);
         BuildFooter(frame.transform);
+        BuildMenu();
         BuildNotification(canvasObject.transform);
 
         windowRoot.SetActive(false);
@@ -271,6 +340,10 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         TMP_Text shortcut = CreateText("Shortcut", header.transform, "ESC  CLOSE", 17f, MutedTextColor, FontStyles.Bold);
         SetAnchors(shortcut.gameObject, new Vector2(0.82f, 0.25f), new Vector2(0.965f, 0.75f), Vector2.zero, Vector2.zero);
         shortcut.alignment = TextAlignmentOptions.Center;
+        Button back = CreateButton("BackToMenu", header.transform, "メニュー", 22f, AccentSoftColor);
+        SetAnchors(back.gameObject, new Vector2(0.82f, 0.1f), new Vector2(0.965f, 0.9f), Vector2.zero, Vector2.zero);
+        back.onClick.AddListener(ShowMenu);
+        shortcut.gameObject.SetActive(false);
         Button information = CreateButton("InformationTab", header.transform, "情報", 24f, AccentSoftColor);
         SetAnchors(information.gameObject, new Vector2(0.51f, 0.2f), new Vector2(0.63f, 0.8f), Vector2.zero, Vector2.zero);
         information.onClick.AddListener(() => ShowOperations(false));

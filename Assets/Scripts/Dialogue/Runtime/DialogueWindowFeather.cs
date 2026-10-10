@@ -21,6 +21,14 @@ public sealed class DialogueWindowFeather : BaseMeshEffect
     [SerializeField, Range(0f, 1f)] private float topEdgeOpacity = 0.8f;
     [SerializeField, Tooltip("重なる本文のImage。重なり部分が二重に暗くなるのを防ぎます。")]
     private Image blendIntoImage;
+    [SerializeField] private bool keepRightEdgeOpaque;
+
+    public void ConfigureRightMenu()
+    {
+        featherWidth = new Vector2(110f, 70f);
+        keepRightEdgeOpaque = true;
+        if (graphic != null) graphic.SetVerticesDirty();
+    }
 
     public void ConfigureFeather(Vector2 width)
     {
@@ -97,7 +105,10 @@ public sealed class DialogueWindowFeather : BaseMeshEffect
             fade = fade * fade * (3f - 2f * fade);
             verticalOpacity = Mathf.Lerp(Mathf.Clamp01(topEdgeOpacity), 1f, fade);
         }
-        return EdgeOpacity(x, rect.width, horizontal) * verticalOpacity;
+        float horizontalOpacity = keepRightEdgeOpaque && horizontal > 0f
+            ? Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(x / horizontal))
+            : EdgeOpacity(x, rect.width, horizontal);
+        return horizontalOpacity * verticalOpacity;
     }
 
     private List<float> BuildVerticalAxis(float height, int steps)
