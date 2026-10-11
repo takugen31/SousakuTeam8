@@ -1,7 +1,21 @@
 <Project>
+  <!-- Ignore only deleted browser-check files in stale Unity-generated IDE projects. -->
+  <Target Name="RemoveStaleBrowserChecks" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Compile Remove="Assets\Scripts\BrowserGameControls.cs"
+               Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Scripts\BrowserGameControls.cs')" />
+      <Compile Remove="Assets\Editor\BrowserGameBuild.cs"
+               Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Editor\BrowserGameBuild.cs')" />
+      <Compile Remove="Assets\Editor\CatchSkipChecks.cs"
+               Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Editor\CatchSkipChecks.cs')" />
+    </ItemGroup>
+  </Target>
   <!-- Include the new script even before Unity regenerates its IDE project. -->
   <Target Name="IncludeKayoPuzzleBridge" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
     <ItemGroup>
+      <_ExistingStoryMusic Include="@(Compile)" Condition="'%(Compile.Filename)' == 'StoryMusicController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\StoryMusicController.cs"
+               Condition="'@(_ExistingStoryMusic)' == ''" />
       <_ExistingAdvanceMarkSet Include="@(Compile)" Condition="'%(Compile.Filename)' == 'DialogueAdvanceMarkSet'" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\DialogueAdvanceMarkSet.cs"
                Condition="'@(_ExistingAdvanceMarkSet)' == ''" />
