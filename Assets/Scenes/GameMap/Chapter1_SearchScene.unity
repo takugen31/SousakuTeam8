@@ -230,6 +230,9 @@ MonoBehaviour:
   uiFont: {fileID: 11400000, guid: 605d5d10cb9d13f45b4c5b4e27b115b4, type: 2}
   itemDialogueScenario: {fileID: 11400000, guid: b7f3392d3fa54cc9b5dcad6e29c1e9c1, type: 2}
   dialogueCharacterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
+  kayoAdvanceMark: {fileID: -3340895152570392092, guid: e035f7301bbad7c4e8f00898dff70e7b, type: 3}
+  moteruAdvanceMark: {fileID: -1701044484411470299, guid: 5abaf35f412e3ca4099b5d1ccaf51fe3, type: 3}
+  yowashiAdvanceMark: {fileID: -7030727773173699788, guid: f1b4c9f048c99ac4fa412de3909a4448, type: 3}
   sceneFadeInDuration: 1
   fadeOutDuration: 2.5
   postFadeDelay: 2

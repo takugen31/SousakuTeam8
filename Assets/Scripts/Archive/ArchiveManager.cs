@@ -121,9 +121,7 @@ public sealed class ArchiveManager : MonoBehaviour
             return;
         }
 
-        bool isEditingSearch = menu != null && menu.IsEditingSearch;
-
-        if (keyboard.bKey.wasPressedThisFrame && !isEditingSearch)
+        if (keyboard.escapeKey.wasPressedThisFrame)
         {
             ToggleArchive();
             return;
@@ -131,12 +129,6 @@ public sealed class ArchiveManager : MonoBehaviour
 
         if (!IsOpen)
         {
-            return;
-        }
-
-        if (keyboard.escapeKey.wasPressedThisFrame)
-        {
-            CloseArchive();
             return;
         }
 

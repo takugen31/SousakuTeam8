@@ -27,8 +27,8 @@ MonoBehaviour:
   - id: system.archive_controls
     category: 4
     title: 情報画面の操作
-    subtitle: Bキーから情報タブを開きます。
-    body: "Bキーでアーカイブを開閉します。\n\n上下キーで項目を選択し、マウスホイールで一覧や本文をスクロールできます。ESCキーでも画面を閉じられます。"
+    subtitle: Escキーから情報タブを開きます。
+    body: "Escキーでアーカイブを開閉します。\n\n上下キーで項目を選択し、マウスホイールで一覧や本文をスクロールできます。"
     icon: {fileID: 0}
     acquisitionHint:
     sortOrder: 10

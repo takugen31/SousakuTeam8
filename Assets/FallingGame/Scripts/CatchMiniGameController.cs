@@ -161,6 +161,13 @@ namespace Sousakusai8.MiniGame
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
         public int CurrentScore => score;
+        public string CurrentOperationHelp => phase == GamePhase.AwaitingInput
+            ? "ゲーム開始：キー／マウスクリック"
+            : CanPlayerMove
+                ? "左右移動：A／D・マウス移動" +
+                    (jumpUnlocked ? "\nジャンプ：Space／W" : "") +
+                    (sweepUnlocked ? "\n一掃：Shift／右クリック" : "")
+                : "ゲーム終了・演出中";
 
         private void Awake()
         {

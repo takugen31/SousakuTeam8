@@ -15,6 +15,7 @@ public static class GameProgress
     /// </summary>
     public static void ResetAll()
     {
+        NovelDialogueController.ResetStoryState();
         PlayerPrefs.DeleteKey(ArchiveSaveKey);
         PlayerPrefs.DeleteKey(AffectionSaveKey);
         PlayerPrefs.DeleteKey(Chapter1SearchSaveKey);
