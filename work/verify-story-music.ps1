@@ -78,16 +78,49 @@ $checks = @(
     @('Chapter_Kayo_6', 'chapter_kayo_6_040', 'Nostalgic'),
     @('Chapter3', 'chapter3_009', 'Quiet'),
     @('Chapter3', 'chapter3_010', 'Mystery'),
-    @('Prologue1', 'prologue1_005', 'stop')
+    @('Prologue1', 'prologue1_005', 'stop'),
+    @('Chapter_Yowashi_1', 'chapter_yowashi_1_028', 'Quiet'),
+    @('Chapter_Yowashi_1', 'chapter_yowashi_1_035', 'Mystery'),
+    @('Chapter_Yowashi_Diary', 'chapter_yowashi_diary_005', 'Melancholy'),
+    @('Chapter_Yowashi_Diary', 'chapter_yowashi_diary_013', 'Quiet'),
+    @('Chapter_Yowashi_Diary', 'chapter_yowashi_diary_015', 'Mystery'),
+    @('Chapter_Yowashi_BeforeCatch', 'chapter_yowashi_beforecatch_005', 'Mystery'),
+    @('Chapter_Yowashi_BeforeCatch', 'chapter_yowashi_beforecatch_019', 'Pop'),
+    @('Chapter_Yowashi_CatchSuccess', 'chapter_yowashi_catchsuccess_001', 'Pop'),
+    @('Chapter_Yowashi_CatchSuccess', 'chapter_yowashi_catchsuccess_012', 'Quiet'),
+    @('Chapter_Yowashi_CatchSuccess', 'chapter_yowashi_catchsuccess_015', 'Mystery'),
+    @('Chapter_Yowashi_CatchFailure', 'chapter_yowashi_catchfailure_001', 'Quiet'),
+    @('Chapter_Yowashi_CatchFailure', 'chapter_yowashi_catchfailure_009', 'Melancholy'),
+    @('Chapter_Yowashi_MedicalBook', 'chapter_yowashi_medicalbook_006', 'Mystery'),
+    @('Chapter_Yowashi_Tennis', 'chapter_yowashi_tennis_021', 'Pop'),
+    @('Chapter_Yowashi_Tennis', 'chapter_yowashi_tennis_024', 'Quiet'),
+    @('Chapter_Yowashi_Tennis', 'chapter_yowashi_tennis_027', 'Panic'),
+    @('Chapter_Yowashi_Consultation', 'chapter_yowashi_consultation_004', 'Mystery'),
+    @('Chapter_Yowashi_Rescue', 'chapter_yowashi_rescue_014', 'Panic'),
+    @('Chapter_Yowashi_Rescue', 'chapter_yowashi_rescue_018', 'Nostalgic'),
+    @('Chapter_Yowashi_Rescue', 'chapter_yowashi_rescue_035', 'Nostalgic'),
+    @('Chapter_Yowashi_Rescue', 'chapter_yowashi_rescue_039', 'Melancholy'),
+    @('Chapter_Yowashi_Rescue', 'chapter_yowashi_rescue_042', 'Melancholy')
 )
 foreach ($check in $checks) {
     $actual = [StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $scenarios[$check[0]], $check[1])
     if ($actual -ne $check[2]) { throw "Branch/resume mismatch: $($check[1]) = $actual" }
 }
-if ($plan.dialogueScenes -contains 'NovelScene_Moteru' -or $plan.dialogueScenes -contains 'NovelScene_Yowashi') { throw 'Unapproved route music enabled' }
+if ($plan.dialogueScenes -contains 'NovelScene_Moteru' -or $plan.dialogueScenes -contains 'falling_verMoteru') { throw 'Unapproved route music enabled' }
+if ($plan.dialogueScenes -notcontains 'NovelScene_Yowashi' -or $plan.dialogueScenes -notcontains 'falling_verYowashi') { throw 'Yowashi music disabled' }
+$yowashiScenarios = @(Get-ChildItem (Join-Path $root 'Assets/Dialogue/Data') -Filter 'Chapter_Yowashi_*.asset')
+foreach ($scenario in $yowashiScenarios) {
+    if (-not $scenarios.ContainsKey($scenario.BaseName)) { throw "Yowashi scenario missing: $($scenario.BaseName)" }
+}
 $unmapped = [StoryMusicCueVerification.DialogueScenarioSO]::new()
-$unmapped.name = 'Chapter_Yowashi_1'
+$unmapped.name = 'Chapter_Moteru_1'
 if ([StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $unmapped, 'unknown')) { throw 'Unmapped route received music' }
+if (-not [StoryMusicCueVerification.Resolver]::ShouldKeepPuzzleMusic('PuzzleGame', 'NovelScene_Yowashi')) { throw 'Yowashi puzzle music lost' }
+if (-not [StoryMusicCueVerification.Resolver]::ShouldKeepPuzzleMusic('PuzzleGame', 'Chapter_Kayo_SearchScene')) { throw 'Kayo puzzle music lost' }
+foreach ($origin in @('NovelScene_Moteru', 'Title', 'PuzzleGame', '')) {
+    if ([StoryMusicCueVerification.Resolver]::ShouldKeepPuzzleMusic('PuzzleGame', $origin)) { throw "Unapproved puzzle origin: $origin" }
+}
+if ([StoryMusicCueVerification.Resolver]::ShouldKeepPuzzleMusic('Title', 'NovelScene_Yowashi')) { throw 'Puzzle rule leaked into Title' }
 foreach ($cue in $plan.sceneCues) {
     if (-not (Test-Path (Join-Path $root ('Assets/Resources/StoryMusic/Tracks/' + $cue.track + '.mp3')))) { throw 'Missing scene track' }
 }

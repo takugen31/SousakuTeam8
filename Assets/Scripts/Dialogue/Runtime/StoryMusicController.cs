@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Common/Kayo BGM cues live outside the scenario text and CSV importer.</summary>
+/// <summary>Common/Kayo/Yowashi BGM cues live outside the scenario text and CSV importer.</summary>
 public sealed class StoryMusicController : MonoBehaviour
 {
     [Serializable] public sealed class Cue
@@ -137,15 +137,21 @@ public sealed class StoryMusicController : MonoBehaviour
         return -1;
     }
 
+    public static bool ShouldKeepPuzzleMusic(string sceneName, string originSceneName)
+    {
+        return sceneName == "PuzzleGame" &&
+            (originSceneName == "Chapter_Kayo_SearchScene" || originSceneName == "NovelScene_Yowashi");
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (plan == null) return;
         if (mode == LoadSceneMode.Additive) return;
         SceneCue cue = Array.Find(plan.sceneCues, item => item.scene == scene.name);
         if (cue != null) PlayTrack(cue.track);
-        else if (scene.name == "PuzzleGame" && previousScene == "Chapter_Kayo_SearchScene")
+        else if (ShouldKeepPuzzleMusic(scene.name, previousScene))
         {
-            // Keep the exploration music through Kayo's diary puzzle.
+            // Keep the clue-discovery music through either route's diary puzzle.
         }
         else if (Array.IndexOf(plan.dialogueScenes, scene.name) < 0)
         {
