@@ -1228,6 +1228,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         currentLine = line;
         autoAdvanceAt = -1f;
 
+        StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
+
         ApplyBackground(line);
         ApplyAffectionChanges(line);
         ApplyArchiveUnlocks(line);

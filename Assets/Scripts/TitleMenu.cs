@@ -40,6 +40,7 @@ public class TitleMenu : MonoBehaviour
     public void SetBGM(bool enabled)
     {
         bgmSource.mute = !enabled;
+        StoryMusicController.SetEnabled(enabled);
     }
 
     private IEnumerator FadeIn()
