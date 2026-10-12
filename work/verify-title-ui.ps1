@@ -8,7 +8,7 @@ Assert-Title ($title.Contains('new Vector2(1920f, 1080f)') -and $title.Contains(
 Assert-Title ($title.Contains('label.alignment = TextAlignmentOptions.Center') -and $title.Contains('image.sprite = null')) 'Legacy button visuals remain'
 Assert-Title ($title.Contains('fadePanel.transform.SetAsLastSibling()')) 'Transition fade no longer covers the new title layout'
 Assert-Title ($title.Contains('SetBGM(bgmSource.mute)') -and $title.Contains('StoryMusicController.SetEnabled(enabled)')) 'BGM control is disconnected'
-$centers = @(0.36,0.265,0.17)
+$centers = @(0.405,0.265,0.17)
 $heights = @(72,66,66)
 for ($i = 0; $i -lt $centers.Count - 1; $i++) {
     $gap = ($centers[$i] - $centers[$i+1]) * 1080 - ($heights[$i] + $heights[$i+1])/2
@@ -16,7 +16,7 @@ for ($i = 0; $i -lt $centers.Count - 1; $i++) {
 }
 Assert-Title ($title.Contains('new Vector2(0.5f, 0.65f)') -and $title.Contains('text.fontSize = 126f')) 'Logo hierarchy changed'
 Assert-Title ($title.Contains('new Vector2(0.72f, 0.095f)')) 'Audio control is not inset toward the center'
-Assert-Title ($title.Contains('new Vector2(0.5f, 0.095f)') -and $title.Contains('text.color = Color.black')) 'Credit is not centered in black below quit'
+Assert-Title ($title.Contains('new Vector2(0.5f, 0.085f)') -and $title.Contains('Created by')) 'Credit is not centered below quit'
 Assert-Title ($title.Contains('Destroy(titleLetterMaterial)') -and $title.Contains('TitleMenuFocus')) 'Material cleanup or focus feedback missing'
-Assert-Title ((0.65 * 1080 - 190/2) -gt (0.36 * 1080 + 72/2 + 100)) 'Logo and actions are crowded'
+Assert-Title ((0.65 * 1080 - 190/2) -gt (0.405 * 1080 + 72/2 + 100)) 'Logo and actions are crowded'
 'PASS: centered title hierarchy, compact actions, spacing, shade, fade layering and BGM wiring.'

@@ -72,7 +72,7 @@ public class TitleMenu : MonoBehaviour
         shade.rectTransform.anchorMax = Vector2.one;
         shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
         shade.gameObject.AddComponent<TitleBottomShade>();
-        ConfigureTitleButton(start, canvas.transform, 0.36f, 32f, new Vector2(390f, 72f));
+        ConfigureTitleButton(start, canvas.transform, 0.405f, 32f, new Vector2(390f, 72f));
         ConfigureTitleButton(load, canvas.transform, 0.265f, 30f, new Vector2(350f, 66f));
         if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.17f, 30f, new Vector2(350f, 66f));
 
@@ -106,10 +106,14 @@ public class TitleMenu : MonoBehaviour
             else if (text.name == "TeamText")
             {
                 text.transform.SetParent(canvas.transform, false);
-                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.095f), new Vector2(470f, 48f));
-                text.color = Color.black;
+                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.085f), new Vector2(470f, 64f));
+                text.color = new Color(0.035f, 0.09f, 0.14f, 0.85f);
                 text.font = font;
-                text.fontSize = 24f;
+                text.text = "<size=15>Created by</size>\n<size=21>新入生創作祭8班</size>";
+                text.richText = true;
+                text.fontStyle = FontStyles.Normal;
+                text.fontSize = 21f;
+                text.lineSpacing = 4f;
                 text.enableAutoSizing = false;
                 text.alignment = TextAlignmentOptions.Center;
                 text.textWrappingMode = TextWrappingModes.NoWrap;
