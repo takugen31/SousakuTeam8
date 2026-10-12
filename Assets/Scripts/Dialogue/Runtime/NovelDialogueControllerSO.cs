@@ -1330,8 +1330,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (chapterTransitionOverlay != null) chapterTransitionOverlay.transform.SetAsLastSibling();
         while (isChapterTransitioning || ArchiveManager.IsOpen) yield return null;
         float elapsed = 0f;
-        // The available sprite ends near the knees. Scan that lower edge up to the face.
-        const float scanDuration = 7.2f, faceHold = 0.6f;
+        // Start above the cropped leg edge so the unfinished lower silhouette stays off screen.
+        const float scanDuration = 9.5f, faceHold = 0.6f;
         while (elapsed < scanDuration + faceHold)
         {
             if (ArchiveManager.IsOpen) { yield return null; continue; }
@@ -1375,7 +1375,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private static void SetMoteruLookPose(Image room, Image portrait, Vector2 viewportSize, float progress)
     {
-        float centerY = Mathf.Lerp(0.18f, 0.82f, progress);
+        float centerY = Mathf.Lerp(0.27f, 0.82f, progress);
         RectTransform rect = portrait.rectTransform;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         float height = viewportSize.y * 2.4f;
