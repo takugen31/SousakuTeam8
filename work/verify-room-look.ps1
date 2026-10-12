@@ -33,7 +33,7 @@ $returnBlock = $source.Substring($source.IndexOf('private IEnumerator ReturnLook
 Assert-Room ($returnBlock.IndexOf('yield return FadeLookReturn(0f, 1f)') -lt $returnBlock.IndexOf('RestoreRoomLookPresentation()') -and $returnBlock.IndexOf('RestoreRoomLookPresentation()') -lt $returnBlock.IndexOf('yield return FadeLookReturn(1f, 0f)')) 'Normal view is restored before reaching black'
 'PASS: waking cue, hidden presentation, cleanup, Esc pause, input guards, fade return, and 3130 viewport coverage samples.'
 Assert-Room ($source.Contains('line.lineId == "chapter1_001" && line.speakerId == "moteru"')) 'Moteru first-appearance cue missing'
-Assert-Room ($source.Contains('portrait.sprite = rightPortraitImage.sprite') -and $source.Contains('line.speakerId == "moteru" ? 0.27f : 0.18f') -and $source.Contains('Mathf.Lerp(startCenter, faceCenter, progress)')) 'Scan does not use per-character framing and the current portrait'
+Assert-Room ($source.Contains('portrait.sprite = rightPortraitImage.sprite') -and $source.Contains('line.speakerId == "moteru" ? 0.27f : 0.50f') -and $source.Contains('Mathf.Lerp(startCenter, faceCenter, progress)')) 'Scan does not use per-character knee framing and the current portrait'
 Assert-Room ($source.Contains('scanDuration = 9.5f, faceHold = 0.6f') -and $source.Contains('yield return FadeLookReturn(0f, 1f)')) 'Slow tilt, face hold, or return fade missing'
 $previousY = 0.27
 for ($i = 0; $i -le 950; $i++) {
@@ -51,12 +51,13 @@ Assert-Room ($source.Contains('line.lineId == "chapter2_kayo_001" && line.speake
 Assert-Room ($source.Contains('shownIntroductionLookIds.Add(line.lineId)') -and $source.Contains('shownIntroductionLookIds.Clear()')) 'One-time introduction guards/reset missing'
 Assert-Room ($source.Contains('line.speakerId == "kayo" ? 0.84f : line.speakerId == "yowashi" ? 0.89f : 0.82f')) 'Per-character face centers missing'
 foreach ($face in @(0.84,0.89)) {
-    $last=0.18
+    $last=0.50
     for ($i=0; $i -le 950; $i++) {
-        $p=Smooth ($i/950.0); $y=0.18+($face-0.18)*$p
+        $p=Smooth ($i/950.0); $y=0.50+($face-0.50)*$p
         Assert-Room ($y -ge $last) 'Introduction camera reverses'
         $last=$y
     }
     Assert-Room ([Math]::Abs((0.5-$face)*2.4+($face-0.5)*2.4) -lt 0.001) 'Face not centered at end'
 }
-'PASS: Kayo/Yowashi self-introduction cues, one-time guards, shared entrance routine and feet-to-face framing.'
+Assert-Room ((0.05-0.50)*2.4 -lt -0.5 -and (0.31-0.50)*2.4 -gt -0.5) 'Feet visible or knee reference is outside starting frame'
+'PASS: Kayo/Yowashi self-introduction cues, one-time guards, shared entrance routine and knees-to-face framing.'

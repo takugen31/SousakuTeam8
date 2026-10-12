@@ -1400,13 +1400,13 @@ public sealed class NovelDialogueController : MonoBehaviour
         Image room = CreateRoomLookImage(viewport, "RoomBehindCharacter");
         Image portrait = CreateRoomLookImage(viewport, "CharacterCloseUp");
         portrait.sprite = rightPortraitImage.sprite;
-        float startCenter = line.speakerId == "moteru" ? 0.27f : 0.18f;
+        float startCenter = line.speakerId == "moteru" ? 0.27f : 0.50f;
         float faceCenter = line.speakerId == "kayo" ? 0.84f : line.speakerId == "yowashi" ? 0.89f : 0.82f;
         SetCharacterLookPose(room, portrait, viewport.rect.size, 0f, startCenter, faceCenter);
         if (chapterTransitionOverlay != null) chapterTransitionOverlay.transform.SetAsLastSibling();
         while (isChapterTransitioning || ArchiveManager.IsOpen) yield return null;
         float elapsed = 0f;
-        // Moteru starts above its cropped leg edge; full sprites start near the feet.
+        // Full sprites begin with the knees near the screen bottom, matching Moteru's framing.
         const float scanDuration = 9.5f, faceHold = 0.6f;
         while (elapsed < scanDuration + faceHold)
         {
