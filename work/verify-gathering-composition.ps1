@@ -1,0 +1,19 @@
+$ErrorActionPreference = 'Stop'
+$root=Split-Path $PSScriptRoot -Parent
+$source=Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+function Assert-Gather($condition,$message) { if (-not $condition) { throw $message } }
+$start=$source.IndexOf('private void StartGatheringComposition')
+$end=$source.IndexOf('private void StartSearchPortraitSlide',$start)
+$effect=$source.Substring($start,$end-$start)
+Assert-Gather ($effect.Contains('StartsWith("chapter1_kayo_", StringComparison.Ordinal)') -and $effect.Contains('StartsWith("chapter1_yowashi_", StringComparison.Ordinal)') -and -not $effect.Contains('chapter2_')) 'Gathering scope incorrect'
+Assert-Gather ($effect.Contains('SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, -0.91f') -and $effect.Contains('SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f')) 'Portrait framing missing'
+Assert-Gather ($effect.Contains('new Vector2(0.5f, 0.5f), 1.35f') -and $effect.Contains('gatheringDivider.color = Color.black') -and $effect.Contains('ConfigureFeather(new Vector2(viewport.x * 0.045f, 0f))')) 'Zoomed background or horizontal divider feather missing'
+Assert-Gather ($effect.Contains('width * 0.5f') -and $effect.Contains('typeof(RectMask2D)')) 'Portrait halves can overlap'
+Assert-Gather ($effect.Contains('SetSiblingIndex(gatheringRightFrame.GetSiblingIndex() + 1)') -and $effect.Contains('gatheringDivider.raycastTarget = false')) 'Divider layering/input safety incorrect'
+Assert-Gather (-not $effect.Contains('HideLookPresentation') -and $effect.Contains('RestorePortraitPose')) 'Dialogue hidden or original layout not restored'
+# Doute's hair top and face are inside the viewport; target eyes are above it and mouths below it.
+Assert-Gather (-0.91+(1-0.5)*2.7 -lt 0.5 -and -0.91+(0.9-0.5)*2.7 -gt -0.5) 'Doute face/head out of frame'
+foreach($pair in @(@(0.844,0.818,0.83),@(0.886,0.866,0.87))) {
+    Assert-Gather (0.5+($pair[0]-$pair[2])*3.1 -gt 0.5 -and 0.5+($pair[1]-$pair[2])*3.1 -lt 0.5) 'Target eye/mouth crop incorrect'
+}
+'PASS: gathering-only split composition, visible Doute face, cropped target eyes with mouth visible, zoomed background, center feathered divider, masks and cleanup.'

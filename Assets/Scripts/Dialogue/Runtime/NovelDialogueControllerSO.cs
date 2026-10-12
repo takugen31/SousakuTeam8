@@ -288,6 +288,13 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Vector2 searchDouteOriginalPosition;
     private Color searchSpeakerOriginalColor;
     private int searchPortraitOriginalSibling;
+    private bool isGatheringCompositionActive;
+    private SearchPortraitPose gatheringLeftPose, gatheringRightPose;
+    private Image gatheringBackground;
+    private Image gatheringDivider;
+    private RectTransform gatheringLeftFrame, gatheringRightFrame;
+    private Transform gatheringLeftParent, gatheringRightParent;
+    private int gatheringLeftSibling, gatheringRightSibling;
 
     private struct SearchPortraitPose
     {
@@ -1231,6 +1238,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
         CancelRoomLook();
@@ -1526,6 +1534,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
         CancelRoomLook();
@@ -1533,6 +1542,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
         HideChoices();
@@ -1546,8 +1556,136 @@ public sealed class NovelDialogueController : MonoBehaviour
         ApplyAffectionChanges(line);
         ApplyArchiveUnlocks(line);
         ApplyCharacter(line);
+        StartGatheringComposition(line);
         StartSearchPortraitSlide(line);
         LineStarted?.Invoke(line);
+    }
+
+    private void StartGatheringComposition(DialogueLine line)
+    {
+        // Only the invitations between exploration and the later self-introductions.
+        string target = line != null && line.lineId != null && line.lineId.StartsWith("chapter1_kayo_", StringComparison.Ordinal)
+            ? "kayo" : line != null && line.lineId != null && line.lineId.StartsWith("chapter1_yowashi_", StringComparison.Ordinal)
+                ? "yowashi" : null;
+        if (target == null || leftPortraitImage == null || rightPortraitImage == null ||
+            dialogueRoot == null || backgroundImage == null || backgroundImage.sprite == null ||
+            characterDatabase == null || !characterDatabase.TryGetCharacter(target, out CharacterData character)) return;
+        Sprite portrait = character.GetPortrait(line.speakerId == target ? line.expressionId : "normal");
+        if (portrait == null) return;
+        // The other person is present even on Doute's opening greeting.
+        SetPortrait(rightPortraitImage, portrait);
+        gatheringLeftPose = CapturePortraitPose(leftPortraitImage.rectTransform);
+        gatheringRightPose = CapturePortraitPose(rightPortraitImage.rectTransform);
+        gatheringLeftParent = leftPortraitImage.transform.parent;
+        gatheringRightParent = rightPortraitImage.transform.parent;
+        gatheringLeftSibling = leftPortraitImage.transform.GetSiblingIndex();
+        gatheringRightSibling = rightPortraitImage.transform.GetSiblingIndex();
+        isGatheringCompositionActive = true;
+        Canvas.ForceUpdateCanvases();
+        RectTransform parent = dialogueRoot.GetComponent<RectTransform>();
+        if (parent == null) { StopGatheringComposition(); return; }
+        Vector2 viewport = parent.rect.size;
+
+        gatheringBackground = CreateRoomLookImage(parent, "GatheringZoomedRoom");
+        gatheringBackground.transform.SetAsFirstSibling();
+        SetRoomLookPose(gatheringBackground, viewport, new Vector2(0.5f, 0.5f), 1.35f);
+        gatheringLeftFrame = CreateGatheringHalfFrame(parent, "GatheringLeftHalf", viewport.x, true);
+        gatheringLeftFrame.SetSiblingIndex(leftPortraitImage.transform.GetSiblingIndex());
+        leftPortraitImage.transform.SetParent(gatheringLeftFrame, false);
+        gatheringRightFrame = CreateGatheringHalfFrame(parent, "GatheringRightHalf", viewport.x, false);
+        gatheringRightFrame.SetSiblingIndex(rightPortraitImage.transform.GetSiblingIndex());
+        rightPortraitImage.transform.SetParent(gatheringRightFrame, false);
+        SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, -0.91f,
+            mirrorDoutePortrait ? -1f : 1f);
+        float cropLine = target == "kayo" ? 0.83f : 0.87f;
+        SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f,
+            0.5f - (cropLine - 0.5f) * 3.1f, 1f);
+
+        var dividerObject = new GameObject("GatheringCenterDivider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        dividerObject.transform.SetParent(parent, false);
+        dividerObject.transform.SetSiblingIndex(gatheringRightFrame.GetSiblingIndex() + 1);
+        gatheringDivider = dividerObject.GetComponent<Image>();
+        gatheringDivider.color = Color.black;
+        gatheringDivider.raycastTarget = false;
+        RectTransform divider = gatheringDivider.rectTransform;
+        divider.anchorMin = new Vector2(0.41f, 0f);
+        divider.anchorMax = new Vector2(0.59f, 1f);
+        divider.offsetMin = divider.offsetMax = Vector2.zero;
+        dividerObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(viewport.x * 0.045f, 0f));
+    }
+
+    private static RectTransform CreateGatheringHalfFrame(RectTransform parent, string name, float width, bool left)
+    {
+        var frameObject = new GameObject(name, typeof(RectTransform), typeof(RectMask2D));
+        RectTransform frame = frameObject.GetComponent<RectTransform>();
+        frame.SetParent(parent, false);
+        frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
+        frame.offsetMin = frame.offsetMax = Vector2.zero;
+        frameObject.GetComponent<RectMask2D>().padding = left
+            ? new Vector4(0f, 0f, width * 0.5f, 0f) : new Vector4(width * 0.5f, 0f, 0f, 0f);
+        return frame;
+    }
+
+    private static SearchPortraitPose CapturePortraitPose(RectTransform rect)
+    {
+        return new SearchPortraitPose
+        {
+            anchorMin = rect.anchorMin, anchorMax = rect.anchorMax, pivot = rect.pivot,
+            size = rect.sizeDelta, position = rect.anchoredPosition, scale = rect.localScale, rotation = rect.localRotation
+        };
+    }
+
+    private static void RestorePortraitPose(RectTransform rect, SearchPortraitPose pose)
+    {
+        rect.anchorMin = pose.anchorMin; rect.anchorMax = pose.anchorMax; rect.pivot = pose.pivot;
+        rect.sizeDelta = pose.size; rect.anchoredPosition = pose.position;
+        rect.localScale = pose.scale; rect.localRotation = pose.rotation;
+    }
+
+    private static void SetGatheringPortrait(Image image, Vector2 viewport, float x, float heightFactor, float y, float facing)
+    {
+        if (image.sprite == null) return;
+        RectTransform rect = image.rectTransform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        float height = viewport.y * heightFactor;
+        rect.sizeDelta = new Vector2(height * image.sprite.rect.width / image.sprite.rect.height, height);
+        rect.localScale = new Vector3(facing, 1f, 1f);
+        rect.localRotation = Quaternion.identity;
+        rect.anchoredPosition = new Vector2((x - 0.5f) * viewport.x, y * viewport.y);
+    }
+
+    private void StopGatheringComposition()
+    {
+        if (!isGatheringCompositionActive) return;
+        if (leftPortraitImage != null)
+        {
+            leftPortraitImage.transform.SetParent(gatheringLeftParent, false);
+            RestorePortraitPose(leftPortraitImage.rectTransform, gatheringLeftPose);
+        }
+        if (rightPortraitImage != null)
+        {
+            rightPortraitImage.transform.SetParent(gatheringRightParent, false);
+            RestorePortraitPose(rightPortraitImage.rectTransform, gatheringRightPose);
+        }
+        foreach (Image image in new[] { gatheringBackground, gatheringDivider })
+        {
+            if (image == null) continue;
+            image.gameObject.SetActive(false);
+            image.transform.SetParent(null, false);
+            Destroy(image.gameObject);
+        }
+        gatheringBackground = gatheringDivider = null;
+        foreach (RectTransform frame in new[] { gatheringLeftFrame, gatheringRightFrame })
+        {
+            if (frame == null) continue;
+            frame.gameObject.SetActive(false);
+            frame.SetParent(null, false);
+            Destroy(frame.gameObject);
+        }
+        gatheringLeftFrame = gatheringRightFrame = null;
+        if (leftPortraitImage != null) leftPortraitImage.transform.SetSiblingIndex(gatheringLeftSibling);
+        if (rightPortraitImage != null) rightPortraitImage.transform.SetSiblingIndex(gatheringRightSibling);
+        isGatheringCompositionActive = false;
     }
 
     private void StartSearchPortraitSlide(DialogueLine line)
