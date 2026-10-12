@@ -33,7 +33,7 @@ $returnBlock = $source.Substring($source.IndexOf('private IEnumerator ReturnLook
 Assert-Room ($returnBlock.IndexOf('yield return FadeLookReturn(0f, 1f)') -lt $returnBlock.IndexOf('RestoreRoomLookPresentation()') -and $returnBlock.IndexOf('RestoreRoomLookPresentation()') -lt $returnBlock.IndexOf('yield return FadeLookReturn(1f, 0f)')) 'Normal view is restored before reaching black'
 'PASS: waking cue, hidden presentation, cleanup, Esc pause, input guards, fade return, and 3130 viewport coverage samples.'
 Assert-Room ($source.Contains('line.lineId == "chapter1_001" && line.speakerId == "moteru"')) 'Moteru first-appearance cue missing'
-Assert-Room ($source.Contains('portrait.sprite = rightPortraitImage.sprite') -and $source.Contains('Mathf.Lerp(0.27f, 0.82f, progress)')) 'Moteru scan does not use the current portrait from above the cropped edge to face'
+Assert-Room ($source.Contains('portrait.sprite = rightPortraitImage.sprite') -and $source.Contains('line.speakerId == "moteru" ? 0.27f : 0.18f') -and $source.Contains('Mathf.Lerp(startCenter, faceCenter, progress)')) 'Scan does not use per-character framing and the current portrait'
 Assert-Room ($source.Contains('scanDuration = 9.5f, faceHold = 0.6f') -and $source.Contains('yield return FadeLookReturn(0f, 1f)')) 'Slow tilt, face hold, or return fade missing'
 $previousY = 0.27
 for ($i = 0; $i -le 950; $i++) {
@@ -47,3 +47,16 @@ Assert-Room ((0.5-0.27)*2.4-1.2 -lt -0.6) 'Cropped lower edge is visible at star
 Assert-Room ([Math]::Abs((0.5-0.82)*2.4+1.2-0.432) -lt 0.0001) 'Head is off screen at end'
 Assert-Room (-not (Test-Path (Join-Path $root 'Assets/moteru-look-reference')) -and -not (Test-Path (Join-Path $root 'Assets/room-look-reference'))) 'Reference captures were imported into Unity'
 'PASS: Moteru entrance cue, current sprite, lower-to-face trajectory, face hold and return fade; reference sheets remain outside Assets.'
+Assert-Room ($source.Contains('line.lineId == "chapter2_kayo_001" && line.speakerId == "kayo"') -and $source.Contains('line.lineId == "chapter2_yowashi_001" && line.speakerId == "yowashi"')) 'Introduction-only cues missing'
+Assert-Room ($source.Contains('shownIntroductionLookIds.Add(line.lineId)') -and $source.Contains('shownIntroductionLookIds.Clear()')) 'One-time introduction guards/reset missing'
+Assert-Room ($source.Contains('line.speakerId == "kayo" ? 0.84f : line.speakerId == "yowashi" ? 0.89f : 0.82f')) 'Per-character face centers missing'
+foreach ($face in @(0.84,0.89)) {
+    $last=0.18
+    for ($i=0; $i -le 950; $i++) {
+        $p=Smooth ($i/950.0); $y=0.18+($face-0.18)*$p
+        Assert-Room ($y -ge $last) 'Introduction camera reverses'
+        $last=$y
+    }
+    Assert-Room ([Math]::Abs((0.5-$face)*2.4+($face-0.5)*2.4) -lt 0.001) 'Face not centered at end'
+}
+'PASS: Kayo/Yowashi self-introduction cues, one-time guards, shared entrance routine and feet-to-face framing.'
