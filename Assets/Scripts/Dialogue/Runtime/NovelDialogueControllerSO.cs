@@ -284,6 +284,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Image searchSlideRoomBackground;
     private Image searchParallaxBackground;
     private Color searchDouteOriginalColor;
+    private Vector2 searchDouteOriginalPosition;
+    private Color searchSpeakerOriginalColor;
+    private Image searchPortraitFadeCopy;
     private int searchPortraitOriginalSibling;
 
     private struct SearchPortraitPose
@@ -1511,15 +1514,18 @@ public sealed class NovelDialogueController : MonoBehaviour
             size = rect.sizeDelta, position = rect.anchoredPosition,
             scale = rect.localScale, rotation = rect.localRotation
         };
-        // Crop below the eyes, using the imported sprite coordinates rather than PNG padding.
-        searchPortraitHeadMidpoint = line.speakerId == "kayo" ? 0.82f : 0.86f;
+        // Crop between eyes and mouth, preserving the whole mouth for each imported sprite.
+        searchPortraitHeadMidpoint = line.speakerId == "kayo" ? 0.83f : 0.87f;
         searchPortraitOriginalSibling = rect.GetSiblingIndex();
+        searchSpeakerOriginalColor = rightPortraitImage.color;
+        searchPortraitFadeCopy = Instantiate(rightPortraitImage, rect.parent);
+        searchPortraitFadeCopy.name = "SearchPortraitEntryFade";
+        searchPortraitFadeCopy.raycastTarget = false;
+        searchPortraitFadeCopy.transform.SetSiblingIndex(rect.GetSiblingIndex() + 1);
         if (leftPortraitImage != null)
         {
             searchDouteOriginalColor = leftPortraitImage.color;
-            Color dimmed = searchDouteOriginalColor;
-            dimmed.r *= 0.70f; dimmed.g *= 0.70f; dimmed.b *= 0.70f;
-            leftPortraitImage.color = dimmed;
+            searchDouteOriginalPosition = leftPortraitImage.rectTransform.anchoredPosition;
         }
         if (searchSlideRoomBackground != null && searchSlideRoomBackground.sprite != null)
         {
@@ -1544,8 +1550,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (!isSearchPortraitSliding || rightPortraitImage == null || ArchiveManager.IsOpen ||
             isChapterTransitioning || isSkipConfirmationOpen) return;
-        searchPortraitSlideElapsed = Mathf.Min(8f, searchPortraitSlideElapsed + Time.unscaledDeltaTime);
-        ApplySearchPortraitSlidePose(Mathf.SmoothStep(0f, 1f, searchPortraitSlideElapsed / 8f));
+        searchPortraitSlideElapsed = Mathf.Min(8.45f, searchPortraitSlideElapsed + Time.unscaledDeltaTime);
+        ApplySearchPortraitSlidePose(Mathf.SmoothStep(0f, 1f, (searchPortraitSlideElapsed - 0.45f) / 8f));
     }
 
     private void ApplySearchPortraitSlidePose(float progress)
@@ -1553,6 +1559,23 @@ public sealed class NovelDialogueController : MonoBehaviour
         RectTransform rect = rightPortraitImage.rectTransform;
         RectTransform parent = rect.parent as RectTransform;
         if (parent == null || parent.rect.height <= 0f) return;
+        float entryBlend = Mathf.SmoothStep(0f, 1f, searchPortraitSlideElapsed / 0.45f);
+        Color speakerColor = searchSpeakerOriginalColor;
+        speakerColor.a *= entryBlend;
+        rightPortraitImage.color = speakerColor;
+        if (searchPortraitFadeCopy != null)
+        {
+            Color oldColor = searchSpeakerOriginalColor;
+            oldColor.a *= 1f - entryBlend;
+            searchPortraitFadeCopy.color = oldColor;
+            if (entryBlend >= 1f)
+            {
+                searchPortraitFadeCopy.gameObject.SetActive(false);
+                searchPortraitFadeCopy.transform.SetParent(null, false);
+                Destroy(searchPortraitFadeCopy.gameObject);
+                searchPortraitFadeCopy = null;
+            }
+        }
         float height = parent.rect.height * 3.1f;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         rect.localScale = Vector3.one;
@@ -1562,13 +1585,34 @@ public sealed class NovelDialogueController : MonoBehaviour
         rect.anchoredPosition = new Vector2(parent.rect.width * Mathf.Lerp(0.20f, 0.08f, progress),
             parent.rect.height * 0.5f - (searchPortraitHeadMidpoint - 0.5f) * height);
         if (searchParallaxBackground != null)
+        {
             SetRoomLookPose(searchParallaxBackground, parent.rect.size,
                 new Vector2(Mathf.Lerp(0.48f, 0.52f, progress), 0.5f), 1.35f);
+            Color roomColor = searchSlideRoomBackground.color;
+            roomColor.a *= entryBlend;
+            searchParallaxBackground.color = roomColor;
+        }
+        if (leftPortraitImage != null)
+        {
+            Color dimmed = searchDouteOriginalColor;
+            float brightness = Mathf.Lerp(1f, 0.70f, entryBlend);
+            dimmed.r *= brightness; dimmed.g *= brightness; dimmed.b *= brightness;
+            leftPortraitImage.color = dimmed;
+            leftPortraitImage.rectTransform.anchoredPosition = searchDouteOriginalPosition +
+                Vector2.right * (parent.rect.width * 0.035f * progress);
+        }
     }
 
     private void StopSearchPortraitSlide()
     {
         if (!isSearchPortraitSliding) return;
+        if (searchPortraitFadeCopy != null)
+        {
+            searchPortraitFadeCopy.gameObject.SetActive(false);
+            searchPortraitFadeCopy.transform.SetParent(null, false);
+            Destroy(searchPortraitFadeCopy.gameObject);
+            searchPortraitFadeCopy = null;
+        }
         if (searchParallaxBackground != null)
         {
             searchParallaxBackground.gameObject.SetActive(false);
@@ -1576,9 +1620,14 @@ public sealed class NovelDialogueController : MonoBehaviour
             Destroy(searchParallaxBackground.gameObject);
             searchParallaxBackground = null;
         }
-        if (leftPortraitImage != null) leftPortraitImage.color = searchDouteOriginalColor;
+        if (leftPortraitImage != null)
+        {
+            leftPortraitImage.color = searchDouteOriginalColor;
+            leftPortraitImage.rectTransform.anchoredPosition = searchDouteOriginalPosition;
+        }
         if (rightPortraitImage != null)
         {
+            rightPortraitImage.color = searchSpeakerOriginalColor;
             RectTransform rect = rightPortraitImage.rectTransform;
             rect.anchorMin = searchPortraitOriginalPose.anchorMin;
             rect.anchorMax = searchPortraitOriginalPose.anchorMax;
