@@ -12,24 +12,26 @@ function Smooth($t) { $t = [Math]::Clamp($t, 0, 1); return $t*$t*(3-2*$t) }
 # Sample the viewport coverage at 0.01 s intervals, including Free Aspect ratios.
 foreach ($viewport in @(@(1672,941),@(1920,1080),@(1396,814),@(2560,1080),@(1080,1920))) {
     $w = $viewport[0]; $h = $viewport[1]
-    for ($i = 0; $i -le 695; $i++) {
+    for ($i = 0; $i -le 625; $i++) {
         $t = $i / 100.0
         $p = Smooth (($t - 3.6) / 2.65)
-        $settle = Smooth (($t - 6.25) / 0.7)
-        $cx = (0.64 + (0.56-0.64)*$p)*(1-$settle) + 0.5*$settle
-        $cy = (0.67 + (0.60-0.67)*$p)*(1-$settle) + 0.5*$settle
-        $zoom = 1.5 - 0.5*$settle
+        $cx = 0.64 + (0.56-0.64)*$p
+        $cy = 0.67 + (0.60-0.67)*$p
+        $zoom = 1.5
         $height = [Math]::Max($h, $w/(1672.0/941))*$zoom
-        $iw = ($height*1672/941)*(1-$settle) + $w*$settle
-        $ih = $height*(1-$settle) + $h*$settle
+        $iw = $height*1672/941
+        $ih = $height
         $mx = ($iw-$w)/2; $my = ($ih-$h)/2
         $x = [Math]::Clamp((0.5-$cx)*$iw, -$mx, $mx)
         $y = [Math]::Clamp((0.5-$cy)*$ih, -$my, $my)
         Assert-Room ($iw/2-[Math]::Abs($x) -ge $w/2-0.001 -and $ih/2-[Math]::Abs($y) -ge $h/2-0.001) 'Exposed edges during camera move'
     }
-    Assert-Room ([Math]::Abs($iw-$w) -lt 0.001 -and [Math]::Abs($ih-$h) -lt 0.001) 'Final view does not match normal background'
+    Assert-Room ($ih -ge $h*1.5) 'Close-up zoom is lost before fade'
 }
-'PASS: waking cue, hidden presentation, cleanup, Esc pause, input guards, and 3480 viewport coverage samples.'
+Assert-Room (-not $source.Contains('pullBack') -and $source.Contains('yield return ReturnLookToDialogue(line)')) 'Room view still zooms out instead of fading'
+$returnBlock = $source.Substring($source.IndexOf('private IEnumerator ReturnLookToDialogue'), $source.IndexOf('private IEnumerator FadeLookReturn') - $source.IndexOf('private IEnumerator ReturnLookToDialogue'))
+Assert-Room ($returnBlock.IndexOf('yield return FadeLookReturn(0f, 1f)') -lt $returnBlock.IndexOf('RestoreRoomLookPresentation()') -and $returnBlock.IndexOf('RestoreRoomLookPresentation()') -lt $returnBlock.IndexOf('yield return FadeLookReturn(1f, 0f)')) 'Normal view is restored before reaching black'
+'PASS: waking cue, hidden presentation, cleanup, Esc pause, input guards, fade return, and 3130 viewport coverage samples.'
 Assert-Room ($source.Contains('line.lineId == "chapter1_001" && line.speakerId == "moteru"')) 'Moteru first-appearance cue missing'
 Assert-Room ($source.Contains('portrait.sprite = rightPortraitImage.sprite') -and $source.Contains('Mathf.Lerp(0.27f, 0.82f, progress)')) 'Moteru scan does not use the current portrait from above the cropped edge to face'
 Assert-Room ($source.Contains('scanDuration = 9.5f, faceHold = 0.6f') -and $source.Contains('yield return FadeLookReturn(0f, 1f)')) 'Slow tilt, face hold, or return fade missing'

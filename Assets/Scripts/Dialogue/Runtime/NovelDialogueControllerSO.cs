@@ -1274,8 +1274,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         // Reference: 0.1 s samples; two slow close-up tilts joined by a brief dissolve.
         float elapsed = 0f;
-        const float firstShot = 3.6f, dissolve = 0.35f, secondShot = 2.3f, pullBack = 0.7f;
-        float duration = firstShot + dissolve + secondShot + pullBack;
+        const float firstShot = 3.6f, dissolve = 0.35f, secondShot = 2.3f;
+        float duration = firstShot + dissolve + secondShot;
         while (elapsed < duration)
         {
             if (ArchiveManager.IsOpen) { yield return null; continue; }
@@ -1287,14 +1287,10 @@ public sealed class NovelDialogueController : MonoBehaviour
             second.color = new Color(1f, 1f, 1f, blend);
             float secondProgress = Mathf.SmoothStep(0f, 1f, (elapsed - firstShot) / (dissolve + secondShot));
             Vector2 center = Vector2.Lerp(new Vector2(0.64f, 0.67f), new Vector2(0.56f, 0.60f), secondProgress);
-            float settle = Mathf.SmoothStep(0f, 1f, (elapsed - firstShot - dissolve - secondShot) / pullBack);
-            SetRoomLookPose(second, viewport.rect.size, Vector2.Lerp(center, new Vector2(0.5f, 0.5f), settle),
-                Mathf.Lerp(1.5f, 1f, settle), settle);
+            SetRoomLookPose(second, viewport.rect.size, center, 1.5f);
             yield return null;
         }
-        RestoreRoomLookPresentation();
-        roomLookCoroutine = null;
-        if (isPlaying && currentLine == line) StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
+        yield return ReturnLookToDialogue(line);
     }
 
     private void HideLookPresentation()
@@ -1340,7 +1336,12 @@ public sealed class NovelDialogueController : MonoBehaviour
                 Mathf.SmoothStep(0f, 1f, elapsed / scanDuration));
             yield return null;
         }
-        // Return to the standard bust-up composition under a short fade, not a hard cut.
+        yield return ReturnLookToDialogue(line);
+    }
+
+    private IEnumerator ReturnLookToDialogue(DialogueLine line)
+    {
+        // Hold the close-up unchanged; switch to the standard composition only while black.
         Image overlay = EnsureChapterTransitionOverlay();
         if (overlay != null)
         {
@@ -1396,14 +1397,13 @@ public sealed class NovelDialogueController : MonoBehaviour
         return image;
     }
 
-    private static void SetRoomLookPose(Image image, Vector2 viewportSize, Vector2 center, float zoom, float fitBlend = 0f)
+    private static void SetRoomLookPose(Image image, Vector2 viewportSize, Vector2 center, float zoom)
     {
         RectTransform rect = image.rectTransform;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         float aspect = image.sprite.rect.width / image.sprite.rect.height;
         float height = Mathf.Max(viewportSize.y, viewportSize.x / aspect) * zoom;
-        // Match the normal full-screen background exactly at the end, even in Free Aspect.
-        Vector2 size = Vector2.Lerp(new Vector2(height * aspect, height), viewportSize, fitBlend);
+        Vector2 size = new Vector2(height * aspect, height);
         rect.sizeDelta = size;
         // Clamp against the viewport, including unusually wide/tall Game view sizes.
         Vector2 position = Vector2.Scale(new Vector2(0.5f, 0.5f) - center, size);
