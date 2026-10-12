@@ -106,10 +106,10 @@ public class TitleMenu : MonoBehaviour
             else if (text.name == "TeamText")
             {
                 text.transform.SetParent(canvas.transform, false);
-                PlaceTitleRect(text.rectTransform, new Vector2(0.17f, 0.055f), new Vector2(470f, 48f));
-                text.color = new Color(0.95f, 0.97f, 1f, 0.95f);
+                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.095f), new Vector2(470f, 48f));
+                text.color = Color.black;
                 text.font = font;
-                text.fontSize = 21f;
+                text.fontSize = 24f;
                 text.enableAutoSizing = false;
                 text.alignment = TextAlignmentOptions.Center;
                 text.textWrappingMode = TextWrappingModes.NoWrap;
@@ -130,8 +130,8 @@ public class TitleMenu : MonoBehaviour
         bgmLabel = labelObject.GetComponent<TextMeshProUGUI>();
         bgmLabel.font = font;
         bgmLabel.text = "BGM：" + (bgmSource != null && bgmSource.mute ? "OFF" : "ON");
-        ConfigureTitleButton(audioButton, canvas.transform, 0.055f, 21f, new Vector2(200f, 48f));
-        PlaceTitleRect(audioControl.rectTransform, new Vector2(0.875f, 0.055f), new Vector2(200f, 48f));
+        ConfigureTitleButton(audioButton, canvas.transform, 0.095f, 21f, new Vector2(200f, 48f));
+        PlaceTitleRect(audioControl.rectTransform, new Vector2(0.72f, 0.095f), new Vector2(200f, 48f));
         audioButton.onClick.AddListener(() =>
         {
             if (isTransitioning || ArchiveManager.IsOpen || bgmSource == null) return;

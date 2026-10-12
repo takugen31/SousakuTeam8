@@ -15,7 +15,8 @@ for ($i = 0; $i -lt $centers.Count - 1; $i++) {
     Assert-Title ($gap -ge 30) 'Title controls are crowded or overlapping'
 }
 Assert-Title ($title.Contains('new Vector2(0.5f, 0.65f)') -and $title.Contains('text.fontSize = 126f')) 'Logo hierarchy changed'
-Assert-Title ($title.Contains('new Vector2(0.875f, 0.055f)')) 'Audio control is not separated from main actions'
+Assert-Title ($title.Contains('new Vector2(0.72f, 0.095f)')) 'Audio control is not inset toward the center'
+Assert-Title ($title.Contains('new Vector2(0.5f, 0.095f)') -and $title.Contains('text.color = Color.black')) 'Credit is not centered in black below quit'
 Assert-Title ($title.Contains('Destroy(titleLetterMaterial)') -and $title.Contains('TitleMenuFocus')) 'Material cleanup or focus feedback missing'
 Assert-Title ((0.65 * 1080 - 190/2) -gt (0.36 * 1080 + 72/2 + 100)) 'Logo and actions are crowded'
 'PASS: centered title hierarchy, compact actions, spacing, shade, fade layering and BGM wiring.'
