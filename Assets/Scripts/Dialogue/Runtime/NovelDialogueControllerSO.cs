@@ -263,6 +263,14 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool isSceneLoading;
     private bool isSkipConfirmationOpen;
     private bool isTyping;
+    private bool isRoomLookPlaying;
+    private Coroutine roomLookCoroutine;
+    private GameObject roomLookViewport;
+    private CanvasGroup roomLookPresentation;
+    private float roomLookOriginalAlpha;
+    private bool roomLookOriginalInteractable;
+    private bool roomLookOriginalBlocksRaycasts;
+    private bool awakeningRoomLookShown;
     private string stopAfterLineId;
 
     public string CurrentSpeakerId => currentLine?.speakerId;
@@ -271,7 +279,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     public bool CanAdvanceCurrentPage => isActiveAndEnabled && isPlaying &&
         currentLine != null && !isTyping && !currentLine.HasChoices &&
         !isChoiceSelectionOpen && !isChapterTransitioning && !isSceneLoading &&
-        !isSkipConfirmationOpen && !ArchiveManager.IsOpen;
+        !isSkipConfirmationOpen && !ArchiveManager.IsOpen && !isRoomLookPlaying;
 
     private void OnEnable()
     {
@@ -386,7 +394,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
-        if (ArchiveManager.IsOpen ||
+        if (isRoomLookPlaying || ArchiveManager.IsOpen ||
             isChapterTransitioning ||
             isSceneLoading ||
             isSkipConfirmationOpen ||
@@ -491,6 +499,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void StartDialogueInternal()
     {
         CancelChapterTransition();
+        awakeningRoomLookShown = false;
         HideChoices();
 
         if (scenario == null)
@@ -647,7 +656,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void Advance()
     {
-        if (!isPlaying ||
+        if (isRoomLookPlaying || !isPlaying ||
             currentLine == null ||
             currentScenario == null ||
             isChapterTransitioning ||
@@ -796,7 +805,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             ? "確認・戻るを選ぶ：左クリック"
             : "会話を送る：左クリック\n文字を全て表示：左クリック";
     public bool CanSkipFromMenu => IsDialoguePlaying && currentScenario != null &&
-        !isChapterTransitioning && !isSkipConfirmationOpen && skipConfirmationRoot != null;
+        !isRoomLookPlaying && !isChapterTransitioning && !isSkipConfirmationOpen && skipConfirmationRoot != null;
 
     public void ToggleAutoPlay()
     {
@@ -819,7 +828,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void ShowSkipConfirmation()
     {
-        if (!isPlaying ||
+        if (isRoomLookPlaying || !isPlaying ||
             currentScenario == null ||
             isChapterTransitioning ||
             isSceneLoading ||
@@ -871,7 +880,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void SkipToNextScenario()
     {
-        if (!isPlaying ||
+        if (isRoomLookPlaying || !isPlaying ||
             currentScenario == null ||
             isChapterTransitioning ||
             isSceneLoading)
@@ -1187,6 +1196,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        CancelRoomLook();
         if (chapterTransitionCoroutine != null)
         {
             StopCoroutine(chapterTransitionCoroutine);
@@ -1218,7 +1228,130 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void ShowLineImmediately(DialogueLine line)
     {
         PrepareLine(line);
+        // The waking scene alone gets this introduction; dialogue data is unchanged.
+        if (!awakeningRoomLookShown && line.lineId == "prologue2_001" &&
+            backgroundImage != null && backgroundImage.sprite != null && dialogueRoot != null &&
+            backgroundImage.GetComponentInParent<Canvas>() != null)
+        {
+            awakeningRoomLookShown = true;
+            roomLookCoroutine = StartCoroutine(PlayAwakeningRoomLook(line));
+            return;
+        }
         StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
+    }
+
+    private IEnumerator PlayAwakeningRoomLook(DialogueLine line)
+    {
+        isRoomLookPlaying = true;
+        autoAdvanceAt = -1f;
+        if (bodyText != null) { bodyText.text = string.Empty; bodyText.maxVisibleCharacters = 0; }
+        roomLookPresentation = dialogueRoot.GetComponent<CanvasGroup>();
+        if (roomLookPresentation == null) roomLookPresentation = dialogueRoot.AddComponent<CanvasGroup>();
+        roomLookOriginalAlpha = roomLookPresentation.alpha;
+        roomLookOriginalInteractable = roomLookPresentation.interactable;
+        roomLookOriginalBlocksRaycasts = roomLookPresentation.blocksRaycasts;
+        roomLookPresentation.alpha = 0f;
+        roomLookPresentation.interactable = false;
+        roomLookPresentation.blocksRaycasts = false;
+
+        // Animate a clipped copy, leaving the normal background's transform untouched.
+        Canvas canvas = backgroundImage.GetComponentInParent<Canvas>();
+        roomLookViewport = new GameObject("AwakeningRoomLook", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform viewport = roomLookViewport.GetComponent<RectTransform>();
+        viewport.SetParent(canvas.transform, false);
+        viewport.anchorMin = Vector2.zero;
+        viewport.anchorMax = Vector2.one;
+        viewport.offsetMin = viewport.offsetMax = Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        Image first = CreateRoomLookImage(viewport, "FirstView");
+        Image second = CreateRoomLookImage(viewport, "SecondView");
+        SetRoomLookPose(first, viewport.rect.size, new Vector2(0.38f, 0.32f), 1.5f);
+        SetRoomLookPose(second, viewport.rect.size, new Vector2(0.64f, 0.67f), 1.5f);
+        second.color = new Color(1f, 1f, 1f, 0f);
+        // Stay beneath the existing chapter fade, so no portraits flash during waking.
+        if (chapterTransitionOverlay != null) chapterTransitionOverlay.transform.SetAsLastSibling();
+        while (isChapterTransitioning || ArchiveManager.IsOpen) yield return null;
+
+        // Reference: 0.1 s samples; two slow close-up tilts joined by a brief dissolve.
+        float elapsed = 0f;
+        const float firstShot = 3.6f, dissolve = 0.35f, secondShot = 2.3f, pullBack = 0.7f;
+        float duration = firstShot + dissolve + secondShot + pullBack;
+        while (elapsed < duration)
+        {
+            if (ArchiveManager.IsOpen) { yield return null; continue; }
+            elapsed = Mathf.Min(duration, elapsed + Time.unscaledDeltaTime);
+            float firstProgress = Mathf.SmoothStep(0f, 1f, elapsed / firstShot);
+            SetRoomLookPose(first, viewport.rect.size,
+                Vector2.Lerp(new Vector2(0.38f, 0.32f), new Vector2(0.43f, 0.40f), firstProgress), 1.5f);
+            float blend = Mathf.SmoothStep(0f, 1f, (elapsed - firstShot) / dissolve);
+            second.color = new Color(1f, 1f, 1f, blend);
+            float secondProgress = Mathf.SmoothStep(0f, 1f, (elapsed - firstShot) / (dissolve + secondShot));
+            Vector2 center = Vector2.Lerp(new Vector2(0.64f, 0.67f), new Vector2(0.56f, 0.60f), secondProgress);
+            float settle = Mathf.SmoothStep(0f, 1f, (elapsed - firstShot - dissolve - secondShot) / pullBack);
+            SetRoomLookPose(second, viewport.rect.size, Vector2.Lerp(center, new Vector2(0.5f, 0.5f), settle),
+                Mathf.Lerp(1.5f, 1f, settle), settle);
+            yield return null;
+        }
+        RestoreRoomLookPresentation();
+        roomLookCoroutine = null;
+        if (isPlaying && currentLine == line) StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
+    }
+
+    private Image CreateRoomLookImage(RectTransform parent, string objectName)
+    {
+        var imageObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        imageObject.transform.SetParent(parent, false);
+        Image image = imageObject.GetComponent<Image>();
+        image.sprite = backgroundImage.sprite;
+        image.raycastTarget = false;
+        image.type = Image.Type.Simple;
+        return image;
+    }
+
+    private static void SetRoomLookPose(Image image, Vector2 viewportSize, Vector2 center, float zoom, float fitBlend = 0f)
+    {
+        RectTransform rect = image.rectTransform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        float aspect = image.sprite.rect.width / image.sprite.rect.height;
+        float height = Mathf.Max(viewportSize.y, viewportSize.x / aspect) * zoom;
+        // Match the normal full-screen background exactly at the end, even in Free Aspect.
+        Vector2 size = Vector2.Lerp(new Vector2(height * aspect, height), viewportSize, fitBlend);
+        rect.sizeDelta = size;
+        // Clamp against the viewport, including unusually wide/tall Game view sizes.
+        Vector2 position = Vector2.Scale(new Vector2(0.5f, 0.5f) - center, size);
+        Vector2 margin = (size - viewportSize) * 0.5f;
+        rect.anchoredPosition = new Vector2(Mathf.Clamp(position.x, -margin.x, margin.x),
+            Mathf.Clamp(position.y, -margin.y, margin.y));
+    }
+
+    private void CancelRoomLook()
+    {
+        if (roomLookCoroutine != null) StopCoroutine(roomLookCoroutine);
+        roomLookCoroutine = null;
+        RestoreRoomLookPresentation();
+    }
+
+    private void RestoreRoomLookPresentation()
+    {
+        if (roomLookViewport != null)
+        {
+            roomLookViewport.SetActive(false);
+            Destroy(roomLookViewport);
+            roomLookViewport = null;
+        }
+        if (roomLookPresentation != null)
+        {
+            roomLookPresentation.alpha = roomLookOriginalAlpha;
+            roomLookPresentation.interactable = roomLookOriginalInteractable;
+            roomLookPresentation.blocksRaycasts = roomLookOriginalBlocksRaycasts;
+            roomLookPresentation = null;
+        }
+        isRoomLookPlaying = false;
+    }
+
+    private void OnDisable()
+    {
+        CancelRoomLook();
     }
 
     private void PrepareLine(DialogueLine line)
