@@ -9,7 +9,7 @@ $start = $source.IndexOf('private void StartSearchPortraitSlide')
 $end = $source.IndexOf('private bool TryStartConsultationTransition', $start)
 $effect = $source.Substring($start, $end-$start)
 Assert-Slide (-not $effect.Contains('HideLookPresentation') -and -not $effect.Contains('dialogueRoot.SetActive') -and -not $effect.Contains('roomLookPresentation.alpha')) 'Dialogue window hidden during slide'
-Assert-Slide ($effect.Contains('ArchiveManager.IsOpen') -and $effect.Contains('(searchPortraitSlideElapsed - 0.45f) / 8f')) 'Pause or slow slide missing'
+Assert-Slide ($effect.Contains('ArchiveManager.IsOpen') -and $effect.Contains('searchPortraitSlideElapsed / 8f')) 'Pause or slow slide missing'
 Assert-Slide ($effect.Contains('rect.anchorMin = searchPortraitOriginalPose.anchorMin') -and $effect.Contains('rect.localScale = searchPortraitOriginalPose.scale')) 'Normal portrait geometry not restored'
 foreach ($h in @(941,1080,814)) {
     foreach ($head in @(0.83,0.87)) {
@@ -22,7 +22,7 @@ for ($i=0; $i -le 800; $i++) {
     $t=$i/800.0; $p=$t*$t*(3-2*$t); $x=0.20-0.12*$p
     Assert-Slide ($x -ge 0.08-0.0001 -and $x -le 0.20) 'Slide exceeds horizontal bounds'
 }
-Assert-Slide ($effect.Contains('Mathf.Lerp(1f, 0.70f, entryBlend)') -and $effect.Contains('leftPortraitImage.color = searchDouteOriginalColor')) 'Doute dim/restore missing'
+Assert-Slide ($effect.Contains('const float brightness = 0.45f') -and $effect.Contains('leftPortraitImage.color = searchDouteOriginalColor')) 'Doute fixed dim/restore missing'
 Assert-Slide ($effect.Contains('rect.SetSiblingIndex(leftPortraitImage.transform.GetSiblingIndex() + 1)') -and $effect.Contains('rect.SetSiblingIndex(searchPortraitOriginalSibling)')) 'Foreground layering or restoration missing'
 Assert-Slide ($effect.Contains('Mathf.Lerp(0.48f, 0.52f, progress), 0.5f), 1.35f') -and $effect.Contains('searchParallaxBackground.raycastTarget = false')) 'Background zoom/parallax or input safety missing'
 # Eyes are above the screen top for both imported sprites.
@@ -36,5 +36,10 @@ foreach ($pair in @(@(0.818,0.83),@(0.866,0.87))) {
     Assert-Slide ($mouthY -lt 0.5 -and $mouthY -gt 0.35) 'Mouth cropped or too far below top'
 }
 Assert-Slide ($effect.Contains('Vector2.right * (parent.rect.width * 0.035f * progress)') -and $effect.Contains('leftPortraitImage.rectTransform.anchoredPosition = searchDouteOriginalPosition;')) 'Doute right slide/restore missing'
-Assert-Slide ($effect.Contains('searchPortraitSlideElapsed / 0.45f') -and $effect.Contains('oldColor.a *= 1f - entryBlend') -and $effect.Contains('speakerColor.a *= entryBlend') -and $effect.Contains('roomColor.a *= entryBlend')) 'Portrait/background entry crossfade missing'
+Assert-Slide (-not $source.Contains('searchPortraitFadeCopy') -and -not $effect.Contains('entryBlend')) 'Normal-size ghost or brightness crossfade remains'
+$entryStart = $source.IndexOf('private IEnumerator FadeIntoSearchCloseUp')
+$entryEnd = $source.IndexOf('private IEnumerator PlayAwakeningRoomLook', $entryStart)
+$entry = $source.Substring($entryStart,$entryEnd-$entryStart)
+Assert-Slide ($entry.IndexOf('yield return FadeLookReturn(0f, 1f)') -lt $entry.IndexOf('PrepareLine(line)') -and $entry.IndexOf('PrepareLine(line)') -lt $entry.IndexOf('yield return FadeLookReturn(1f, 0f)')) 'Incoming normal portrait is applied before full black'
+Assert-Slide ($entry.Contains('yield return null;') -and $effect.Contains('isRoomLookPlaying || rightPortraitImage == null')) 'Full-black frame or motion pause missing'
 'PASS: exploration-only Kayo/Yowashi framing, dialogue kept visible, head crop, 8 s horizontal motion, pause and transform restoration.'

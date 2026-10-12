@@ -286,7 +286,6 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Color searchDouteOriginalColor;
     private Vector2 searchDouteOriginalPosition;
     private Color searchSpeakerOriginalColor;
-    private Image searchPortraitFadeCopy;
     private int searchPortraitOriginalSibling;
 
     private struct SearchPortraitPose
@@ -1263,6 +1262,11 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ShowLineImmediately(DialogueLine line)
     {
+        if (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi"))
+        {
+            roomLookCoroutine = StartCoroutine(FadeIntoSearchCloseUp(line));
+            return;
+        }
         PrepareLine(line);
         if (!moteruEntranceLookShown && line.lineId == "chapter1_001" && line.speakerId == "moteru" &&
             rightPortraitImage != null && rightPortraitImage.sprite != null && dialogueRoot != null &&
@@ -1282,6 +1286,35 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
         StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
+    }
+
+    private IEnumerator FadeIntoSearchCloseUp(DialogueLine line)
+    {
+        // Do not apply the incoming speaker before black: that would flash its normal portrait.
+        StopTypingAndRevealText();
+        autoAdvanceAt = -1f;
+        isRoomLookPlaying = true;
+        Image overlay = EnsureChapterTransitionOverlay();
+        if (overlay != null)
+        {
+            overlay.transform.SetAsLastSibling();
+            overlay.gameObject.SetActive(true);
+            SetChapterTransitionAlpha(0f);
+            yield return FadeLookReturn(0f, 1f);
+        }
+        PrepareLine(line);
+        if (bodyText != null) { bodyText.text = string.Empty; bodyText.maxVisibleCharacters = 0; }
+        // Render at least one fully black frame with the close-up already prepared underneath.
+        yield return null;
+        while (ArchiveManager.IsOpen) yield return null;
+        if (overlay != null)
+        {
+            yield return FadeLookReturn(1f, 0f);
+            overlay.gameObject.SetActive(false);
+        }
+        isRoomLookPlaying = false;
+        roomLookCoroutine = null;
+        if (isPlaying && currentLine == line) StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
     private IEnumerator PlayAwakeningRoomLook(DialogueLine line)
@@ -1518,10 +1551,6 @@ public sealed class NovelDialogueController : MonoBehaviour
         searchPortraitHeadMidpoint = line.speakerId == "kayo" ? 0.83f : 0.87f;
         searchPortraitOriginalSibling = rect.GetSiblingIndex();
         searchSpeakerOriginalColor = rightPortraitImage.color;
-        searchPortraitFadeCopy = Instantiate(rightPortraitImage, rect.parent);
-        searchPortraitFadeCopy.name = "SearchPortraitEntryFade";
-        searchPortraitFadeCopy.raycastTarget = false;
-        searchPortraitFadeCopy.transform.SetSiblingIndex(rect.GetSiblingIndex() + 1);
         if (leftPortraitImage != null)
         {
             searchDouteOriginalColor = leftPortraitImage.color;
@@ -1548,10 +1577,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void UpdateSearchPortraitSlide()
     {
-        if (!isSearchPortraitSliding || rightPortraitImage == null || ArchiveManager.IsOpen ||
+        if (!isSearchPortraitSliding || isRoomLookPlaying || rightPortraitImage == null || ArchiveManager.IsOpen ||
             isChapterTransitioning || isSkipConfirmationOpen) return;
-        searchPortraitSlideElapsed = Mathf.Min(8.45f, searchPortraitSlideElapsed + Time.unscaledDeltaTime);
-        ApplySearchPortraitSlidePose(Mathf.SmoothStep(0f, 1f, (searchPortraitSlideElapsed - 0.45f) / 8f));
+        searchPortraitSlideElapsed = Mathf.Min(8f, searchPortraitSlideElapsed + Time.unscaledDeltaTime);
+        ApplySearchPortraitSlidePose(Mathf.SmoothStep(0f, 1f, searchPortraitSlideElapsed / 8f));
     }
 
     private void ApplySearchPortraitSlidePose(float progress)
@@ -1559,23 +1588,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         RectTransform rect = rightPortraitImage.rectTransform;
         RectTransform parent = rect.parent as RectTransform;
         if (parent == null || parent.rect.height <= 0f) return;
-        float entryBlend = Mathf.SmoothStep(0f, 1f, searchPortraitSlideElapsed / 0.45f);
-        Color speakerColor = searchSpeakerOriginalColor;
-        speakerColor.a *= entryBlend;
-        rightPortraitImage.color = speakerColor;
-        if (searchPortraitFadeCopy != null)
-        {
-            Color oldColor = searchSpeakerOriginalColor;
-            oldColor.a *= 1f - entryBlend;
-            searchPortraitFadeCopy.color = oldColor;
-            if (entryBlend >= 1f)
-            {
-                searchPortraitFadeCopy.gameObject.SetActive(false);
-                searchPortraitFadeCopy.transform.SetParent(null, false);
-                Destroy(searchPortraitFadeCopy.gameObject);
-                searchPortraitFadeCopy = null;
-            }
-        }
+        rightPortraitImage.color = searchSpeakerOriginalColor;
         float height = parent.rect.height * 3.1f;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         rect.localScale = Vector3.one;
@@ -1588,14 +1601,12 @@ public sealed class NovelDialogueController : MonoBehaviour
         {
             SetRoomLookPose(searchParallaxBackground, parent.rect.size,
                 new Vector2(Mathf.Lerp(0.48f, 0.52f, progress), 0.5f), 1.35f);
-            Color roomColor = searchSlideRoomBackground.color;
-            roomColor.a *= entryBlend;
-            searchParallaxBackground.color = roomColor;
+            searchParallaxBackground.color = searchSlideRoomBackground.color;
         }
         if (leftPortraitImage != null)
         {
             Color dimmed = searchDouteOriginalColor;
-            float brightness = Mathf.Lerp(1f, 0.70f, entryBlend);
+            const float brightness = 0.45f;
             dimmed.r *= brightness; dimmed.g *= brightness; dimmed.b *= brightness;
             leftPortraitImage.color = dimmed;
             leftPortraitImage.rectTransform.anchoredPosition = searchDouteOriginalPosition +
@@ -1606,13 +1617,6 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void StopSearchPortraitSlide()
     {
         if (!isSearchPortraitSliding) return;
-        if (searchPortraitFadeCopy != null)
-        {
-            searchPortraitFadeCopy.gameObject.SetActive(false);
-            searchPortraitFadeCopy.transform.SetParent(null, false);
-            Destroy(searchPortraitFadeCopy.gameObject);
-            searchPortraitFadeCopy = null;
-        }
         if (searchParallaxBackground != null)
         {
             searchParallaxBackground.gameObject.SetActive(false);
