@@ -281,6 +281,10 @@ public sealed class NovelDialogueController : MonoBehaviour
     private float searchPortraitSlideElapsed;
     private float searchPortraitHeadMidpoint;
     private SearchPortraitPose searchPortraitOriginalPose;
+    private Image searchSlideRoomBackground;
+    private Image searchParallaxBackground;
+    private Color searchDouteOriginalColor;
+    private int searchPortraitOriginalSibling;
 
     private struct SearchPortraitPose
     {
@@ -637,9 +641,10 @@ public sealed class NovelDialogueController : MonoBehaviour
     }
 
     // Opt in only from the chapter-one exploration scene, not the normal novel scenes.
-    public void ConfigureSearchPortraitSlide()
+    public void ConfigureSearchPortraitSlide(Image roomBackground)
     {
         useSearchPortraitSlide = true;
+        searchSlideRoomBackground = roomBackground;
     }
 
     // Replace only an upcoming chapter; the current dialogue and playback settings stay intact.
@@ -1506,8 +1511,29 @@ public sealed class NovelDialogueController : MonoBehaviour
             size = rect.sizeDelta, position = rect.anchoredPosition,
             scale = rect.localScale, rotation = rect.localRotation
         };
-        // Midpoint of the drawn head, measured within each imported sprite (not the PNG padding).
-        searchPortraitHeadMidpoint = line.speakerId == "kayo" ? 0.854f : 0.912f;
+        // Crop below the eyes, using the imported sprite coordinates rather than PNG padding.
+        searchPortraitHeadMidpoint = line.speakerId == "kayo" ? 0.82f : 0.86f;
+        searchPortraitOriginalSibling = rect.GetSiblingIndex();
+        if (leftPortraitImage != null)
+        {
+            searchDouteOriginalColor = leftPortraitImage.color;
+            Color dimmed = searchDouteOriginalColor;
+            dimmed.r *= 0.70f; dimmed.g *= 0.70f; dimmed.b *= 0.70f;
+            leftPortraitImage.color = dimmed;
+        }
+        if (searchSlideRoomBackground != null && searchSlideRoomBackground.sprite != null)
+        {
+            var backgroundObject = new GameObject("SearchParallaxBackground", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            backgroundObject.transform.SetParent(rect.parent, false);
+            backgroundObject.transform.SetAsFirstSibling();
+            searchParallaxBackground = backgroundObject.GetComponent<Image>();
+            searchParallaxBackground.sprite = searchSlideRoomBackground.sprite;
+            searchParallaxBackground.color = searchSlideRoomBackground.color;
+            searchParallaxBackground.raycastTarget = false;
+        }
+        // Keep the enlarged speaker above Doute, but below the text window and name plate.
+        if (leftPortraitImage != null && rect.parent == leftPortraitImage.transform.parent)
+            rect.SetSiblingIndex(leftPortraitImage.transform.GetSiblingIndex() + 1);
         searchPortraitSlideElapsed = 0f;
         isSearchPortraitSliding = true;
         Canvas.ForceUpdateCanvases();
@@ -1527,19 +1553,30 @@ public sealed class NovelDialogueController : MonoBehaviour
         RectTransform rect = rightPortraitImage.rectTransform;
         RectTransform parent = rect.parent as RectTransform;
         if (parent == null || parent.rect.height <= 0f) return;
-        float height = parent.rect.height * 2.5f;
+        float height = parent.rect.height * 3.1f;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
         rect.sizeDelta = new Vector2(height * rightPortraitImage.sprite.rect.width / rightPortraitImage.sprite.rect.height, height);
-        // Put the head midpoint exactly on the screen top: its upper half is cropped throughout.
-        rect.anchoredPosition = new Vector2(parent.rect.width * Mathf.Lerp(0.20f, 0.14f, progress),
+        // Keep the eyes above the screen top throughout the horizontal move.
+        rect.anchoredPosition = new Vector2(parent.rect.width * Mathf.Lerp(0.20f, 0.08f, progress),
             parent.rect.height * 0.5f - (searchPortraitHeadMidpoint - 0.5f) * height);
+        if (searchParallaxBackground != null)
+            SetRoomLookPose(searchParallaxBackground, parent.rect.size,
+                new Vector2(Mathf.Lerp(0.48f, 0.52f, progress), 0.5f), 1.35f);
     }
 
     private void StopSearchPortraitSlide()
     {
         if (!isSearchPortraitSliding) return;
+        if (searchParallaxBackground != null)
+        {
+            searchParallaxBackground.gameObject.SetActive(false);
+            searchParallaxBackground.transform.SetParent(null, false);
+            Destroy(searchParallaxBackground.gameObject);
+            searchParallaxBackground = null;
+        }
+        if (leftPortraitImage != null) leftPortraitImage.color = searchDouteOriginalColor;
         if (rightPortraitImage != null)
         {
             RectTransform rect = rightPortraitImage.rectTransform;
@@ -1550,6 +1587,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             rect.anchoredPosition = searchPortraitOriginalPose.position;
             rect.localScale = searchPortraitOriginalPose.scale;
             rect.localRotation = searchPortraitOriginalPose.rotation;
+            rect.SetSiblingIndex(searchPortraitOriginalSibling);
         }
         isSearchPortraitSliding = false;
     }

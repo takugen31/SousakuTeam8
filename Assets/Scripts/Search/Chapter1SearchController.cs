@@ -577,7 +577,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
             dialogueText,
             leftPortrait,
             rightPortrait);
-        itemDialogueController.ConfigureSearchPortraitSlide();
+        itemDialogueController.ConfigureSearchPortraitSlide(backgroundImage);
         itemDialogueController.DialogueCompleted += OnItemDialogueCompleted;
         DialogueAdvanceIndicator.Create(dialoguePanel.transform, itemDialogueController,
             kayoAdvanceMark, moteruAdvanceMark, yowashiAdvanceMark);
