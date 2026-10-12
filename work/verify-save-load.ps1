@@ -167,3 +167,7 @@ foreach ($script in @('Chapter1SearchController','KayoSearchController')) {
     Assert ($search.IndexOf('GameSaveService.Consume') -lt $search.IndexOf('bool hasCompletedSearch')) 'Search completion fires before restoring modal/dialogue'
 }
 'PASS: 6 slots, JSON round-trips, progress rollback, corruption handling, one-shot resume, selection/search checkpoints, editor reset, no duplicate effects.'
+$saveUI = Get-Content (Join-Path $root 'Assets/Scripts/Archive/ArchiveMenuUI.SaveLoad.cs') -Raw
+Assert (-not $saveUI.Contains('保存する枠を選んでください') -and -not $saveUI.Contains('読み込む枠を選んでください')) 'Unwanted slot instructions remain'
+Assert ($saveUI.Contains('backLabel.alignment = TextAlignmentOptions.Center') -and $saveUI.Contains('"← メニュー", 22f')) 'Back label is not sized and centered'
+'PASS: slot instructions removed; back-to-menu label centered with smaller type.'

@@ -59,8 +59,13 @@ public sealed partial class ArchiveMenuUI
         }
         saveLoadMessage = CreateText("Status", saveLoadRoot.transform, "", 21f, MutedTextColor);
         SetAnchors(saveLoadMessage.gameObject, new Vector2(0.07f, 0.025f), new Vector2(0.68f, 0.12f), Vector2.zero, Vector2.zero);
-        Button back = CreateButton("BackToMenu", saveLoadRoot.transform, "← メニュー", 25f, AccentSoftColor);
-        SetAnchors(back.gameObject, new Vector2(0.72f, 0.035f), new Vector2(0.94f, 0.11f), Vector2.zero, Vector2.zero);
+        Button back = CreateButton("BackToMenu", saveLoadRoot.transform, "← メニュー", 22f, AccentSoftColor);
+        SetAnchors(back.gameObject, new Vector2(0.76f, 0.035f), new Vector2(0.94f, 0.11f), Vector2.zero, Vector2.zero);
+        TMP_Text backLabel = back.GetComponentInChildren<TMP_Text>();
+        Stretch(backLabel.rectTransform, 16f, 16f, 4f, 4f);
+        backLabel.alignment = TextAlignmentOptions.Center;
+        backLabel.enableAutoSizing = false;
+        backLabel.textWrappingMode = TextWrappingModes.NoWrap;
         back.onClick.AddListener(ShowMenu);
         saveLoadRoot.SetActive(false);
 
@@ -90,7 +95,7 @@ public sealed partial class ArchiveMenuUI
         saveLoadRoot.SetActive(true);
         windowRoot.GetComponent<Image>().color = BackdropColor;
         saveLoadTitle.text = load ? "ロード" : "セーブ";
-        saveLoadMessage.text = load ? "読み込む枠を選んでください。" : "保存する枠を選んでください。";
+        saveLoadMessage.text = string.Empty;
         RefreshSaveSlots();
     }
 
