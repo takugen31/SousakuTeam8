@@ -7,7 +7,9 @@ $end=$source.IndexOf('private void StartSearchPortraitSlide',$start)
 $effect=$source.Substring($start,$end-$start)
 Assert-Gather ($effect.Contains('StartsWith("chapter1_kayo_", StringComparison.Ordinal)') -and $effect.Contains('StartsWith("chapter1_yowashi_", StringComparison.Ordinal)') -and -not $effect.Contains('chapter2_')) 'Gathering scope incorrect'
 Assert-Gather ($effect.Contains('SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, -0.91f') -and $effect.Contains('SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f')) 'Portrait framing missing'
-Assert-Gather ($effect.Contains('new Vector2(0.5f, 0.5f), 1.35f') -and $effect.Contains('gatheringDivider.color = Color.black') -and $effect.Contains('ConfigureFeather(new Vector2(viewport.x * 0.045f, 0f))')) 'Zoomed background or horizontal divider feather missing'
+Assert-Gather ($effect.Contains('new Vector2(0.5f, 0.48f), 1.35f') -and $effect.Contains('new Vector2(0.5f, 0.53f), 1.35f') -and $effect.Contains('gatheringDivider.color = new Color(0f, 0f, 0f, 0.45f)') -and $effect.Contains('ConfigureFeather(new Vector2(viewport.x * 0.045f, 0f))')) 'Independent camera heights, lighter divider or feather missing'
+Assert-Gather ($effect.Contains('CreateRoomLookImage(gatheringLeftFrame, "GatheringLeftRoom")') -and $effect.Contains('CreateRoomLookImage(gatheringRightFrame, "GatheringRightRoom")')) 'Background halves are not independently clipped'
+Assert-Gather ((0.53-0.48)*1.35 -gt 0.06 -and (0.53-0.48)*1.35 -lt 0.08) 'Background height difference is not subtle'
 Assert-Gather ($effect.Contains('width * 0.5f') -and $effect.Contains('typeof(RectMask2D)')) 'Portrait halves can overlap'
 Assert-Gather ($effect.Contains('SetSiblingIndex(gatheringRightFrame.GetSiblingIndex() + 1)') -and $effect.Contains('gatheringDivider.raycastTarget = false')) 'Divider layering/input safety incorrect'
 Assert-Gather (-not $effect.Contains('HideLookPresentation') -and $effect.Contains('RestorePortraitPose')) 'Dialogue hidden or original layout not restored'

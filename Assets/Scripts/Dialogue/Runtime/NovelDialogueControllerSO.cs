@@ -290,7 +290,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private int searchPortraitOriginalSibling;
     private bool isGatheringCompositionActive;
     private SearchPortraitPose gatheringLeftPose, gatheringRightPose;
-    private Image gatheringBackground;
+    private Image gatheringLeftBackground, gatheringRightBackground;
     private Image gatheringDivider;
     private RectTransform gatheringLeftFrame, gatheringRightFrame;
     private Transform gatheringLeftParent, gatheringRightParent;
@@ -1586,15 +1586,19 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (parent == null) { StopGatheringComposition(); return; }
         Vector2 viewport = parent.rect.size;
 
-        gatheringBackground = CreateRoomLookImage(parent, "GatheringZoomedRoom");
-        gatheringBackground.transform.SetAsFirstSibling();
-        SetRoomLookPose(gatheringBackground, viewport, new Vector2(0.5f, 0.5f), 1.35f);
         gatheringLeftFrame = CreateGatheringHalfFrame(parent, "GatheringLeftHalf", viewport.x, true);
         gatheringLeftFrame.SetSiblingIndex(leftPortraitImage.transform.GetSiblingIndex());
         leftPortraitImage.transform.SetParent(gatheringLeftFrame, false);
         gatheringRightFrame = CreateGatheringHalfFrame(parent, "GatheringRightHalf", viewport.x, false);
         gatheringRightFrame.SetSiblingIndex(rightPortraitImage.transform.GetSiblingIndex());
         rightPortraitImage.transform.SetParent(gatheringRightFrame, false);
+        // Each half has its own camera height; room lines no longer join across the split.
+        gatheringLeftBackground = CreateRoomLookImage(gatheringLeftFrame, "GatheringLeftRoom");
+        gatheringLeftBackground.transform.SetAsFirstSibling();
+        SetRoomLookPose(gatheringLeftBackground, viewport, new Vector2(0.5f, 0.48f), 1.35f);
+        gatheringRightBackground = CreateRoomLookImage(gatheringRightFrame, "GatheringRightRoom");
+        gatheringRightBackground.transform.SetAsFirstSibling();
+        SetRoomLookPose(gatheringRightBackground, viewport, new Vector2(0.5f, 0.53f), 1.35f);
         SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, -0.91f,
             mirrorDoutePortrait ? -1f : 1f);
         float cropLine = target == "kayo" ? 0.83f : 0.87f;
@@ -1605,7 +1609,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         dividerObject.transform.SetParent(parent, false);
         dividerObject.transform.SetSiblingIndex(gatheringRightFrame.GetSiblingIndex() + 1);
         gatheringDivider = dividerObject.GetComponent<Image>();
-        gatheringDivider.color = Color.black;
+        gatheringDivider.color = new Color(0f, 0f, 0f, 0.45f);
         gatheringDivider.raycastTarget = false;
         RectTransform divider = gatheringDivider.rectTransform;
         divider.anchorMin = new Vector2(0.41f, 0f);
@@ -1667,14 +1671,14 @@ public sealed class NovelDialogueController : MonoBehaviour
             rightPortraitImage.transform.SetParent(gatheringRightParent, false);
             RestorePortraitPose(rightPortraitImage.rectTransform, gatheringRightPose);
         }
-        foreach (Image image in new[] { gatheringBackground, gatheringDivider })
+        foreach (Image image in new[] { gatheringLeftBackground, gatheringRightBackground, gatheringDivider })
         {
             if (image == null) continue;
             image.gameObject.SetActive(false);
             image.transform.SetParent(null, false);
             Destroy(image.gameObject);
         }
-        gatheringBackground = gatheringDivider = null;
+        gatheringLeftBackground = gatheringRightBackground = gatheringDivider = null;
         foreach (RectTransform frame in new[] { gatheringLeftFrame, gatheringRightFrame })
         {
             if (frame == null) continue;
