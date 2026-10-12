@@ -15,6 +15,7 @@ public sealed class KayoGaugeOutcomeController : MonoBehaviour
     [SerializeField] private string lastCommonLineId = "chapter_kayo_6_056";
 
     private DialogueScenarioSO failureAftermath;
+    public bool CurrentResult { get; private set; }
 
     private void Awake()
     {
@@ -56,6 +57,7 @@ public sealed class KayoGaugeOutcomeController : MonoBehaviour
 
     public void SetResult(bool succeeded)
     {
+        CurrentResult = succeeded;
         if (failureAftermath == null || dialogueController == null) return;
         DialogueScenarioSO target = succeeded ? rescueAftermath : failureAftermath;
         DialogueScenarioSO previous = succeeded ? failureAftermath : rescueAftermath;
