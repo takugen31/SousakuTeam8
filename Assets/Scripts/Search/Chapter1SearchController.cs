@@ -221,7 +221,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
                 new Rect(0.095f, 0.08f, 0.27f, 0.64f),
                 whiteRoom1,
                 "search_bookshelf_001",
-                "search_manga_001",
+                "search_bookshelf_001",
                 new[]
                 {
                     new Vector2(0.1310f, 0.6461f),
