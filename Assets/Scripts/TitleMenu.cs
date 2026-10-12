@@ -72,7 +72,7 @@ public class TitleMenu : MonoBehaviour
         shade.rectTransform.anchorMax = Vector2.one;
         shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
         shade.gameObject.AddComponent<TitleBottomShade>();
-        ConfigureTitleButton(start, canvas.transform, 0.405f, 32f, new Vector2(390f, 72f));
+        ConfigureTitleButton(start, canvas.transform, 0.405f, 32f, new Vector2(430f, 80f));
         ConfigureTitleButton(load, canvas.transform, 0.265f, 30f, new Vector2(350f, 66f));
         if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.17f, 30f, new Vector2(350f, 66f));
 
@@ -188,11 +188,14 @@ public class TitleMenu : MonoBehaviour
         image.raycastTarget = true;
         button.targetGraphic = image;
         ColorBlock colors = button.colors;
-        colors.normalColor = new Color(0f, 0f, 0f, 0.52f);
-        colors.highlightedColor = new Color(0.10f, 0.12f, 0.16f, 0.72f);
-        colors.pressedColor = new Color(0.02f, 0.03f, 0.05f, 0.82f);
+        colors.normalColor = button.name == "StartButton"
+            ? new Color(0.14f, 0.14f, 0.14f, 0.55f)
+            : new Color(0.06f, 0.06f, 0.06f, 0.4f);
+        colors.highlightedColor = new Color(0.25f, 0.25f, 0.25f, 0.68f);
+        colors.pressedColor = new Color(0.03f, 0.03f, 0.03f, 0.72f);
         colors.selectedColor = colors.normalColor;
-        colors.fadeDuration = 0.12f;
+        colors.disabledColor = new Color(0.06f, 0.06f, 0.06f, 0.25f);
+        colors.fadeDuration = 0.15f;
         button.colors = colors;
         button.targetGraphic.CrossFadeColor(colors.normalColor, 0f, true, true);
         button.transition = Selectable.Transition.ColorTint;
@@ -210,8 +213,6 @@ public class TitleMenu : MonoBehaviour
         label.alignment = TextAlignmentOptions.Center;
         label.textWrappingMode = TextWrappingModes.NoWrap;
         label.raycastTarget = false;
-        TitleMenuFocus focus = button.gameObject.AddComponent<TitleMenuFocus>();
-        focus.Initialize(label);
     }
 
     public void OpenLoad()
@@ -344,17 +345,3 @@ public sealed class TitleBottomShade : BaseMeshEffect
     }
 }
 
-public sealed class TitleMenuFocus : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler,
-    UnityEngine.EventSystems.IPointerExitHandler, UnityEngine.EventSystems.ISelectHandler,
-    UnityEngine.EventSystems.IDeselectHandler
-{
-    private TMP_Text label;
-    private bool hovered;
-    private bool selected;
-    public void Initialize(TMP_Text text) { label = text; }
-    private void Refresh() { if (label != null) label.color = hovered || selected ? new Color(1f, 0.82f, 0.89f) : Color.white; }
-    public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData e) { hovered = true; Refresh(); }
-    public void OnPointerExit(UnityEngine.EventSystems.PointerEventData e) { hovered = false; Refresh(); }
-    public void OnSelect(UnityEngine.EventSystems.BaseEventData e) { selected = true; Refresh(); }
-    public void OnDeselect(UnityEngine.EventSystems.BaseEventData e) { selected = false; Refresh(); }
-}
