@@ -276,6 +276,18 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Vector2[] shakingWindowPositions;
     private Quaternion[] shakingWindowRotations;
     private float windowShakeElapsed;
+    private bool useSearchPortraitSlide;
+    private bool isSearchPortraitSliding;
+    private float searchPortraitSlideElapsed;
+    private float searchPortraitHeadMidpoint;
+    private SearchPortraitPose searchPortraitOriginalPose;
+
+    private struct SearchPortraitPose
+    {
+        public Vector2 anchorMin, anchorMax, pivot, size, position;
+        public Vector3 scale;
+        public Quaternion rotation;
+    }
     private string stopAfterLineId;
 
     public string CurrentSpeakerId => currentLine?.speakerId;
@@ -399,6 +411,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
+        UpdateSearchPortraitSlide();
         UpdateWindowShake();
         if (isRoomLookPlaying || ArchiveManager.IsOpen ||
             isChapterTransitioning ||
@@ -621,6 +634,12 @@ public sealed class NovelDialogueController : MonoBehaviour
                 followingScenarios.Add(scenarios[index]);
             }
         }
+    }
+
+    // Opt in only from the chapter-one exploration scene, not the normal novel scenes.
+    public void ConfigureSearchPortraitSlide()
+    {
+        useSearchPortraitSlide = true;
     }
 
     // Replace only an upcoming chapter; the current dialogue and playback settings stay intact.
@@ -1203,6 +1222,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        StopSearchPortraitSlide();
         StopWindowShake();
         CancelRoomLook();
         if (chapterTransitionCoroutine != null)
@@ -1451,12 +1471,14 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopSearchPortraitSlide();
         StopWindowShake();
         CancelRoomLook();
     }
 
     private void PrepareLine(DialogueLine line)
     {
+        StopSearchPortraitSlide();
         StopWindowShake();
         HideChoices();
 
@@ -1469,7 +1491,67 @@ public sealed class NovelDialogueController : MonoBehaviour
         ApplyAffectionChanges(line);
         ApplyArchiveUnlocks(line);
         ApplyCharacter(line);
+        StartSearchPortraitSlide(line);
         LineStarted?.Invoke(line);
+    }
+
+    private void StartSearchPortraitSlide(DialogueLine line)
+    {
+        if (!useSearchPortraitSlide || line == null || rightPortraitImage == null ||
+            rightPortraitImage.sprite == null || (line.speakerId != "kayo" && line.speakerId != "yowashi")) return;
+        RectTransform rect = rightPortraitImage.rectTransform;
+        searchPortraitOriginalPose = new SearchPortraitPose
+        {
+            anchorMin = rect.anchorMin, anchorMax = rect.anchorMax, pivot = rect.pivot,
+            size = rect.sizeDelta, position = rect.anchoredPosition,
+            scale = rect.localScale, rotation = rect.localRotation
+        };
+        // Midpoint of the drawn head, measured within each imported sprite (not the PNG padding).
+        searchPortraitHeadMidpoint = line.speakerId == "kayo" ? 0.854f : 0.912f;
+        searchPortraitSlideElapsed = 0f;
+        isSearchPortraitSliding = true;
+        Canvas.ForceUpdateCanvases();
+        ApplySearchPortraitSlidePose(0f);
+    }
+
+    private void UpdateSearchPortraitSlide()
+    {
+        if (!isSearchPortraitSliding || rightPortraitImage == null || ArchiveManager.IsOpen ||
+            isChapterTransitioning || isSkipConfirmationOpen) return;
+        searchPortraitSlideElapsed = Mathf.Min(8f, searchPortraitSlideElapsed + Time.unscaledDeltaTime);
+        ApplySearchPortraitSlidePose(Mathf.SmoothStep(0f, 1f, searchPortraitSlideElapsed / 8f));
+    }
+
+    private void ApplySearchPortraitSlidePose(float progress)
+    {
+        RectTransform rect = rightPortraitImage.rectTransform;
+        RectTransform parent = rect.parent as RectTransform;
+        if (parent == null || parent.rect.height <= 0f) return;
+        float height = parent.rect.height * 2.5f;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.localScale = Vector3.one;
+        rect.localRotation = Quaternion.identity;
+        rect.sizeDelta = new Vector2(height * rightPortraitImage.sprite.rect.width / rightPortraitImage.sprite.rect.height, height);
+        // Put the head midpoint exactly on the screen top: its upper half is cropped throughout.
+        rect.anchoredPosition = new Vector2(parent.rect.width * Mathf.Lerp(0.20f, 0.14f, progress),
+            parent.rect.height * 0.5f - (searchPortraitHeadMidpoint - 0.5f) * height);
+    }
+
+    private void StopSearchPortraitSlide()
+    {
+        if (!isSearchPortraitSliding) return;
+        if (rightPortraitImage != null)
+        {
+            RectTransform rect = rightPortraitImage.rectTransform;
+            rect.anchorMin = searchPortraitOriginalPose.anchorMin;
+            rect.anchorMax = searchPortraitOriginalPose.anchorMax;
+            rect.pivot = searchPortraitOriginalPose.pivot;
+            rect.sizeDelta = searchPortraitOriginalPose.size;
+            rect.anchoredPosition = searchPortraitOriginalPose.position;
+            rect.localScale = searchPortraitOriginalPose.scale;
+            rect.localRotation = searchPortraitOriginalPose.rotation;
+        }
+        isSearchPortraitSliding = false;
     }
 
     private bool TryStartConsultationTransition(DialogueLine line)
