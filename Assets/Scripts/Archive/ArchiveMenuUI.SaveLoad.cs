@@ -11,6 +11,8 @@ public sealed partial class ArchiveMenuUI
     private TMP_Text saveLoadTitle;
     private TMP_Text saveLoadMessage;
     private TMP_Text saveLoadWarning;
+    private TMP_Text saveLoadBackLabel;
+    private bool loadOpenedFromTitle;
     private readonly Button[] saveSlotButtons = new Button[GameSaveService.SlotCount];
     private readonly TMP_Text[] saveSlotLabels = new TMP_Text[GameSaveService.SlotCount];
     private bool loadingSlots;
@@ -32,6 +34,14 @@ public sealed partial class ArchiveMenuUI
         if (saveLoadConfirmation != null) saveLoadConfirmation.SetActive(false);
         confirmedSaveLoad = null;
         nextSaveAvailabilityCheck = 0f;
+        loadOpenedFromTitle = false;
+    }
+
+    public void ShowLoadFromTitle()
+    {
+        ShowSaveLoad(true);
+        loadOpenedFromTitle = true;
+        saveLoadBackLabel.text = "← タイトル";
     }
 
     private void BuildSaveLoadUI()
@@ -62,11 +72,16 @@ public sealed partial class ArchiveMenuUI
         Button back = CreateButton("BackToMenu", saveLoadRoot.transform, "← メニュー", 22f, AccentSoftColor);
         SetAnchors(back.gameObject, new Vector2(0.76f, 0.035f), new Vector2(0.94f, 0.11f), Vector2.zero, Vector2.zero);
         TMP_Text backLabel = back.GetComponentInChildren<TMP_Text>();
+        saveLoadBackLabel = backLabel;
         Stretch(backLabel.rectTransform, 16f, 16f, 4f, 4f);
         backLabel.alignment = TextAlignmentOptions.Center;
         backLabel.enableAutoSizing = false;
         backLabel.textWrappingMode = TextWrappingModes.NoWrap;
-        back.onClick.AddListener(ShowMenu);
+        back.onClick.AddListener(() =>
+        {
+            if (loadOpenedFromTitle) manager.CloseArchive();
+            else ShowMenu();
+        });
         saveLoadRoot.SetActive(false);
 
         saveLoadConfirmation = CreatePanel("SaveLoadConfirmation", windowRoot.transform, new Color(0f, 0f, 0f, 0.55f));
@@ -88,6 +103,8 @@ public sealed partial class ArchiveMenuUI
 
     private void ShowSaveLoad(bool load)
     {
+        loadOpenedFromTitle = false;
+        saveLoadBackLabel.text = "← メニュー";
         loadingSlots = load;
         menuRoot.SetActive(false);
         archiveFrame.SetActive(false);

@@ -266,6 +266,12 @@ public sealed class ArchiveManager : MonoBehaviour
         OpenStateChanged?.Invoke(false);
     }
 
+    public void OpenLoadFromTitle()
+    {
+        OpenArchive();
+        if (menu != null && menu.IsOpen) menu.ShowLoadFromTitle();
+    }
+
     private void UnlockInitialEntries()
     {
         bool changed = false;

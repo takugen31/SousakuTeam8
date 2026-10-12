@@ -171,3 +171,10 @@ $saveUI = Get-Content (Join-Path $root 'Assets/Scripts/Archive/ArchiveMenuUI.Sav
 Assert (-not $saveUI.Contains('保存する枠を選んでください') -and -not $saveUI.Contains('読み込む枠を選んでください')) 'Unwanted slot instructions remain'
 Assert ($saveUI.Contains('backLabel.alignment = TextAlignmentOptions.Center') -and $saveUI.Contains('"← メニュー", 22f')) 'Back label is not sized and centered'
 'PASS: slot instructions removed; back-to-menu label centered with smaller type.'
+$title = Get-Content (Join-Path $root 'Assets/Scripts/TitleMenu.cs') -Raw
+Assert ($title.Contains('load.onClick = new Button.ButtonClickedEvent()') -and $title.Contains('load.onClick.AddListener(OpenLoad)')) 'Title load button retains serialized StartGame callback'
+$openLoad = $title.Substring($title.IndexOf('    public void OpenLoad()'))
+$openLoad = $openLoad.Substring(0, $openLoad.IndexOf('    private void Start()'))
+Assert ($openLoad.Contains('OpenLoadFromTitle') -and -not $openLoad.Contains('ResetAll')) 'Title load entry resets progress'
+Assert ($saveUI.Contains('saveLoadBackLabel.text = "← タイトル"') -and $saveUI.Contains('if (loadOpenedFromTitle) manager.CloseArchive()')) 'Title load back action does not return to title'
+'PASS: title load entry uses shared slots without new-game reset; back returns to title.'
