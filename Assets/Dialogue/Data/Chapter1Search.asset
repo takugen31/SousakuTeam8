@@ -45,7 +45,7 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     nextScenePath: 
-    nextLineId: 
+    nextLineId: search_manga_001
     choices: []
     affectionChanges: []
     archiveUnlockIds: []
