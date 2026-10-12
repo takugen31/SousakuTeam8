@@ -16,6 +16,7 @@ public class TitleMenu : MonoBehaviour
 
     private bool isTransitioning = false;
     private TMP_Text bgmLabel;
+    private Material titleLetterMaterial;
 
     private void Awake()
     {
@@ -65,45 +66,50 @@ public class TitleMenu : MonoBehaviour
             scaler.matchWidthOrHeight = 0.5f;
         }
         TMP_FontAsset font = start.GetComponentInChildren<TMP_Text>()?.font ?? TMP_Settings.defaultFontAsset;
-        Image panel = CreateTitlePanel("TitleMenuPanel", canvas.transform, new Color(0f, 0f, 0f, 0.86f));
-        panel.rectTransform.anchorMin = new Vector2(0.64f, 0f);
-        panel.rectTransform.anchorMax = Vector2.one;
-        panel.rectTransform.offsetMin = panel.rectTransform.offsetMax = Vector2.zero;
-        panel.gameObject.AddComponent<DialogueWindowFeather>().ConfigureRightMenu();
-        ConfigureTitleButton(start, panel.transform, 0.62f, 36f);
-        ConfigureTitleButton(load, panel.transform, 0.46f, 36f);
-        if (quit != null) ConfigureTitleButton(quit, panel.transform, 0.30f, 36f);
+        // Keep the sky composition visible. A subtle bottom shade replaces the opaque menu panel.
+        Image shade = CreateTitlePanel("TitleBottomShade", canvas.transform, new Color(0.015f, 0.025f, 0.045f, 1f));
+        shade.rectTransform.anchorMin = Vector2.zero;
+        shade.rectTransform.anchorMax = Vector2.one;
+        shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
+        shade.gameObject.AddComponent<TitleBottomShade>();
+        ConfigureTitleButton(start, canvas.transform, 0.36f, 32f, new Vector2(390f, 72f));
+        ConfigureTitleButton(load, canvas.transform, 0.265f, 30f, new Vector2(350f, 66f));
+        if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.17f, 30f, new Vector2(350f, 66f));
 
         foreach (TMP_Text text in canvas.GetComponentsInChildren<TMP_Text>(true))
         {
             if (text.name == "TitleText")
             {
-                Image titlePlate = CreateTitlePanel("TitlePlate", canvas.transform, new Color(0f, 0f, 0f, 0.64f));
-                PlaceTitleRect(titlePlate.rectTransform, new Vector2(0.315f, 0.73f), new Vector2(1030f, 220f));
-                titlePlate.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(64f, 28f));
-                text.transform.SetParent(titlePlate.transform, false);
-                StretchTitleLabel(text.rectTransform, 36f, 12f);
+                text.transform.SetParent(canvas.transform, false);
+                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.65f), new Vector2(1000f, 190f));
                 text.color = Color.white;
                 text.font = font;
-                text.fontSize = 120f;
-                text.enableAutoSizing = true;
-                text.fontSizeMin = 72f;
-                text.fontSizeMax = 120f;
-                text.fontStyle = FontStyles.Bold;
+                text.text = text.text.Replace("♡", "<color=#F2BACB>♡</color>");
+                text.richText = true;
+                text.characterSpacing = 4f;
+                text.fontSize = 126f;
+                text.enableAutoSizing = false;
+                text.fontStyle = FontStyles.Normal;
                 text.alignment = TextAlignmentOptions.Center;
                 text.textWrappingMode = TextWrappingModes.NoWrap;
                 text.raycastTarget = false;
+                titleLetterMaterial = new Material(text.fontSharedMaterial);
+                titleLetterMaterial.SetColor(ShaderUtilities.ID_OutlineColor, new Color(0.05f, 0.16f, 0.30f, 0.7f));
+                titleLetterMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.09f);
+                titleLetterMaterial.EnableKeyword("UNDERLAY_ON");
+                titleLetterMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0.02f, 0.08f, 0.18f, 0.45f));
+                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.6f);
+                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.6f);
+                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.25f);
+                text.fontSharedMaterial = titleLetterMaterial;
             }
             else if (text.name == "TeamText")
             {
-                Image teamPlate = CreateTitlePanel("TeamPlate", canvas.transform, new Color(0f, 0f, 0f, 0.60f));
-                PlaceTitleRect(teamPlate.rectTransform, new Vector2(0.20f, 0.075f), new Vector2(530f, 64f));
-                teamPlate.gameObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(24f, 10f));
-                text.transform.SetParent(teamPlate.transform, false);
-                StretchTitleLabel(text.rectTransform, 24f, 8f);
-                text.color = new Color(0.86f, 0.86f, 0.86f, 1f);
+                text.transform.SetParent(canvas.transform, false);
+                PlaceTitleRect(text.rectTransform, new Vector2(0.17f, 0.055f), new Vector2(470f, 48f));
+                text.color = new Color(0.95f, 0.97f, 1f, 0.95f);
                 text.font = font;
-                text.fontSize = 24f;
+                text.fontSize = 21f;
                 text.enableAutoSizing = false;
                 text.alignment = TextAlignmentOptions.Center;
                 text.textWrappingMode = TextWrappingModes.NoWrap;
@@ -111,9 +117,12 @@ public class TitleMenu : MonoBehaviour
             }
         }
 
+        Image rule = CreateTitlePanel("TitleRule", canvas.transform, new Color(1f, 1f, 1f, 0.38f));
+        PlaceTitleRect(rule.rectTransform, new Vector2(0.5f, 0.535f), new Vector2(360f, 1.5f));
+
         foreach (Toggle toggle in canvas.GetComponentsInChildren<Toggle>(true))
             if (toggle.name == "BGMToggle") toggle.gameObject.SetActive(false);
-        Image audioControl = CreateTitlePanel("BGMButton", panel.transform, Color.white);
+        Image audioControl = CreateTitlePanel("BGMButton", canvas.transform, Color.white);
         audioControl.raycastTarget = true;
         Button audioButton = audioControl.gameObject.AddComponent<Button>();
         var labelObject = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
@@ -121,13 +130,19 @@ public class TitleMenu : MonoBehaviour
         bgmLabel = labelObject.GetComponent<TextMeshProUGUI>();
         bgmLabel.font = font;
         bgmLabel.text = "BGM：" + (bgmSource != null && bgmSource.mute ? "OFF" : "ON");
-        ConfigureTitleButton(audioButton, panel.transform, 0.14f, 24f, new Vector2(320f, 64f));
+        ConfigureTitleButton(audioButton, canvas.transform, 0.055f, 21f, new Vector2(200f, 48f));
+        PlaceTitleRect(audioControl.rectTransform, new Vector2(0.875f, 0.055f), new Vector2(200f, 48f));
         audioButton.onClick.AddListener(() =>
         {
             if (isTransitioning || ArchiveManager.IsOpen || bgmSource == null) return;
             SetBGM(bgmSource.mute);
         });
         if (fadePanel != null) fadePanel.transform.SetAsLastSibling();
+    }
+
+    private void OnDestroy()
+    {
+        if (titleLetterMaterial != null) Destroy(titleLetterMaterial);
     }
 
     private static Image CreateTitlePanel(string name, Transform parent, Color color)
@@ -161,7 +176,7 @@ public class TitleMenu : MonoBehaviour
     private static void ConfigureTitleButton(Button button, Transform parent, float y, float fontSize, Vector2? size = null)
     {
         button.transform.SetParent(parent, false);
-        PlaceTitleRect(button.GetComponent<RectTransform>(), new Vector2(0.55f, y), size ?? new Vector2(460f, 96f));
+        PlaceTitleRect(button.GetComponent<RectTransform>(), new Vector2(0.5f, y), size ?? new Vector2(350f, 66f));
         Image image = button.GetComponent<Image>();
         image.sprite = null;
         image.type = Image.Type.Simple;
@@ -169,9 +184,9 @@ public class TitleMenu : MonoBehaviour
         image.raycastTarget = true;
         button.targetGraphic = image;
         ColorBlock colors = button.colors;
-        colors.normalColor = new Color(0f, 0f, 0f, 0.62f);
-        colors.highlightedColor = new Color(0.28f, 0.28f, 0.28f, 0.90f);
-        colors.pressedColor = new Color(0.06f, 0.06f, 0.06f, 0.95f);
+        colors.normalColor = new Color(0f, 0f, 0f, 0.52f);
+        colors.highlightedColor = new Color(0.10f, 0.12f, 0.16f, 0.72f);
+        colors.pressedColor = new Color(0.02f, 0.03f, 0.05f, 0.82f);
         colors.selectedColor = colors.normalColor;
         colors.fadeDuration = 0.12f;
         button.colors = colors;
@@ -191,6 +206,8 @@ public class TitleMenu : MonoBehaviour
         label.alignment = TextAlignmentOptions.Center;
         label.textWrappingMode = TextWrappingModes.NoWrap;
         label.raycastTarget = false;
+        TitleMenuFocus focus = button.gameObject.AddComponent<TitleMenuFocus>();
+        focus.Initialize(label);
     }
 
     public void OpenLoad()
@@ -291,4 +308,49 @@ public class TitleMenu : MonoBehaviour
 
         SceneManager.LoadSceneAsync("NovelScene");
     }
+}
+
+// Code-native shade; no illustration or generated texture is added.
+public sealed class TitleBottomShade : BaseMeshEffect
+{
+    public override void ModifyMesh(VertexHelper vertices)
+    {
+        if (!IsActive() || vertices.currentVertCount == 0) return;
+        UIVertex seed = default;
+        vertices.PopulateUIVertex(ref seed, 0);
+        Rect rect = ((RectTransform)transform).rect;
+        vertices.Clear();
+        const int rows = 24;
+        for (int i = 0; i <= rows; i++)
+        {
+            float y = (float)i / rows;
+            UIVertex vertex = seed;
+            Color color = seed.color;
+            color.a *= 0.45f * Mathf.Pow(1f - y, 3f);
+            vertex.color = color;
+            vertex.position = new Vector3(rect.xMin, Mathf.Lerp(rect.yMin, rect.yMax, y));
+            vertices.AddVert(vertex);
+            vertex.position.x = rect.xMax;
+            vertices.AddVert(vertex);
+            if (i == 0) continue;
+            int offset = (i - 1) * 2;
+            vertices.AddTriangle(offset, offset + 2, offset + 1);
+            vertices.AddTriangle(offset + 1, offset + 2, offset + 3);
+        }
+    }
+}
+
+public sealed class TitleMenuFocus : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler,
+    UnityEngine.EventSystems.IPointerExitHandler, UnityEngine.EventSystems.ISelectHandler,
+    UnityEngine.EventSystems.IDeselectHandler
+{
+    private TMP_Text label;
+    private bool hovered;
+    private bool selected;
+    public void Initialize(TMP_Text text) { label = text; }
+    private void Refresh() { if (label != null) label.color = hovered || selected ? new Color(1f, 0.82f, 0.89f) : Color.white; }
+    public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData e) { hovered = true; Refresh(); }
+    public void OnPointerExit(UnityEngine.EventSystems.PointerEventData e) { hovered = false; Refresh(); }
+    public void OnSelect(UnityEngine.EventSystems.BaseEventData e) { selected = true; Refresh(); }
+    public void OnDeselect(UnityEngine.EventSystems.BaseEventData e) { selected = false; Refresh(); }
 }
