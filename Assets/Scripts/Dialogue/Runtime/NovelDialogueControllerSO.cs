@@ -271,6 +271,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool roomLookOriginalInteractable;
     private bool roomLookOriginalBlocksRaycasts;
     private bool awakeningRoomLookShown;
+    private bool moteruEntranceLookShown;
     private string stopAfterLineId;
 
     public string CurrentSpeakerId => currentLine?.speakerId;
@@ -500,6 +501,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         CancelChapterTransition();
         awakeningRoomLookShown = false;
+        moteruEntranceLookShown = false;
         HideChoices();
 
         if (scenario == null)
@@ -1228,6 +1230,14 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void ShowLineImmediately(DialogueLine line)
     {
         PrepareLine(line);
+        if (!moteruEntranceLookShown && line.lineId == "chapter1_001" && line.speakerId == "moteru" &&
+            rightPortraitImage != null && rightPortraitImage.sprite != null && dialogueRoot != null &&
+            backgroundImage != null && backgroundImage.GetComponentInParent<Canvas>() != null)
+        {
+            moteruEntranceLookShown = true;
+            roomLookCoroutine = StartCoroutine(PlayMoteruEntranceLook(line));
+            return;
+        }
         // The waking scene alone gets this introduction; dialogue data is unchanged.
         if (!awakeningRoomLookShown && line.lineId == "prologue2_001" &&
             backgroundImage != null && backgroundImage.sprite != null && dialogueRoot != null &&
@@ -1242,17 +1252,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private IEnumerator PlayAwakeningRoomLook(DialogueLine line)
     {
-        isRoomLookPlaying = true;
-        autoAdvanceAt = -1f;
-        if (bodyText != null) { bodyText.text = string.Empty; bodyText.maxVisibleCharacters = 0; }
-        roomLookPresentation = dialogueRoot.GetComponent<CanvasGroup>();
-        if (roomLookPresentation == null) roomLookPresentation = dialogueRoot.AddComponent<CanvasGroup>();
-        roomLookOriginalAlpha = roomLookPresentation.alpha;
-        roomLookOriginalInteractable = roomLookPresentation.interactable;
-        roomLookOriginalBlocksRaycasts = roomLookPresentation.blocksRaycasts;
-        roomLookPresentation.alpha = 0f;
-        roomLookPresentation.interactable = false;
-        roomLookPresentation.blocksRaycasts = false;
+        HideLookPresentation();
 
         // Animate a clipped copy, leaving the normal background's transform untouched.
         Canvas canvas = backgroundImage.GetComponentInParent<Canvas>();
@@ -1297,6 +1297,94 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (isPlaying && currentLine == line) StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
+    private void HideLookPresentation()
+    {
+        isRoomLookPlaying = true;
+        autoAdvanceAt = -1f;
+        if (bodyText != null) { bodyText.text = string.Empty; bodyText.maxVisibleCharacters = 0; }
+        roomLookPresentation = dialogueRoot.GetComponent<CanvasGroup>();
+        if (roomLookPresentation == null) roomLookPresentation = dialogueRoot.AddComponent<CanvasGroup>();
+        roomLookOriginalAlpha = roomLookPresentation.alpha;
+        roomLookOriginalInteractable = roomLookPresentation.interactable;
+        roomLookOriginalBlocksRaycasts = roomLookPresentation.blocksRaycasts;
+        roomLookPresentation.alpha = 0f;
+        roomLookPresentation.interactable = false;
+        roomLookPresentation.blocksRaycasts = false;
+    }
+
+    private IEnumerator PlayMoteruEntranceLook(DialogueLine line)
+    {
+        HideLookPresentation();
+        Canvas canvas = backgroundImage.GetComponentInParent<Canvas>();
+        roomLookViewport = new GameObject("MoteruEntranceLook", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform viewport = roomLookViewport.GetComponent<RectTransform>();
+        viewport.SetParent(canvas.transform, false);
+        viewport.anchorMin = Vector2.zero;
+        viewport.anchorMax = Vector2.one;
+        viewport.offsetMin = viewport.offsetMax = Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        Image room = CreateRoomLookImage(viewport, "RoomBehindMoteru");
+        Image portrait = CreateRoomLookImage(viewport, "MoteruCloseUp");
+        portrait.sprite = rightPortraitImage.sprite;
+        SetMoteruLookPose(room, portrait, viewport.rect.size, 0f);
+        if (chapterTransitionOverlay != null) chapterTransitionOverlay.transform.SetAsLastSibling();
+        while (isChapterTransitioning || ArchiveManager.IsOpen) yield return null;
+        float elapsed = 0f;
+        // The available sprite ends near the knees. Scan that lower edge up to the face.
+        const float scanDuration = 7.2f, faceHold = 0.6f;
+        while (elapsed < scanDuration + faceHold)
+        {
+            if (ArchiveManager.IsOpen) { yield return null; continue; }
+            elapsed += Time.unscaledDeltaTime;
+            SetMoteruLookPose(room, portrait, viewport.rect.size,
+                Mathf.SmoothStep(0f, 1f, elapsed / scanDuration));
+            yield return null;
+        }
+        // Return to the standard bust-up composition under a short fade, not a hard cut.
+        Image overlay = EnsureChapterTransitionOverlay();
+        if (overlay != null)
+        {
+            overlay.transform.SetAsLastSibling();
+            overlay.gameObject.SetActive(true);
+            yield return FadeLookReturn(0f, 1f);
+        }
+        RestoreRoomLookPresentation();
+        isRoomLookPlaying = true;
+        if (overlay != null)
+        {
+            yield return FadeLookReturn(1f, 0f);
+            overlay.gameObject.SetActive(false);
+        }
+        isRoomLookPlaying = false;
+        roomLookCoroutine = null;
+        if (isPlaying && currentLine == line) StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
+    }
+
+    private IEnumerator FadeLookReturn(float from, float to)
+    {
+        float elapsed = 0f;
+        while (elapsed < 0.3f)
+        {
+            if (ArchiveManager.IsOpen) { yield return null; continue; }
+            elapsed += Time.unscaledDeltaTime;
+            SetChapterTransitionAlpha(Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / 0.3f)));
+            yield return null;
+        }
+        SetChapterTransitionAlpha(to);
+    }
+
+    private static void SetMoteruLookPose(Image room, Image portrait, Vector2 viewportSize, float progress)
+    {
+        float centerY = Mathf.Lerp(0.18f, 0.82f, progress);
+        RectTransform rect = portrait.rectTransform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        float height = viewportSize.y * 2.4f;
+        rect.sizeDelta = new Vector2(height * portrait.sprite.rect.width / portrait.sprite.rect.height, height);
+        rect.anchoredPosition = new Vector2(0f, (0.5f - centerY) * height);
+        // A small matching background tilt makes this a camera move rather than a sliding portrait.
+        SetRoomLookPose(room, viewportSize, new Vector2(0.5f, Mathf.Lerp(0.42f, 0.58f, progress)), 1.35f);
+    }
+
     private Image CreateRoomLookImage(RectTransform parent, string objectName)
     {
         var imageObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -1326,9 +1414,15 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelRoomLook()
     {
+        bool wasLookPlaying = isRoomLookPlaying;
         if (roomLookCoroutine != null) StopCoroutine(roomLookCoroutine);
         roomLookCoroutine = null;
         RestoreRoomLookPresentation();
+        if (wasLookPlaying && !isChapterTransitioning && chapterTransitionOverlay != null)
+        {
+            SetChapterTransitionAlpha(0f);
+            chapterTransitionOverlay.gameObject.SetActive(false);
+        }
     }
 
     private void RestoreRoomLookPresentation()

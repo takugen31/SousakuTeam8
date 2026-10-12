@@ -30,3 +30,18 @@ foreach ($viewport in @(@(1672,941),@(1920,1080),@(1396,814),@(2560,1080),@(1080
     Assert-Room ([Math]::Abs($iw-$w) -lt 0.001 -and [Math]::Abs($ih-$h) -lt 0.001) 'Final view does not match normal background'
 }
 'PASS: waking cue, hidden presentation, cleanup, Esc pause, input guards, and 3480 viewport coverage samples.'
+Assert-Room ($source.Contains('line.lineId == "chapter1_001" && line.speakerId == "moteru"')) 'Moteru first-appearance cue missing'
+Assert-Room ($source.Contains('portrait.sprite = rightPortraitImage.sprite') -and $source.Contains('Mathf.Lerp(0.18f, 0.82f, progress)')) 'Moteru scan does not use the current portrait from lower edge to face'
+Assert-Room ($source.Contains('scanDuration = 7.2f, faceHold = 0.6f') -and $source.Contains('yield return FadeLookReturn(0f, 1f)')) 'Slow tilt, face hold, or return fade missing'
+$previousY = 0.18
+for ($i = 0; $i -le 720; $i++) {
+    $p = Smooth ($i / 720.0)
+    $centerY = 0.18 + 0.64 * $p
+    Assert-Room ($centerY -ge $previousY) 'Scan reverses before reaching the face'
+    $previousY = $centerY
+}
+# Sprite bottom appears 6.8% above the screen bottom initially; head remains in view at end.
+Assert-Room ([Math]::Abs((0.5-0.18)*2.4-1.2+0.432) -lt 0.0001) 'Lower edge is off screen at start'
+Assert-Room ([Math]::Abs((0.5-0.82)*2.4+1.2-0.432) -lt 0.0001) 'Head is off screen at end'
+Assert-Room (-not (Test-Path (Join-Path $root 'Assets/moteru-look-reference')) -and -not (Test-Path (Join-Path $root 'Assets/room-look-reference'))) 'Reference captures were imported into Unity'
+'PASS: Moteru entrance cue, current sprite, lower-to-face trajectory, face hold and return fade; reference sheets remain outside Assets.'
