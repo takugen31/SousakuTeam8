@@ -2730,6 +2730,45 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void EndDialogue()
     {
+        if (useSearchPortraitSlide && isSearchPortraitSliding)
+        {
+            if (!isRoomLookPlaying)
+                roomLookCoroutine = StartCoroutine(FadeOutSearchCloseUp());
+            return;
+        }
+        EndDialogueImmediately();
+    }
+
+    private IEnumerator FadeOutSearchCloseUp()
+    {
+        isRoomLookPlaying = true;
+        autoAdvanceAt = -1f;
+        Image overlay = EnsureChapterTransitionOverlay();
+        if (overlay != null)
+        {
+            overlay.transform.SetAsLastSibling();
+            overlay.gameObject.SetActive(true);
+            SetChapterTransitionAlpha(0f);
+            yield return FadeLookReturn(0f, 1f);
+        }
+        // Restore the room and portraits only under full black, never on the input frame.
+        StopSearchPortraitSlide();
+        if (dialogueRoot != null) dialogueRoot.SetActive(false);
+        yield return null;
+        while (ArchiveManager.IsOpen) yield return null;
+        if (overlay != null)
+        {
+            yield return FadeLookReturn(1f, 0f);
+            overlay.gameObject.SetActive(false);
+        }
+        isRoomLookPlaying = false;
+        roomLookCoroutine = null;
+        // Completion enables exploration or its scene transition; notify only after the fade.
+        EndDialogueImmediately();
+    }
+
+    private void EndDialogueImmediately()
+    {
         CancelChapterTransition();
         StopTypingAndRevealText();
         HideChoices();

@@ -42,4 +42,10 @@ $entryEnd = $source.IndexOf('private IEnumerator PlayAwakeningRoomLook', $entryS
 $entry = $source.Substring($entryStart,$entryEnd-$entryStart)
 Assert-Slide ($entry.IndexOf('yield return FadeLookReturn(0f, 1f)') -lt $entry.IndexOf('PrepareLine(line)') -and $entry.IndexOf('PrepareLine(line)') -lt $entry.IndexOf('yield return FadeLookReturn(1f, 0f)')) 'Incoming normal portrait is applied before full black'
 Assert-Slide ($entry.Contains('yield return null;') -and $effect.Contains('isRoomLookPlaying || rightPortraitImage == null')) 'Full-black frame or motion pause missing'
+$exitStart = $source.IndexOf('private IEnumerator FadeOutSearchCloseUp')
+$exitEnd = $source.IndexOf('private void EndDialogueImmediately', $exitStart)
+$exitEffect = $source.Substring($exitStart,$exitEnd-$exitStart)
+Assert-Slide ($source.Contains('if (useSearchPortraitSlide && isSearchPortraitSliding)') -and $source.Contains('StartCoroutine(FadeOutSearchCloseUp())')) 'Exit input skips the fade'
+Assert-Slide ($exitEffect.IndexOf('yield return FadeLookReturn(0f, 1f)') -lt $exitEffect.IndexOf('StopSearchPortraitSlide()') -and $exitEffect.IndexOf('StopSearchPortraitSlide()') -lt $exitEffect.IndexOf('yield return FadeLookReturn(1f, 0f)')) 'Exit restores the normal view before full black'
+Assert-Slide ($exitEffect.IndexOf('yield return FadeLookReturn(1f, 0f)') -lt $exitEffect.IndexOf('EndDialogueImmediately()') -and $exitEffect.Contains('isRoomLookPlaying = true')) 'Completion/input are not held until exit fade ends'
 'PASS: exploration-only Kayo/Yowashi framing, dialogue kept visible, head crop, 8 s horizontal motion, pause and transform restoration.'
