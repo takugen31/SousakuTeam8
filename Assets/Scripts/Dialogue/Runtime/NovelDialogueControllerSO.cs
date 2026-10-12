@@ -272,6 +272,10 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool roomLookOriginalBlocksRaycasts;
     private bool awakeningRoomLookShown;
     private bool moteruEntranceLookShown;
+    private RectTransform[] shakingWindowRects;
+    private Vector2[] shakingWindowPositions;
+    private Quaternion[] shakingWindowRotations;
+    private float windowShakeElapsed;
     private string stopAfterLineId;
 
     public string CurrentSpeakerId => currentLine?.speakerId;
@@ -395,6 +399,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
+        UpdateWindowShake();
         if (isRoomLookPlaying || ArchiveManager.IsOpen ||
             isChapterTransitioning ||
             isSceneLoading ||
@@ -1198,6 +1203,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        StopWindowShake();
         CancelRoomLook();
         if (chapterTransitionCoroutine != null)
         {
@@ -1445,11 +1451,13 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopWindowShake();
         CancelRoomLook();
     }
 
     private void PrepareLine(DialogueLine line)
     {
+        StopWindowShake();
         HideChoices();
 
         currentLine = line;
@@ -1818,6 +1826,59 @@ public sealed class NovelDialogueController : MonoBehaviour
         bodyText.maxVisibleCharacters = 0;
 
         typingCoroutine = StartCoroutine(TypeText());
+        if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
+            StartWindowShake();
+    }
+
+    private void StartWindowShake()
+    {
+        StopWindowShake();
+        RectTransform panel = bodyText != null ? bodyText.transform.parent as RectTransform : null;
+        // Never animate DialogueRoot: it also owns the character portraits.
+        if (panel == null || (dialogueRoot != null && panel == dialogueRoot.transform)) return;
+        RectTransform plate = namePlate != null ? namePlate.GetComponent<RectTransform>() : null;
+        shakingWindowRects = plate != null && plate != panel && !plate.IsChildOf(panel)
+            ? new[] { panel, plate } : new[] { panel };
+        shakingWindowPositions = new Vector2[shakingWindowRects.Length];
+        shakingWindowRotations = new Quaternion[shakingWindowRects.Length];
+        for (int i = 0; i < shakingWindowRects.Length; i++)
+        {
+            shakingWindowPositions[i] = shakingWindowRects[i].anchoredPosition;
+            shakingWindowRotations[i] = shakingWindowRects[i].localRotation;
+        }
+        windowShakeElapsed = 0f;
+    }
+
+    private void UpdateWindowShake()
+    {
+        if (shakingWindowRects == null || ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen) return;
+        const float duration = 2.2f;
+        windowShakeElapsed += Time.unscaledDeltaTime;
+        if (windowShakeElapsed >= duration) { StopWindowShake(); return; }
+        float strength = 1f - Mathf.SmoothStep(0f, 1f, windowShakeElapsed / duration);
+        float phase = windowShakeElapsed * Mathf.PI * 2f;
+        Vector2 offset = new Vector2(Mathf.Sin(phase * 5f) * 10f, Mathf.Sin(phase * 7f) * 6f) * strength;
+        Quaternion rotation = Quaternion.Euler(0f, 0f, Mathf.Sin(phase * 4f) * 1.2f * strength);
+        for (int i = 0; i < shakingWindowRects.Length; i++)
+        {
+            if (shakingWindowRects[i] == null) continue;
+            shakingWindowRects[i].anchoredPosition = shakingWindowPositions[i] + offset;
+            shakingWindowRects[i].localRotation = shakingWindowRotations[i] * rotation;
+        }
+    }
+
+    private void StopWindowShake()
+    {
+        if (shakingWindowRects == null) return;
+        for (int i = 0; i < shakingWindowRects.Length; i++)
+        {
+            if (shakingWindowRects[i] == null) continue;
+            shakingWindowRects[i].anchoredPosition = shakingWindowPositions[i];
+            shakingWindowRects[i].localRotation = shakingWindowRotations[i];
+        }
+        shakingWindowRects = null;
+        shakingWindowPositions = null;
+        shakingWindowRotations = null;
     }
 
     private IEnumerator TypeText()
