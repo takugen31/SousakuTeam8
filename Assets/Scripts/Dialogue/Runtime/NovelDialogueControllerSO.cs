@@ -2404,7 +2404,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (speakerNameText != null)
         {
             speakerNameText.text = GetSpeakerDisplayName(character,
-                knownCharacterIds.Contains(line.speakerId) || revealedCharacterIds.Contains(line.speakerId),
+                knownCharacterIds.Contains(line.speakerId) || revealedCharacterIds.Contains(line.speakerId) ||
+                    AreCommonIntroductionsComplete(line.lineId),
                 unknownSpeakerName);
             speakerNameText.color = character.nameColor;
         }

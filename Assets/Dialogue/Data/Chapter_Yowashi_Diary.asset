@@ -204,19 +204,6 @@ MonoBehaviour:
     revealSpeakerName: 0
     consultationTitle:
     nextScenePath: 
-    nextLineId: chapter_yowashi_diary_016
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_yowashi_diary_016
-    speakerId: 
-    expressionId: 
-    text: "［誰かの日記］を手に入れた"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle:
-    nextScenePath: 
     nextLineId: 
     choices: []
     affectionChanges: []

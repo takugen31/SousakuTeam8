@@ -66,6 +66,15 @@ if($controller.knownCharacterIds.Contains('yowashi')) { throw 'Future name revea
 foreach ($id in @('chapter_yowashi_1_019', 'chapter_yowashi_beforecatch_010', 'chapter_yowashi_catchsuccess_001', 'chapter_kayo_3_008', 'chapter2_end_003', 'chapter3_001')) {
     if (-not [NameHistoryChecks.Controller]::AreCommonIntroductionsComplete($id)) { throw "Route prerequisites missing at $id" }
 }
+if (-not $source.Contains('AreCommonIntroductionsComplete(line.lineId),')) { throw 'Speaker render still relies only on transient name cache' }
+foreach ($row in 1..19) {
+    $id = 'chapter_yowashi_beforecatch_{0:000}' -f $row
+    $knownFromContext = [NameHistoryChecks.Controller]::AreCommonIntroductionsComplete($id)
+    Check-Name 'yowashi' 'ヨワシ' $false $knownFromContext 'ヨワシ'
+}
+$csv = Import-Csv (Join-Path $root 'Assets/Dialogue/CSV/Chapter_Yowashi_BeforeCatch.csv')
+$problem = $csv | Where-Object lineId -eq 'chapter_yowashi_beforecatch_007'
+if ($problem.speakerId -ne 'yowashi' -or -not $problem.text.Contains('この日記は知らんぞ')) { throw 'Problem dialogue cue differs' }
 foreach ($id in @('chapter1_yowashi_001', 'chapter2_yowashi_001', 'chapter2_kayo_001', 'prologue2_001')) {
     if ([NameHistoryChecks.Controller]::AreCommonIntroductionsComplete($id)) { throw "Names revealed early at $id" }
 }
