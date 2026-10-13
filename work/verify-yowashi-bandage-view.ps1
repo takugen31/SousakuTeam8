@@ -26,7 +26,8 @@ $effectStart=$source.IndexOf('private void StartYowashiBandageView')
 $effectEnd=$source.IndexOf('private void StartGatheringComposition',$effectStart)
 $effect=$source.Substring($effectStart,$effectEnd-$effectStart)
 Assert-Bandage ($effect.Contains('viewport.y * 4f') -and $effect.Contains('(0.5f - 0.65f) * height')) 'Torso crop missing'
-Assert-Bandage ($effect.Contains('new Vector2(0.14f, 1f)') -and $effect.Contains('new Vector2(0.86f, 0f)') -and $effect.Contains('image.color = Color.black')) 'Side bands missing'
+Assert-Bandage ($effect.Contains('new Vector2(0.56f, 1f)') -and $effect.Contains('new Vector2(0.86f, 0f)') -and $effect.Contains('image.color = Color.black')) 'Markup-aligned left band or right band missing'
+Assert-Bandage ($effect.Contains('ConfigureFeather(new Vector2(parent.rect.width * 0.035f, 0f))')) 'Side-band edge transparency fade missing'
 Assert-Bandage ($effect.Contains('rightPortraitImage.transform.GetSiblingIndex() + 1') -and -not $effect.Contains('HideLookPresentation')) 'Text UI is hidden or covered'
 Assert-Bandage ($effect.Contains('leftPortraitImage.enabled = bandageLeftWasEnabled') -and $effect.Contains('rightPortraitImage.enabled = bandageRightWasEnabled')) 'Portrait visibility not restored'
 Assert-Bandage ((0.90-0.65)*4 -gt 0.5 -and (0.66-0.65)*4 -lt 0.5 -and (0.66-0.65)*4 -gt -0.5) 'Face remains in view or forearm leaves view'

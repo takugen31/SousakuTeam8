@@ -1733,7 +1733,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         portrait.rectTransform.anchorMin = portrait.rectTransform.anchorMax = portrait.rectTransform.pivot = new Vector2(0.5f, 0.5f);
         portrait.rectTransform.sizeDelta = new Vector2(height * portraitSprite.rect.width / portraitSprite.rect.height, height);
         portrait.rectTransform.anchoredPosition = new Vector2(0f, (0.5f - 0.65f) * height);
-        CreateBandageSideBar(frame, "LeftBand", new Vector2(0f, 0f), new Vector2(0.14f, 1f));
+        CreateBandageSideBar(frame, "LeftBand", new Vector2(0f, 0f), new Vector2(0.56f, 1f));
         CreateBandageSideBar(frame, "RightBand", new Vector2(0.86f, 0f), new Vector2(1f, 1f));
     }
 
@@ -1747,6 +1747,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         Image image = band.GetComponent<Image>();
         image.color = Color.black;
         image.raycastTarget = false;
+        band.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(parent.rect.width * 0.035f, 0f));
     }
 
     private void StopYowashiBandageView()
