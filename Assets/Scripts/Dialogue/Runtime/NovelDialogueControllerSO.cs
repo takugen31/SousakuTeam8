@@ -1793,7 +1793,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         const string prefix = "chapter2_yowashi_";
         return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
-            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 9 && row <= 16;
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 9 && row <= 14;
     }
 
     private void StartYowashiBandageView(DialogueLine line)
