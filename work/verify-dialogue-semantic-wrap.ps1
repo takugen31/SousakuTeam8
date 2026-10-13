@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
-$start = $source.IndexOf('public static string WrapDialogueAtMeaningfulBreaks(')
+$start = $source.IndexOf('public static string NormalizeDialogueLineIndentation(')
 $end = $source.IndexOf('private void StartWindowShake()', $start)
 $methods = $source.Substring($start, $end-$start)
 Add-Type -TypeDefinition @"
@@ -14,6 +14,11 @@ public static string Wrap(string text, float width) {
 }
 "@
 function Check($condition, $message) { if (-not $condition) { throw $message } }
+$indented = "ぴっちぴちの16歳！`n　ていうか、細かいことを気にする男はモテないよ～？`n　恋人を作らないと出れない部屋なんだから、"
+$aligned = [DialogueWrapChecks]::NormalizeDialogueLineIndentation($indented)
+Check (-not [regex]::IsMatch($aligned, '(?m)^[ \t\u3000]')) 'Line-leading indentation remains'
+Check ([DialogueWrapChecks]::NormalizeDialogueLineIndentation("　名前 はそのまま`n`n`t 次の行") -eq "名前 はそのまま`n`n次の行") 'Inner spaces or blank lines lost'
+Check ($source.Contains('bodyText.horizontalAlignment = HorizontalAlignmentOptions.Left;')) 'Body text not left-aligned'
 $example = 'カヨちゃんは自分なりにドジを気にしてるみたいですけど、治すことの難しさもあるし、俺はどう応援するのがいいんでしょう？'
 $formatted = [DialogueWrapChecks]::Wrap($example, 28)
 Check ($formatted.Contains("ですけど、`n")) 'Clause end not preferred'

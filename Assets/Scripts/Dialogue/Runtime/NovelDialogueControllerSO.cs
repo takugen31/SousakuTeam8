@@ -2526,9 +2526,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         Canvas.ForceUpdateCanvases();
+        bodyText.horizontalAlignment = HorizontalAlignmentOptions.Left;
+        text = NormalizeDialogueLineIndentation(text);
         float availableWidth = bodyText.rectTransform.rect.width - bodyText.margin.x - bodyText.margin.z;
-        bodyText.text = WrapDialogueAtMeaningfulBreaks(text, availableWidth,
-            candidate => bodyText.GetPreferredValues(candidate, float.PositiveInfinity, float.PositiveInfinity).x);
+        bodyText.text = NormalizeDialogueLineIndentation(WrapDialogueAtMeaningfulBreaks(text, availableWidth,
+            candidate => bodyText.GetPreferredValues(candidate, float.PositiveInfinity, float.PositiveInfinity).x));
         bodyText.maxVisibleCharacters = 0;
 
         typingCoroutine = StartCoroutine(TypeText());
@@ -2537,6 +2539,14 @@ public sealed class NovelDialogueController : MonoBehaviour
             BeginKayoFallMotion(0f, 0.45f);
         if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
             StartWindowShake();
+    }
+
+    public static string NormalizeDialogueLineIndentation(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        // Scenario source contains full-width indentation on some continuation lines.
+        // Remove only line-leading spaces, preserving wording, blank lines and inner spaces.
+        return System.Text.RegularExpressions.Regex.Replace(text, @"(?m)^[ \t\u3000]+", string.Empty);
     }
 
     public static string WrapDialogueAtMeaningfulBreaks(string text, float width, Func<string, float> measure)
