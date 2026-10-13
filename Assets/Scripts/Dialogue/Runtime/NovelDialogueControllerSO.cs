@@ -297,6 +297,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     private int gatheringLeftSibling, gatheringRightSibling;
     private string gatheringAnimationTarget;
     private float gatheringDouteSlideElapsed;
+    private float kayoFallProgress, kayoFallFrom, kayoFallTo, kayoFallElapsed, kayoFallDuration;
+    private bool kayoFallMoving, kayoScreamTriggered;
 
     private struct SearchPortraitPose
     {
@@ -428,6 +430,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void Update()
     {
         UpdateGatheringDouteSlide();
+        UpdateKayoFall();
         UpdateSearchPortraitSlide();
         UpdateWindowShake();
         if (isRoomLookPlaying || ArchiveManager.IsOpen ||
@@ -1270,6 +1273,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
+        ResetKayoFall();
         CancelRoomLook();
         if (chapterTransitionCoroutine != null)
         {
@@ -1568,6 +1572,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
+        ResetKayoFall();
         CancelRoomLook();
     }
 
@@ -1598,7 +1603,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         string target = line != null && line.lineId != null && line.lineId.StartsWith("chapter1_kayo_", StringComparison.Ordinal)
             ? "kayo" : line != null && line.lineId != null && line.lineId.StartsWith("chapter1_yowashi_", StringComparison.Ordinal)
                 ? "yowashi" : null;
-        if (target == null) { gatheringAnimationTarget = null; return; }
+        if (target == null) { gatheringAnimationTarget = null; ResetKayoFall(); return; }
         if (leftPortraitImage == null || rightPortraitImage == null ||
             dialogueRoot == null || backgroundImage == null || backgroundImage.sprite == null ||
             characterDatabase == null || !characterDatabase.TryGetCharacter(target, out CharacterData character)) return;
@@ -1609,6 +1614,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         {
             gatheringAnimationTarget = target;
             gatheringDouteSlideElapsed = 0f;
+            ResetKayoFall();
         }
         // The other person is present even on Doute's opening greeting.
         SetPortrait(rightPortraitImage, portrait);
@@ -1640,6 +1646,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         float cropLine = target == "kayo" ? 0.83f : 0.87f;
         SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f,
             0.5f - (cropLine - 0.5f) * 3.1f, 1f);
+        ApplyKayoFallPose();
 
         var dividerObject = new GameObject("GatheringCenterDivider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         dividerObject.transform.SetParent(parent, false);
@@ -1660,6 +1667,61 @@ public sealed class NovelDialogueController : MonoBehaviour
             ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
         gatheringDouteSlideElapsed = Mathf.Min(5.5f, gatheringDouteSlideElapsed + Time.unscaledDeltaTime);
         ApplyGatheringDouteSlide(dialogueRoot.GetComponent<RectTransform>().rect.size);
+    }
+
+    private void UpdateKayoFall()
+    {
+        if (!isGatheringCompositionActive || gatheringAnimationTarget != "kayo" ||
+            ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
+        if (!kayoScreamTriggered && currentLine?.lineId == "chapter1_kayo_014" && bodyText != null)
+        {
+            string displayText = GetDialogueDisplayText(currentLine, omitOuterDialogueQuotes);
+            int screamAt = displayText.IndexOf("きゃ", StringComparison.Ordinal);
+            if (screamAt >= 0 && bodyText.maxVisibleCharacters >= screamAt + 2) TriggerKayoFall();
+        }
+        if (!kayoFallMoving) return;
+        kayoFallElapsed = Mathf.Min(kayoFallDuration, kayoFallElapsed + Time.unscaledDeltaTime);
+        float t = kayoFallElapsed / kayoFallDuration;
+        float eased = kayoFallTo > kayoFallFrom ? t * (2f - t) : Mathf.SmoothStep(0f, 1f, t);
+        kayoFallProgress = Mathf.Lerp(kayoFallFrom, kayoFallTo, eased);
+        ApplyKayoFallPose();
+        if (kayoFallElapsed >= kayoFallDuration) kayoFallMoving = false;
+    }
+
+    private void TriggerKayoFall()
+    {
+        if (kayoScreamTriggered || !isGatheringCompositionActive || gatheringAnimationTarget != "kayo") return;
+        kayoScreamTriggered = true;
+        BeginKayoFallMotion(1f, 0.28f);
+    }
+
+    private void BeginKayoFallMotion(float destination, float duration)
+    {
+        kayoFallFrom = kayoFallProgress;
+        kayoFallTo = destination;
+        kayoFallDuration = duration;
+        kayoFallElapsed = 0f;
+        kayoFallMoving = true;
+    }
+
+    private void ApplyKayoFallPose()
+    {
+        if (!isGatheringCompositionActive || gatheringAnimationTarget != "kayo" ||
+            rightPortraitImage == null || dialogueRoot == null) return;
+        float viewportHeight = dialogueRoot.GetComponent<RectTransform>().rect.height;
+        float normalY = 0.5f - (0.83f - 0.5f) * 3.1f;
+        // Formal Kayo's drawn crown is at 92.2% of the full sprite height.
+        // Leave just its top 10% of viewport height visible above the bottom screen edge.
+        float drop = -0.40f - (normalY + (0.922f - 0.5f) * 3.1f);
+        RectTransform rect = rightPortraitImage.rectTransform;
+        rect.anchoredPosition = new Vector2(rect.anchoredPosition.x,
+            (normalY + drop * kayoFallProgress) * viewportHeight);
+    }
+
+    private void ResetKayoFall()
+    {
+        kayoFallProgress = kayoFallFrom = kayoFallTo = kayoFallElapsed = 0f;
+        kayoFallMoving = kayoScreamTriggered = false;
     }
 
     private void ApplyGatheringDouteSlide(Vector2 viewport)
@@ -2218,6 +2280,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         bodyText.maxVisibleCharacters = 0;
 
         typingCoroutine = StartCoroutine(TypeText());
+        // There is no cough line in this scene; stand up on the existing recovery reply.
+        if (currentLine?.lineId == "chapter1_kayo_017" && kayoScreamTriggered)
+            BeginKayoFallMotion(0f, 0.45f);
         if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
             StartWindowShake();
     }
@@ -2333,6 +2398,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void HandleLineFullyDisplayed()
     {
+        if (currentLine?.lineId == "chapter1_kayo_014") TriggerKayoFall();
         RevealCurrentSpeakerName();
 
         if (currentLine != null && currentLine.HasSceneTransition)
