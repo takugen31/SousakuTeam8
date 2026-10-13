@@ -2777,9 +2777,30 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
     }
 
+    public static bool AreCommonIntroductionsComplete(string lineId)
+    {
+        if (string.IsNullOrEmpty(lineId)) return false;
+        // These routes/chapters can only be entered after all three introductions.
+        // Also cover starting a route scene directly in the editor or resuming it.
+        return lineId.StartsWith("chapter_yowashi_", StringComparison.Ordinal) ||
+            lineId.StartsWith("chapter_kayo_", StringComparison.Ordinal) ||
+            lineId.StartsWith("chapter_moteru_", StringComparison.Ordinal) ||
+            lineId.StartsWith("chapter2_end_", StringComparison.Ordinal) ||
+            lineId.StartsWith("chapter3_", StringComparison.Ordinal) ||
+            lineId.StartsWith("search_kayo_", StringComparison.Ordinal);
+    }
+
     private void RestoreNamesIntroducedBefore(DialogueLine target)
     {
         if (target == null || currentScenario == null) return;
+        if (AreCommonIntroductionsComplete(target.lineId))
+        {
+            foreach (string id in new[] { "kayo", "yowashi", "moteru" })
+            {
+                knownCharacterIds.Add(id);
+                revealedCharacterIds.Add(id);
+            }
+        }
         // Skipping an introduction or resuming beyond it bypasses its typing-complete
         // callback. Reconstruct already introduced names from the scenario sequence,
         // without revealing the current introduction page or future characters.
