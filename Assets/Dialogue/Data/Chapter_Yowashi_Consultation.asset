@@ -17,13 +17,15 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_001
     speakerId: player
     expressionId: normal
-    text: "一回状況を整理しよう"
+    text:
     background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
     consultationTitle:
     nextScenePath: 
-    nextLineId: chapter_yowashi_consultation_002
-    choices: []
+    nextLineId:
+    choices:
+    - text: "一回状況を整理しよう"
+      nextLineId: chapter_yowashi_consultation_002
     affectionChanges: []
     archiveUnlockIds: []
     branches: []

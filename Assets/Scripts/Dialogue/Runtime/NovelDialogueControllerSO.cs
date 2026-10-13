@@ -311,6 +311,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private RectTransform kayoEggRect;
     private Vector2 kayoEggSlideStart;
     private float kayoEggSlideElapsed;
+    private CanvasGroup choiceOnlyWindowGroup;
+    private float choiceOnlyOriginalAlpha;
+    private bool choiceOnlyOriginalRaycasts, choiceOnlyOriginalNameActive;
 
     private struct SearchPortraitPose
     {
@@ -1291,6 +1294,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
+        RestoreChoiceOnlyWindow();
         ResetKayoFall();
         CancelRoomLook();
         if (chapterTransitionCoroutine != null)
@@ -1594,6 +1598,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
+        RestoreChoiceOnlyWindow();
         ResetKayoFall();
         CancelRoomLook();
     }
@@ -1606,6 +1611,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
+        RestoreChoiceOnlyWindow();
         HideChoices();
 
         currentLine = line;
@@ -2532,6 +2538,16 @@ public sealed class NovelDialogueController : MonoBehaviour
             StopCoroutine(typingCoroutine);
         }
 
+        if (currentLine.HasChoices && string.IsNullOrWhiteSpace(text))
+        {
+            typingCoroutine = null;
+            isTyping = false;
+            bodyText.text = string.Empty;
+            ShowChoiceOnlyWindow();
+            HandleLineFullyDisplayed();
+            return;
+        }
+
         if (GetInformationNoticeTitle(currentLine) != null &&
             !currentLine.HasChoices && !currentLine.HasSceneTransition)
         {
@@ -2558,6 +2574,32 @@ public sealed class NovelDialogueController : MonoBehaviour
             BeginKayoFallMotion(0f, 0.45f);
         if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
             StartWindowShake();
+    }
+
+    private void ShowChoiceOnlyWindow()
+    {
+        Transform panel = bodyText.transform.parent;
+        // Hide only the text panel, never DialogueRoot (portraits and choices live there).
+        if (panel != null && panel != dialogueRoot?.transform &&
+            (choiceOptionsRoot == null || !choiceOptionsRoot.IsChildOf(panel)))
+        {
+            choiceOnlyWindowGroup = panel.GetComponent<CanvasGroup>() ?? panel.gameObject.AddComponent<CanvasGroup>();
+            choiceOnlyOriginalAlpha = choiceOnlyWindowGroup.alpha;
+            choiceOnlyOriginalRaycasts = choiceOnlyWindowGroup.blocksRaycasts;
+            choiceOnlyWindowGroup.alpha = 0f;
+            choiceOnlyWindowGroup.blocksRaycasts = false;
+        }
+        choiceOnlyOriginalNameActive = namePlate != null && namePlate.activeSelf;
+        if (namePlate != null) namePlate.SetActive(false);
+    }
+
+    private void RestoreChoiceOnlyWindow()
+    {
+        if (choiceOnlyWindowGroup == null) return;
+        choiceOnlyWindowGroup.alpha = choiceOnlyOriginalAlpha;
+        choiceOnlyWindowGroup.blocksRaycasts = choiceOnlyOriginalRaycasts;
+        choiceOnlyWindowGroup = null;
+        if (namePlate != null) namePlate.SetActive(choiceOnlyOriginalNameActive);
     }
 
     public static string NormalizeDialogueLineIndentation(string text)
