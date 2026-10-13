@@ -2092,10 +2092,9 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         if (speakerNameText != null)
         {
-            speakerNameText.text =
-                knownCharacterIds.Contains(line.speakerId)
-                    ? character.displayName
-                    : unknownSpeakerName;
+            speakerNameText.text = GetSpeakerDisplayName(character,
+                knownCharacterIds.Contains(line.speakerId) || revealedCharacterIds.Contains(line.speakerId),
+                unknownSpeakerName);
             speakerNameText.color = character.nameColor;
         }
 
@@ -2137,6 +2136,15 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (characterId == "kayo")
             rect.anchoredPosition += Vector2.up *
                 (rect.rect.height * rightPortraitBaseScale.y * kayoPortraitUpwardOffset);
+    }
+
+    public static string GetSpeakerDisplayName(CharacterData character, bool revealed, string unknownName)
+    {
+        if (character == null) return unknownName;
+        // Doute is already known. Never let an empty per-controller cache hide his name.
+        bool known = string.Equals(character.characterId, "doute", StringComparison.Ordinal) ||
+            character.nameKnownInitially || revealed;
+        return known ? character.displayName : unknownName;
     }
 
     private void ApplyProtagonistFacing()
@@ -2346,6 +2354,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void ResetKnownCharacterNames()
     {
         knownCharacterIds.Clear();
+        knownCharacterIds.Add("doute");
 
         if (characterDatabase == null)
         {
