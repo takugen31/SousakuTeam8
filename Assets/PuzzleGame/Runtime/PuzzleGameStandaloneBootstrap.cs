@@ -13,6 +13,8 @@ namespace SousakuTeam8.PuzzleGame
     [DisallowMultipleComponent]
     public sealed class PuzzleGameStandaloneBootstrap : MonoBehaviour
     {
+        [SerializeField] private Sprite roomBackground;
+        [SerializeField] private Font uiFont;
         private void Awake()
         {
             EnsureEventSystem();
@@ -36,14 +38,17 @@ namespace SousakuTeam8.PuzzleGame
 
             var gameObject = new GameObject(
                 "Puzzle Game Panel",
-                typeof(RectTransform),
-                typeof(PuzzleGameController));
+                typeof(RectTransform));
+            gameObject.SetActive(false);
             var rect = gameObject.GetComponent<RectTransform>();
             rect.SetParent(canvasObject.transform, false);
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
+            var controller = gameObject.AddComponent<PuzzleGameController>();
+            controller.ConfigureTheme(roomBackground, uiFont);
+            gameObject.SetActive(true);
         }
 
         private static void EnsureEventSystem()
