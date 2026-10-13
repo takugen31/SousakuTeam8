@@ -9,6 +9,8 @@ Assert-Gather ($effect.Contains('StartsWith("chapter1_kayo_", StringComparison.O
 Assert-Gather ($effect.Contains('SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, -0.91f') -and $effect.Contains('SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f')) 'Portrait framing missing'
 Assert-Gather ($effect.Contains('new Vector2(0.5f, 0.48f), 1.35f') -and $effect.Contains('new Vector2(0.5f, 0.53f), 1.35f') -and $effect.Contains('gatheringDivider.color = Color.black') -and $effect.Contains('ConfigureFeather(new Vector2(viewport.x * 0.08f, 0f))')) 'Independent camera heights, opaque center or wider edge feather missing'
 Assert-Gather ($effect.Contains('CreateRoomLookImage(gatheringLeftFrame, "GatheringLeftRoom")') -and $effect.Contains('CreateRoomLookImage(gatheringRightFrame, "GatheringRightRoom")')) 'Background halves are not independently clipped'
+Assert-Gather ($effect.Contains('SetRoomLookPose(gatheringLeftBackground, viewport, new Vector2(0.5f, 0.53f), 1.35f)') -and $effect.Contains('SetRoomLookPose(gatheringRightBackground, viewport, new Vector2(0.5f, 0.48f), 1.35f)')) 'Right background is not above Doute background'
+Assert-Gather ((0.5-0.48)*1.35 -gt (0.5-0.53)*1.35) 'Vertical background offset direction is reversed'
 Assert-Gather ((0.53-0.48)*1.35 -gt 0.06 -and (0.53-0.48)*1.35 -lt 0.08) 'Background height difference is not subtle'
 Assert-Gather ($effect.Contains('width * 0.5f') -and $effect.Contains('typeof(RectMask2D)')) 'Portrait halves can overlap'
 Assert-Gather ($effect.Contains('SetSiblingIndex(gatheringRightFrame.GetSiblingIndex() + 1)') -and $effect.Contains('gatheringDivider.raycastTarget = false')) 'Divider layering/input safety incorrect'

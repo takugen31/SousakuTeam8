@@ -1595,10 +1595,10 @@ public sealed class NovelDialogueController : MonoBehaviour
         // Each half has its own camera height; room lines no longer join across the split.
         gatheringLeftBackground = CreateRoomLookImage(gatheringLeftFrame, "GatheringLeftRoom");
         gatheringLeftBackground.transform.SetAsFirstSibling();
-        SetRoomLookPose(gatheringLeftBackground, viewport, new Vector2(0.5f, 0.48f), 1.35f);
+        SetRoomLookPose(gatheringLeftBackground, viewport, new Vector2(0.5f, 0.53f), 1.35f);
         gatheringRightBackground = CreateRoomLookImage(gatheringRightFrame, "GatheringRightRoom");
         gatheringRightBackground.transform.SetAsFirstSibling();
-        SetRoomLookPose(gatheringRightBackground, viewport, new Vector2(0.5f, 0.53f), 1.35f);
+        SetRoomLookPose(gatheringRightBackground, viewport, new Vector2(0.5f, 0.48f), 1.35f);
         SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, -0.91f,
             mirrorDoutePortrait ? -1f : 1f);
         float cropLine = target == "kayo" ? 0.83f : 0.87f;
