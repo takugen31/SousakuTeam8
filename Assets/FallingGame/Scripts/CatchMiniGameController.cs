@@ -140,6 +140,8 @@ namespace Sousakusai8.MiniGame
         private int originalTextureMipmapLimit;
         private int originalAntiAliasing;
         private RenderPipelineAsset originalRenderPipeline;
+        private int miniGameQualityLevel;
+        private RenderPipelineAsset miniGameOriginalRenderPipeline;
         private UniversalRenderPipelineAsset runtimeRenderPipeline;
         private bool renderingQualityApplied;
 
@@ -313,6 +315,9 @@ namespace Sousakusai8.MiniGame
                 QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1, true);
             }
 
+            miniGameQualityLevel = QualitySettings.GetQualityLevel();
+            miniGameOriginalRenderPipeline = QualitySettings.renderPipeline;
+
             QualitySettings.globalTextureMipmapLimit = 0;
             QualitySettings.antiAliasing = antiAliasingSamples;
             ScalableBufferManager.ResizeBuffers(1f, 1f);
@@ -341,6 +346,11 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
+            // renderPipeline is a per-quality-level setting. Restore the slot that
+            // received the runtime clone BEFORE returning to the original quality.
+            // Otherwise Ultra retains a reference to the destroyed clone on replay.
+            QualitySettings.SetQualityLevel(miniGameQualityLevel, true);
+            QualitySettings.renderPipeline = miniGameOriginalRenderPipeline;
             QualitySettings.SetQualityLevel(originalQualityLevel, true);
             QualitySettings.globalTextureMipmapLimit = originalTextureMipmapLimit;
             QualitySettings.antiAliasing = originalAntiAliasing;
@@ -350,7 +360,9 @@ namespace Sousakusai8.MiniGame
             if (runtimeRenderPipeline != null)
             {
                 Destroy(runtimeRenderPipeline);
+                runtimeRenderPipeline = null;
             }
+            renderingQualityApplied = false;
         }
 
         public void SpawnItems(Vector3 dropperPosition)
