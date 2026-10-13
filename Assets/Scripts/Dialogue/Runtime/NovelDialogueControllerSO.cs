@@ -305,6 +305,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private GameObject moteruRevealView;
     private bool isMoteruRevealViewActive;
     private bool revealLeftWasEnabled, revealRightWasEnabled;
+    private GameObject kayoEggView;
+    private bool isKayoEggViewActive;
+    private Color eggLeftOriginalColor, eggRightOriginalColor;
 
     private struct SearchPortraitPose
     {
@@ -1276,6 +1279,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
         StopGatheringComposition();
@@ -1579,6 +1583,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
         StopGatheringComposition();
@@ -1590,6 +1595,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
         StopGatheringComposition();
@@ -1610,7 +1616,65 @@ public sealed class NovelDialogueController : MonoBehaviour
         StartSearchPortraitSlide(line);
         StartYowashiBandageView(line);
         StartMoteruRevealView(line);
+        StartKayoEggView(line);
         LineStarted?.Invoke(line);
+    }
+
+    public static bool IsKayoEggLine(string lineId)
+    {
+        const string prefix = "chapter2_kayo_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 12 && row <= 14;
+    }
+
+    private void StartKayoEggView(DialogueLine line)
+    {
+        if (!IsKayoEggLine(line?.lineId) || dialogueRoot == null) return;
+        // Reuse the original standalone item art, not a crop of Kayo's portrait.
+        Sprite egg = Resources.Load<DialogueAdvanceMarkSet>("DialogueAdvanceMarks")?.kayo;
+        if (egg == null) return;
+        if (leftPortraitImage != null)
+        {
+            eggLeftOriginalColor = leftPortraitImage.color;
+            leftPortraitImage.color = new Color(eggLeftOriginalColor.r * 0.45f,
+                eggLeftOriginalColor.g * 0.45f, eggLeftOriginalColor.b * 0.45f, eggLeftOriginalColor.a);
+        }
+        if (rightPortraitImage != null)
+        {
+            eggRightOriginalColor = rightPortraitImage.color;
+            rightPortraitImage.color = new Color(eggRightOriginalColor.r * 0.45f,
+                eggRightOriginalColor.g * 0.45f, eggRightOriginalColor.b * 0.45f, eggRightOriginalColor.a);
+        }
+        isKayoEggViewActive = true;
+        kayoEggView = new GameObject("KayoEggIllustration", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform rect = kayoEggView.GetComponent<RectTransform>();
+        rect.SetParent(dialogueRoot.transform, false);
+        rect.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        RectTransform root = dialogueRoot.transform as RectTransform;
+        float height = root != null && root.rect.height > 0f ? root.rect.height * 0.42f : 450f;
+        rect.sizeDelta = new Vector2(height * egg.rect.width / egg.rect.height, height);
+        Image image = kayoEggView.GetComponent<Image>();
+        image.sprite = egg;
+        image.preserveAspect = true;
+        image.raycastTarget = false;
+    }
+
+    private void StopKayoEggView()
+    {
+        if (!isKayoEggViewActive) return;
+        if (leftPortraitImage != null) leftPortraitImage.color = eggLeftOriginalColor;
+        if (rightPortraitImage != null) rightPortraitImage.color = eggRightOriginalColor;
+        if (kayoEggView != null)
+        {
+            kayoEggView.SetActive(false);
+            kayoEggView.transform.SetParent(null, false);
+            Destroy(kayoEggView);
+            kayoEggView = null;
+        }
+        isKayoEggViewActive = false;
     }
 
     public static bool IsMoteruRevealLine(string lineId)
