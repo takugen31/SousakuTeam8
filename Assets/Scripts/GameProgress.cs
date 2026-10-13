@@ -16,6 +16,7 @@ public static class GameProgress
     public static void ResetAll()
     {
         NovelDialogueController.ResetStoryState();
+        KayoPuzzleGameFlowController.ResetPendingRequest();
         PlayerPrefs.DeleteKey(ArchiveSaveKey);
         PlayerPrefs.DeleteKey(AffectionSaveKey);
         PlayerPrefs.DeleteKey(Chapter1SearchSaveKey);
