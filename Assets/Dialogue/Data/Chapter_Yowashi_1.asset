@@ -126,24 +126,10 @@ MonoBehaviour:
     revealSpeakerName: 0
     consultationTitle:
     nextScenePath: 
-    nextLineId: chapter_yowashi_1_009
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_yowashi_1_009
-    speakerId: 
-    expressionId: 
-    text: "［情報］ヨワシの腕の包帯　を手に入れた！"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle:
-    nextScenePath: 
     nextLineId: chapter_yowashi_1_010
     choices: []
     affectionChanges: []
-    archiveUnlockIds:
-    - chapter_yowashi.bandage
+    archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_1_010
     speakerId: doute
@@ -156,7 +142,8 @@ MonoBehaviour:
     nextLineId: chapter_yowashi_1_011
     choices: []
     affectionChanges: []
-    archiveUnlockIds: []
+    archiveUnlockIds:
+    - chapter_yowashi.bandage
     branches: []
   - lineId: chapter_yowashi_1_011
     speakerId: yowashi
