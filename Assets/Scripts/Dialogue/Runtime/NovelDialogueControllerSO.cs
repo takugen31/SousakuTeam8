@@ -302,6 +302,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private GameObject yowashiBandageView;
     private bool isYowashiBandageViewActive;
     private bool bandageLeftWasEnabled, bandageRightWasEnabled;
+    private GameObject moteruRevealView;
+    private bool isMoteruRevealViewActive;
+    private bool revealLeftWasEnabled, revealRightWasEnabled;
 
     private struct SearchPortraitPose
     {
@@ -1273,6 +1276,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        StopMoteruRevealView();
         StopYowashiBandageView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
@@ -1312,7 +1316,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         // Music belongs to the incoming scene/segment, not to the end of its entrance fade.
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
         bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
-        if (changeBandageView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
+        bool changeRevealView = IsMoteruRevealLine(line?.lineId) != isMoteruRevealViewActive;
+        if (changeBandageView || changeRevealView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
         {
             roomLookCoroutine = StartCoroutine(FadeToDialogueComposition(line));
             return;
@@ -1574,6 +1579,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopMoteruRevealView();
         StopYowashiBandageView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
@@ -1584,6 +1590,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        StopMoteruRevealView();
         StopYowashiBandageView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
@@ -1602,7 +1609,91 @@ public sealed class NovelDialogueController : MonoBehaviour
         StartGatheringComposition(line);
         StartSearchPortraitSlide(line);
         StartYowashiBandageView(line);
+        StartMoteruRevealView(line);
         LineStarted?.Invoke(line);
+    }
+
+    public static bool IsMoteruRevealLine(string lineId)
+    {
+        const string prefix = "chapter2_moteru_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 9 && row <= 18;
+    }
+
+    private void StartMoteruRevealView(DialogueLine line)
+    {
+        if (!IsMoteruRevealLine(line?.lineId) || dialogueRoot == null || backgroundImage == null ||
+            backgroundImage.sprite == null || characterDatabase == null ||
+            !characterDatabase.TryGetCharacter("doute", out CharacterData doute) ||
+            !characterDatabase.TryGetCharacter("moteru", out CharacterData moteru)) return;
+        Sprite douteSprite = doute.GetPortrait("normal"), moteruSprite = moteru.GetPortrait("normal");
+        if (douteSprite == null || moteruSprite == null) return;
+        revealLeftWasEnabled = leftPortraitImage != null && leftPortraitImage.enabled;
+        revealRightWasEnabled = rightPortraitImage != null && rightPortraitImage.enabled;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = false;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = false;
+        isMoteruRevealViewActive = true;
+
+        moteruRevealView = new GameObject("MoteruRevealSplitView", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform frame = moteruRevealView.GetComponent<RectTransform>();
+        frame.SetParent(dialogueRoot.transform, false);
+        frame.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
+        frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
+        frame.offsetMin = frame.offsetMax = Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        Vector2 viewport = frame.rect.size;
+        RectTransform top = CreateRevealHalf(frame, "DouteTopHalf", viewport.y, true);
+        RectTransform bottom = CreateRevealHalf(frame, "MoteruBottomHalf", viewport.y, false);
+        Image topRoom = CreateRoomLookImage(top, "TopZoomedRoom");
+        SetRoomLookPose(topRoom, viewport, new Vector2(0.5f, 0.54f), 1.6f);
+        Image topPortrait = CreateRoomLookImage(top, "DouteFace");
+        topPortrait.sprite = douteSprite;
+        // Upper face centered inside the top half, with both eyes and chin visible.
+        SetGatheringPortrait(topPortrait, viewport, 0.35f, 2.6f, 0.25f - (0.90f - 0.5f) * 2.6f,
+            mirrorDoutePortrait ? -1f : 1f);
+        Image bottomRoom = CreateRoomLookImage(bottom, "BottomZoomedRoom");
+        SetRoomLookPose(bottomRoom, viewport, new Vector2(0.5f, 0.46f), 1.6f);
+        Image bottomPortrait = CreateRoomLookImage(bottom, "MoteruMouth");
+        bottomPortrait.sprite = moteruSprite;
+        // The split edge crops Moteru above the mouth, rather than exposing the eyes.
+        SetGatheringPortrait(bottomPortrait, viewport, 0.70f, 2.7f, -(0.85f - 0.5f) * 2.7f, 1f);
+        var dividerObject = new GameObject("RevealCenterDivider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform divider = dividerObject.GetComponent<RectTransform>();
+        divider.SetParent(frame, false);
+        divider.anchorMin = new Vector2(0f, 0.475f);
+        divider.anchorMax = new Vector2(1f, 0.525f);
+        divider.offsetMin = divider.offsetMax = Vector2.zero;
+        Image image = dividerObject.GetComponent<Image>();
+        image.color = Color.black;
+        image.raycastTarget = false;
+        dividerObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(0f, viewport.y * 0.02f));
+    }
+
+    private static RectTransform CreateRevealHalf(RectTransform parent, string name, float height, bool top)
+    {
+        var half = new GameObject(name, typeof(RectTransform), typeof(RectMask2D));
+        RectTransform rect = half.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+        half.GetComponent<RectMask2D>().padding = top
+            ? new Vector4(0f, height * 0.5f, 0f, 0f) : new Vector4(0f, 0f, 0f, height * 0.5f);
+        return rect;
+    }
+
+    private void StopMoteruRevealView()
+    {
+        if (!isMoteruRevealViewActive) return;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = revealLeftWasEnabled;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = revealRightWasEnabled;
+        if (moteruRevealView != null)
+        {
+            moteruRevealView.SetActive(false);
+            moteruRevealView.transform.SetParent(null, false);
+            Destroy(moteruRevealView);
+            moteruRevealView = null;
+        }
+        isMoteruRevealViewActive = false;
     }
 
     public static bool IsYowashiBandageLine(string lineId)
