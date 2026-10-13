@@ -1683,7 +1683,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (!isKayoEggViewActive || kayoEggRect == null || ArchiveManager.IsOpen ||
             isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
-        kayoEggSlideElapsed = Mathf.Min(1.2f, kayoEggSlideElapsed + Time.unscaledDeltaTime);
+        kayoEggSlideElapsed = kayoEggSlideElapsed + Time.unscaledDeltaTime;
         ApplyKayoEggSlide();
     }
 
@@ -1692,6 +1692,13 @@ public sealed class NovelDialogueController : MonoBehaviour
         float t = Mathf.Clamp01(kayoEggSlideElapsed / 1.2f);
         float eased = 1f - Mathf.Pow(1f - t, 3f);
         kayoEggRect.anchoredPosition = Vector2.Lerp(kayoEggSlideStart, Vector2.zero, eased);
+        // After arrival, float slowly around the center. Ease in the amplitude so
+        // the entrance blends into the idle motion without a visible position jump.
+        float floatTime = Mathf.Max(0f, kayoEggSlideElapsed - 1.2f);
+        float amplitude = kayoEggRect.sizeDelta.y * (0.018f / 0.52f);
+        float floatY = Mathf.Sin(floatTime * (2f * Mathf.PI / 4f)) * amplitude *
+            Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(floatTime / 0.8f));
+        kayoEggRect.anchoredPosition += new Vector2(0f, floatY);
     }
 
     private void StopKayoEggView()

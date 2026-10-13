@@ -23,6 +23,14 @@ Assert-Egg ($effect.Contains('rightPortraitImage.transform.GetSiblingIndex() + 1
 Assert-Egg ($effect.Contains('(viewport.x + rect.sizeDelta.x) * 0.5f') -and $effect.Contains('-(viewport.y + rect.sizeDelta.y) * 0.5f')) 'Entrance does not start offscreen at lower right'
 Assert-Egg ($source.Contains('UpdateKayoEggSlide();') -and $effect.Contains('ArchiveManager.IsOpen') -and $effect.Contains('kayoEggSlideElapsed + Time.unscaledDeltaTime')) 'Slide update or menu pause missing'
 Assert-Egg ($source.Contains('if (!IsKayoEggLine(line?.lineId) || line.lineId == "chapter2_kayo_012") kayoEggSlideElapsed = 0f;')) 'Entrance restarts on later pages or fails to reset on entry'
+Assert-Egg ($effect.Contains('kayoEggSlideElapsed = kayoEggSlideElapsed + Time.unscaledDeltaTime;') -and $effect.Contains('kayoEggSlideElapsed - 1.2f') -and $effect.Contains('2f * Mathf.PI / 4f') -and $effect.Contains('new Vector2(0f, floatY)')) 'Post-arrival four-second vertical float missing'
+foreach ($i in 0..800) {
+    $time = $i / 100.0
+    $ramp = [Math]::Min(1.0, $time / 0.8)
+    $floatY = [Math]::Sin($time * 2 * [Math]::PI / 4) * (1080 * 0.018) * ($ramp * $ramp * (3-2*$ramp))
+    Assert-Egg ([Math]::Abs($floatY) -le 19.440001) 'Float exceeds intended gentle amplitude'
+    if ($i -eq 0) { Assert-Egg ($floatY -eq 0) 'Float jumps at arrival' }
+}
 $previous = 0.0
 foreach ($i in 0..120) {
     $t = $i / 120.0; $eased = 1 - [Math]::Pow(1-$t, 3)
