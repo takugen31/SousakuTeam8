@@ -8,7 +8,7 @@ Assert-Shake ($source.Contains('shakingWindowRects[i].anchoredPosition = shaking
 Assert-Shake ($source.Contains('shakingWindowRects == null || ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen')) 'Menu/transition pause missing'
 Assert-Shake ($source.Contains('const float duration = 2.2f;') -and $source.Contains('windowShakeElapsed >= duration) { StopWindowShake(); return; }')) 'Shake does not stop after initial seconds'
 foreach ($method in @('PrepareLine(DialogueLine line)', 'OnDisable()', 'CancelChapterTransition()')) {
-    $pattern = [regex]::Escape($method) + '\s*\{\s*(?:StopGatheringComposition\(\);\s*)?(?:StopSearchPortraitSlide\(\);\s*)?StopWindowShake\(\);'
+    $pattern = [regex]::Escape($method) + '\s*\{\s*(?:StopYowashiBandageView\(\);\s*)?(?:StopGatheringComposition\(\);\s*)?(?:StopSearchPortraitSlide\(\);\s*)?StopWindowShake\(\);'
     Assert-Shake ([regex]::IsMatch($source, $pattern)) "Cleanup missing in $method"
 }
 for ($i = 0; $i -le 220; $i++) {

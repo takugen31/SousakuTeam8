@@ -299,6 +299,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private float gatheringDouteSlideElapsed;
     private float kayoFallProgress, kayoFallFrom, kayoFallTo, kayoFallElapsed, kayoFallDuration;
     private bool kayoFallMoving, kayoScreamTriggered;
+    private GameObject yowashiBandageView;
+    private bool isYowashiBandageViewActive;
+    private bool bandageLeftWasEnabled, bandageRightWasEnabled;
 
     private struct SearchPortraitPose
     {
@@ -1270,6 +1273,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        StopYowashiBandageView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1307,9 +1311,10 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         // Music belongs to the incoming scene/segment, not to the end of its entrance fade.
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
-        if (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi"))
+        bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
+        if (changeBandageView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
         {
-            roomLookCoroutine = StartCoroutine(FadeIntoSearchCloseUp(line));
+            roomLookCoroutine = StartCoroutine(FadeToDialogueComposition(line));
             return;
         }
         PrepareLine(line);
@@ -1342,7 +1347,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
-    private IEnumerator FadeIntoSearchCloseUp(DialogueLine line)
+    private IEnumerator FadeToDialogueComposition(DialogueLine line)
     {
         // Do not apply the incoming speaker before black: that would flash its normal portrait.
         StopTypingAndRevealText();
@@ -1569,6 +1574,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopYowashiBandageView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1578,6 +1584,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        StopYowashiBandageView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1594,7 +1601,76 @@ public sealed class NovelDialogueController : MonoBehaviour
         ApplyCharacter(line);
         StartGatheringComposition(line);
         StartSearchPortraitSlide(line);
+        StartYowashiBandageView(line);
         LineStarted?.Invoke(line);
+    }
+
+    public static bool IsYowashiBandageLine(string lineId)
+    {
+        const string prefix = "chapter2_yowashi_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 9 && row <= 16;
+    }
+
+    private void StartYowashiBandageView(DialogueLine line)
+    {
+        if (!IsYowashiBandageLine(line?.lineId) || dialogueRoot == null || backgroundImage == null ||
+            backgroundImage.sprite == null || characterDatabase == null ||
+            !characterDatabase.TryGetCharacter("yowashi", out CharacterData character)) return;
+        Sprite portraitSprite = character.GetPortrait("normal");
+        if (portraitSprite == null) return;
+        bandageLeftWasEnabled = leftPortraitImage != null && leftPortraitImage.enabled;
+        bandageRightWasEnabled = rightPortraitImage != null && rightPortraitImage.enabled;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = false;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = false;
+        isYowashiBandageViewActive = true;
+
+        yowashiBandageView = new GameObject("YowashiBandageCloseUp", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform frame = yowashiBandageView.GetComponent<RectTransform>();
+        frame.SetParent(dialogueRoot.transform, false);
+        frame.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
+        frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
+        frame.offsetMin = frame.offsetMax = Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        Vector2 viewport = frame.rect.size;
+        Image room = CreateRoomLookImage(frame, "BandageZoomedRoom");
+        SetRoomLookPose(room, viewport, new Vector2(0.5f, 0.58f), 1.65f);
+        Image portrait = CreateRoomLookImage(frame, "YowashiTorso");
+        portrait.sprite = portraitSprite;
+        // Chest and left forearm occupy the center; face and legs remain outside this crop.
+        float height = viewport.y * 4f;
+        portrait.rectTransform.anchorMin = portrait.rectTransform.anchorMax = portrait.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        portrait.rectTransform.sizeDelta = new Vector2(height * portraitSprite.rect.width / portraitSprite.rect.height, height);
+        portrait.rectTransform.anchoredPosition = new Vector2(0f, (0.5f - 0.65f) * height);
+        CreateBandageSideBar(frame, "LeftBand", new Vector2(0f, 0f), new Vector2(0.14f, 1f));
+        CreateBandageSideBar(frame, "RightBand", new Vector2(0.86f, 0f), new Vector2(1f, 1f));
+    }
+
+    private static void CreateBandageSideBar(RectTransform parent, string name, Vector2 min, Vector2 max)
+    {
+        var band = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform rect = band.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        rect.anchorMin = min; rect.anchorMax = max;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+        Image image = band.GetComponent<Image>();
+        image.color = Color.black;
+        image.raycastTarget = false;
+    }
+
+    private void StopYowashiBandageView()
+    {
+        if (!isYowashiBandageViewActive) return;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = bandageLeftWasEnabled;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = bandageRightWasEnabled;
+        if (yowashiBandageView != null)
+        {
+            yowashiBandageView.SetActive(false);
+            yowashiBandageView.transform.SetParent(null, false);
+            Destroy(yowashiBandageView);
+            yowashiBandageView = null;
+        }
+        isYowashiBandageViewActive = false;
     }
 
     private void StartGatheringComposition(DialogueLine line)

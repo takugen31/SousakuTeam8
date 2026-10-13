@@ -134,8 +134,8 @@ $previewEnd = $dialogueSource.IndexOf('private bool TryStartPendingResumeLine', 
 $preview = $dialogueSource.Substring($previewStart,$previewEnd-$previewStart)
 if ($preview.Contains('pendingResumeLineId =') -or -not $preview.Contains('candidate.TryGetLine(pendingResumeLineId') -or -not $preview.Contains('scenario.TryGetFirstLine(out entryLine)')) { throw 'Scene cue preview consumes resume or misses fallback' }
 $showStart = $dialogueSource.IndexOf('private void ShowLineImmediately')
-$showEnd = $dialogueSource.IndexOf('private IEnumerator FadeIntoSearchCloseUp', $showStart)
+$showEnd = $dialogueSource.IndexOf('private IEnumerator FadeToDialogueComposition', $showStart)
 $show = $dialogueSource.Substring($showStart,$showEnd-$showStart)
-if ($show.IndexOf('StoryMusicController.ApplyDialogue') -gt $show.IndexOf('StartCoroutine(FadeIntoSearchCloseUp')) { throw 'Music waits for the entrance animation' }
+if ($show.IndexOf('StoryMusicController.ApplyDialogue') -gt $show.IndexOf('StartCoroutine(FadeToDialogueComposition')) { throw 'Music waits for the entrance animation' }
 if (-not $source.Contains('track == requestedTrack')) { throw 'Scene-load and row cues restart the same clip' }
 'PASS: Search return switches to Pop on arrival; sceneLoaded resolves resume/first-row music without consuming resume, before intro fades, and same-track deduplication remains.'

@@ -37,7 +37,7 @@ foreach ($pair in @(@(0.818,0.83),@(0.866,0.87))) {
 }
 Assert-Slide ($effect.Contains('Vector2.right * (parent.rect.width * 0.035f * progress)') -and $effect.Contains('leftPortraitImage.rectTransform.anchoredPosition = searchDouteOriginalPosition;')) 'Doute right slide/restore missing'
 Assert-Slide (-not $source.Contains('searchPortraitFadeCopy') -and -not $effect.Contains('entryBlend')) 'Normal-size ghost or brightness crossfade remains'
-$entryStart = $source.IndexOf('private IEnumerator FadeIntoSearchCloseUp')
+$entryStart = $source.IndexOf('private IEnumerator FadeToDialogueComposition')
 $entryEnd = $source.IndexOf('private IEnumerator PlayAwakeningRoomLook', $entryStart)
 $entry = $source.Substring($entryStart,$entryEnd-$entryStart)
 Assert-Slide ($entry.IndexOf('yield return FadeLookReturn(0f, 1f)') -lt $entry.IndexOf('PrepareLine(line)') -and $entry.IndexOf('PrepareLine(line)') -lt $entry.IndexOf('yield return FadeLookReturn(1f, 0f)')) 'Incoming normal portrait is applied before full black'
