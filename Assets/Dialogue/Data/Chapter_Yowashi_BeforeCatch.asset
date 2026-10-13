@@ -15,7 +15,7 @@ MonoBehaviour:
   defaultBackground: {fileID: 0}
   lines:
   - lineId: chapter_yowashi_beforecatch_001
-    speakerId: doute
+    speakerId: yowashi
     expressionId: normal
     text: "おはようドウテ卿！いい朝だねぇ"
     background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}

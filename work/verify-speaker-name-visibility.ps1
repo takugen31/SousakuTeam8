@@ -73,6 +73,10 @@ foreach ($row in 1..19) {
     Check-Name 'yowashi' 'ヨワシ' $false $knownFromContext 'ヨワシ'
 }
 $csv = Import-Csv (Join-Path $root 'Assets/Dialogue/CSV/Chapter_Yowashi_BeforeCatch.csv')
+$greeting = $csv | Where-Object lineId -eq 'chapter_yowashi_beforecatch_001'
+if ($greeting.speakerId -ne 'yowashi' -or $greeting.text -ne 'おはようドウテ卿！いい朝だねぇ') { throw 'Greeting speaker incorrect' }
+$beforeCatchAsset = Get-Content (Join-Path $root 'Assets/Dialogue/Data/Chapter_Yowashi_BeforeCatch.asset') -Raw
+if (-not [regex]::IsMatch($beforeCatchAsset, 'lineId: chapter_yowashi_beforecatch_001\s+speakerId: yowashi')) { throw 'Runtime greeting speaker incorrect' }
 $problem = $csv | Where-Object lineId -eq 'chapter_yowashi_beforecatch_007'
 if ($problem.speakerId -ne 'yowashi' -or -not $problem.text.Contains('この日記は知らんぞ')) { throw 'Problem dialogue cue differs' }
 foreach ($id in @('chapter1_yowashi_001', 'chapter2_yowashi_001', 'chapter2_kayo_001', 'prologue2_001')) {

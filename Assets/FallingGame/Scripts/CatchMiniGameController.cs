@@ -260,6 +260,7 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
+            if (TryInstantClearForTesting()) return;
             if (phase == GamePhase.AwaitingInput && WasAnyStartButtonPressed())
             {
                 BeginCountdown();
@@ -300,6 +301,28 @@ namespace Sousakusai8.MiniGame
             {
                 sweepUnlockText.gameObject.SetActive(false);
             }
+        }
+
+        private bool TryInstantClearForTesting()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Deliberately absent from CurrentOperationHelp and all visible UI.
+            // Run the normal result/route flow, rather than jumping to another scene.
+            if (phase == GamePhase.GameOver || Time.timeScale <= 0f) return false;
+            UnityEngine.InputSystem.Keyboard keyboard = UnityEngine.InputSystem.Keyboard.current;
+            if (keyboard == null || !keyboard.ctrlKey.isPressed || !keyboard.shiftKey.isPressed ||
+                !keyboard.f10Key.wasPressedThisFrame) return false;
+
+            score = Mathf.Max(score, 10000);
+            if (startPromptText != null) startPromptText.gameObject.SetActive(false);
+            if (jumpUnlockText != null) jumpUnlockText.gameObject.SetActive(false);
+            if (sweepUnlockText != null) sweepUnlockText.gameObject.SetActive(false);
+            RefreshHud();
+            EndRound();
+            return true;
+#else
+            return false;
+#endif
         }
 
         private void ApplyRenderingQuality()
