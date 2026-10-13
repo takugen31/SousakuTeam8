@@ -339,6 +339,7 @@ namespace SousakuTeam8.PuzzleGame
             _boardImage.gameObject.AddComponent<PuzzlePanelFeather>();
 
             var boardInner = CreateImage("Board Inner", _board, BackgroundColor, false);
+            boardInner.gameObject.AddComponent<PuzzlePanelFeather>();
             Stretch(boardInner.rectTransform, 8f);
 
             _slotLayer = CreateRect("Slots", _board);
@@ -479,7 +480,7 @@ namespace SousakuTeam8.PuzzleGame
             var boardY = boardCenterFromBottom - height * 0.5f;
 
             SetCentered(_board, Vector2.one * _boardSize, new Vector2(0f, boardY));
-            SetCentered(_boardShadow, Vector2.one * _boardSize, new Vector2(10f, boardY - 12f));
+            SetCentered(_boardShadow, Vector2.one * _boardSize, new Vector2(0f, boardY - 4f));
 
             LayoutGrid(_hasStarted && !_isAnimating);
 
@@ -790,24 +791,37 @@ namespace SousakuTeam8.PuzzleGame
             vertices.Clear();
             float featherX = Mathf.Min(26f, rect.width * 0.25f);
             float featherY = Mathf.Min(14f, rect.height * 0.25f);
-            float[] xs = { rect.xMin, rect.xMin + featherX, rect.xMax - featherX, rect.xMax };
-            float[] ys = { rect.yMin, rect.yMin + featherY, rect.yMax - featherY, rect.yMax };
-            for (int y = 0; y < 4; y++)
-                for (int x = 0; x < 4; x++)
+            // A single quad per corner creates a diagonal crease. Subdivide both
+            // axes and use a smooth separable falloff for uniform, soft corners.
+            const int steps = 12;
+            const int count = steps * 2 + 2;
+            float[] xs = new float[count], ys = new float[count], weights = new float[count];
+            for (int i = 0; i <= steps; i++)
+            {
+                float t = i / (float)steps;
+                int mirror = count - 1 - i;
+                xs[i] = rect.xMin + featherX * t;
+                xs[mirror] = rect.xMax - featherX * t;
+                ys[i] = rect.yMin + featherY * t;
+                ys[mirror] = rect.yMax - featherY * t;
+                weights[i] = weights[mirror] = Mathf.SmoothStep(0f, 1f, t);
+            }
+            for (int y = 0; y < count; y++)
+                for (int x = 0; x < count; x++)
                 {
                     UIVertex vertex = seed;
                     vertex.position = new Vector3(xs[x], ys[y], seed.position.z);
                     Color color = seed.color;
-                    if (x == 0 || x == 3 || y == 0 || y == 3) color.a = 0f;
+                    color.a *= weights[x] * weights[y];
                     vertex.color = color;
                     vertices.AddVert(vertex);
                 }
-            for (int y = 0; y < 3; y++)
-                for (int x = 0; x < 3; x++)
+            for (int y = 0; y < count - 1; y++)
+                for (int x = 0; x < count - 1; x++)
                 {
-                    int i = y * 4 + x;
-                    vertices.AddTriangle(i, i + 4, i + 5);
-                    vertices.AddTriangle(i, i + 5, i + 1);
+                    int i = y * count + x;
+                    vertices.AddTriangle(i, i + count, i + count + 1);
+                    vertices.AddTriangle(i, i + count + 1, i + 1);
                 }
         }
     }
