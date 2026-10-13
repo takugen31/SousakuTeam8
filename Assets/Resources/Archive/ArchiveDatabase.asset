@@ -84,6 +84,26 @@ MonoBehaviour:
     sortOrder: 200
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_kayo.profile
+    category: 0
+    title: 大葉カヨ
+    subtitle: ドジを気にしている。
+    body: "カヨは自分なりにドジを気にしており、ドジを治すために頑張り続けている。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 190
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_kayo.clumsiness
+    category: 2
+    title: カヨのドジ
+    subtitle: 床のくぼみから分かったカヨのドジ。
+    body: "床のくぼみの情報は、カヨのドジについての情報に更新された。カヨはドジを治すことに悩んでいる。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 200
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
   - id: chapter_kayo.bookshelf
     category: 1
     title: 本棚

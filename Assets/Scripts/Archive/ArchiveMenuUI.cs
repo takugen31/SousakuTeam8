@@ -38,6 +38,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private GameObject notificationRoot;
     private TMP_Text notificationText;
     private Coroutine notificationCoroutine;
+    private readonly Queue<string> pendingNotifications = new Queue<string>();
     private GameObject informationRoot;
     private Button autoButton;
     private Button skipButton;
@@ -324,13 +325,16 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     public void ShowUnlockNotification(string entryTitle)
     {
-        if (notificationCoroutine != null)
-        {
-            StopCoroutine(notificationCoroutine);
-        }
+        pendingNotifications.Enqueue(entryTitle);
+        if (notificationCoroutine == null)
+            notificationCoroutine = StartCoroutine(ShowPendingNotifications());
+    }
 
-        notificationCoroutine = StartCoroutine(
-            ShowNotificationRoutine(entryTitle));
+    private IEnumerator ShowPendingNotifications()
+    {
+        while (pendingNotifications.Count > 0)
+            yield return ShowNotificationRoutine(pendingNotifications.Dequeue());
+        notificationCoroutine = null;
     }
 
     private IEnumerator ShowNotificationRoutine(string entryTitle)
@@ -345,7 +349,6 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         yield return new WaitForSecondsRealtime(3.2f);
         yield return SlideNotification(rect, 0f, hiddenX);
         notificationRoot.SetActive(false);
-        notificationCoroutine = null;
     }
 
     private void SizeNotificationToText()

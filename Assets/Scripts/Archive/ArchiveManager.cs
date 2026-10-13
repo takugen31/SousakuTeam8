@@ -150,6 +150,21 @@ public sealed class ArchiveManager : MonoBehaviour
         return Instance.unlockedIds.Contains(entryId);
     }
 
+    public static bool Replace(string previousId, string replacementId)
+    {
+        ArchiveManager manager = Instance;
+        if (!manager.database.TryGetEntry(replacementId, out _)) return false;
+        bool removed = manager.unlockedIds.Remove(previousId);
+        manager.readIds.Remove(previousId);
+        bool added = manager.UnlockEntry(replacementId);
+        if (removed && !added)
+        {
+            manager.SaveState();
+            manager.ArchiveChanged?.Invoke();
+        }
+        return removed || added;
+    }
+
     public static void Open()
     {
         Instance.OpenArchive();

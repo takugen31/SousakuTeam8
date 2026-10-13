@@ -2349,6 +2349,11 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private static void ApplyArchiveUnlocks(DialogueLine line)
     {
+        if (line?.lineId == "chapter_kayo_3_008")
+        {
+            ArchiveManager.Unlock("chapter_kayo.profile");
+            ArchiveManager.Replace("chapter_kayo.floor_dent", "chapter_kayo.clumsiness");
+        }
         if (line == null || line.archiveUnlockIds == null)
         {
             return;
