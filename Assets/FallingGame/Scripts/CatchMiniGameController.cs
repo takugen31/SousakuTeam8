@@ -759,7 +759,11 @@ namespace Sousakusai8.MiniGame
                 startPromptText.gameObject.SetActive(false);
             }
 
-            dropper?.BeginRound();
+            if (dropper != null)
+            {
+                dropper.gameObject.SetActive(true);
+                dropper.BeginRound();
+            }
             RefreshHud();
         }
 
@@ -768,6 +772,10 @@ namespace Sousakusai8.MiniGame
             remainingTime = 0f;
             phase = GamePhase.GameOver;
             ClearActiveItems();
+            if (dropper != null)
+            {
+                dropper.gameObject.SetActive(false);
+            }
             if (feedbackText != null)
             {
                 feedbackText.gameObject.SetActive(false);
