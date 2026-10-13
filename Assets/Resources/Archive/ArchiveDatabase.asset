@@ -94,6 +94,16 @@ MonoBehaviour:
     sortOrder: 190
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_kayo.family
+    category: 0
+    title: 大葉カヨの家族
+    subtitle: 日記から分かった家族についての情報。
+    body: "日記には母・父・姉について書かれている。父と姉は、カヨに無理をしなくていいと言い、慰めてくれた。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 195
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
   - id: chapter_kayo.clumsiness
     category: 2
     title: カヨのドジ

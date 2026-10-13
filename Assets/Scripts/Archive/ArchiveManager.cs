@@ -145,6 +145,20 @@ public sealed class ArchiveManager : MonoBehaviour
         return Instance.UnlockEntry(entryId);
     }
 
+    public static void UnlockInformationTitle(string title)
+    {
+        ArchiveManager manager = Instance;
+        foreach (ArchiveEntry entry in manager.database.Entries)
+        {
+            if (entry.Title != title) continue;
+            manager.UnlockEntry(entry.Id);
+            return;
+        }
+        // A legacy notice may not yet have an archive entry. Still show its title
+        // through the same toast UI instead of interrupting the conversation.
+        manager.menu?.ShowUnlockNotification(title);
+    }
+
     public static bool IsUnlocked(string entryId)
     {
         return Instance.unlockedIds.Contains(entryId);

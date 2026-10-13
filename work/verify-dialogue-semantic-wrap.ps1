@@ -6,6 +6,7 @@ $end = $source.IndexOf('private void StartWindowShake()', $start)
 $methods = $source.Substring($start, $end-$start)
 Add-Type -TypeDefinition @"
 using System;
+public class DialogueLine { public string speakerId, text; }
 public static class DialogueWrapChecks {
 $methods
 public static string Wrap(string text, float width) {

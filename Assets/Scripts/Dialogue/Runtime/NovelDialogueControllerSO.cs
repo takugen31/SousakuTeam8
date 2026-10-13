@@ -2359,6 +2359,12 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
+        if (line.archiveUnlockIds.Count == 0)
+        {
+            string title = GetInformationNoticeTitle(line);
+            if (title != null) ArchiveManager.UnlockInformationTitle(title);
+        }
+
         foreach (string entryId in line.archiveUnlockIds)
         {
             if (!string.IsNullOrWhiteSpace(entryId))
@@ -2526,6 +2532,18 @@ public sealed class NovelDialogueController : MonoBehaviour
             StopCoroutine(typingCoroutine);
         }
 
+        if (GetInformationNoticeTitle(currentLine) != null &&
+            !currentLine.HasChoices && !currentLine.HasSceneTransition)
+        {
+            // PrepareLine already acquired the information and queued its toast.
+            // Do not render an empty information page or require an extra click.
+            typingCoroutine = null;
+            isTyping = false;
+            bodyText.text = string.Empty;
+            Advance();
+            return;
+        }
+
         Canvas.ForceUpdateCanvases();
         bodyText.horizontalAlignment = HorizontalAlignmentOptions.Left;
         text = NormalizeDialogueLineIndentation(text);
@@ -2548,6 +2566,24 @@ public sealed class NovelDialogueController : MonoBehaviour
         // Scenario source contains full-width indentation on some continuation lines.
         // Remove only line-leading spaces, preserving wording, blank lines and inner spaces.
         return System.Text.RegularExpressions.Regex.Replace(text, @"(?m)^[ \t\u3000]+", string.Empty);
+    }
+
+    public static string GetInformationNoticeTitle(DialogueLine line)
+    {
+        // Spoken lines and information-selection choices are not acquisition notices.
+        if (line == null || !string.IsNullOrWhiteSpace(line.speakerId) ||
+            string.IsNullOrWhiteSpace(line.text)) return null;
+        string[] patterns = {
+            @"^(?:［情報］|\[情報\])\s*(?<title>.+?)\s*を(?:手に入れた|入手しました|獲得した)[！!。]?\s*$",
+            @"^[（(]?情報[『「](?<title>[^』」]+)[』」]\s*を(?:手に入れた|入手しました|獲得した)[！!。]?\s*[）)]?$",
+            @"^[［\[](?<title>[^］\]]+)[］\]]\s*を(?:手に入れた|入手しました|獲得した)[！!。]?\s*$"
+        };
+        foreach (string pattern in patterns)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(line.text.Trim(), pattern);
+            if (match.Success) return match.Groups["title"].Value.Trim();
+        }
+        return null;
     }
 
     public static string WrapDialogueAtMeaningfulBreaks(string text, float width, Func<string, float> measure)
