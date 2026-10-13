@@ -82,11 +82,24 @@ MonoBehaviour:
   - lineId: chapter_yowashi_1_006
     speakerId: yowashi
     expressionId: normal
-    text: "ぴっちぴちの16歳！\n　ていうか、細かいことを気にする男はモテないよ〜？\n　恋人を作らないと出れない部屋なんだから、今からでもちょっとずつ意識しよっ、ね？"
+    text: "ぴっちぴちの16歳！\nていうか、細かいことを気にする男はモテないよ〜？"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle:
     nextScenePath: 
+    nextLineId: chapter_yowashi_1_006_b
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_006_b
+    speakerId: yowashi
+    expressionId: normal
+    text: "恋人を作らないと出れない部屋なんだから、\n今からでもちょっとずつ意識しよっ、ね？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath:
     nextLineId: chapter_yowashi_1_007
     choices: []
     affectionChanges: []
