@@ -754,6 +754,7 @@ namespace Sousakusai8.MiniGame
         {
             remainingTime = gameDuration;
             phase = GamePhase.Playing;
+            if (catcher != null) catcher.gameObject.SetActive(true);
             if (startPromptText != null)
             {
                 startPromptText.gameObject.SetActive(false);
@@ -772,6 +773,7 @@ namespace Sousakusai8.MiniGame
             remainingTime = 0f;
             phase = GamePhase.GameOver;
             ClearActiveItems();
+            if (catcher != null) catcher.gameObject.SetActive(false);
             if (dropper != null)
             {
                 dropper.gameObject.SetActive(false);

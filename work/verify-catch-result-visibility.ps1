@@ -16,6 +16,7 @@ public class Controller {
     public float remainingTime, gameDuration = 100;
     public int score;
     public Dropper dropper = new Dropper();
+    public Dropper catcher = new Dropper();
     private Text startPromptText = new Text(), feedbackText = new Text();
     public bool cleared, result;
     public event Action<int> RoundEnded;
@@ -24,6 +25,7 @@ public class Controller {
     private void ClearActiveItems() { cleared = true; }
     private void ShowGameOverPresentation() {
         if (dropper != null && dropper.gameObject.active) throw new Exception("Enemy visible when result shown");
+        if (catcher != null && catcher.gameObject.active) throw new Exception("Player visible when result shown");
         result = true;
     }
     public void Begin() { StartRound(); }
@@ -35,9 +37,12 @@ $controller = [CatchResultVisibilityChecks.Controller]::new()
 foreach ($round in 1..3) {
     $controller.Begin()
     if (-not $controller.dropper.gameObject.active) { throw 'Enemy not restored for next round' }
+    if (-not $controller.catcher.gameObject.active) { throw 'Player not restored for next round' }
     $controller.Finish()
     if ($controller.dropper.gameObject.active -or -not $controller.result -or -not $controller.cleared) { throw 'Result cleanup failed' }
+    if ($controller.catcher.gameObject.active) { throw 'Player remains on results' }
 }
 $controller.dropper = $null
+$controller.catcher = $null
 $controller.Begin(); $controller.Finish()
-'PASS: actual round start/end hides enemy before results, restores it for another round, clears falling items, handles missing enemy safely.'
+'PASS: actual round start/end hides player and enemy before results, restores both for another round, clears falling items, handles missing actors safely.'
