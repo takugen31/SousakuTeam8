@@ -1987,7 +1987,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
         if (!kayoScreamTriggered && currentLine?.lineId == "chapter1_kayo_014" && bodyText != null)
         {
-            string displayText = GetDialogueDisplayText(currentLine, omitOuterDialogueQuotes);
+            string displayText = bodyText.text;
             int screamAt = displayText.IndexOf("きゃ", StringComparison.Ordinal);
             if (screamAt >= 0 && bodyText.maxVisibleCharacters >= screamAt + 2) TriggerKayoFall();
         }
@@ -2525,7 +2525,10 @@ public sealed class NovelDialogueController : MonoBehaviour
             StopCoroutine(typingCoroutine);
         }
 
-        bodyText.text = text;
+        Canvas.ForceUpdateCanvases();
+        float availableWidth = bodyText.rectTransform.rect.width - bodyText.margin.x - bodyText.margin.z;
+        bodyText.text = WrapDialogueAtMeaningfulBreaks(text, availableWidth,
+            candidate => bodyText.GetPreferredValues(candidate, float.PositiveInfinity, float.PositiveInfinity).x);
         bodyText.maxVisibleCharacters = 0;
 
         typingCoroutine = StartCoroutine(TypeText());
@@ -2534,6 +2537,76 @@ public sealed class NovelDialogueController : MonoBehaviour
             BeginKayoFallMotion(0f, 0.45f);
         if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
             StartWindowShake();
+    }
+
+    public static string WrapDialogueAtMeaningfulBreaks(string text, float width, Func<string, float> measure)
+    {
+        if (string.IsNullOrEmpty(text) || width <= 0f || measure == null) return text;
+        // Leave rich-text markup alone: inserting breaks inside tags would corrupt it.
+        if (text.IndexOf('<') >= 0 && text.IndexOf('>') >= 0) return text;
+        var result = new System.Text.StringBuilder();
+        string[] paragraphs = text.Replace("\r\n", "\n").Split('\n');
+        for (int paragraph = 0; paragraph < paragraphs.Length; paragraph++)
+        {
+            if (paragraph > 0) result.Append('\n');
+            string remaining = paragraphs[paragraph];
+            while (remaining.Length > 0 && measure(remaining) > width)
+            {
+                int low = 1, high = remaining.Length, fitting = 0;
+                while (low <= high)
+                {
+                    int middle = (low + high) / 2;
+                    if (measure(remaining.Substring(0, middle)) <= width)
+                    { fitting = middle; low = middle + 1; }
+                    else high = middle - 1;
+                }
+                if (fitting == 0) { result.Append(remaining); remaining = string.Empty; break; }
+                int boundary = 0, bestScore = -1;
+                // Prefer a sentence/clause end over a later arbitrary character cut.
+                for (int i = Math.Max(1, fitting / 2); i <= fitting; i++)
+                {
+                    if (!IsSafeDialogueBoundary(remaining, i)) continue;
+                    int priority = DialogueBoundaryPriority(remaining, i);
+                    if (priority == 0) continue;
+                    // Avoid leaving only a tiny fragment on the next line.
+                    if (remaining.Length - i < 5 && i > 5) continue;
+                    int score = priority * remaining.Length + i;
+                    if (score > bestScore) { boundary = i; bestScore = score; }
+                }
+                if (boundary == 0)
+                {
+                    // No suitable clause end: retain TMP's wrapping instead of inventing
+                    // a hard break inside a word. Authored breaks always take precedence.
+                    result.Append(remaining); remaining = string.Empty; break;
+                }
+                result.Append(remaining.Substring(0, boundary));
+                result.Append('\n');
+                remaining = remaining.Substring(boundary);
+            }
+            result.Append(remaining);
+        }
+        return result.ToString();
+    }
+
+    private static bool IsSafeDialogueBoundary(string text, int at)
+    {
+        if (at <= 0 || at >= text.Length) return false;
+        const string noLineStart = "、。，．？！!?：；)]）］｝」』】〉》ぁぃぅぇぉっゃゅょァィゥェォッャュョー…‥";
+        const string noLineEnd = "([（［｛「『【〈《";
+        return noLineStart.IndexOf(text[at]) < 0 && noLineEnd.IndexOf(text[at - 1]) < 0 &&
+            !char.IsLowSurrogate(text[at]) && !char.IsHighSurrogate(text[at - 1]);
+    }
+
+    private static int DialogueBoundaryPriority(string text, int at)
+    {
+        char previous = text[at - 1];
+        if ("。？！!?".IndexOf(previous) >= 0) return 3;
+        if ("、，,".IndexOf(previous) >= 0) return 2;
+        string prefix = text.Substring(0, at);
+        // Multi-character connective endings, or particles following a kanji/katakana
+        // phrase. Do not treat every hiragana は/が/に as a word boundary.
+        return System.Text.RegularExpressions.Regex.IsMatch(prefix,
+            @"(?:けれど|けど|ので|のに|ながら|だから|ならば|ですが|ですけど|なのに|なのは|というのは|[\p{IsCJKUnifiedIdeographs}\p{IsKatakana}]+(?:には|では|とは|は|が|を|に|で|と))$") ? 1 : 0;
     }
 
     private void StartWindowShake()
