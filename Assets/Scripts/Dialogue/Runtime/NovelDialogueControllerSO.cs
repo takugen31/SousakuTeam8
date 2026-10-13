@@ -130,9 +130,6 @@ public sealed class NovelDialogueController : MonoBehaviour
     private float consultationFadeOutDuration = 0.55f;
 
     [SerializeField, Min(0f)]
-    private float consultationTitleHoldDuration = 1.25f;
-
-    [SerializeField, Min(0f)]
     private float consultationFadeInDuration = 0.55f;
 
     [Header("Scene Transition")]
@@ -241,7 +238,6 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Coroutine choiceActivationCoroutine;
     private Coroutine typingCoroutine;
     private Image chapterTransitionOverlay;
-    private TMP_Text consultationTransitionTitle;
 
     private readonly List<Button> spawnedChoiceButtons =
         new List<Button>();
@@ -1304,7 +1300,6 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         isChapterTransitioning = false;
-        SetConsultationTransitionTitle(null, false);
 
         if (chapterTransitionOverlay == null)
         {
@@ -2256,7 +2251,6 @@ public sealed class NovelDialogueController : MonoBehaviour
             return false;
         }
 
-        EnsureConsultationTransitionTitle(overlay.transform);
         StopTypingAndRevealText();
         HideChoices();
         autoAdvanceAt = -1f;
@@ -2264,7 +2258,6 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         overlay.transform.SetAsLastSibling();
         overlay.gameObject.SetActive(true);
-        SetConsultationTransitionTitle(null, false);
         SetChapterTransitionAlpha(0f);
 
         chapterTransitionCoroutine = StartCoroutine(
@@ -2279,15 +2272,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             1f,
             consultationFadeOutDuration);
 
-        SetConsultationTransitionTitle(line.consultationTitle, true);
-
-        if (consultationTitleHoldDuration > 0f)
-        {
-            yield return new WaitForSecondsRealtime(
-                consultationTitleHoldDuration);
-        }
-
-        SetConsultationTransitionTitle(null, false);
+        // Keep the transition fade, without a consultation title card or hold.
         PrepareLine(line);
 
         if (bodyText != null)
@@ -2309,64 +2294,6 @@ public sealed class NovelDialogueController : MonoBehaviour
         isChapterTransitioning = false;
         chapterTransitionCoroutine = null;
         StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
-    }
-
-    private void EnsureConsultationTransitionTitle(Transform overlayTransform)
-    {
-        if (consultationTransitionTitle != null || overlayTransform == null)
-        {
-            return;
-        }
-
-        GameObject titleObject = new GameObject(
-            "ConsultationTransitionTitle",
-            typeof(RectTransform),
-            typeof(CanvasRenderer),
-            typeof(TextMeshProUGUI));
-
-        RectTransform titleRect =
-            titleObject.GetComponent<RectTransform>();
-        titleRect.SetParent(overlayTransform, false);
-        titleRect.anchorMin = new Vector2(0.1f, 0.32f);
-        titleRect.anchorMax = new Vector2(0.9f, 0.68f);
-        titleRect.offsetMin = Vector2.zero;
-        titleRect.offsetMax = Vector2.zero;
-
-        consultationTransitionTitle =
-            titleObject.GetComponent<TextMeshProUGUI>();
-        consultationTransitionTitle.alignment =
-            TextAlignmentOptions.Center;
-        consultationTransitionTitle.fontSize = 46f;
-        consultationTransitionTitle.fontStyle = FontStyles.Bold;
-        consultationTransitionTitle.textWrappingMode =
-            TextWrappingModes.NoWrap;
-        consultationTransitionTitle.raycastTarget = false;
-
-        if (bodyText != null && bodyText.font != null)
-        {
-            consultationTransitionTitle.font = bodyText.font;
-        }
-
-        titleObject.SetActive(false);
-    }
-
-    private void SetConsultationTransitionTitle(
-        string title,
-        bool visible)
-    {
-        if (consultationTransitionTitle == null)
-        {
-            return;
-        }
-
-        consultationTransitionTitle.text =
-            visible
-                ? "<size=58%><color=#D7B56D>CONSULTATION</color></size>\n" +
-                  "相談パート\n" +
-                  $"<size=72%>— {title} —</size>"
-                : string.Empty;
-        consultationTransitionTitle.color = Color.white;
-        consultationTransitionTitle.gameObject.SetActive(visible);
     }
 
     private void ResetBackgroundForScenario()
