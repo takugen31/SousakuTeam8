@@ -477,6 +477,30 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
     }
 
+    // Read-only preview for sceneLoaded: resolve resume music before Start or intro animation.
+    public bool TryGetSceneEntryMusic(out DialogueScenarioSO entryScenario, out DialogueLine entryLine)
+    {
+        entryScenario = null;
+        entryLine = null;
+        if (!playOnStart || !isActiveAndEnabled || scenario == null) return false;
+        if (!string.IsNullOrWhiteSpace(pendingResumeLineId))
+        {
+            int count = 1 + (followingScenarios?.Count ?? 0);
+            for (int i = 0; i < count; i++)
+            {
+                DialogueScenarioSO candidate = i == 0 ? scenario : followingScenarios[i - 1];
+                if (candidate != null && candidate.TryGetLine(pendingResumeLineId, out entryLine))
+                {
+                    entryScenario = candidate;
+                    return true;
+                }
+            }
+        }
+        entryScenario = scenario;
+        if (!string.IsNullOrWhiteSpace(startLineId) && scenario.TryGetLine(startLineId, out entryLine)) return true;
+        return scenario.TryGetFirstLine(out entryLine);
+    }
+
     private bool TryStartPendingResumeLine()
     {
         string resumeLineId = pendingResumeLineId;
@@ -1277,6 +1301,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ShowLineImmediately(DialogueLine line)
     {
+        // Music belongs to the incoming scene/segment, not to the end of its entrance fade.
+        StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
         if (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi"))
         {
             roomLookCoroutine = StartCoroutine(FadeIntoSearchCloseUp(line));

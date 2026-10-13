@@ -149,6 +149,17 @@ public sealed class StoryMusicController : MonoBehaviour
         if (mode == LoadSceneMode.Additive) return;
         SceneCue cue = Array.Find(plan.sceneCues, item => item.scene == scene.name);
         if (cue != null) PlayTrack(cue.track);
+        else if (Array.IndexOf(plan.dialogueScenes, scene.name) >= 0)
+        {
+            // sceneLoaded runs before Start: inspect the destination's actual resume/first row.
+            foreach (NovelDialogueController dialogue in FindObjectsByType<NovelDialogueController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (dialogue.gameObject.scene != scene ||
+                    !dialogue.TryGetSceneEntryMusic(out DialogueScenarioSO scenario, out DialogueLine line)) continue;
+                ApplyDialogue(scene, scenario, line);
+                break;
+            }
+        }
         else if (ShouldKeepPuzzleMusic(scene.name, previousScene))
         {
             // Keep the clue-discovery music through either route's diary puzzle.
