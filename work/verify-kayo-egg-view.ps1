@@ -19,7 +19,16 @@ $effect = $source.Substring($start, $end - $start)
 Assert-Egg ($effect.Contains('Resources.Load<DialogueAdvanceMarkSet>("DialogueAdvanceMarks")?.kayo')) 'Existing egg illustration not used'
 Assert-Egg ($effect.Contains('eggLeftOriginalColor.r * 0.45f') -and $effect.Contains('eggRightOriginalColor.r * 0.45f')) 'Both portraits not dimmed'
 Assert-Egg ($effect.Contains('leftPortraitImage.color = eggLeftOriginalColor') -and $effect.Contains('rightPortraitImage.color = eggRightOriginalColor')) 'Original colors not restored'
-Assert-Egg ($effect.Contains('rightPortraitImage.transform.GetSiblingIndex() + 1') -and $effect.Contains('rect.anchoredPosition = Vector2.zero') -and $effect.Contains('root.rect.height * 0.42f')) 'Foreground centered large illustration missing'
+Assert-Egg ($effect.Contains('rightPortraitImage.transform.GetSiblingIndex() + 1') -and $effect.Contains('Vector2.Lerp(kayoEggSlideStart, Vector2.zero, eased)') -and $effect.Contains('viewport.y * 0.52f')) 'Foreground centered enlarged illustration missing'
+Assert-Egg ($effect.Contains('(viewport.x + rect.sizeDelta.x) * 0.5f') -and $effect.Contains('-(viewport.y + rect.sizeDelta.y) * 0.5f')) 'Entrance does not start offscreen at lower right'
+Assert-Egg ($source.Contains('UpdateKayoEggSlide();') -and $effect.Contains('ArchiveManager.IsOpen') -and $effect.Contains('kayoEggSlideElapsed + Time.unscaledDeltaTime')) 'Slide update or menu pause missing'
+Assert-Egg ($source.Contains('if (!IsKayoEggLine(line?.lineId) || line.lineId == "chapter2_kayo_012") kayoEggSlideElapsed = 0f;')) 'Entrance restarts on later pages or fails to reset on entry'
+$previous = 0.0
+foreach ($i in 0..120) {
+    $t = $i / 120.0; $eased = 1 - [Math]::Pow(1-$t, 3)
+    Assert-Egg ($eased -ge $previous -and $eased -ge 0 -and $eased -le 1) 'Diagonal slide overshoots or reverses'
+    $previous = $eased
+}
 Assert-Egg ($effect.Contains('egg.rect.width / egg.rect.height') -and $effect.Contains('image.preserveAspect = true') -and $effect.Contains('image.raycastTarget = false')) 'Aspect or input preservation missing'
 Assert-Egg (-not $effect.Contains('SetRoomLookPose') -and -not $effect.Contains('HideLookPresentation')) 'Background or dialogue unexpectedly modified'
 foreach ($method in @('PrepareLine(DialogueLine line)', 'OnDisable()', 'CancelChapterTransition()')) {

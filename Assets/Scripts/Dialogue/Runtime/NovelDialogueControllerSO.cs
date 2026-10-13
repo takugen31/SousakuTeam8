@@ -306,11 +306,15 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool isMoteruRevealViewActive;
     private bool revealLeftWasEnabled, revealRightWasEnabled;
     private Image moteruRevealPortrait;
+    private Image moteruRevealBackground;
     private float moteruApproachElapsed;
     private Vector2 moteruRevealViewport;
     private GameObject kayoEggView;
     private bool isKayoEggViewActive;
     private Color eggLeftOriginalColor, eggRightOriginalColor;
+    private RectTransform kayoEggRect;
+    private Vector2 kayoEggSlideStart;
+    private float kayoEggSlideElapsed;
 
     private struct SearchPortraitPose
     {
@@ -441,6 +445,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
+        UpdateKayoEggSlide();
         UpdateMoteruApproach();
         UpdateGatheringDouteSlide();
         UpdateKayoFall();
@@ -1610,6 +1615,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         currentLine = line;
         if (!IsMoteruRevealLine(line?.lineId)) moteruApproachElapsed = 0f;
+        if (!IsKayoEggLine(line?.lineId) || line.lineId == "chapter2_kayo_012") kayoEggSlideElapsed = 0f;
         autoAdvanceAt = -1f;
 
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
@@ -1657,15 +1663,34 @@ public sealed class NovelDialogueController : MonoBehaviour
         rect.SetParent(dialogueRoot.transform, false);
         rect.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = Vector2.zero;
         Canvas.ForceUpdateCanvases();
         RectTransform root = dialogueRoot.transform as RectTransform;
-        float height = root != null && root.rect.height > 0f ? root.rect.height * 0.42f : 450f;
+        Vector2 viewport = root != null && root.rect.height > 0f ? root.rect.size : new Vector2(1920f, 1080f);
+        float height = viewport.y * 0.52f;
         rect.sizeDelta = new Vector2(height * egg.rect.width / egg.rect.height, height);
+        kayoEggRect = rect;
+        kayoEggSlideStart = new Vector2((viewport.x + rect.sizeDelta.x) * 0.5f,
+            -(viewport.y + rect.sizeDelta.y) * 0.5f);
+        ApplyKayoEggSlide();
         Image image = kayoEggView.GetComponent<Image>();
         image.sprite = egg;
         image.preserveAspect = true;
         image.raycastTarget = false;
+    }
+
+    private void UpdateKayoEggSlide()
+    {
+        if (!isKayoEggViewActive || kayoEggRect == null || ArchiveManager.IsOpen ||
+            isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
+        kayoEggSlideElapsed = Mathf.Min(1.2f, kayoEggSlideElapsed + Time.unscaledDeltaTime);
+        ApplyKayoEggSlide();
+    }
+
+    private void ApplyKayoEggSlide()
+    {
+        float t = Mathf.Clamp01(kayoEggSlideElapsed / 1.2f);
+        float eased = 1f - Mathf.Pow(1f - t, 3f);
+        kayoEggRect.anchoredPosition = Vector2.Lerp(kayoEggSlideStart, Vector2.zero, eased);
     }
 
     private void StopKayoEggView()
@@ -1681,6 +1706,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             kayoEggView = null;
         }
         isKayoEggViewActive = false;
+        kayoEggRect = null;
     }
 
     public static bool IsMoteruRevealLine(string lineId)
@@ -1724,6 +1750,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             mirrorDoutePortrait ? -1f : 1f);
         Image bottomRoom = CreateRoomLookImage(bottom, "BottomZoomedRoom");
         SetRoomLookPose(bottomRoom, viewport, new Vector2(0.56f, 0.38f), 1.6f);
+        moteruRevealBackground = bottomRoom;
         Image bottomPortrait = CreateRoomLookImage(bottom, "MoteruMouth");
         bottomPortrait.sprite = moteruSprite;
         // The split edge crops Moteru above the mouth, rather than exposing the eyes.
@@ -1770,6 +1797,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
         isMoteruRevealViewActive = false;
         moteruRevealPortrait = null;
+        moteruRevealBackground = null;
     }
 
     private void UpdateMoteruApproach()
@@ -1787,6 +1815,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         float t = Mathf.SmoothStep(0f, 1f, moteruApproachElapsed / 2.4f);
         SetGatheringPortrait(moteruRevealPortrait, moteruRevealViewport, Mathf.Lerp(0.82f, 0.52f, t),
             2.7f, -(0.85f - 0.5f) * 2.7f, 1f);
+        // Pan the lower room left with the same timing, retaining its vertical framing.
+        // Stay within the enlarged image's margins so no empty edge is exposed.
+        if (moteruRevealBackground != null)
+            SetRoomLookPose(moteruRevealBackground, moteruRevealViewport,
+                new Vector2(Mathf.Lerp(0.56f, 0.68f, t), 0.38f), 1.6f);
     }
 
     public static bool IsYowashiBandageLine(string lineId)
