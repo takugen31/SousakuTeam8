@@ -350,7 +350,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void SizeNotificationToText()
     {
-        const float leftPadding = 36f, rightPadding = 20f, verticalPadding = 10f;
+        const float leftPadding = 48f, rightPadding = 28f, verticalPadding = 14f;
         RectTransform rect = notificationRoot.GetComponent<RectTransform>();
         Canvas.ForceUpdateCanvases();
         RectTransform parent = rect.parent as RectTransform;
@@ -648,12 +648,13 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.91f);
         rect.pivot = new Vector2(1f, 0.5f);
         rect.anchoredPosition = Vector2.zero;
-        rect.sizeDelta = new Vector2(200f, 44f);
+        rect.sizeDelta = new Vector2(280f, 68f);
         notificationRoot.GetComponent<Image>().raycastTarget = false;
-        notificationRoot.AddComponent<DialogueWindowFeather>().ConfigureLeftEdgeOnly(24f);
+        notificationRoot.AddComponent<DialogueWindowFeather>().ConfigureLeftEdgeOnly(32f);
 
-        notificationText = CreateText("Text", notificationRoot.transform, string.Empty, 16f, PrimaryTextColor, FontStyles.Bold);
-        SetAnchors(notificationText.gameObject, Vector2.zero, Vector2.one, new Vector2(36f, 10f), new Vector2(-20f, -10f));
+        notificationText = CreateText("Text", notificationRoot.transform, string.Empty, 28f, PrimaryTextColor, FontStyles.Bold);
+        notificationText.enableAutoSizing = false;
+        SetAnchors(notificationText.gameObject, Vector2.zero, Vector2.one, new Vector2(48f, 14f), new Vector2(-28f, -14f));
         notificationText.alignment = TextAlignmentOptions.MidlineLeft;
         notificationText.richText = true;
         notificationText.textWrappingMode = TextWrappingModes.Normal;
