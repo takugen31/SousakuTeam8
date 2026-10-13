@@ -264,6 +264,93 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool isSkipConfirmationOpen;
     private bool isTyping;
     private string stopAfterLineId;
+    private bool restoringCheckpointLine;
+
+    public static string[] CaptureRevealedNames() => new List<string>(revealedCharacterIds).ToArray();
+
+    public static void RestoreRevealedNames(string[] names)
+    {
+        revealedCharacterIds.Clear();
+        if (names != null) revealedCharacterIds.UnionWith(names);
+    }
+
+    public bool CaptureCheckpoint(GameSaveData data)
+    {
+        if (!isActiveAndEnabled || !isPlaying || currentLine == null || currentScenario == null ||
+            isChapterTransitioning || isSceneLoading || isSkipConfirmationOpen) return false;
+        data.kind = "dialogue";
+        data.scenario = currentScenario.name;
+        data.lineId = currentLine.lineId;
+        data.stopLineId = stopAfterLineId;
+        data.textFullyDisplayed = !isTyping;
+        data.consultationLines = new List<string>(shownConsultationLineIds).ToArray();
+        data.label = gameObject.scene.name == "NovelScene_Kayo" ? "カヨとの会話"
+            : gameObject.scene.name == "NovelScene_Yowashi" ? "ヨワシとの会話" : "会話";
+        data.text = GetDialogueDisplayText(currentLine, omitOuterDialogueQuotes);
+        data.images = new[] { CaptureImage(backgroundImage), CaptureImage(leftPortraitImage), CaptureImage(rightPortraitImage) };
+        return true;
+    }
+
+    private static GameSaveImage CaptureImage(Image image)
+    {
+        return new GameSaveImage {
+            sprite = image != null && image.sprite != null ? image.sprite.name : null,
+            texture = image != null && image.sprite != null ? image.sprite.texture.name : null,
+            rect = image != null && image.sprite != null ? image.sprite.rect : default,
+            enabled = image != null && image.enabled,
+            position = image != null ? image.rectTransform.anchoredPosition : default,
+            scale = image != null ? image.rectTransform.localScale : Vector3.one
+        };
+    }
+
+    private static void RestoreImage(Image image, GameSaveImage state)
+    {
+        if (image == null || state == null) return;
+        Sprite sprite = null;
+        if (!string.IsNullOrEmpty(state.sprite))
+            foreach (Sprite candidate in Resources.FindObjectsOfTypeAll<Sprite>())
+                if (candidate.name == state.sprite && candidate.texture.name == state.texture && candidate.rect == state.rect)
+                { sprite = candidate; break; }
+        image.sprite = sprite;
+        image.enabled = state.enabled && sprite != null;
+        image.rectTransform.anchoredPosition = state.position;
+        image.rectTransform.localScale = state.scale;
+    }
+
+    public bool RestoreCheckpoint(GameSaveData data)
+    {
+        KayoGaugeOutcomeController gauge = GetComponent<KayoGaugeOutcomeController>();
+        if (gauge != null) gauge.SetResult(data.kayoGaugeSucceeded);
+        int count = 1 + (followingScenarios?.Count ?? 0);
+        for (int i = 0; i < count; i++)
+        {
+            DialogueScenarioSO candidate = i == 0 ? scenario : followingScenarios[i - 1];
+            if (candidate == null || candidate.name != data.scenario || !candidate.TryGetLine(data.lineId, out DialogueLine line)) continue;
+            CancelChapterTransition();
+            HideChoices();
+            currentScenario = candidate;
+            currentScenarioIndex = i;
+            stopAfterLineId = data.stopLineId;
+            shownConsultationLineIds.Clear();
+            if (data.consultationLines != null) shownConsultationLineIds.UnionWith(data.consultationLines);
+            ResetKnownCharacterNames();
+            autoPlayEnabled = false;
+            UpdateAutoPlayButton();
+            isPlaying = true;
+            if (dialogueRoot != null) dialogueRoot.SetActive(true);
+            ResetPortraitsForScenario();
+            restoringCheckpointLine = true;
+            ShowLineImmediately(line);
+            restoringCheckpointLine = false;
+            RestoreImage(backgroundImage, data.images[0]);
+            RestoreImage(leftPortraitImage, data.images[1]);
+            RestoreImage(rightPortraitImage, data.images[2]);
+            if (data.textFullyDisplayed) CompleteTyping();
+            return true;
+        }
+        Debug.LogError("セーブした会話の位置が見つかりません。", this);
+        return false;
+    }
 
     public string CurrentSpeakerId => currentLine?.speakerId;
     // Opt-in for an embedded scene whose owner fades out the last dialogue frame.
@@ -412,6 +499,12 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (playOnStart)
         {
+            GameSaveData checkpoint = GameSaveService.Consume(gameObject.scene.name, "dialogue");
+            if (checkpoint != null)
+            {
+                RestoreCheckpoint(checkpoint);
+                return;
+            }
             StartDialogue();
         }
     }
@@ -1231,8 +1324,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
 
         ApplyBackground(line);
-        ApplyAffectionChanges(line);
-        ApplyArchiveUnlocks(line);
+        if (!restoringCheckpointLine)
+        {
+            ApplyAffectionChanges(line);
+            ApplyArchiveUnlocks(line);
+        }
         ApplyCharacter(line);
         LineStarted?.Invoke(line);
     }
@@ -1609,7 +1705,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         while (bodyText.maxVisibleCharacters < totalCharacters)
         {
-            if (isChapterTransitioning || isSkipConfirmationOpen)
+            if (isChapterTransitioning || isSkipConfirmationOpen || ArchiveManager.IsOpen)
             {
                 yield return null;
                 continue;

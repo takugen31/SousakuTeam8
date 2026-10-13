@@ -106,6 +106,10 @@ foreach ($check in $checks) {
     $actual = [StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $scenarios[$check[0]], $check[1])
     if ($actual -ne $check[2]) { throw "Branch/resume mismatch: $($check[1]) = $actual" }
 }
+$failureScenario = [StoryMusicCueVerification.DialogueScenarioSO]::new()
+$failureScenario.name = 'Chapter_Kayo_6 (Gauge Failure)'
+$failureScenario.Lines = $scenarios['Chapter_Kayo_6'].Lines
+if ([StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $failureScenario, 'chapter_kayo_6_035') -ne 'Nostalgic') { throw 'Restored gauge failure lost its music' }
 if ($plan.dialogueScenes -contains 'NovelScene_Moteru' -or $plan.dialogueScenes -contains 'falling_verMoteru') { throw 'Unapproved route music enabled' }
 if ($plan.dialogueScenes -notcontains 'NovelScene_Yowashi' -or $plan.dialogueScenes -notcontains 'falling_verYowashi') { throw 'Yowashi music disabled' }
 $yowashiScenarios = @(Get-ChildItem (Join-Path $root 'Assets/Dialogue/Data') -Filter 'Chapter_Yowashi_*.asset')

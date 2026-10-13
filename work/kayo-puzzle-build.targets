@@ -14,6 +14,10 @@
   <Target Name="IncludeKayoPuzzleBridge" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
     <ItemGroup>
       <_ExistingStoryMusic Include="@(Compile)" Condition="'%(Compile.Filename)' == 'StoryMusicController'" />
+      <_ExistingGameSave Include="@(Compile)" Condition="'%(Compile.Filename)' == 'GameSaveService'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\GameSaveService.cs" Condition="'@(_ExistingGameSave)' == ''" />
+      <_ExistingSaveUI Include="@(Compile)" Condition="'%(Compile.Filename)' == 'ArchiveMenuUI.SaveLoad'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Archive\ArchiveMenuUI.SaveLoad.cs" Condition="'@(_ExistingSaveUI)' == ''" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\StoryMusicController.cs"
                Condition="'@(_ExistingStoryMusic)' == ''" />
       <_ExistingAdvanceMarkSet Include="@(Compile)" Condition="'%(Compile.Filename)' == 'DialogueAdvanceMarkSet'" />

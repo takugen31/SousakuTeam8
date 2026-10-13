@@ -81,6 +81,18 @@ public sealed class SelectionPartController : MonoBehaviour
     {
         EnsureEventSystem();
         BuildInterface();
+        GameSaveData checkpoint = GameSaveService.Consume(gameObject.scene.name, "selection");
+        if (checkpoint != null && checkpoint.introDismissed) DismissIntro();
+    }
+
+    public bool CaptureCheckpoint(GameSaveData data)
+    {
+        if (isTransitioning || isConfirmationFading || confirmationRoot.activeSelf) return false;
+        data.kind = "selection";
+        data.label = "話す相手の選択";
+        data.text = introDismissed ? "誰と話してみる？" : "ひとまず誰から話しかけようかな……？";
+        data.introDismissed = introDismissed;
+        return true;
     }
 
     private void Update()
@@ -96,7 +108,7 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void TryDismissIntroAtPointer()
     {
-        if (introDismissed || isTransitioning || Mouse.current == null ||
+        if (ArchiveManager.IsOpen || introDismissed || isTransitioning || Mouse.current == null ||
             introDialoguePanel == null || introSpeakerPlate == null) return;
         Vector2 pointer = Mouse.current.position.ReadValue();
         if (pointer.x < 0f || pointer.y < 0f ||
@@ -344,7 +356,7 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void DismissIntro()
     {
-        if (introDismissed || isTransitioning) return;
+        if (ArchiveManager.IsOpen || introDismissed || isTransitioning) return;
         introDismissed = true;
         introDismissedFrame = Time.frameCount;
         introDialoguePanel.SetActive(false);
@@ -403,7 +415,7 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void ShowConfirmation(string displayName, string destinationScene)
     {
-        if (isTransitioning || isConfirmationFading || confirmationRoot.activeSelf ||
+        if (ArchiveManager.IsOpen || isTransitioning || isConfirmationFading || confirmationRoot.activeSelf ||
             !introDismissed || Time.frameCount == introDismissedFrame)
         {
             return;
