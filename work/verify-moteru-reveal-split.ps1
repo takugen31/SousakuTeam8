@@ -36,11 +36,15 @@ Assert-Reveal ($effect.Contains('leftPortraitImage.enabled = revealLeftWasEnable
 Assert-Reveal ($effect.Contains('viewport, 0.27f, 2.6f') -and $effect.Contains('Mathf.Lerp(0.82f, 0.52f, t)')) 'Initial separation and left approach missing'
 Assert-Reveal ($effect.Contains('currentLine?.lineId == "chapter2_moteru_010"') -and $effect.Contains('ArchiveManager.IsOpen') -and $source.Contains('UpdateMoteruApproach();')) 'Page advance trigger or menu pause missing'
 Assert-Reveal ($source.Contains('if (!IsMoteruRevealLine(line?.lineId)) moteruApproachElapsed = 0f;')) 'Progress does not persist across split pages or reset outside them'
+Assert-Reveal ($effect.Contains('moteruRevealBackground = bottomRoom;') -and $effect.Contains('new Vector2(Mathf.Lerp(0.56f, 0.68f, t), 0.38f), 1.6f)') -and $effect.Contains('moteruRevealBackground = null;')) 'Lower background does not pan with portrait and clean up'
 $previous = 0.82
 foreach ($i in 0..240) {
     $t = $i / 240.0
     $x = 0.82 + (0.52 - 0.82) * ($t * $t * (3 - 2 * $t))
     Assert-Reveal ($x -le $previous + 0.000001 -and $x -ge 0.52 -and $x -le 0.82) 'Approach is not monotonic and bounded'
+    $center = 0.56 + 0.12 * ($t * $t * (3 - 2 * $t))
+    $backgroundX = (0.5 - $center) * 1.6
+    Assert-Reveal ($backgroundX -ge -0.3 -and $backgroundX -le 0.3) 'Lower background pan exposes empty edges at 16:9'
     $previous = $x
 }
 'PASS: approach/reveal-only split, full Doute face above, cropped Moteru face below, two enlarged backgrounds, horizontal separator, text UI, fades and cleanup.'
