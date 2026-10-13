@@ -295,6 +295,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     private RectTransform gatheringLeftFrame, gatheringRightFrame;
     private Transform gatheringLeftParent, gatheringRightParent;
     private int gatheringLeftSibling, gatheringRightSibling;
+    private string gatheringAnimationTarget;
+    private float gatheringDouteSlideElapsed;
 
     private struct SearchPortraitPose
     {
@@ -425,6 +427,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
+        UpdateGatheringDouteSlide();
         UpdateSearchPortraitSlide();
         UpdateWindowShake();
         if (isRoomLookPlaying || ArchiveManager.IsOpen ||
@@ -535,6 +538,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         awakeningRoomLookShown = false;
         moteruEntranceLookShown = false;
         shownIntroductionLookIds.Clear();
+        gatheringAnimationTarget = null;
+        gatheringDouteSlideElapsed = 0f;
         HideChoices();
 
         if (scenario == null)
@@ -1567,11 +1572,18 @@ public sealed class NovelDialogueController : MonoBehaviour
         string target = line != null && line.lineId != null && line.lineId.StartsWith("chapter1_kayo_", StringComparison.Ordinal)
             ? "kayo" : line != null && line.lineId != null && line.lineId.StartsWith("chapter1_yowashi_", StringComparison.Ordinal)
                 ? "yowashi" : null;
-        if (target == null || leftPortraitImage == null || rightPortraitImage == null ||
+        if (target == null) { gatheringAnimationTarget = null; return; }
+        if (leftPortraitImage == null || rightPortraitImage == null ||
             dialogueRoot == null || backgroundImage == null || backgroundImage.sprite == null ||
             characterDatabase == null || !characterDatabase.TryGetCharacter(target, out CharacterData character)) return;
         Sprite portrait = character.GetPortrait(line.speakerId == target ? line.expressionId : "normal");
         if (portrait == null) return;
+        // Continue through page advances; do not restart the slide on every dialogue line.
+        if (gatheringAnimationTarget != target)
+        {
+            gatheringAnimationTarget = target;
+            gatheringDouteSlideElapsed = 0f;
+        }
         // The other person is present even on Doute's opening greeting.
         SetPortrait(rightPortraitImage, portrait);
         gatheringLeftPose = CapturePortraitPose(leftPortraitImage.rectTransform);
@@ -1595,12 +1607,10 @@ public sealed class NovelDialogueController : MonoBehaviour
         // Each half has its own camera height; room lines no longer join across the split.
         gatheringLeftBackground = CreateRoomLookImage(gatheringLeftFrame, "GatheringLeftRoom");
         gatheringLeftBackground.transform.SetAsFirstSibling();
-        SetRoomLookPose(gatheringLeftBackground, viewport, new Vector2(0.5f, 0.53f), 1.35f);
         gatheringRightBackground = CreateRoomLookImage(gatheringRightFrame, "GatheringRightRoom");
         gatheringRightBackground.transform.SetAsFirstSibling();
         SetRoomLookPose(gatheringRightBackground, viewport, new Vector2(0.5f, 0.48f), 1.35f);
-        SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, -0.91f,
-            mirrorDoutePortrait ? -1f : 1f);
+        ApplyGatheringDouteSlide(viewport);
         float cropLine = target == "kayo" ? 0.83f : 0.87f;
         SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f,
             0.5f - (cropLine - 0.5f) * 3.1f, 1f);
@@ -1616,6 +1626,25 @@ public sealed class NovelDialogueController : MonoBehaviour
         divider.anchorMax = new Vector2(0.59f, 1f);
         divider.offsetMin = divider.offsetMax = Vector2.zero;
         dividerObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(viewport.x * 0.08f, 0f));
+    }
+
+    private void UpdateGatheringDouteSlide()
+    {
+        if (!isGatheringCompositionActive || leftPortraitImage == null || dialogueRoot == null ||
+            ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
+        gatheringDouteSlideElapsed = Mathf.Min(5.5f, gatheringDouteSlideElapsed + Time.unscaledDeltaTime);
+        ApplyGatheringDouteSlide(dialogueRoot.GetComponent<RectTransform>().rect.size);
+    }
+
+    private void ApplyGatheringDouteSlide(Vector2 viewport)
+    {
+        float progress = Mathf.SmoothStep(0f, 1f, gatheringDouteSlideElapsed / 5.5f);
+        float startY = 0.5f - (0.90f - 0.5f) * 2.7f;
+        SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, Mathf.Lerp(startY, -0.91f, progress),
+            mirrorDoutePortrait ? -1f : 1f);
+        if (gatheringLeftBackground != null)
+            SetRoomLookPose(gatheringLeftBackground, viewport,
+                new Vector2(0.5f, Mathf.Lerp(0.48f, 0.53f, progress)), 1.35f);
     }
 
     private static RectTransform CreateGatheringHalfFrame(RectTransform parent, string name, float width, bool left)
