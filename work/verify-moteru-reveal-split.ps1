@@ -21,7 +21,7 @@ Assert-Reveal (-not [MoteruRevealSplitChecks.Cues]::IsMoteruRevealLine('chapter_
 $start=$source.IndexOf('private void StartMoteruRevealView')
 $end=$source.IndexOf('public static bool IsYowashiBandageLine',$start)
 $effect=$source.Substring($start,$end-$start)
-Assert-Reveal ($effect.Contains('SetRoomLookPose(topRoom, viewport, new Vector2(0.5f, 0.54f), 1.6f)') -and $effect.Contains('SetRoomLookPose(bottomRoom, viewport, new Vector2(0.5f, 0.46f), 1.6f)')) 'Both halves lack enlarged backgrounds'
+Assert-Reveal ($effect.Contains('SetRoomLookPose(topRoom, viewport, new Vector2(0.44f, 0.62f), 1.6f)') -and $effect.Contains('SetRoomLookPose(bottomRoom, viewport, new Vector2(0.56f, 0.38f), 1.6f)')) 'Independent enlarged background framing missing'
 Assert-Reveal ($effect.Contains('new Vector4(0f, height * 0.5f, 0f, 0f)') -and $effect.Contains('new Vector4(0f, 0f, 0f, height * 0.5f)')) 'Half clipping missing'
 Assert-Reveal ($effect.Contains('new Vector2(0f, 0.475f)') -and $effect.Contains('new Vector2(1f, 0.525f)') -and $effect.Contains('ConfigureFeather(new Vector2(0f, viewport.y * 0.02f))')) 'Feathered horizontal separator missing'
 Assert-Reveal ($source.Contains('IsMoteruRevealLine(line?.lineId) != isMoteruRevealViewActive') -and $source.Contains('StartCoroutine(FadeToDialogueComposition(line))')) 'Entry/return fade missing'
@@ -33,4 +33,14 @@ foreach($face in @(0.85,0.90,0.94)) {
 $eyes=(0.88-0.85)*2.7;$mouth=(0.835-0.85)*2.7
 Assert-Reveal ($eyes -gt 0 -and $mouth -lt -0.025 -and $mouth -gt -0.5) 'Moteru eyes are visible or mouth is hidden'
 Assert-Reveal ($effect.Contains('leftPortraitImage.enabled = revealLeftWasEnabled') -and $effect.Contains('rightPortraitImage.enabled = revealRightWasEnabled')) 'Original portrait visibility not restored'
+Assert-Reveal ($effect.Contains('viewport, 0.27f, 2.6f') -and $effect.Contains('Mathf.Lerp(0.82f, 0.52f, t)')) 'Initial separation and left approach missing'
+Assert-Reveal ($effect.Contains('currentLine?.lineId == "chapter2_moteru_010"') -and $effect.Contains('ArchiveManager.IsOpen') -and $source.Contains('UpdateMoteruApproach();')) 'Page advance trigger or menu pause missing'
+Assert-Reveal ($source.Contains('if (!IsMoteruRevealLine(line?.lineId)) moteruApproachElapsed = 0f;')) 'Progress does not persist across split pages or reset outside them'
+$previous = 0.82
+foreach ($i in 0..240) {
+    $t = $i / 240.0
+    $x = 0.82 + (0.52 - 0.82) * ($t * $t * (3 - 2 * $t))
+    Assert-Reveal ($x -le $previous + 0.000001 -and $x -ge 0.52 -and $x -le 0.82) 'Approach is not monotonic and bounded'
+    $previous = $x
+}
 'PASS: approach/reveal-only split, full Doute face above, cropped Moteru face below, two enlarged backgrounds, horizontal separator, text UI, fades and cleanup.'

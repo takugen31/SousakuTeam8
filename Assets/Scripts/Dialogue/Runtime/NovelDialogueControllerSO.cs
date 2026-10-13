@@ -305,6 +305,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private GameObject moteruRevealView;
     private bool isMoteruRevealViewActive;
     private bool revealLeftWasEnabled, revealRightWasEnabled;
+    private Image moteruRevealPortrait;
+    private float moteruApproachElapsed;
+    private Vector2 moteruRevealViewport;
     private GameObject kayoEggView;
     private bool isKayoEggViewActive;
     private Color eggLeftOriginalColor, eggRightOriginalColor;
@@ -438,6 +441,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void Update()
     {
+        UpdateMoteruApproach();
         UpdateGatheringDouteSlide();
         UpdateKayoFall();
         UpdateSearchPortraitSlide();
@@ -1279,6 +1283,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        moteruApproachElapsed = 0f;
         StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
@@ -1604,6 +1609,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         HideChoices();
 
         currentLine = line;
+        if (!IsMoteruRevealLine(line?.lineId)) moteruApproachElapsed = 0f;
         autoAdvanceAt = -1f;
 
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
@@ -1709,18 +1715,23 @@ public sealed class NovelDialogueController : MonoBehaviour
         RectTransform top = CreateRevealHalf(frame, "DouteTopHalf", viewport.y, true);
         RectTransform bottom = CreateRevealHalf(frame, "MoteruBottomHalf", viewport.y, false);
         Image topRoom = CreateRoomLookImage(top, "TopZoomedRoom");
-        SetRoomLookPose(topRoom, viewport, new Vector2(0.5f, 0.54f), 1.6f);
+        // Independent framing prevents the door/window edges from joining across the split.
+        SetRoomLookPose(topRoom, viewport, new Vector2(0.44f, 0.62f), 1.6f);
         Image topPortrait = CreateRoomLookImage(top, "DouteFace");
         topPortrait.sprite = douteSprite;
         // Upper face centered inside the top half, with both eyes and chin visible.
-        SetGatheringPortrait(topPortrait, viewport, 0.35f, 2.6f, 0.25f - (0.90f - 0.5f) * 2.6f,
+        SetGatheringPortrait(topPortrait, viewport, 0.27f, 2.6f, 0.25f - (0.90f - 0.5f) * 2.6f,
             mirrorDoutePortrait ? -1f : 1f);
         Image bottomRoom = CreateRoomLookImage(bottom, "BottomZoomedRoom");
-        SetRoomLookPose(bottomRoom, viewport, new Vector2(0.5f, 0.46f), 1.6f);
+        SetRoomLookPose(bottomRoom, viewport, new Vector2(0.56f, 0.38f), 1.6f);
         Image bottomPortrait = CreateRoomLookImage(bottom, "MoteruMouth");
         bottomPortrait.sprite = moteruSprite;
         // The split edge crops Moteru above the mouth, rather than exposing the eyes.
-        SetGatheringPortrait(bottomPortrait, viewport, 0.70f, 2.7f, -(0.85f - 0.5f) * 2.7f, 1f);
+        moteruRevealPortrait = bottomPortrait;
+        moteruRevealViewport = viewport;
+        if (line.lineId == "chapter2_moteru_009" || line.lineId == "chapter2_moteru_010")
+            moteruApproachElapsed = 0f;
+        ApplyMoteruApproach();
         var dividerObject = new GameObject("RevealCenterDivider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         RectTransform divider = dividerObject.GetComponent<RectTransform>();
         divider.SetParent(frame, false);
@@ -1758,6 +1769,24 @@ public sealed class NovelDialogueController : MonoBehaviour
             moteruRevealView = null;
         }
         isMoteruRevealViewActive = false;
+        moteruRevealPortrait = null;
+    }
+
+    private void UpdateMoteruApproach()
+    {
+        // Start only after advancing the lips-to-ear page (010 -> 011).
+        if (!isMoteruRevealViewActive || moteruRevealPortrait == null ||
+            currentLine?.lineId == "chapter2_moteru_009" || currentLine?.lineId == "chapter2_moteru_010" ||
+            ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
+        moteruApproachElapsed = Mathf.Min(2.4f, moteruApproachElapsed + Time.unscaledDeltaTime);
+        ApplyMoteruApproach();
+    }
+
+    private void ApplyMoteruApproach()
+    {
+        float t = Mathf.SmoothStep(0f, 1f, moteruApproachElapsed / 2.4f);
+        SetGatheringPortrait(moteruRevealPortrait, moteruRevealViewport, Mathf.Lerp(0.82f, 0.52f, t),
+            2.7f, -(0.85f - 0.5f) * 2.7f, 1f);
     }
 
     public static bool IsYowashiBandageLine(string lineId)
@@ -1788,17 +1817,32 @@ public sealed class NovelDialogueController : MonoBehaviour
         frame.offsetMin = frame.offsetMax = Vector2.zero;
         Canvas.ForceUpdateCanvases();
         Vector2 viewport = frame.rect.size;
-        Image room = CreateRoomLookImage(frame, "BandageZoomedRoom");
+        Image normalRoom = CreateRoomLookImage(frame, "BandageNormalRoom");
+        SetRoomLookPose(normalRoom, viewport, new Vector2(0.5f, 0.5f), 1f);
+        // Keep the existing inner boundaries around the forearm, but replace the broad
+        // side fills with equal narrow separators (one third of the old right band).
+        const float bandWidth = 0.14f / 3f;
+        const float leftInner = 0.56f, rightInner = 0.86f;
+        var cropObject = new GameObject("BandageInnerCrop", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform crop = cropObject.GetComponent<RectTransform>();
+        crop.SetParent(frame, false);
+        crop.anchorMin = Vector2.zero; crop.anchorMax = Vector2.one;
+        crop.offsetMin = crop.offsetMax = Vector2.zero;
+        // Hide the clipping seams under the opaque center of each feathered separator.
+        cropObject.GetComponent<RectMask2D>().padding = new Vector4(
+            viewport.x * (leftInner - bandWidth * 0.5f), 0f,
+            viewport.x * (1f - rightInner - bandWidth * 0.5f), 0f);
+        Image room = CreateRoomLookImage(crop, "BandageZoomedRoom");
         SetRoomLookPose(room, viewport, new Vector2(0.5f, 0.58f), 1.65f);
-        Image portrait = CreateRoomLookImage(frame, "YowashiTorso");
+        Image portrait = CreateRoomLookImage(crop, "YowashiTorso");
         portrait.sprite = portraitSprite;
         // Chest and left forearm occupy the center; face and legs remain outside this crop.
         float height = viewport.y * 4f;
         portrait.rectTransform.anchorMin = portrait.rectTransform.anchorMax = portrait.rectTransform.pivot = new Vector2(0.5f, 0.5f);
         portrait.rectTransform.sizeDelta = new Vector2(height * portraitSprite.rect.width / portraitSprite.rect.height, height);
         portrait.rectTransform.anchoredPosition = new Vector2(0f, (0.5f - 0.65f) * height);
-        CreateBandageSideBar(frame, "LeftBand", new Vector2(0f, 0f), new Vector2(0.56f, 1f));
-        CreateBandageSideBar(frame, "RightBand", new Vector2(0.86f, 0f), new Vector2(1f, 1f));
+        CreateBandageSideBar(frame, "LeftBand", new Vector2(leftInner - bandWidth, 0f), new Vector2(leftInner, 1f));
+        CreateBandageSideBar(frame, "RightBand", new Vector2(rightInner, 0f), new Vector2(rightInner + bandWidth, 1f));
     }
 
     private static void CreateBandageSideBar(RectTransform parent, string name, Vector2 min, Vector2 max)
@@ -1811,7 +1855,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         Image image = band.GetComponent<Image>();
         image.color = Color.black;
         image.raycastTarget = false;
-        band.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(parent.rect.width * 0.035f, 0f));
+        band.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(parent.rect.width * 0.01f, 0f));
     }
 
     private void StopYowashiBandageView()

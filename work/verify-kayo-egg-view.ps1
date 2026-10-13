@@ -23,6 +23,6 @@ Assert-Egg ($effect.Contains('rightPortraitImage.transform.GetSiblingIndex() + 1
 Assert-Egg ($effect.Contains('egg.rect.width / egg.rect.height') -and $effect.Contains('image.preserveAspect = true') -and $effect.Contains('image.raycastTarget = false')) 'Aspect or input preservation missing'
 Assert-Egg (-not $effect.Contains('SetRoomLookPose') -and -not $effect.Contains('HideLookPresentation')) 'Background or dialogue unexpectedly modified'
 foreach ($method in @('PrepareLine(DialogueLine line)', 'OnDisable()', 'CancelChapterTransition()')) {
-    Assert-Egg ([regex]::IsMatch($source, [regex]::Escape($method) + '\s*\{\s*StopKayoEggView\(\);')) "Cleanup missing in $method"
+    Assert-Egg ([regex]::IsMatch($source, [regex]::Escape($method) + '\s*\{\s*(?:moteruApproachElapsed = 0f;\s*)?StopKayoEggView\(\);')) "Cleanup missing in $method"
 }
 'PASS: egg exchange cue, existing standalone illustration, centered foreground, aspect preservation, portrait dimming/restoration and cleanup.'
