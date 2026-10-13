@@ -89,6 +89,16 @@ public sealed class ArchiveDatabase : ScriptableObject
     public TMP_FontAsset UiFont => uiFont;
     public IReadOnlyList<ArchiveEntry> Entries => entries;
 
+    internal void AddEntry(ArchiveEntry entry)
+    {
+        if (entry != null && !TryGetEntry(entry.Id, out _)) entries.Add(entry);
+    }
+
+    internal void RemoveEntry(string id)
+    {
+        entries.RemoveAll(entry => entry != null && entry.Id == id);
+    }
+
     public bool TryGetEntry(string id, out ArchiveEntry entry)
     {
         entry = null;
