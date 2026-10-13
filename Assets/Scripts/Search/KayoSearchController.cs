@@ -79,6 +79,7 @@ public sealed class KayoSearchController : MonoBehaviour
     private Canvas canvas;
     private RectTransform backgroundFrame;
     private Image backgroundImage;
+    private GameObject searchHeader;
     private Button leftArrow;
     private Button rightArrow;
     private TMP_Text roomIndicator;
@@ -393,6 +394,7 @@ public sealed class KayoSearchController : MonoBehaviour
             new Color(0f, 0f, 0f, 0.82f),
             false);
         RectTransform headerRect = header.GetComponent<RectTransform>();
+        searchHeader = header;
         headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.035f, 1f);
         headerRect.pivot = new Vector2(0f, 1f);
         headerRect.anchoredPosition = new Vector2(0f, -16f);
@@ -619,6 +621,7 @@ public sealed class KayoSearchController : MonoBehaviour
         }
 
         currentRoom = room;
+        if (searchHeader != null) searchHeader.SetActive(true);
         backgroundImage.sprite =
             room == RoomView.Room1 ? currentRoom1Sprite : room2Background;
         leftArrow.gameObject.SetActive(room == RoomView.Room2);
@@ -699,6 +702,7 @@ public sealed class KayoSearchController : MonoBehaviour
 
         currentDialogueItem = item;
         isDialogueOpen = true;
+        if (searchHeader != null) searchHeader.SetActive(false);
         leftArrow.gameObject.SetActive(false);
         rightArrow.gameObject.SetActive(false);
         RefreshHotspots();
@@ -792,6 +796,7 @@ public sealed class KayoSearchController : MonoBehaviour
         }
 
         isCompleting = true;
+        if (searchHeader != null) searchHeader.SetActive(false);
         ArchiveManager.Close();
         canvas.sortingOrder = short.MaxValue;
         leftArrow.gameObject.SetActive(false);
