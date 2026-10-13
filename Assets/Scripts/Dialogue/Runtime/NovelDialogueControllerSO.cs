@@ -1609,13 +1609,13 @@ public sealed class NovelDialogueController : MonoBehaviour
         dividerObject.transform.SetParent(parent, false);
         dividerObject.transform.SetSiblingIndex(gatheringRightFrame.GetSiblingIndex() + 1);
         gatheringDivider = dividerObject.GetComponent<Image>();
-        gatheringDivider.color = new Color(0f, 0f, 0f, 0.45f);
+        gatheringDivider.color = Color.black;
         gatheringDivider.raycastTarget = false;
         RectTransform divider = gatheringDivider.rectTransform;
         divider.anchorMin = new Vector2(0.41f, 0f);
         divider.anchorMax = new Vector2(0.59f, 1f);
         divider.offsetMin = divider.offsetMax = Vector2.zero;
-        dividerObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(viewport.x * 0.045f, 0f));
+        dividerObject.AddComponent<DialogueWindowFeather>().ConfigureFeather(new Vector2(viewport.x * 0.08f, 0f));
     }
 
     private static RectTransform CreateGatheringHalfFrame(RectTransform parent, string name, float width, bool left)
