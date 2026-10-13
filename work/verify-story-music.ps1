@@ -125,3 +125,17 @@ foreach ($cue in $plan.sceneCues) {
     if (-not (Test-Path (Join-Path $root ('Assets/Resources/StoryMusic/Tracks/' + $cue.track + '.mp3')))) { throw 'Missing scene track' }
 }
 "PASS: $($scenarios.Count) scenarios, $cueCount cues, $($checks.Count) branch/resume checks."
+$resumeTrack = [StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $scenarios['Chapter1'], 'chapter1_006')
+if ($resumeTrack -ne 'Pop') { throw 'Search return keeps old music until advancing first conversation' }
+if (-not $source.Contains('SceneManager.sceneLoaded += OnSceneLoaded') -or -not $source.Contains('dialogue.TryGetSceneEntryMusic(out DialogueScenarioSO scenario, out DialogueLine line)')) { throw 'Scene-load music resolution missing' }
+$dialogueSource = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$previewStart = $dialogueSource.IndexOf('public bool TryGetSceneEntryMusic')
+$previewEnd = $dialogueSource.IndexOf('private bool TryStartPendingResumeLine', $previewStart)
+$preview = $dialogueSource.Substring($previewStart,$previewEnd-$previewStart)
+if ($preview.Contains('pendingResumeLineId =') -or -not $preview.Contains('candidate.TryGetLine(pendingResumeLineId') -or -not $preview.Contains('scenario.TryGetFirstLine(out entryLine)')) { throw 'Scene cue preview consumes resume or misses fallback' }
+$showStart = $dialogueSource.IndexOf('private void ShowLineImmediately')
+$showEnd = $dialogueSource.IndexOf('private IEnumerator FadeIntoSearchCloseUp', $showStart)
+$show = $dialogueSource.Substring($showStart,$showEnd-$showStart)
+if ($show.IndexOf('StoryMusicController.ApplyDialogue') -gt $show.IndexOf('StartCoroutine(FadeIntoSearchCloseUp')) { throw 'Music waits for the entrance animation' }
+if (-not $source.Contains('track == requestedTrack')) { throw 'Scene-load and row cues restart the same clip' }
+'PASS: Search return switches to Pop on arrival; sceneLoaded resolves resume/first-row music without consuming resume, before intro fades, and same-track deduplication remains.'
