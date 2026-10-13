@@ -1623,6 +1623,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         ApplyBackground(line);
         ApplyAffectionChanges(line);
         ApplyArchiveUnlocks(line);
+        RestoreNamesIntroducedBefore(line);
         ApplyCharacter(line);
         StartGatheringComposition(line);
         StartSearchPortraitSlide(line);
@@ -2751,6 +2752,28 @@ public sealed class NovelDialogueController : MonoBehaviour
         foreach (string characterId in revealedCharacterIds)
         {
             knownCharacterIds.Add(characterId);
+        }
+    }
+
+    private void RestoreNamesIntroducedBefore(DialogueLine target)
+    {
+        if (target == null || currentScenario == null) return;
+        // Skipping an introduction or resuming beyond it bypasses its typing-complete
+        // callback. Reconstruct already introduced names from the scenario sequence,
+        // without revealing the current introduction page or future characters.
+        for (int index = 0; index <= currentScenarioIndex; index++)
+        {
+            DialogueScenarioSO candidate = index == currentScenarioIndex ? currentScenario :
+                index == 0 ? scenario : followingScenarios[index - 1];
+            if (candidate == null) continue;
+            foreach (DialogueLine previous in candidate.Lines)
+            {
+                if (previous == null) continue;
+                if (index == currentScenarioIndex && previous.lineId == target.lineId) break;
+                if (!previous.revealSpeakerName || string.IsNullOrWhiteSpace(previous.speakerId)) continue;
+                knownCharacterIds.Add(previous.speakerId);
+                revealedCharacterIds.Add(previous.speakerId);
+            }
         }
     }
 
