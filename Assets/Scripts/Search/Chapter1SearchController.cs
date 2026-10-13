@@ -260,12 +260,22 @@ public sealed class Chapter1SearchController : MonoBehaviour
                 "chapter1.manga",
                 "ベッドの上の漫画",
                 RoomView.Room2,
-                new Vector2(0.635f, 0.275f),
-                new Vector2(0.78f, 0.43f),
+                new Vector2(0.6639f, 0.3092f),
+                new Vector2(0.7464f, 0.3847f),
                 new Rect(0.55f, 0.17f, 0.33f, 0.39f),
                 whiteRoom2,
                 "search_bookshelf_001",
-                "search_manga_001"));
+                "search_manga_001",
+                new[]
+                {
+                    // Trace the cover and stacked page edges in white_room_2 (1672 x 941).
+                    new Vector2(0.6639f, 0.3677f),
+                    new Vector2(0.7033f, 0.3847f),
+                    new Vector2(0.7464f, 0.3634f),
+                    new Vector2(0.7464f, 0.3284f),
+                    new Vector2(0.7075f, 0.3092f),
+                    new Vector2(0.6639f, 0.3326f)
+                }));
 
         items.Add(
             new ItemDefinition(
