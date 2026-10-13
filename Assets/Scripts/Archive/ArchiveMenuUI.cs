@@ -336,6 +336,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private IEnumerator ShowNotificationRoutine(string entryTitle)
     {
         notificationText.text = $"<color=#FFD34D>New!</color>  /  {entryTitle}";
+        SizeNotificationToText();
         notificationRoot.SetActive(true);
         Canvas.ForceUpdateCanvases();
         RectTransform rect = notificationRoot.GetComponent<RectTransform>();
@@ -345,6 +346,20 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         yield return SlideNotification(rect, 0f, hiddenX);
         notificationRoot.SetActive(false);
         notificationCoroutine = null;
+    }
+
+    private void SizeNotificationToText()
+    {
+        const float leftPadding = 36f, rightPadding = 20f, verticalPadding = 10f;
+        RectTransform rect = notificationRoot.GetComponent<RectTransform>();
+        Canvas.ForceUpdateCanvases();
+        RectTransform parent = rect.parent as RectTransform;
+        float maxWidth = parent != null ? Mathf.Max(96f, parent.rect.width * 0.75f) : 800f;
+        Vector2 natural = notificationText.GetPreferredValues(notificationText.text, Mathf.Infinity, Mathf.Infinity);
+        float width = Mathf.Clamp(Mathf.Ceil(natural.x + leftPadding + rightPadding), 96f, maxWidth);
+        Vector2 fitted = notificationText.GetPreferredValues(notificationText.text,
+            width - leftPadding - rightPadding, Mathf.Infinity);
+        rect.sizeDelta = new Vector2(width, Mathf.Ceil(fitted.y + verticalPadding * 2f));
     }
 
     private IEnumerator SlideNotification(RectTransform rect, float startX, float endX)
@@ -629,14 +644,19 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private void BuildNotification(Transform parent)
     {
         notificationRoot = CreatePanel("ArchiveNotification", parent, new Color(0f, 0f, 0f, 0.82f));
-        SetAnchors(notificationRoot, new Vector2(0.65f, 0.87f), new Vector2(1f, 0.95f), Vector2.zero, Vector2.zero);
+        RectTransform rect = notificationRoot.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.91f);
+        rect.pivot = new Vector2(1f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = new Vector2(200f, 44f);
         notificationRoot.GetComponent<Image>().raycastTarget = false;
-        notificationRoot.AddComponent<DialogueWindowFeather>().ConfigureLeftEdgeOnly(64f);
+        notificationRoot.AddComponent<DialogueWindowFeather>().ConfigureLeftEdgeOnly(24f);
 
         notificationText = CreateText("Text", notificationRoot.transform, string.Empty, 16f, PrimaryTextColor, FontStyles.Bold);
-        SetAnchors(notificationText.gameObject, new Vector2(0.06f, 0f), new Vector2(0.95f, 1f), Vector2.zero, Vector2.zero);
+        SetAnchors(notificationText.gameObject, Vector2.zero, Vector2.one, new Vector2(36f, 10f), new Vector2(-20f, -10f));
         notificationText.alignment = TextAlignmentOptions.MidlineLeft;
         notificationText.richText = true;
+        notificationText.textWrappingMode = TextWrappingModes.Normal;
     }
 
     private void RefreshAll()
