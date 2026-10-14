@@ -1374,7 +1374,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
         bool changeRevealView = IsApproachRevealLine(line?.lineId) != isMoteruRevealViewActive;
         bool changeExaminationView = IsKayoExaminationLine(line?.lineId) != isKayoExaminationViewActive;
-        bool changeMonologueView = IsDouteMonologueLine(line?.lineId) != (douteMonologueView != null);
+        bool changeMonologueView = IsCenteredNarrationLine(line?.lineId) != (douteMonologueView != null);
         if (changeBandageView || changeRevealView || changeExaminationView || changeMonologueView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
         {
             roomLookCoroutine = StartCoroutine(FadeToDialogueComposition(line));
@@ -2269,12 +2269,25 @@ public sealed class NovelDialogueController : MonoBehaviour
         return lineId == "chapter3_009";
     }
 
+    public static bool IsYowashiDiaryLine(string lineId)
+    {
+        const string prefix = "chapter_yowashi_diary_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 2 && row <= 14;
+    }
+
+    private static bool IsCenteredNarrationLine(string lineId)
+    {
+        return IsDouteMonologueLine(lineId) || IsYowashiDiaryLine(lineId);
+    }
+
     private void StartDouteMonologueView(DialogueLine line)
     {
-        if (!IsDouteMonologueLine(line?.lineId) || dialogueRoot == null || bodyText == null ||
+        bool isYowashiDiary = IsYowashiDiaryLine(line?.lineId);
+        if (!IsCenteredNarrationLine(line?.lineId) || dialogueRoot == null || bodyText == null ||
             backgroundImage == null || backgroundImage.sprite == null || characterDatabase == null ||
-            !characterDatabase.TryGetCharacter("doute", out CharacterData doute)) return;
-        Sprite sprite = doute.GetPortrait("normal");
+            !characterDatabase.TryGetCharacter(isYowashiDiary ? "yowashi" : "doute", out CharacterData character)) return;
+        Sprite sprite = character.GetPortrait("normal");
         if (sprite == null) return;
         monologueLeftEnabled = leftPortraitImage != null && leftPortraitImage.enabled;
         monologueRightEnabled = rightPortraitImage != null && rightPortraitImage.enabled;
@@ -2295,7 +2308,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             monologuePanelGroup.alpha = 0f;
         }
 
-        douteMonologueView = new GameObject("DouteCenteredMonologue", typeof(RectTransform), typeof(RectMask2D));
+        douteMonologueView = new GameObject(isYowashiDiary ? "YowashiCenteredDiary" : "DouteCenteredMonologue", typeof(RectTransform), typeof(RectMask2D));
         RectTransform frame = douteMonologueView.GetComponent<RectTransform>();
         frame.SetParent(dialogueRoot.transform, false);
         frame.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
@@ -2304,10 +2317,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         Image room = CreateRoomLookImage(frame, "MonologueRoom");
         SetRoomLookPose(room, frame.rect.size, new Vector2(0.5f, 0.5f), 1f);
-        Image portrait = CreateRoomLookImage(frame, "DouteBust");
+        Image portrait = CreateRoomLookImage(frame, isYowashiDiary ? "YowashiBust" : "DouteBust");
         portrait.sprite = sprite;
+        float bustCenter = isYowashiDiary ? 0.84f : 0.80f;
         SetGatheringPortrait(portrait, frame.rect.size, 0.5f, 2.3f,
-            -(0.80f - 0.5f) * 2.3f, mirrorDoutePortrait ? -1f : 1f);
+            -(bustCenter - 0.5f) * 2.3f, !isYowashiDiary && mirrorDoutePortrait ? -1f : 1f);
         Image shade = CreateRoomLookImage(frame, "MonologueShade");
         shade.sprite = null;
         shade.color = new Color(0f, 0f, 0f, 0.35f);
