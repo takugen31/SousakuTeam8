@@ -317,6 +317,12 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Image moteruRevealBackground;
     private float moteruApproachElapsed;
     private Vector2 moteruRevealViewport;
+    private GameObject kayoExaminationView;
+    private bool isKayoExaminationViewActive;
+    private bool examinationLeftWasEnabled, examinationRightWasEnabled;
+    private Image examinationAbdomen, examinationKayo;
+    private Vector2 examinationViewport;
+    private float examinationElapsed;
     private GameObject kayoEggView;
     private bool isKayoEggViewActive;
     private Color eggLeftOriginalColor, eggRightOriginalColor;
@@ -458,6 +464,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         UpdateKayoEggSlide();
         UpdateMoteruApproach();
+        UpdateKayoExamination();
         UpdateGatheringDouteSlide();
         UpdateKayoFall();
         UpdateSearchPortraitSlide();
@@ -1305,6 +1312,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
+        StopKayoExaminationView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1348,8 +1356,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         // Music belongs to the incoming scene/segment, not to the end of its entrance fade.
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
         bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
-        bool changeRevealView = IsMoteruRevealLine(line?.lineId) != isMoteruRevealViewActive;
-        if (changeBandageView || changeRevealView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
+        bool changeRevealView = IsApproachRevealLine(line?.lineId) != isMoteruRevealViewActive;
+        bool changeExaminationView = IsKayoExaminationLine(line?.lineId) != isKayoExaminationViewActive;
+        if (changeBandageView || changeRevealView || changeExaminationView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
         {
             roomLookCoroutine = StartCoroutine(FadeToDialogueComposition(line));
             return;
@@ -1615,6 +1624,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
+        StopKayoExaminationView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1747,6 +1757,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
+        StopKayoExaminationView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1754,7 +1765,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         HideChoices();
 
         currentLine = line;
-        if (!IsMoteruRevealLine(line?.lineId)) moteruApproachElapsed = 0f;
+        if (!IsApproachRevealLine(line?.lineId)) moteruApproachElapsed = 0f;
+        if (!IsKayoExaminationLine(line?.lineId)) examinationElapsed = 0f;
         if (!IsKayoEggLine(line?.lineId) || line.lineId == "chapter2_kayo_012") kayoEggSlideElapsed = 0f;
         autoAdvanceAt = -1f;
 
@@ -1769,6 +1781,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StartGatheringComposition(line);
         StartSearchPortraitSlide(line);
         StartYowashiBandageView(line);
+        StartKayoExaminationView(line);
         StartMoteruRevealView(line);
         StartKayoEggView(line);
         LineStarted?.Invoke(line);
@@ -1893,12 +1906,25 @@ public sealed class NovelDialogueController : MonoBehaviour
             int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 9 && row <= 18;
     }
 
+    public static bool IsKayoApproachLine(string lineId)
+    {
+        const string prefix = "kayo_catch_success_before_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 6 && row <= 7;
+    }
+
+    private static bool IsApproachRevealLine(string lineId)
+    {
+        return IsMoteruRevealLine(lineId) || IsKayoApproachLine(lineId);
+    }
+
     private void StartMoteruRevealView(DialogueLine line)
     {
-        if (!IsMoteruRevealLine(line?.lineId) || dialogueRoot == null || backgroundImage == null ||
+        bool isKayo = IsKayoApproachLine(line?.lineId);
+        if (!IsApproachRevealLine(line?.lineId) || dialogueRoot == null || backgroundImage == null ||
             backgroundImage.sprite == null || characterDatabase == null ||
             !characterDatabase.TryGetCharacter("doute", out CharacterData doute) ||
-            !characterDatabase.TryGetCharacter("moteru", out CharacterData moteru)) return;
+            !characterDatabase.TryGetCharacter(isKayo ? "kayo" : "moteru", out CharacterData moteru)) return;
         Sprite douteSprite = doute.GetPortrait("normal"), moteruSprite = moteru.GetPortrait("normal");
         if (douteSprite == null || moteruSprite == null) return;
         revealLeftWasEnabled = leftPortraitImage != null && leftPortraitImage.enabled;
@@ -1907,7 +1933,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (rightPortraitImage != null) rightPortraitImage.enabled = false;
         isMoteruRevealViewActive = true;
 
-        moteruRevealView = new GameObject("MoteruRevealSplitView", typeof(RectTransform), typeof(RectMask2D));
+        moteruRevealView = new GameObject(isKayo ? "KayoApproachSplitView" : "MoteruRevealSplitView", typeof(RectTransform), typeof(RectMask2D));
         RectTransform frame = moteruRevealView.GetComponent<RectTransform>();
         frame.SetParent(dialogueRoot.transform, false);
         frame.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
@@ -1916,7 +1942,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         Vector2 viewport = frame.rect.size;
         RectTransform top = CreateRevealHalf(frame, "DouteTopHalf", viewport.y, true);
-        RectTransform bottom = CreateRevealHalf(frame, "MoteruBottomHalf", viewport.y, false);
+        RectTransform bottom = CreateRevealHalf(frame, isKayo ? "KayoBottomHalf" : "MoteruBottomHalf", viewport.y, false);
         Image topRoom = CreateRoomLookImage(top, "TopZoomedRoom");
         // Independent framing prevents the door/window edges from joining across the split.
         SetRoomLookPose(topRoom, viewport, new Vector2(0.44f, 0.62f), 1.6f);
@@ -1928,12 +1954,13 @@ public sealed class NovelDialogueController : MonoBehaviour
         Image bottomRoom = CreateRoomLookImage(bottom, "BottomZoomedRoom");
         SetRoomLookPose(bottomRoom, viewport, new Vector2(0.56f, 0.38f), 1.6f);
         moteruRevealBackground = bottomRoom;
-        Image bottomPortrait = CreateRoomLookImage(bottom, "MoteruMouth");
+        Image bottomPortrait = CreateRoomLookImage(bottom, isKayo ? "KayoMouth" : "MoteruMouth");
         bottomPortrait.sprite = moteruSprite;
         // The split edge crops Moteru above the mouth, rather than exposing the eyes.
         moteruRevealPortrait = bottomPortrait;
         moteruRevealViewport = viewport;
-        if (line.lineId == "chapter2_moteru_009" || line.lineId == "chapter2_moteru_010")
+        if (line.lineId == "chapter2_moteru_009" || line.lineId == "chapter2_moteru_010" ||
+            line.lineId == "kayo_catch_success_before_006")
             moteruApproachElapsed = 0f;
         ApplyMoteruApproach();
         var dividerObject = new GameObject("RevealCenterDivider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -1990,8 +2017,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void ApplyMoteruApproach()
     {
         float t = Mathf.SmoothStep(0f, 1f, moteruApproachElapsed / 2.4f);
+        float faceCenter = IsKayoApproachLine(currentLine?.lineId) ? 0.84f : 0.85f;
         SetGatheringPortrait(moteruRevealPortrait, moteruRevealViewport, Mathf.Lerp(0.82f, 0.52f, t),
-            2.7f, -(0.85f - 0.5f) * 2.7f, 1f);
+            2.7f, -(faceCenter - 0.5f) * 2.7f, 1f);
         // Pan the lower room left with the same timing, retaining its vertical framing.
         // Stay within the enlarged image's margins so no empty edge is exposed.
         if (moteruRevealBackground != null)
@@ -2081,6 +2109,98 @@ public sealed class NovelDialogueController : MonoBehaviour
             yowashiBandageView = null;
         }
         isYowashiBandageViewActive = false;
+    }
+
+    public static bool IsKayoExaminationLine(string lineId)
+    {
+        const string prefix = "kayo_catch_success_before_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 8 && row <= 12;
+    }
+
+    private void StartKayoExaminationView(DialogueLine line)
+    {
+        if (!IsKayoExaminationLine(line?.lineId) || dialogueRoot == null || backgroundImage == null ||
+            backgroundImage.sprite == null || characterDatabase == null ||
+            !characterDatabase.TryGetCharacter("doute", out CharacterData doute) ||
+            !characterDatabase.TryGetCharacter("kayo", out CharacterData kayo)) return;
+        Sprite abdomenSprite = doute.GetPortrait("normal"), kayoSprite = kayo.GetPortrait("normal");
+        if (abdomenSprite == null || kayoSprite == null) return;
+        examinationLeftWasEnabled = leftPortraitImage != null && leftPortraitImage.enabled;
+        examinationRightWasEnabled = rightPortraitImage != null && rightPortraitImage.enabled;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = false;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = false;
+        isKayoExaminationViewActive = true;
+
+        kayoExaminationView = new GameObject("KayoExaminationCloseUps", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform frame = kayoExaminationView.GetComponent<RectTransform>();
+        frame.SetParent(dialogueRoot.transform, false);
+        frame.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
+        frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
+        frame.offsetMin = frame.offsetMax = Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        examinationViewport = frame.rect.size;
+        Image room = CreateRoomLookImage(frame, "ExaminationNormalRoom");
+        SetRoomLookPose(room, examinationViewport, new Vector2(0.5f, 0.5f), 1f);
+        examinationAbdomen = CreateExaminationPanel(frame, "DouteAbdomen", abdomenSprite, 0.10f, 0.43f);
+        examinationKayo = CreateExaminationPanel(frame, "KayoBust", kayoSprite, 0.57f, 0.90f);
+        ApplyKayoExaminationPose();
+    }
+
+    private Image CreateExaminationPanel(RectTransform frame, string name, Sprite sprite, float left, float right)
+    {
+        const float bandWidth = 0.14f / 3f;
+        var cropObject = new GameObject(name + "Crop", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform crop = cropObject.GetComponent<RectTransform>();
+        crop.SetParent(frame, false);
+        crop.anchorMin = Vector2.zero; crop.anchorMax = Vector2.one;
+        crop.offsetMin = crop.offsetMax = Vector2.zero;
+        cropObject.GetComponent<RectMask2D>().padding = new Vector4(
+            examinationViewport.x * (left - bandWidth * 0.5f), 0f,
+            examinationViewport.x * (1f - right - bandWidth * 0.5f), 0f);
+        Image room = CreateRoomLookImage(crop, name + "ZoomedRoom");
+        SetRoomLookPose(room, examinationViewport, new Vector2(0.5f, 0.58f), 1.65f);
+        Image portrait = CreateRoomLookImage(crop, name);
+        portrait.sprite = sprite;
+        CreateBandageSideBar(frame, name + "LeftBand", new Vector2(left - bandWidth, 0f), new Vector2(left, 1f));
+        CreateBandageSideBar(frame, name + "RightBand", new Vector2(right, 0f), new Vector2(right + bandWidth, 1f));
+        return portrait;
+    }
+
+    private void UpdateKayoExamination()
+    {
+        if (!isKayoExaminationViewActive || examinationAbdomen == null || examinationKayo == null ||
+            ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
+        examinationElapsed += Time.unscaledDeltaTime;
+        ApplyKayoExaminationPose();
+    }
+
+    private void ApplyKayoExaminationPose()
+    {
+        float arrival = Mathf.SmoothStep(0f, 1f, examinationElapsed / 1.6f);
+        float breath = Mathf.Sin(examinationElapsed * (2f * Mathf.PI / 3.6f)) * 0.004f * arrival;
+        float abdomenZoom = Mathf.Lerp(3.8f, 4f, arrival);
+        float kayoZoom = Mathf.Lerp(3f, 3.2f, arrival);
+        SetGatheringPortrait(examinationAbdomen, examinationViewport, 0.265f, abdomenZoom,
+            -(0.66f - 0.5f) * abdomenZoom + breath, mirrorDoutePortrait ? -1f : 1f);
+        SetGatheringPortrait(examinationKayo, examinationViewport, 0.735f + breath, kayoZoom,
+            -(0.79f - 0.5f) * kayoZoom + breath * 0.5f, 1f);
+    }
+
+    private void StopKayoExaminationView()
+    {
+        if (!isKayoExaminationViewActive) return;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = examinationLeftWasEnabled;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = examinationRightWasEnabled;
+        if (kayoExaminationView != null)
+        {
+            kayoExaminationView.SetActive(false);
+            kayoExaminationView.transform.SetParent(null, false);
+            Destroy(kayoExaminationView);
+            kayoExaminationView = null;
+        }
+        isKayoExaminationViewActive = false;
+        examinationAbdomen = examinationKayo = null;
     }
 
     private void StartGatheringComposition(DialogueLine line)
