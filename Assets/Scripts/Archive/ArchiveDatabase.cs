@@ -45,6 +45,9 @@ public sealed class ArchiveEntry
     [SerializeField]
     private bool showBeforeUnlock;
 
+    [SerializeField]
+    private List<string> unlockLineIds = new List<string>();
+
     public string Id => id;
     public ArchiveCategory Category => category;
     public string Title => title;
@@ -55,6 +58,7 @@ public sealed class ArchiveEntry
     public int SortOrder => sortOrder;
     public bool UnlockedAtStart => unlockedAtStart;
     public bool ShowBeforeUnlock => showBeforeUnlock;
+    public IReadOnlyList<string> UnlockLineIds => unlockLineIds;
 
     internal ArchiveEntry(
         string id,

@@ -177,6 +177,22 @@ public sealed class ArchiveManager : MonoBehaviour
         return Instance.unlockedIds.Contains(entryId);
     }
 
+    public static void UnlockDialogueLine(string lineId)
+    {
+        if (string.IsNullOrWhiteSpace(lineId)) return;
+        ArchiveManager manager = Instance;
+        foreach (ArchiveEntry entry in manager.Entries)
+        {
+            if (entry?.UnlockLineIds == null) continue;
+            foreach (string trigger in entry.UnlockLineIds)
+            {
+                if (!string.Equals(trigger, lineId, StringComparison.Ordinal)) continue;
+                manager.UnlockEntry(entry.Id);
+                break;
+            }
+        }
+    }
+
     public static bool Replace(string previousId, string replacementId)
     {
         ArchiveManager manager = Instance;

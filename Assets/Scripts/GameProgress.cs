@@ -1,5 +1,30 @@
 using UnityEngine;
 
+/// <summary>Fixed end numbers; replace the provisional titles when finalized.</summary>
+public static class EndingCatalog
+{
+    public static bool TryGetEnding(string lineId, out int number, out string title)
+    {
+        number = 0;
+        title = null;
+        switch (lineId)
+        {
+            case "chapter_kayo_end_004":
+                number = 1; title = "カヨ・ハッピーエンド（仮）"; break;
+            case "chapter_kayo_3_032":
+                number = 2; title = "カヨ・バッドエンド（仮）"; break;
+            case "chapter_yowashi_rescue_038":
+                number = 3; title = "ヨワシ・ハッピーエンド（仮）"; break;
+            case "chapter_yowashi_catchfailure_009":
+                number = 4; title = "ヨワシ・キャッチ失敗エンド（仮）"; break;
+            case "chapter_yowashi_rescue_042":
+                number = 5; title = "ヨワシ・救助失敗エンド（仮）"; break;
+            default: return false;
+        }
+        return true;
+    }
+}
+
 /// <summary>
 /// ゲーム全体の進行状況（セーブデータ）を管理します。
 /// </summary>

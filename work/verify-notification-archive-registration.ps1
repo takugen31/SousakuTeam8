@@ -17,7 +17,7 @@ function Method([string]$signature) {
 $methods = @(
     'public static void UnlockInformationTitle(', 'public bool UnlockEntry(',
     'public void ResetProgress(', 'private void UnlockInitialEntries(',
-    'private void LoadState(', 'private void SaveState('
+    'private void LoadState(', 'private void SaveState(', 'public static void UnlockDialogueLine('
 ) | ForEach-Object { Method $_ }
 $entryStart = $database.IndexOf('[Serializable]')
 $entryEnd = $database.IndexOf('[CreateAssetMenu')
@@ -60,6 +60,7 @@ public class ArchiveManager {
  const string SaveKey="ArchiveState.v1";
  public static ArchiveManager Instance;
  public ArchiveDatabase database=new ArchiveDatabase();
+ public IReadOnlyList<ArchiveEntry> Entries => database.Entries;
  readonly List<ArchiveEntry> acquiredInformation=new List<ArchiveEntry>();
  readonly HashSet<string> unlockedIds=new HashSet<string>();
  readonly HashSet<string> readIds=new HashSet<string>();
@@ -72,6 +73,21 @@ public class ArchiveManager {
  }
  $($methods -join "`n")
  public static void Check(bool value) { if(!value) throw new Exception("Archive registration assertion failed"); }
+ public static void RunDialogueTriggers() {
+  Instance=new ArchiveManager();
+  var name=new ArchiveEntry("name",ArchiveCategory.Person,"Name","","Name only",0,false);
+  var later=new ArchiveEntry("later",ArchiveCategory.Person,"Later fact","","Later only",1,false);
+  var field=typeof(ArchiveEntry).GetField("unlockLineIds",System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+  field.SetValue(name,new List<string>{"intro","alternate_intro"});
+  field.SetValue(later,new List<string>{"later_line"});
+  Instance.database.AddEntry(name); Instance.database.AddEntry(later);
+  int notices=0;
+  Instance.menu.onNotice=title=> { notices++; Check(Instance.database.Entries.Any(e=>e.Title==title && Instance.unlockedIds.Contains(e.Id))); };
+  UnlockDialogueLine(null); UnlockDialogueLine("unrelated"); Check(notices==0);
+  UnlockDialogueLine("intro"); Check(notices==1 && !Instance.unlockedIds.Contains("later"));
+  UnlockDialogueLine("alternate_intro"); UnlockDialogueLine("intro"); Check(notices==1);
+  UnlockDialogueLine("later_line"); Check(notices==2);
+ }
  public static void Run() {
   Instance=new ArchiveManager(); var first=Instance;
   first.database.AddEntry(new ArchiveEntry("known",ArchiveCategory.Record,"既存情報","","本文",1,false));
@@ -92,5 +108,6 @@ public class ArchiveManager {
 }
 "@
 [ArchiveManager]::Run()
+[ArchiveManager]::RunDialogueTriggers()
 if (-not $source.Contains('database = Instantiate(database)')) { throw 'Shared asset must not be mutated' }
 'PASS: known/new information registered before toast, duplicate suppression, save/load metadata and read state, reset, runtime asset isolation.'

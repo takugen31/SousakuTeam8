@@ -11,6 +11,7 @@ using UnityEngine.UI;
 
 public sealed class NovelDialogueController : MonoBehaviour
 {
+    private GameObject endingCard;
     private static string pendingResumeLineId;
     private static bool pendingSceneFadeIn;
     private static readonly HashSet<string> revealedCharacterIds =
@@ -776,6 +777,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         if (currentLine.HasSceneTransition)
         {
+            if (TryShowEndingCard(currentLine)) return;
             LoadDialogueScene(currentLine.nextScenePath, currentLine);
             return;
         }
@@ -1287,6 +1289,12 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        if (endingCard != null)
+        {
+            Destroy(endingCard);
+            endingCard = null;
+            isChoiceSelectionOpen = false;
+        }
         moteruApproachElapsed = 0f;
         StopKayoEggView();
         StopMoteruRevealView();
@@ -1601,6 +1609,70 @@ public sealed class NovelDialogueController : MonoBehaviour
         RestoreChoiceOnlyWindow();
         ResetKayoFall();
         CancelRoomLook();
+    }
+
+    private bool TryShowEndingCard(DialogueLine line)
+    {
+        if (endingCard != null) return true;
+        if (line == null || !line.HasSceneTransition || GetRuntimeSceneName(line.nextScenePath) != "Title" ||
+            !EndingCatalog.TryGetEnding(line.lineId, out int number, out string title)) return false;
+        Canvas canvas = bodyText != null ? bodyText.canvas : GetComponentInParent<Canvas>();
+        if (canvas == null) return false;
+
+        autoAdvanceAt = -1f;
+        isChoiceSelectionOpen = true;
+        endingCard = new GameObject("EndingConfirmation", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform rect = endingCard.GetComponent<RectTransform>();
+        rect.SetParent(canvas.transform, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+        rect.SetAsLastSibling();
+        Image shade = endingCard.GetComponent<Image>();
+        shade.color = new Color(0f, 0f, 0f, .92f);
+        shade.raycastTarget = true;
+
+        TextMeshProUGUI caption = CreateEndingText(rect, "EndingTitle", 42f);
+        caption.text = $"END No.{number:00}\n\n{title}";
+        caption.rectTransform.anchorMin = new Vector2(.1f, .4f);
+        caption.rectTransform.anchorMax = new Vector2(.9f, .75f);
+        caption.rectTransform.offsetMin = caption.rectTransform.offsetMax = Vector2.zero;
+
+        GameObject buttonObject = new GameObject("ReturnToTitle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
+        buttonRect.SetParent(rect, false);
+        buttonRect.anchorMin = new Vector2(.35f, .22f);
+        buttonRect.anchorMax = new Vector2(.65f, .32f);
+        buttonRect.offsetMin = buttonRect.offsetMax = Vector2.zero;
+        buttonObject.GetComponent<Image>().color = new Color(.25f, .25f, .25f, .9f);
+        TextMeshProUGUI label = CreateEndingText(buttonRect, "Label", 28f);
+        label.text = "タイトルへ";
+        label.rectTransform.anchorMin = Vector2.zero;
+        label.rectTransform.anchorMax = Vector2.one;
+        label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
+        Button button = buttonObject.GetComponent<Button>();
+        button.onClick.AddListener(() =>
+        {
+            if (isSceneLoading) return;
+            Destroy(endingCard);
+            endingCard = null;
+            isChoiceSelectionOpen = false;
+            LoadDialogueScene(line.nextScenePath, line);
+        });
+        return true;
+    }
+
+    private TextMeshProUGUI CreateEndingText(RectTransform parent, string objectName, float fontSize)
+    {
+        GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+        textObject.transform.SetParent(parent, false);
+        TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
+        if (bodyText != null) text.font = bodyText.font;
+        text.fontSize = fontSize;
+        text.color = Color.white;
+        text.alignment = TextAlignmentOptions.Center;
+        text.raycastTarget = false;
+        return text;
     }
 
     private void PrepareLine(DialogueLine line)
@@ -2355,9 +2427,9 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private static void ApplyArchiveUnlocks(DialogueLine line)
     {
+        ArchiveManager.UnlockDialogueLine(line?.lineId);
         if (line?.lineId == "chapter_kayo_3_008")
         {
-            ArchiveManager.Unlock("chapter_kayo.profile");
             ArchiveManager.Replace("chapter_kayo.floor_dent", "chapter_kayo.clumsiness");
         }
         if (line == null || line.archiveUnlockIds == null)
