@@ -324,16 +324,20 @@ namespace SousakuTeam8.PuzzleGame
             var moveBadgeImage = CreateImage("Move Counter", _header, BackgroundAccentColor, false);
             _moveBadge = moveBadgeImage.rectTransform;
             moveBadgeImage.gameObject.AddComponent<PuzzlePanelFeather>();
-            var moveLabel = CreateText("Label", _moveBadge, "操作回数", 18, FontStyle.Normal, TextAnchor.UpperCenter, SecondaryTextColor);
-            moveLabel.rectTransform.anchorMin = new Vector2(0f, 0.5f);
-            moveLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
-            moveLabel.rectTransform.offsetMin = new Vector2(0f, -4f);
-            moveLabel.rectTransform.offsetMax = new Vector2(0f, -7f);
-            _moveCountText = CreateText("Value", _moveBadge, "00", 30, FontStyle.Bold, TextAnchor.LowerCenter, PrimaryTextColor);
-            _moveCountText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            _moveCountText.rectTransform.anchorMax = new Vector2(1f, 0.62f);
-            _moveCountText.rectTransform.offsetMin = new Vector2(0f, 4f);
-            _moveCountText.rectTransform.offsetMax = Vector2.zero;
+            var moveLabel = CreateText("Label", _moveBadge, "操作回数", 18, FontStyle.Normal, TextAnchor.MiddleCenter, SecondaryTextColor);
+            moveLabel.rectTransform.anchorMin = Vector2.zero;
+            moveLabel.rectTransform.anchorMax = new Vector2(0.58f, 1f);
+            moveLabel.rectTransform.offsetMin = new Vector2(12f, 0f);
+            moveLabel.rectTransform.offsetMax = new Vector2(-4f, 0f);
+            _moveCountText = CreateText("Value", _moveBadge, "00", 30, FontStyle.Bold, TextAnchor.MiddleCenter, PrimaryTextColor);
+            _moveCountText.rectTransform.anchorMin = new Vector2(0.58f, 0f);
+            _moveCountText.rectTransform.anchorMax = Vector2.one;
+            _moveCountText.rectTransform.offsetMin = new Vector2(4f, 0f);
+            _moveCountText.rectTransform.offsetMax = new Vector2(-12f, 0f);
+            _moveCountText.resizeTextForBestFit = true;
+            _moveCountText.resizeTextMinSize = 16;
+            _moveCountText.resizeTextMaxSize = 30;
+            _moveCountText.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             var shadowImage = CreateImage("Board Shadow", _safeArea, new Color(0f, 0f, 0f, 0.28f), false);
             shadowImage.gameObject.AddComponent<PuzzlePanelFeather>();
@@ -454,7 +458,11 @@ namespace SousakuTeam8.PuzzleGame
             var width = Mathf.Max(360f, _safeArea.rect.width);
             var height = Mathf.Max(540f, _safeArea.rect.height);
             var horizontalMargin = Mathf.Clamp(width * 0.045f, 28f, 72f);
-            var headerWidth = Mathf.Min(width - horizontalMargin * 2f, 980f);
+            const float counterWidth = 176f;
+            const float descriptionGap = 16f;
+            float preferredDescriptionWidth = _subtitleRect.GetComponent<Text>().preferredWidth;
+            var headerWidth = Mathf.Min(width - horizontalMargin * 2f,
+                preferredDescriptionWidth + descriptionGap + counterWidth + 64f);
             const float headerHeight = 144f;
             const float headerTop = 24f;
             const float footerHeight = 62f;
@@ -465,10 +473,8 @@ namespace SousakuTeam8.PuzzleGame
             SetCenteredTop(_titleRect, new Vector2(headerWidth - 64f, 55f), 8f);
 
             // Center the description and counter as one compact row.
-            const float counterWidth = 112f;
-            const float descriptionGap = 16f;
-            float descriptionWidth = Mathf.Min(_subtitleRect.GetComponent<Text>().preferredWidth,
-                headerWidth - 48f - counterWidth - descriptionGap);
+            float descriptionWidth = Mathf.Min(preferredDescriptionWidth,
+                headerWidth - 64f - counterWidth - descriptionGap);
             float rowWidth = descriptionWidth + descriptionGap + counterWidth;
             _subtitleRect.anchorMin = _subtitleRect.anchorMax = new Vector2(0.5f, 1f);
             _subtitleRect.pivot = new Vector2(0f, 1f);
