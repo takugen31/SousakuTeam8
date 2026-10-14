@@ -808,10 +808,10 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         if (TryStartGatheringDeparture()) return;
+        if (TryShowEndingCard(currentLine)) return;
 
         if (currentLine.HasSceneTransition)
         {
-            if (TryShowEndingCard(currentLine)) return;
             LoadDialogueScene(currentLine.nextScenePath, currentLine);
             return;
         }
@@ -1657,8 +1657,13 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool TryShowEndingCard(DialogueLine line)
     {
         if (endingCard != null) return true;
-        if (line == null || !line.HasSceneTransition || GetRuntimeSceneName(line.nextScenePath) != "Title" ||
+        bool returnToChoice = line?.lineId == "chapter3_009";
+        if (line == null || (!returnToChoice &&
+            (!line.HasSceneTransition || GetRuntimeSceneName(line.nextScenePath) != "Title")) ||
             !EndingCatalog.TryGetEnding(line.lineId, out int number, out string title)) return false;
+        DialogueLine returnChoice = null;
+        if (returnToChoice && (currentScenario == null ||
+            !currentScenario.TryGetLine("chapter3_007", out returnChoice))) return false;
         Canvas canvas = bodyText != null ? bodyText.canvas : GetComponentInParent<Canvas>();
         if (canvas == null) return false;
 
@@ -1683,15 +1688,15 @@ public sealed class NovelDialogueController : MonoBehaviour
         CanvasGroup captionGroup = caption.gameObject.AddComponent<CanvasGroup>();
         captionGroup.alpha = 0f;
 
-        GameObject buttonObject = new GameObject("ReturnToTitle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        GameObject buttonObject = new GameObject(returnToChoice ? "ReturnToChoice" : "ReturnToTitle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
         buttonRect.SetParent(rect, false);
-        buttonRect.anchorMin = new Vector2(.35f, .22f);
-        buttonRect.anchorMax = new Vector2(.65f, .32f);
+        buttonRect.anchorMin = new Vector2(returnToChoice ? .20f : .35f, .22f);
+        buttonRect.anchorMax = new Vector2(returnToChoice ? .80f : .65f, .32f);
         buttonRect.offsetMin = buttonRect.offsetMax = Vector2.zero;
         buttonObject.GetComponent<Image>().color = new Color(.25f, .25f, .25f, .9f);
         TextMeshProUGUI label = CreateEndingText(buttonRect, "Label", 28f);
-        label.text = "タイトルへ";
+        label.text = returnToChoice ? "直前の選択肢へ戻る" : "タイトルへ";
         label.rectTransform.anchorMin = Vector2.zero;
         label.rectTransform.anchorMax = Vector2.one;
         label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
@@ -1704,6 +1709,15 @@ public sealed class NovelDialogueController : MonoBehaviour
         button.onClick.AddListener(() =>
         {
             if (isSceneLoading || !button.interactable) return;
+            if (returnToChoice)
+            {
+                // Prepare the choice beneath black before removing the ending card.
+                BeginSceneEntryFadeIn();
+                StopEndingCard();
+                PrepareLine(returnChoice);
+                StartTyping(GetDialogueDisplayText(returnChoice, omitOuterDialogueQuotes));
+                return;
+            }
             StopEndingCard();
             LoadDialogueScene(line.nextScenePath, line);
         });

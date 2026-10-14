@@ -19,6 +19,8 @@ public static class EndingCatalog
                 number = 4; title = "ヨワシ・キャッチ失敗エンド（仮）"; break;
             case "chapter_yowashi_rescue_042":
                 number = 5; title = "ヨワシ・救助失敗エンド（仮）"; break;
+            case "chapter3_009":
+                number = 6; title = "永遠の白い部屋エンド（仮）"; break;
             default: return false;
         }
         return true;
