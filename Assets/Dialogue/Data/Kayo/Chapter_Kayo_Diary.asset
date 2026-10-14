@@ -186,7 +186,20 @@ MonoBehaviour:
   - lineId: chapter_kayo_diary_013
     speakerId: 
     expressionId: 
-    text: "『ごめんなさい、わたしのせいだ。友達が広めたうそのうわさのせいでお父さんが学校に呼び出されちゃった。お父さんはわたしが暴力を振るうわけないってわかってくれてるけど、忙しいのに迷惑かけちゃった。先生との面談で片親だから仕方ないって言われた。悔しい……！悔しかったけど、何もできないんだ……。』"
+    text: "『ごめんなさい、わたしのせいだ。友達が広めたうそのうわさのせいでお父さんが学校に呼び出されちゃった。』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath:
+    nextLineId: chapter_kayo_diary_013_b
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_diary_013_b
+    speakerId:
+    expressionId:
+    text: "『お父さんはわたしが暴力を振るうわけないってわかってくれてるけど、忙しいのに迷惑かけちゃった。先生との面談で片親だから仕方ないって言われた。悔しい……！悔しかったけど、何もできないんだ……。』"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
@@ -212,7 +225,20 @@ MonoBehaviour:
   - lineId: chapter_kayo_diary_015
     speakerId: 
     expressionId: 
-    text: "『誰にも、あんなこと言わせないって頑張ったのに……ダメだった。お姉ちゃんもお父さんも無理しなくていいって言ってくれたけど、結果が出なきゃ努力なんて無意味じゃない……！悔しくて涙が出るとそれを2人が慰めてくれて、また悔しくて涙が出た。ドジのままでいいわけなんてない！』"
+    text: "『誰にも、あんなこと言わせないって頑張ったのに……ダメだった。お姉ちゃんもお父さんも無理しなくていいって言ってくれたけど、結果が出なきゃ努力なんて無意味じゃない……！』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath:
+    nextLineId: chapter_kayo_diary_015_b
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_diary_015_b
+    speakerId:
+    expressionId:
+    text: "『悔しくて涙が出るとそれを2人が慰めてくれて、また悔しくて涙が出た。ドジのままでいいわけなんてない！』"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
