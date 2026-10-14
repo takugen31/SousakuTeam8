@@ -1716,7 +1716,8 @@ public sealed class NovelDialogueController : MonoBehaviour
                 StartTyping(GetDialogueDisplayText(returnChoice, omitOuterDialogueQuotes));
                 return;
             }
-            StopEndingCard();
+            // Keep the opaque ending card beneath the scene fade until unloading.
+            // Removing it here would expose the final dialogue frame.
             LoadDialogueScene(line.nextScenePath, line);
         });
         endingCardCoroutine = StartCoroutine(PlayEndingCard(shade, captionGroup, buttonGroup, button));
