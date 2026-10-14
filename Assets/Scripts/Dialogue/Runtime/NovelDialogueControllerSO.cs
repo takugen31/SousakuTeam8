@@ -327,6 +327,15 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Vector2 pushedDouteStart;
     private float pushedDouteElapsed, pushedDouteDistance;
     private string completedDepartureLineId;
+    private GameObject douteMonologueView;
+    private Transform monologueTextParent;
+    private int monologueTextSibling;
+    private SearchPortraitPose monologueTextPose;
+    private TextAlignmentOptions monologueTextAlignment;
+    private Vector4 monologueTextMargin;
+    private CanvasGroup monologuePanelGroup;
+    private float monologuePanelAlpha;
+    private bool monologueLeftEnabled, monologueRightEnabled, monologueNameActive;
     private GameObject kayoEggView;
     private bool isKayoEggViewActive;
     private Color eggLeftOriginalColor, eggRightOriginalColor;
@@ -1321,6 +1330,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopMoteruRevealView();
         StopYowashiBandageView();
         StopKayoExaminationView();
+        StopDouteMonologueView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1366,7 +1376,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
         bool changeRevealView = IsApproachRevealLine(line?.lineId) != isMoteruRevealViewActive;
         bool changeExaminationView = IsKayoExaminationLine(line?.lineId) != isKayoExaminationViewActive;
-        if (changeBandageView || changeRevealView || changeExaminationView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
+        bool changeMonologueView = IsDouteMonologueLine(line?.lineId) != (douteMonologueView != null);
+        if (changeBandageView || changeRevealView || changeExaminationView || changeMonologueView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
         {
             roomLookCoroutine = StartCoroutine(FadeToDialogueComposition(line));
             return;
@@ -1634,6 +1645,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopMoteruRevealView();
         StopYowashiBandageView();
         StopKayoExaminationView();
+        StopDouteMonologueView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1769,6 +1781,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StopMoteruRevealView();
         StopYowashiBandageView();
         StopKayoExaminationView();
+        StopDouteMonologueView();
         StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
@@ -1793,6 +1806,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StartSearchPortraitSlide(line);
         StartYowashiBandageView(line);
         StartKayoExaminationView(line);
+        StartDouteMonologueView(line);
         StartMoteruRevealView(line);
         StartKayoEggView(line);
         LineStarted?.Invoke(line);
@@ -2248,6 +2262,85 @@ public sealed class NovelDialogueController : MonoBehaviour
         pushedDouteElapsed = 0f;
     }
 
+    public static bool IsDouteMonologueLine(string lineId)
+    {
+        return lineId == "chapter3_009";
+    }
+
+    private void StartDouteMonologueView(DialogueLine line)
+    {
+        if (!IsDouteMonologueLine(line?.lineId) || dialogueRoot == null || bodyText == null ||
+            backgroundImage == null || backgroundImage.sprite == null || characterDatabase == null ||
+            !characterDatabase.TryGetCharacter("doute", out CharacterData doute)) return;
+        Sprite sprite = doute.GetPortrait("normal");
+        if (sprite == null) return;
+        monologueLeftEnabled = leftPortraitImage != null && leftPortraitImage.enabled;
+        monologueRightEnabled = rightPortraitImage != null && rightPortraitImage.enabled;
+        monologueNameActive = namePlate != null && namePlate.activeSelf;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = false;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = false;
+        if (namePlate != null) namePlate.SetActive(false);
+        monologueTextParent = bodyText.transform.parent;
+        monologueTextSibling = bodyText.transform.GetSiblingIndex();
+        monologueTextPose = CapturePortraitPose(bodyText.rectTransform);
+        monologueTextAlignment = bodyText.alignment;
+        monologueTextMargin = bodyText.margin;
+        if (monologueTextParent != null && monologueTextParent != dialogueRoot.transform)
+        {
+            monologuePanelGroup = monologueTextParent.GetComponent<CanvasGroup>() ??
+                monologueTextParent.gameObject.AddComponent<CanvasGroup>();
+            monologuePanelAlpha = monologuePanelGroup.alpha;
+            monologuePanelGroup.alpha = 0f;
+        }
+
+        douteMonologueView = new GameObject("DouteCenteredMonologue", typeof(RectTransform), typeof(RectMask2D));
+        RectTransform frame = douteMonologueView.GetComponent<RectTransform>();
+        frame.SetParent(dialogueRoot.transform, false);
+        frame.SetSiblingIndex(rightPortraitImage != null ? rightPortraitImage.transform.GetSiblingIndex() + 1 : 0);
+        frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
+        frame.offsetMin = frame.offsetMax = Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        Image room = CreateRoomLookImage(frame, "MonologueRoom");
+        SetRoomLookPose(room, frame.rect.size, new Vector2(0.5f, 0.5f), 1f);
+        Image portrait = CreateRoomLookImage(frame, "DouteBust");
+        portrait.sprite = sprite;
+        SetGatheringPortrait(portrait, frame.rect.size, 0.5f, 2.3f,
+            -(0.80f - 0.5f) * 2.3f, mirrorDoutePortrait ? -1f : 1f);
+        Image shade = CreateRoomLookImage(frame, "MonologueShade");
+        shade.sprite = null;
+        shade.color = new Color(0f, 0f, 0f, 0.35f);
+        shade.rectTransform.anchorMin = Vector2.zero; shade.rectTransform.anchorMax = Vector2.one;
+        shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
+        bodyText.transform.SetParent(frame, false);
+        bodyText.rectTransform.anchorMin = new Vector2(0.10f, 0.20f);
+        bodyText.rectTransform.anchorMax = new Vector2(0.90f, 0.80f);
+        bodyText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        bodyText.rectTransform.offsetMin = bodyText.rectTransform.offsetMax = Vector2.zero;
+        bodyText.margin = Vector4.zero;
+        bodyText.alignment = TextAlignmentOptions.Center;
+    }
+
+    private void StopDouteMonologueView()
+    {
+        if (douteMonologueView == null) return;
+        if (bodyText != null)
+        {
+            bodyText.transform.SetParent(monologueTextParent, false);
+            bodyText.transform.SetSiblingIndex(monologueTextSibling);
+            RestorePortraitPose(bodyText.rectTransform, monologueTextPose);
+            bodyText.alignment = monologueTextAlignment;
+            bodyText.margin = monologueTextMargin;
+        }
+        if (monologuePanelGroup != null) monologuePanelGroup.alpha = monologuePanelAlpha;
+        monologuePanelGroup = null;
+        if (leftPortraitImage != null) leftPortraitImage.enabled = monologueLeftEnabled;
+        if (rightPortraitImage != null) rightPortraitImage.enabled = monologueRightEnabled;
+        if (namePlate != null) namePlate.SetActive(monologueNameActive);
+        douteMonologueView.SetActive(false);
+        Destroy(douteMonologueView);
+        douteMonologueView = null;
+    }
+
     public static bool IsGatheringDepartureLine(string lineId)
     {
         return lineId == "chapter1_kayo_018" || lineId == "chapter1_yowashi_008";
@@ -2275,8 +2368,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         float width = parent != null ? parent.rect.width : 1920f;
         Vector2 destination = new Vector2(
             (width + portrait.sizeDelta.x * Mathf.Abs(scale.x)) * 0.5f + 16f, start.y);
+        float duration = farewellLine.lineId == "chapter1_kayo_018" ? 1.6f : 1.2f;
         float elapsed = 0f;
-        while (elapsed < 1.2f && portrait != null)
+        while (elapsed < duration && portrait != null)
         {
             if (ArchiveManager.IsOpen || isSkipConfirmationOpen)
             {
@@ -2284,7 +2378,7 @@ public sealed class NovelDialogueController : MonoBehaviour
                 continue;
             }
             elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / 1.2f);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
             portrait.anchoredPosition = Vector2.Lerp(start, destination, t);
             yield return null;
         }
@@ -2941,7 +3035,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
 
         Canvas.ForceUpdateCanvases();
-        bodyText.horizontalAlignment = HorizontalAlignmentOptions.Left;
+        if (douteMonologueView != null) bodyText.alignment = TextAlignmentOptions.Center;
+        else bodyText.horizontalAlignment = HorizontalAlignmentOptions.Left;
         text = NormalizeDialogueLineIndentation(text);
         float availableWidth = bodyText.rectTransform.rect.width - bodyText.margin.x - bodyText.margin.z;
         bodyText.text = NormalizeDialogueLineIndentation(WrapDialogueAtMeaningfulBreaks(text, availableWidth,
