@@ -48,7 +48,11 @@ Assert-Reveal ($effect.Contains('leftPortraitImage.enabled = revealLeftWasEnable
 Assert-Reveal ($effect.Contains('viewport, 0.27f, 2.6f') -and $effect.Contains('Mathf.Lerp(0.82f, 0.52f, t)')) 'Initial separation and left approach missing'
 Assert-Reveal ($effect.Contains('currentLine?.lineId == "chapter2_moteru_010"') -and $effect.Contains('ArchiveManager.IsOpen') -and $source.Contains('UpdateMoteruApproach();')) 'Page advance trigger or menu pause missing'
 Assert-Reveal ($source.Contains('if (!IsApproachRevealLine(line?.lineId)) moteruApproachElapsed = 0f;')) 'Progress does not persist across split pages or reset outside them'
-Assert-Reveal ($effect.Contains('TryGetCharacter(isKayo ? "kayo" : "moteru"') -and $effect.Contains('"KayoApproachSplitView"') -and $effect.Contains('line.lineId == "kayo_catch_success_before_006"') -and $effect.Contains('IsKayoApproachLine(currentLine?.lineId) ? 0.84f : 0.85f')) 'Kayo sprite, entry reset or mouth framing missing'
+Assert-Reveal ($effect.Contains('TryGetCharacter(isKayo ? "kayo" : "moteru"') -and $effect.Contains('"KayoApproachSplitView"') -and $effect.Contains('line.lineId == "kayo_catch_success_before_006"') -and $effect.Contains('IsKayoApproachLine(currentLine?.lineId) ? 0.94f : 0.85f')) 'Kayo sprite, entry reset or full-face framing missing'
+foreach ($feature in @(0.79, 0.825, 0.85, 0.925)) {
+    $y = ($feature - 0.94) * 2.7
+    Assert-Reveal ($y -gt -0.5 -and $y -lt -0.025) 'Kayo chin/mouth/eyes/head hidden by lower frame or divider'
+}
 Assert-Reveal ($effect.Contains('moteruRevealBackground = bottomRoom;') -and $effect.Contains('new Vector2(Mathf.Lerp(0.56f, 0.68f, t), 0.38f), 1.6f)') -and $effect.Contains('moteruRevealBackground = null;')) 'Lower background does not pan with portrait and clean up'
 $previous = 0.82
 foreach ($i in 0..240) {

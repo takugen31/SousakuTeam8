@@ -322,7 +322,6 @@ public sealed class NovelDialogueController : MonoBehaviour
     private bool examinationLeftWasEnabled, examinationRightWasEnabled;
     private Image examinationAbdomen, examinationKayo;
     private Vector2 examinationViewport;
-    private float examinationElapsed;
     private RectTransform pushedDouteRect;
     private Vector2 pushedDouteStart;
     private float pushedDouteElapsed, pushedDouteDistance;
@@ -477,7 +476,6 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         UpdateKayoEggSlide();
         UpdateMoteruApproach();
-        UpdateKayoExamination();
         UpdateKayoPushback();
         UpdateGatheringDouteSlide();
         UpdateKayoFall();
@@ -1804,7 +1802,6 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         currentLine = line;
         if (!IsApproachRevealLine(line?.lineId)) moteruApproachElapsed = 0f;
-        if (!IsKayoExaminationLine(line?.lineId)) examinationElapsed = 0f;
         if (!IsKayoEggLine(line?.lineId) || line.lineId == "chapter2_kayo_012") kayoEggSlideElapsed = 0f;
         autoAdvanceAt = -1f;
 
@@ -1995,7 +1992,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         moteruRevealBackground = bottomRoom;
         Image bottomPortrait = CreateRoomLookImage(bottom, isKayo ? "KayoMouth" : "MoteruMouth");
         bottomPortrait.sprite = moteruSprite;
-        // The split edge crops Moteru above the mouth, rather than exposing the eyes.
+        // Moteru stays mouth-cropped; Kayo's framing includes her entire face.
         moteruRevealPortrait = bottomPortrait;
         moteruRevealViewport = viewport;
         if (line.lineId == "chapter2_moteru_009" || line.lineId == "chapter2_moteru_010" ||
@@ -2056,7 +2053,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private void ApplyMoteruApproach()
     {
         float t = Mathf.SmoothStep(0f, 1f, moteruApproachElapsed / 2.4f);
-        float faceCenter = IsKayoApproachLine(currentLine?.lineId) ? 0.84f : 0.85f;
+        float faceCenter = IsKayoApproachLine(currentLine?.lineId) ? 0.94f : 0.85f;
         SetGatheringPortrait(moteruRevealPortrait, moteruRevealViewport, Mathf.Lerp(0.82f, 0.52f, t),
             2.7f, -(faceCenter - 0.5f) * 2.7f, 1f);
         // Pan the lower room left with the same timing, retaining its vertical framing.
@@ -2206,24 +2203,14 @@ public sealed class NovelDialogueController : MonoBehaviour
         return portrait;
     }
 
-    private void UpdateKayoExamination()
-    {
-        if (!isKayoExaminationViewActive || examinationAbdomen == null || examinationKayo == null ||
-            ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
-        examinationElapsed += Time.unscaledDeltaTime;
-        ApplyKayoExaminationPose();
-    }
-
     private void ApplyKayoExaminationPose()
     {
-        float arrival = Mathf.SmoothStep(0f, 1f, examinationElapsed / 1.6f);
-        float breath = Mathf.Sin(examinationElapsed * (2f * Mathf.PI / 3.6f)) * 0.004f * arrival;
-        float abdomenZoom = Mathf.Lerp(3.8f, 4f, arrival);
-        float kayoZoom = Mathf.Lerp(3f, 3.2f, arrival);
+        const float abdomenZoom = 3.7f;
+        const float kayoZoom = 3.2f;
         SetGatheringPortrait(examinationAbdomen, examinationViewport, 0.265f, abdomenZoom,
-            -(0.66f - 0.5f) * abdomenZoom + breath, mirrorDoutePortrait ? -1f : 1f);
-        SetGatheringPortrait(examinationKayo, examinationViewport, 0.735f + breath, kayoZoom,
-            -(0.79f - 0.5f) * kayoZoom + breath * 0.5f, 1f);
+            -(0.66f - 0.5f) * abdomenZoom, mirrorDoutePortrait ? -1f : 1f);
+        SetGatheringPortrait(examinationKayo, examinationViewport, 0.735f, kayoZoom,
+            -(0.79f - 0.5f) * kayoZoom, 1f);
     }
 
     private void StopKayoExaminationView()
