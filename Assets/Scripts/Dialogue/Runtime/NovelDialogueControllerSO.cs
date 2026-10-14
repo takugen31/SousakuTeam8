@@ -1340,6 +1340,11 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ShowLineImmediately(DialogueLine line)
     {
+        if (isKayoEggViewActive && kayoEggRect != null && !IsKayoEggLine(line?.lineId))
+        {
+            roomLookCoroutine = StartCoroutine(SlideKayoEggOut(line));
+            return;
+        }
         // Music belongs to the incoming scene/segment, not to the end of its entrance fade.
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
         bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
@@ -1835,6 +1840,34 @@ public sealed class NovelDialogueController : MonoBehaviour
         float floatY = Mathf.Sin(floatTime * (2f * Mathf.PI / 4f)) * amplitude *
             Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(floatTime / 0.8f));
         kayoEggRect.anchoredPosition += new Vector2(0f, floatY);
+    }
+
+    private IEnumerator SlideKayoEggOut(DialogueLine nextLine)
+    {
+        DialogueLine outgoingLine = currentLine;
+        isRoomLookPlaying = true;
+        autoAdvanceAt = -1f;
+        Vector2 start = kayoEggRect.anchoredPosition;
+        // Continue the entrance diagonal through the center to the upper left.
+        Vector2 destination = -kayoEggSlideStart;
+        float elapsed = 0f;
+        while (elapsed < 1.2f && kayoEggRect != null)
+        {
+            if (ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen)
+            {
+                yield return null;
+                continue;
+            }
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / 1.2f);
+            float eased = 1f - Mathf.Pow(1f - t, 3f);
+            kayoEggRect.anchoredPosition = Vector2.Lerp(start, destination, eased);
+            yield return null;
+        }
+        StopKayoEggView();
+        isRoomLookPlaying = false;
+        roomLookCoroutine = null;
+        if (isPlaying && currentLine == outgoingLine) ShowLineImmediately(nextLine);
     }
 
     private void StopKayoEggView()

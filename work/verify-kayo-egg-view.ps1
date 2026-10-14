@@ -40,6 +40,14 @@ foreach ($i in 0..120) {
 Assert-Egg ($effect.Contains('egg.rect.width / egg.rect.height') -and $effect.Contains('image.preserveAspect = true') -and $effect.Contains('image.raycastTarget = false')) 'Aspect or input preservation missing'
 Assert-Egg (-not $effect.Contains('SetRoomLookPose') -and -not $effect.Contains('HideLookPresentation')) 'Background or dialogue unexpectedly modified'
 foreach ($method in @('PrepareLine(DialogueLine line)', 'OnDisable()', 'CancelChapterTransition()')) {
-    Assert-Egg ([regex]::IsMatch($source, [regex]::Escape($method) + '\s*\{\s*(?:moteruApproachElapsed = 0f;\s*)?StopKayoEggView\(\);')) "Cleanup missing in $method"
+    Assert-Egg ([regex]::IsMatch($source, [regex]::Escape($method) + '\s*\{\s*(?:StopEndingCard\(\);\s*)?(?:moteruApproachElapsed = 0f;\s*)?StopKayoEggView\(\);')) "Cleanup missing in $method"
 }
+Assert-Egg ($source.Contains('isKayoEggViewActive && kayoEggRect != null && !IsKayoEggLine(line?.lineId)') -and $source.Contains('StartCoroutine(SlideKayoEggOut(line))')) 'Leaving egg dialogue bypasses the exit animation'
+$exitStart = $source.IndexOf('private IEnumerator SlideKayoEggOut(')
+$exitEnd = $source.IndexOf('private void StopKayoEggView()', $exitStart)
+$exit = $source.Substring($exitStart, $exitEnd - $exitStart)
+Assert-Egg ($exit.Contains('Vector2 start = kayoEggRect.anchoredPosition;') -and $exit.Contains('Vector2 destination = -kayoEggSlideStart;')) 'Exit jumps from idle or fails to travel offscreen upper left'
+Assert-Egg ($exit.Contains('elapsed / 1.2f') -and $exit.Contains('1f - Mathf.Pow(1f - t, 3f)') -and $exit.Contains('Vector2.Lerp(start, destination, eased)')) 'Exit does not match entrance duration/easing'
+Assert-Egg ($exit.Contains('isRoomLookPlaying = true;') -and $exit.Contains('ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen')) 'Exit input lock or menu pause missing'
+Assert-Egg ($exit.IndexOf('StopKayoEggView();') -gt $exit.IndexOf('Vector2.Lerp(start, destination, eased)') -and $exit.IndexOf('ShowLineImmediately(nextLine)') -gt $exit.IndexOf('StopKayoEggView();')) 'Egg removed or next dialogue shown before exit completes'
 'PASS: egg exchange cue, existing standalone illustration, centered foreground, aspect preservation, portrait dimming/restoration and cleanup.'
