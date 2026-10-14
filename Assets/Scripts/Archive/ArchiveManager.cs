@@ -282,6 +282,15 @@ public sealed class ArchiveManager : MonoBehaviour
         ArchiveChanged?.Invoke();
     }
 
+    public void ReloadProgress()
+    {
+        unlockedIds.Clear();
+        readIds.Clear();
+        LoadState();
+        UnlockInitialEntries();
+        ArchiveChanged?.Invoke();
+    }
+
     public void ToggleArchive()
     {
         if (IsOpen)
@@ -315,6 +324,12 @@ public sealed class ArchiveManager : MonoBehaviour
 
         menu.Close();
         OpenStateChanged?.Invoke(false);
+    }
+
+    public void OpenLoadFromTitle()
+    {
+        OpenArchive();
+        if (menu != null && menu.IsOpen) menu.ShowLoadFromTitle();
     }
 
     private void UnlockInitialEntries()

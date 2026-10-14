@@ -111,7 +111,11 @@ public sealed class StoryMusicController : MonoBehaviour
     public static string ResolveTrack(MusicPlan musicPlan, DialogueScenarioSO scenario, string lineId)
     {
         if (musicPlan?.scenarios == null || scenario == null) return null;
-        ScenarioCues segment = Array.Find(musicPlan.scenarios, item => item.scenario == scenario.name);
+        string scenarioName = scenario.name;
+        const string failureCopySuffix = " (Gauge Failure)";
+        if (scenarioName.EndsWith(failureCopySuffix, StringComparison.Ordinal))
+            scenarioName = scenarioName.Substring(0, scenarioName.Length - failureCopySuffix.Length);
+        ScenarioCues segment = Array.Find(musicPlan.scenarios, item => item.scenario == scenarioName);
         if (segment?.cues == null) return null;
         int row = FindRow(scenario, lineId);
         if (row < 0) return null;

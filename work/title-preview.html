@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>タイトル配置プレビュー</title>
+<style>
+@font-face{font-family:Game;src:url('../Assets/Fonts/Noto_Sans_JP/NotoSansJP-Black.ttf')}
+*{box-sizing:border-box}body{margin:0;background:#111;display:grid;place-items:center;min-height:100vh}
+.stage{width:min(100vw,177.77778vh);aspect-ratio:16/9;position:relative;overflow:hidden;container-type:inline-size;background:url('../Assets/Art/Backgrounds/background_title.png') center/cover;font-family:Game,sans-serif;color:white}
+.shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(4,6,11,.45),rgba(4,6,11,.19) 25%,rgba(4,6,11,.056) 50%,rgba(4,6,11,0))}
+.logo{position:absolute;left:50%;top:35%;transform:translate(-50%,-50%);margin:0;white-space:nowrap;font-size:6.5625cqw;font-weight:900;letter-spacing:.2083cqw;line-height:1.5;-webkit-text-stroke:.10cqw rgba(13,41,77,.7);text-shadow:.18cqw .18cqw .25cqw rgba(5,20,46,.45)}
+.heart{color:#f2bacb}.rule{position:absolute;left:50%;top:46.5%;transform:translateX(-50%);width:18.75%;height:.078cqw;background:#ffffff61}
+button{position:absolute;left:50%;transform:translate(-50%,-50%);border:0;color:white;font:900 1.5625cqw Game,sans-serif;line-height:1;background:rgba(15,15,15,.4);cursor:pointer;mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent),linear-gradient(to bottom,transparent,black 18%,black 82%,transparent);mask-composite:intersect;transition:background .15s,transform .12s}
+button:hover{background:rgba(64,64,64,.68);transform:translate(-50%,-50%) scale(1.05);color:white}.start{top:59.5%;width:22.3958%;height:7.4074%;font-size:1.6667cqw;background:rgba(36,36,36,.55)}.start:hover{background:rgba(64,64,64,.68)}.load{top:73.5%;width:18.2292%;height:6.1111%}.quit{top:83%;width:18.2292%;height:6.1111%}.audio{left:72%;top:90.5%;width:10.4167%;height:4.4444%;font-size:1.09375cqw}
+.team{position:absolute;left:50%;top:91.5%;transform:translate(-50%,-50%);font-size:1.09375cqw;white-space:nowrap;color:rgba(9,23,36,.85);text-align:center;line-height:1.6}.team small{font-size:.78125cqw;display:block}
+</style></head><body><main class="stage"><div class="shade"></div><h1 class="logo">恋愛<span class="heart">♡</span>脱出</h1><div class="rule"></div><button class="start">始める</button><button class="load">ロード</button><button class="quit">ゲームを終了</button><span class="team"><small>Created by</small>新入生創作祭8班</span><button class="audio">BGM：ON</button></main></body></html>

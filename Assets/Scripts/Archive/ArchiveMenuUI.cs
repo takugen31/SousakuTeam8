@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed class ArchiveMenuUI : MonoBehaviour
+public sealed partial class ArchiveMenuUI : MonoBehaviour
 {
     private static readonly Color BackdropColor = new Color(0f, 0f, 0f, 0.45f);
     private static readonly Color PanelColor = new Color(0f, 0f, 0f, 0.88f);
@@ -137,6 +137,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
 
     private void ShowMenu()
     {
+        HideSaveLoad();
         archiveFrame.SetActive(false);
         menuRoot.SetActive(true);
         restartConfirmation.SetActive(false);
@@ -155,7 +156,8 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private Button CreateMenuItem(string name, string label, float bottom)
     {
         Button button = CreateButton(name, menuRoot.transform, label, 38f, new Color(0f, 0f, 0f, 0.22f));
-        SetAnchors(button.gameObject, new Vector2(0.20f, bottom), new Vector2(0.91f, bottom + 0.09f), Vector2.zero, Vector2.zero);
+        SetAnchors(button.gameObject, new Vector2(0.20f, bottom), new Vector2(0.91f, bottom + 0.075f), Vector2.zero, Vector2.zero);
+        button.GetComponentInChildren<TMP_Text>().fontSize = 32f;
         button.GetComponentInChildren<TMP_Text>().alignment = TextAlignmentOptions.Center;
         button.GetComponentInChildren<TMP_Text>().color = Color.white;
         button.targetGraphic.color = Color.white;
@@ -176,10 +178,13 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         SetAnchors(menuRoot, new Vector2(0.66f, 0f), Vector2.one, Vector2.zero, Vector2.zero);
         menuRoot.AddComponent<DialogueWindowFeather>().ConfigureRightMenu();
         TMP_Text title = CreateText("MenuTitle", menuRoot.transform, "メニュー", 46f, Color.white, FontStyles.Bold);
-        SetAnchors(title.gameObject, new Vector2(0.20f, 0.79f), new Vector2(0.91f, 0.89f), Vector2.zero, Vector2.zero);
+        SetAnchors(title.gameObject, new Vector2(0.20f, 0.84f), new Vector2(0.91f, 0.94f), Vector2.zero, Vector2.zero);
         title.alignment = TextAlignmentOptions.Center;
-        CreateMenuItem("Archive", "アーカイブ", 0.64f).onClick.AddListener(ShowArchive);
-        skipButton = CreateMenuItem("Skip", "スキップ", 0.51f);
+        saveMenuButton = CreateMenuItem("Save", "セーブ", 0.70f);
+        saveMenuButton.onClick.AddListener(() => ShowSaveLoad(false));
+        CreateMenuItem("Load", "ロード", 0.60f).onClick.AddListener(() => ShowSaveLoad(true));
+        CreateMenuItem("Archive", "アーカイブ", 0.50f).onClick.AddListener(ShowArchive);
+        skipButton = CreateMenuItem("Skip", "スキップ", 0.40f);
         skipButton.onClick.AddListener(() =>
         {
             NovelDialogueController dialogue = FindCurrentDialogue();
@@ -187,12 +192,12 @@ public sealed class ArchiveMenuUI : MonoBehaviour
             manager.CloseArchive();
             dialogue.ShowSkipConfirmation();
         });
-        autoButton = CreateMenuItem("AutoPlay", "オート：OFF", 0.38f);
+        autoButton = CreateMenuItem("AutoPlay", "オート：OFF", 0.30f);
         autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
         autoButton.onClick.AddListener(() => FindCurrentDialogue()?.ToggleAutoPlay());
-        CreateMenuItem("Restart", "最初から", 0.25f).onClick.AddListener(() => restartConfirmation.SetActive(true));
+        CreateMenuItem("Restart", "最初から", 0.20f).onClick.AddListener(() => restartConfirmation.SetActive(true));
         contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, new Color(0.95f, 0.95f, 0.95f, 1f));
-        SetAnchors(contextHelp.gameObject, new Vector2(0.555f, 0.02f), new Vector2(0.555f, 0.22f), Vector2.zero, Vector2.zero);
+        SetAnchors(contextHelp.gameObject, new Vector2(0.555f, 0.02f), new Vector2(0.555f, 0.17f), Vector2.zero, Vector2.zero);
         contextHelp.alignment = TextAlignmentOptions.MidlineLeft;
         contextHelp.textWrappingMode = TextWrappingModes.NoWrap;
         contextHelp.richText = true;
@@ -230,6 +235,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
     private void Update()
     {
         if (!IsOpen) return;
+        UpdateSaveAvailability();
         NovelDialogueController dialogue = FindCurrentDialogue();
         autoButton.interactable = dialogue != null;
         skipButton.interactable = dialogue != null && dialogue.CanSkipFromMenu;
@@ -428,6 +434,7 @@ public sealed class ArchiveMenuUI : MonoBehaviour
         BuildSidebar(informationRoot.transform);
         BuildMainContent(informationRoot.transform);
         BuildMenu();
+        BuildSaveLoadUI();
         BuildNotification(canvasObject.transform);
 
         windowRoot.SetActive(false);

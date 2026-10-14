@@ -79,6 +79,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
     private NovelDialogueController itemDialogueController;
     private GameObject itemDialogueRoot;
     private ItemDefinition inspectedItem;
+    private ItemDefinition currentDialogueItem;
     private Image completionFadeOverlay;
     private int modalOpenedFrame = -1;
     private RoomView currentRoom = RoomView.Room1;
@@ -112,6 +113,12 @@ public sealed class Chapter1SearchController : MonoBehaviour
         BuildItemDefinitions();
         EnsureEventSystem();
         BuildUI();
+        GameSaveData checkpoint = GameSaveService.Consume(gameObject.scene.name, "search");
+        if (checkpoint != null)
+        {
+            RestoreCheckpoint(checkpoint);
+            return;
+        }
         bool hasCompletedSearch = HasAcquiredAllItems();
         isFadingIn = !hasCompletedSearch;
         ShowRoom(RoomView.Room1);
@@ -123,6 +130,48 @@ public sealed class Chapter1SearchController : MonoBehaviour
         else
         {
             StartCoroutine(FadeInSearchScene());
+        }
+    }
+
+    public bool CaptureCheckpoint(GameSaveData data)
+    {
+        if (isFadingIn || isCompleting) return false;
+        if (isDialogueOpen)
+        {
+            if (currentDialogueItem == null || !itemDialogueController.CaptureCheckpoint(data)) return false;
+            data.itemId = currentDialogueItem.Id;
+            data.searchMode = "dialogue";
+        }
+        else
+        {
+            data.searchMode = isModalOpen ? "modal" : "room";
+            data.itemId = inspectedItem?.Id;
+            data.text = isModalOpen ? inspectedItem?.Title : "気になる場所を調べる";
+        }
+        data.kind = "search";
+        data.room = (int)currentRoom;
+        data.label = "部屋の探索";
+        return true;
+    }
+
+    private void RestoreCheckpoint(GameSaveData data)
+    {
+        isFadingIn = false;
+        completionFadeOverlay.color = Color.clear;
+        completionFadeOverlay.raycastTarget = false;
+        ShowRoom((RoomView)data.room);
+        if (data.searchMode == "room") return;
+        ItemDefinition item = items.Find(candidate => candidate.Id == data.itemId);
+        if (item == null) { Debug.LogError("セーブした調査対象が見つかりません。", this); return; }
+        if (data.searchMode == "modal") ShowInspection(item);
+        else
+        {
+            currentDialogueItem = item;
+            isDialogueOpen = true;
+            leftArrow.gameObject.SetActive(false);
+            rightArrow.gameObject.SetActive(false);
+            RefreshHotspots();
+            itemDialogueController.RestoreCheckpoint(data);
         }
     }
 
@@ -759,6 +808,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
         isDialogueOpen = true;
         if (searchHeader != null) searchHeader.SetActive(false);
+        currentDialogueItem = item;
         leftArrow.gameObject.SetActive(false);
         rightArrow.gameObject.SetActive(false);
         RefreshHotspots();
@@ -783,6 +833,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
 
     private void OnItemDialogueCompleted()
     {
+        currentDialogueItem = null;
         isDialogueOpen = false;
         FinishAcquisitionSequence();
     }

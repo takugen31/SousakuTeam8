@@ -39,7 +39,8 @@ foreach ($route in @('Kayo','Yowashi')) {
             $body = [regex]::Match($asset,'(?ms)^  - lineId: '+[regex]::Escape($row.lineId)+'\r?\n(?<body>.*?)(?=^  - lineId: |\z)').Groups['body'].Value
             $textValue = [regex]::Match($body,'(?m)^    text: (.*)$').Groups[1].Value.Trim()
             $text = if ($textValue.StartsWith('"')) { $textValue | ConvertFrom-Json } else { $textValue }
-            Assert-True ($text -ceq $row.text) "CSV/asset dialogue mismatch $($row.lineId)"
+            # Windows CSV checkouts use CRLF inside quoted text; Unity YAML stores LF.
+            Assert-True ($text.Replace("`r`n", "`n") -ceq $row.text.Replace("`r`n", "`n")) "CSV/asset dialogue mismatch $($row.lineId)"
             foreach ($field in @('speakerId','expressionId','nextLineId','nextScenePath')) {
                 $value = [regex]::Match($body,'(?m)^    '+$field+':([^\r\n]*)').Groups[1].Value.Trim()
                 Assert-True ($value -ceq [string]$row.$field) "CSV/asset field mismatch $field $($row.lineId)"
