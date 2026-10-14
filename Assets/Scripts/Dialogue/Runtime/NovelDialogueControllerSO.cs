@@ -326,6 +326,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private RectTransform pushedDouteRect;
     private Vector2 pushedDouteStart;
     private float pushedDouteElapsed, pushedDouteDistance;
+    private string completedDepartureLineId;
     private GameObject kayoEggView;
     private bool isKayoEggViewActive;
     private Color eggLeftOriginalColor, eggRightOriginalColor;
@@ -796,6 +797,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             EndDialogue();
             return;
         }
+
+        if (TryStartGatheringDeparture()) return;
 
         if (currentLine.HasSceneTransition)
         {
@@ -1760,6 +1763,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        completedDepartureLineId = null;
         if (!IsKayoPushbackLine(line?.lineId)) StopKayoPushback();
         StopKayoEggView();
         StopMoteruRevealView();
@@ -2242,6 +2246,53 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (pushedDouteRect != null) pushedDouteRect.anchoredPosition = pushedDouteStart;
         pushedDouteRect = null;
         pushedDouteElapsed = 0f;
+    }
+
+    public static bool IsGatheringDepartureLine(string lineId)
+    {
+        return lineId == "chapter1_kayo_018" || lineId == "chapter1_yowashi_008";
+    }
+
+    private bool TryStartGatheringDeparture()
+    {
+        if (!IsGatheringDepartureLine(currentLine?.lineId) ||
+            completedDepartureLineId == currentLine.lineId || !isGatheringCompositionActive ||
+            rightPortraitImage == null || rightPortraitImage.sprite == null) return false;
+        roomLookCoroutine = StartCoroutine(SlideGatheringCharacterOut(currentLine));
+        return true;
+    }
+
+    private IEnumerator SlideGatheringCharacterOut(DialogueLine farewellLine)
+    {
+        isRoomLookPlaying = true;
+        autoAdvanceAt = -1f;
+        RectTransform portrait = rightPortraitImage.rectTransform;
+        Vector3 scale = portrait.localScale;
+        scale.x = -scale.x;
+        portrait.localScale = scale;
+        Vector2 start = portrait.anchoredPosition;
+        RectTransform parent = portrait.parent as RectTransform;
+        float width = parent != null ? parent.rect.width : 1920f;
+        Vector2 destination = new Vector2(
+            (width + portrait.sizeDelta.x * Mathf.Abs(scale.x)) * 0.5f + 16f, start.y);
+        float elapsed = 0f;
+        while (elapsed < 1.2f && portrait != null)
+        {
+            if (ArchiveManager.IsOpen || isSkipConfirmationOpen)
+            {
+                yield return null;
+                continue;
+            }
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / 1.2f);
+            portrait.anchoredPosition = Vector2.Lerp(start, destination, t);
+            yield return null;
+        }
+        completedDepartureLineId = farewellLine.lineId;
+        isRoomLookPlaying = false;
+        roomLookCoroutine = null;
+        // Only advance to the existing fade after the portrait has left the screen.
+        if (isPlaying && currentLine == farewellLine) Advance();
     }
 
     private void StartGatheringComposition(DialogueLine line)
