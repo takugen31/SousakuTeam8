@@ -323,6 +323,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     private Image examinationAbdomen, examinationKayo;
     private Vector2 examinationViewport;
     private float examinationElapsed;
+    private RectTransform pushedDouteRect;
+    private Vector2 pushedDouteStart;
+    private float pushedDouteElapsed, pushedDouteDistance;
     private GameObject kayoEggView;
     private bool isKayoEggViewActive;
     private Color eggLeftOriginalColor, eggRightOriginalColor;
@@ -465,6 +468,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         UpdateKayoEggSlide();
         UpdateMoteruApproach();
         UpdateKayoExamination();
+        UpdateKayoPushback();
         UpdateGatheringDouteSlide();
         UpdateKayoFall();
         UpdateSearchPortraitSlide();
@@ -1307,6 +1311,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
+        StopKayoPushback();
         StopEndingCard();
         moteruApproachElapsed = 0f;
         StopKayoEggView();
@@ -1620,6 +1625,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopKayoPushback();
         StopEndingCard();
         StopKayoEggView();
         StopMoteruRevealView();
@@ -1754,6 +1760,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        if (!IsKayoPushbackLine(line?.lineId)) StopKayoPushback();
         StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
@@ -2201,6 +2208,40 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
         isKayoExaminationViewActive = false;
         examinationAbdomen = examinationKayo = null;
+    }
+
+    public static bool IsKayoPushbackLine(string lineId)
+    {
+        const string prefix = "kayo_catch_success_after_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 5 && row <= 7;
+    }
+
+    private void StartKayoPushback(DialogueLine line)
+    {
+        if (line?.lineId != "kayo_catch_success_after_005" || leftPortraitImage == null || pushedDouteRect != null) return;
+        pushedDouteRect = leftPortraitImage.rectTransform;
+        pushedDouteStart = pushedDouteRect.anchoredPosition;
+        RectTransform parent = pushedDouteRect.parent as RectTransform;
+        pushedDouteDistance = (parent != null ? parent.rect.width : 1920f) * 0.12f;
+        pushedDouteElapsed = 0f;
+    }
+
+    private void UpdateKayoPushback()
+    {
+        if (pushedDouteRect == null || ArchiveManager.IsOpen || isChapterTransitioning ||
+            isSkipConfirmationOpen || isRoomLookPlaying) return;
+        pushedDouteElapsed = Mathf.Min(0.45f, pushedDouteElapsed + Time.unscaledDeltaTime);
+        float t = Mathf.Clamp01(pushedDouteElapsed / 0.45f);
+        float eased = 1f - Mathf.Pow(1f - t, 3f);
+        pushedDouteRect.anchoredPosition = pushedDouteStart + Vector2.left * (pushedDouteDistance * eased);
+    }
+
+    private void StopKayoPushback()
+    {
+        if (pushedDouteRect != null) pushedDouteRect.anchoredPosition = pushedDouteStart;
+        pushedDouteRect = null;
+        pushedDouteElapsed = 0f;
     }
 
     private void StartGatheringComposition(DialogueLine line)
@@ -2862,6 +2903,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             BeginKayoFallMotion(0f, 0.45f);
         if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
             StartWindowShake();
+        StartKayoPushback(currentLine);
     }
 
     private void ShowChoiceOnlyWindow()
