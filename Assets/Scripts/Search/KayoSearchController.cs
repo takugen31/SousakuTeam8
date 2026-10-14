@@ -79,6 +79,7 @@ public sealed class KayoSearchController : MonoBehaviour
     private Canvas canvas;
     private RectTransform backgroundFrame;
     private Image backgroundImage;
+    private GameObject searchHeader;
     private Button leftArrow;
     private Button rightArrow;
     private TMP_Text roomIndicator;
@@ -309,7 +310,16 @@ public sealed class KayoSearchController : MonoBehaviour
                 "search_kayo_bookshelf_001",
                 "search_kayo_bookshelf_004",
                 null,
-                true));
+                true,
+                new[]
+                {
+                    new Vector2(0.1330f, 0.6440f),
+                    new Vector2(0.3164f, 0.6440f),
+                    new Vector2(0.3272f, 0.6323f),
+                    new Vector2(0.3272f, 0.1637f),
+                    new Vector2(0.3164f, 0.1456f),
+                    new Vector2(0.1330f, 0.1456f)
+                }));
 
         items.Add(
             new ItemDefinition(
@@ -443,6 +453,7 @@ public sealed class KayoSearchController : MonoBehaviour
             new Color(0f, 0f, 0f, 0.82f),
             false);
         RectTransform headerRect = header.GetComponent<RectTransform>();
+        searchHeader = header;
         headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.035f, 1f);
         headerRect.pivot = new Vector2(0f, 1f);
         headerRect.anchoredPosition = new Vector2(0f, -16f);
@@ -638,6 +649,24 @@ public sealed class KayoSearchController : MonoBehaviour
 
     private void CreateHotspot(ItemDefinition item)
     {
+        if (item.HotspotPolygon != null && item.HotspotPolygon.Length >= 3)
+        {
+            // Use the same outline for the glow and pointer hit testing.
+            GameObject polygonObject = new GameObject(
+                $"Hotspot_{item.Id}_Polygon",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(Chapter1SearchPolygonGraphic));
+            polygonObject.transform.SetParent(backgroundFrame, false);
+            Stretch(polygonObject.GetComponent<RectTransform>());
+            Chapter1SearchPolygonGraphic polygon = polygonObject.GetComponent<Chapter1SearchPolygonGraphic>();
+            polygon.SetPoints(item.HotspotPolygon);
+            polygon.raycastTarget = true;
+            polygon.SetGlowIntensity(0f);
+            KayoSearchHotspot polygonHotspot = polygonObject.AddComponent<KayoSearchHotspot>();
+            polygonHotspot.Initialize(this, item.Id, polygon);
+            hotspots.Add(polygonHotspot);
+            return;
+        }
+
         GameObject hotspotObject = CreateImage(
             $"Hotspot_{item.Id}",
             backgroundFrame,
@@ -669,6 +698,7 @@ public sealed class KayoSearchController : MonoBehaviour
         }
 
         currentRoom = room;
+        if (searchHeader != null) searchHeader.SetActive(true);
         backgroundImage.sprite =
             room == RoomView.Room1 ? currentRoom1Sprite : room2Background;
         leftArrow.gameObject.SetActive(room == RoomView.Room2);
@@ -749,6 +779,7 @@ public sealed class KayoSearchController : MonoBehaviour
 
         currentDialogueItem = item;
         isDialogueOpen = true;
+        if (searchHeader != null) searchHeader.SetActive(false);
         leftArrow.gameObject.SetActive(false);
         rightArrow.gameObject.SetActive(false);
         RefreshHotspots();
@@ -842,6 +873,7 @@ public sealed class KayoSearchController : MonoBehaviour
         }
 
         isCompleting = true;
+        if (searchHeader != null) searchHeader.SetActive(false);
         ArchiveManager.Close();
         canvas.sortingOrder = short.MaxValue;
         leftArrow.gameObject.SetActive(false);
@@ -1091,6 +1123,7 @@ public sealed class KayoSearchController : MonoBehaviour
         public string DialogueEndLineId { get; }
         public string RequiresItemId { get; }
         public bool SwapRoom1BackgroundAfterDialogue { get; }
+        public Vector2[] HotspotPolygon { get; }
 
         public ItemDefinition(
             string id,
@@ -1104,7 +1137,8 @@ public sealed class KayoSearchController : MonoBehaviour
             string dialogueStartLineId,
             string dialogueEndLineId,
             string requiresItemId = null,
-            bool swapRoom1BackgroundAfterDialogue = false)
+            bool swapRoom1BackgroundAfterDialogue = false,
+            Vector2[] hotspotPolygon = null)
         {
             Id = id;
             ArchiveId = archiveId;
@@ -1118,6 +1152,7 @@ public sealed class KayoSearchController : MonoBehaviour
             DialogueEndLineId = dialogueEndLineId;
             RequiresItemId = requiresItemId;
             SwapRoom1BackgroundAfterDialogue = swapRoom1BackgroundAfterDialogue;
+            HotspotPolygon = hotspotPolygon;
         }
     }
 
@@ -1148,6 +1183,7 @@ internal sealed class KayoSearchHotspot :
     private KayoSearchController owner;
     private GameObject glow;
     private CanvasGroup glowCanvasGroup;
+    private Chapter1SearchPolygonGraphic polygonGlow;
     private bool available;
     private bool isGlowing;
 
@@ -1166,6 +1202,16 @@ internal sealed class KayoSearchHotspot :
         glowCanvasGroup.blocksRaycasts = false;
     }
 
+    public void Initialize(
+        KayoSearchController searchController,
+        string itemId,
+        Chapter1SearchPolygonGraphic goldenGlow)
+    {
+        owner = searchController;
+        ItemId = itemId;
+        polygonGlow = goldenGlow;
+    }
+
     private void Update()
     {
         if (!isGlowing)
@@ -1176,7 +1222,11 @@ internal sealed class KayoSearchHotspot :
         float intensity =
             0.72f + Mathf.Sin(Time.unscaledTime * 4.5f) * 0.22f;
 
-        if (glowCanvasGroup != null)
+        if (polygonGlow != null)
+        {
+            polygonGlow.SetGlowIntensity(intensity);
+        }
+        else if (glowCanvasGroup != null)
         {
             glowCanvasGroup.alpha = intensity;
         }
@@ -1215,7 +1265,11 @@ internal sealed class KayoSearchHotspot :
     {
         isGlowing = value;
 
-        if (glow != null)
+        if (polygonGlow != null)
+        {
+            polygonGlow.SetGlowIntensity(value ? 0.72f : 0f);
+        }
+        else if (glow != null)
         {
             glow.SetActive(value);
         }

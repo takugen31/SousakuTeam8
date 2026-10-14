@@ -1,5 +1,5 @@
 lineId,speakerId,expressionId,backgroundPath,text,nextLineId,nextScenePath,archiveUnlockIds
-chapter_yowashi_beforecatch_001,doute,normal,Assets/Art/Backgrounds/white_room.png,"おはようドウテ卿！いい朝だねぇ",chapter_yowashi_beforecatch_002,,
+chapter_yowashi_beforecatch_001,yowashi,normal,Assets/Art/Backgrounds/white_room.png,"おはようドウテ卿！いい朝だねぇ",chapter_yowashi_beforecatch_002,,
 chapter_yowashi_beforecatch_002,doute,normal,,"なんか出世してる！下僕だったのに！",chapter_yowashi_beforecatch_003,,
 chapter_yowashi_beforecatch_003,yowashi,normal,,"それはそうであろう。なにせ聖典について熱く語り合ったのだから！！",chapter_yowashi_beforecatch_004,,
 chapter_yowashi_beforecatch_004,doute,normal,,"それで上がる地位とは？って感じだけどね〜

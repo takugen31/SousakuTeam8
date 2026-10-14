@@ -100,24 +100,10 @@ MonoBehaviour:
     revealSpeakerName: 0
     consultationTitle:
     nextScenePath: 
-    nextLineId: chapter_yowashi_catchsuccess_008
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_yowashi_catchsuccess_008
-    speakerId: 
-    expressionId: 
-    text: "［何かの本］を手に入れた！"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle:
-    nextScenePath: 
     nextLineId: chapter_yowashi_catchsuccess_009
     choices: []
     affectionChanges: []
-    archiveUnlockIds:
-    - chapter_yowashi.unknown_book
+    archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_catchsuccess_009
     speakerId: yowashi
@@ -130,7 +116,8 @@ MonoBehaviour:
     nextLineId: chapter_yowashi_catchsuccess_010
     choices: []
     affectionChanges: []
-    archiveUnlockIds: []
+    archiveUnlockIds:
+    - chapter_yowashi.unknown_book
     branches: []
   - lineId: chapter_yowashi_catchsuccess_010
     speakerId: doute

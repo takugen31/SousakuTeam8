@@ -13,5 +13,4 @@ chapter_yowashi_diary_011,,,,"大丈夫、私は明るい子、強い子、大�
 chapter_yowashi_diary_012,,,,"『20XX年9月11日』",chapter_yowashi_diary_013,,
 chapter_yowashi_diary_013,,,,"大丈夫、私は明るい子、強い子、大丈夫",chapter_yowashi_diary_014,,
 chapter_yowashi_diary_014,,,,"(これ以降、同じ言葉が時々書かれているだけだ)",chapter_yowashi_diary_015,,
-chapter_yowashi_diary_015,doute,normal,,"(これは……誰かの日記？まさかヨワシちゃん……？いやまさかね。あんなに明るい子なのにそんなことないよね！一応ヨワシちゃんに確認してみよう)",chapter_yowashi_diary_016,,
-chapter_yowashi_diary_016,,,,"［誰かの日記］を手に入れた",,,chapter_yowashi.diary
+chapter_yowashi_diary_015,doute,normal,,"(これは……誰かの日記？まさかヨワシちゃん……？いやまさかね。あんなに明るい子なのにそんなことないよね！一応ヨワシちゃんに確認してみよう)",,,chapter_yowashi.diary

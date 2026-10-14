@@ -13,7 +13,7 @@
     {"scenario": "Prologue", "cues": [{"track": "Pop"}]},
     {"scenario": "Prologue1", "cues": [{"track": "Pop"}, {"startLineId": "prologue1_005", "track": "stop"}]},
     {"scenario": "Prologue2", "cues": [{"track": "Quiet"}]},
-    {"scenario": "Chapter1", "cues": [{"track": "Quiet"}, {"startLineId": "chapter1_005", "track": "Mystery"}, {"startLineId": "chapter1_007", "track": "Pop"}]},
+    {"scenario": "Chapter1", "cues": [{"track": "Quiet"}, {"startLineId": "chapter1_005", "track": "Mystery"}, {"startLineId": "chapter1_006", "track": "Pop"}]},
     {"scenario": "Chapter1Search", "cues": [{"track": "Mystery"}]},
     {"scenario": "Chapter1_Kayo", "cues": [{"track": "Pop"}]},
     {"scenario": "Chapter1_Yowashi", "cues": [{"track": "Pop"}]},

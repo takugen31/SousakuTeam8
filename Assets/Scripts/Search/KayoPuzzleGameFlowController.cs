@@ -13,15 +13,17 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float completedDisplayDuration = 1f;
     [SerializeField, Min(0f)] private float fadeDuration = 0.8f;
+    private const string PendingReturnKey = "Puzzle.PendingReturn.v1";
 
     private static Request pendingRequest;
-    private Request activeRequest;
-    private PuzzleGameController puzzle;
+    [SerializeField] private Request activeRequest;
+    [SerializeField] private PuzzleGameController puzzle;
     private bool isReturning;
     private bool cursorCaptured;
     private CursorLockMode previousCursorLock;
     private bool previousCursorVisible;
 
+    [System.Serializable]
     private sealed class Request
     {
         public string PuzzleSceneName;
@@ -31,9 +33,10 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetPendingRequest()
+    public static void ResetPendingRequest()
     {
         pendingRequest = null;
+        PlayerPrefs.DeleteKey(PendingReturnKey);
     }
 
     public static void Queue(
@@ -49,10 +52,33 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
             ResumeLineId = resumeLineId,
             Image = image
         };
+        PlayerPrefs.SetString(PendingReturnKey, JsonUtility.ToJson(pendingRequest));
+    }
+
+    private void OnEnable()
+    {
+        // Serialized context survives script reloads while the puzzle is open.
+        ConnectCompletionEvent();
+    }
+
+    private void OnDisable()
+    {
+        if (puzzle != null) puzzle.Completed -= OnPuzzleCompleted;
+    }
+
+    private void ConnectCompletionEvent()
+    {
+        if (puzzle == null || activeRequest == null) return;
+        puzzle.Completed -= OnPuzzleCompleted;
+        puzzle.Completed += OnPuzzleCompleted;
+        // Recover completion that occurred before the bridge reconnected.
+        if (puzzle.IsComplete) OnPuzzleCompleted(puzzle.MoveCount);
     }
 
     private void Start()
     {
+        if (pendingRequest == null && PlayerPrefs.HasKey(PendingReturnKey))
+            pendingRequest = JsonUtility.FromJson<Request>(PlayerPrefs.GetString(PendingReturnKey));
         if (pendingRequest == null ||
             gameObject.scene.name != pendingRequest.PuzzleSceneName)
         {
@@ -81,7 +107,7 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
             puzzle.SetPuzzleImage(activeRequest.Image);
         }
 
-        puzzle.Completed += OnPuzzleCompleted;
+        ConnectCompletionEvent();
     }
 
     private void OnDestroy()
@@ -154,6 +180,7 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
         ArchiveManager.Close();
         // Overwrite any earlier search resume request; the diary must be read first.
         NovelDialogueController.QueueResumeLine(activeRequest.ResumeLineId, true);
+        PlayerPrefs.DeleteKey(PendingReturnKey);
         SceneManager.LoadScene(activeRequest.ReturnSceneName, LoadSceneMode.Single);
     }
 }

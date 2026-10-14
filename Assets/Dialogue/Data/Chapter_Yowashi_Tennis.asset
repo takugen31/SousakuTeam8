@@ -277,7 +277,20 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_021
     speakerId: doute
     expressionId: normal
-    text: "(初めてやったテニスはとても楽しかった。みんな初めてだったみたいでぎこちなかったけれど、それでも女の友達とスポーツをするという初めての経験もあいまってとても楽しかった。みんな笑顔だ。)"
+    text: "(初めてやったテニスはとても楽しかった。みんな初めてだったみたいでぎこちなかったけれど、)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_021_b
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_021_b
+    speakerId: doute
+    expressionId: normal
+    text: "(それでも女の友達とスポーツをするという初めての経験もあいまってとても楽しかった。みんな笑顔だ。)"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle:

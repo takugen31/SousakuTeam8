@@ -51,6 +51,13 @@ public static class DialogueRuntimeCsv
                 revealSpeakerName = ParseBoolean(Get(row, columns, "revealSpeakerName"))
             };
 
+            foreach (string rawId in Get(row, columns, "archiveUnlockIds").Split(';'))
+            {
+                string id = rawId.Trim();
+                if (!string.IsNullOrEmpty(id) && !line.archiveUnlockIds.Contains(id))
+                    line.archiveUnlockIds.Add(id);
+            }
+
             if (!string.IsNullOrWhiteSpace(Get(row, columns, "backgroundPath")))
             {
                 line.background = backgroundForPathRows;

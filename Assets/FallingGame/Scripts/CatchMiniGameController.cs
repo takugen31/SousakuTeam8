@@ -140,6 +140,8 @@ namespace Sousakusai8.MiniGame
         private int originalTextureMipmapLimit;
         private int originalAntiAliasing;
         private RenderPipelineAsset originalRenderPipeline;
+        private int miniGameQualityLevel;
+        private RenderPipelineAsset miniGameOriginalRenderPipeline;
         private UniversalRenderPipelineAsset runtimeRenderPipeline;
         private bool renderingQualityApplied;
 
@@ -258,6 +260,7 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
+            if (TryInstantClearForTesting()) return;
             if (phase == GamePhase.AwaitingInput && WasAnyStartButtonPressed())
             {
                 BeginCountdown();
@@ -300,6 +303,28 @@ namespace Sousakusai8.MiniGame
             }
         }
 
+        private bool TryInstantClearForTesting()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Deliberately absent from CurrentOperationHelp and all visible UI.
+            // Run the normal result/route flow, rather than jumping to another scene.
+            if (phase == GamePhase.GameOver || Time.timeScale <= 0f) return false;
+            UnityEngine.InputSystem.Keyboard keyboard = UnityEngine.InputSystem.Keyboard.current;
+            if (keyboard == null || !keyboard.ctrlKey.isPressed || !keyboard.shiftKey.isPressed ||
+                !keyboard.f10Key.wasPressedThisFrame) return false;
+
+            score = Mathf.Max(score, 10000);
+            if (startPromptText != null) startPromptText.gameObject.SetActive(false);
+            if (jumpUnlockText != null) jumpUnlockText.gameObject.SetActive(false);
+            if (sweepUnlockText != null) sweepUnlockText.gameObject.SetActive(false);
+            RefreshHud();
+            EndRound();
+            return true;
+#else
+            return false;
+#endif
+        }
+
         private void ApplyRenderingQuality()
         {
             originalQualityLevel = QualitySettings.GetQualityLevel();
@@ -312,6 +337,9 @@ namespace Sousakusai8.MiniGame
             {
                 QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1, true);
             }
+
+            miniGameQualityLevel = QualitySettings.GetQualityLevel();
+            miniGameOriginalRenderPipeline = QualitySettings.renderPipeline;
 
             QualitySettings.globalTextureMipmapLimit = 0;
             QualitySettings.antiAliasing = antiAliasingSamples;
@@ -341,6 +369,11 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
+            // renderPipeline is a per-quality-level setting. Restore the slot that
+            // received the runtime clone BEFORE returning to the original quality.
+            // Otherwise Ultra retains a reference to the destroyed clone on replay.
+            QualitySettings.SetQualityLevel(miniGameQualityLevel, true);
+            QualitySettings.renderPipeline = miniGameOriginalRenderPipeline;
             QualitySettings.SetQualityLevel(originalQualityLevel, true);
             QualitySettings.globalTextureMipmapLimit = originalTextureMipmapLimit;
             QualitySettings.antiAliasing = originalAntiAliasing;
@@ -350,7 +383,9 @@ namespace Sousakusai8.MiniGame
             if (runtimeRenderPipeline != null)
             {
                 Destroy(runtimeRenderPipeline);
+                runtimeRenderPipeline = null;
             }
+            renderingQualityApplied = false;
         }
 
         public void SpawnItems(Vector3 dropperPosition)
@@ -742,12 +777,17 @@ namespace Sousakusai8.MiniGame
         {
             remainingTime = gameDuration;
             phase = GamePhase.Playing;
+            if (catcher != null) catcher.gameObject.SetActive(true);
             if (startPromptText != null)
             {
                 startPromptText.gameObject.SetActive(false);
             }
 
-            dropper?.BeginRound();
+            if (dropper != null)
+            {
+                dropper.gameObject.SetActive(true);
+                dropper.BeginRound();
+            }
             RefreshHud();
         }
 
@@ -756,6 +796,11 @@ namespace Sousakusai8.MiniGame
             remainingTime = 0f;
             phase = GamePhase.GameOver;
             ClearActiveItems();
+            if (catcher != null) catcher.gameObject.SetActive(false);
+            if (dropper != null)
+            {
+                dropper.gameObject.SetActive(false);
+            }
             if (feedbackText != null)
             {
                 feedbackText.gameObject.SetActive(false);

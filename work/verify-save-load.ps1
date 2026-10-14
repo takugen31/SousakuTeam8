@@ -66,6 +66,7 @@ public class Chapter1SearchController { public bool CaptureCheckpoint(GameSaveDa
 public class KayoSearchController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="room"; d.room=0; d.paperVisible=true; return true; } }
 public class SelectionPartController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="selection"; d.introDismissed=true; return true; } }
 public class KayoGaugeOutcomeController { public bool CurrentResult=true; }
+public static class KayoPuzzleGameFlowController { public static void ResetPendingRequest() {} }
 public class AffectionEntry { public string characterId; public int value; }
 public class AffectionManager {
  public static AffectionManager Instance=new AffectionManager(); public int Value=25;

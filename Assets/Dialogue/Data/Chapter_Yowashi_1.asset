@@ -82,11 +82,24 @@ MonoBehaviour:
   - lineId: chapter_yowashi_1_006
     speakerId: yowashi
     expressionId: normal
-    text: "ぴっちぴちの16歳！\n　ていうか、細かいことを気にする男はモテないよ〜？\n　恋人を作らないと出れない部屋なんだから、今からでもちょっとずつ意識しよっ、ね？"
+    text: "ぴっちぴちの16歳！\nていうか、細かいことを気にする男はモテないよ〜？"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle:
     nextScenePath: 
+    nextLineId: chapter_yowashi_1_006_b
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_1_006_b
+    speakerId: yowashi
+    expressionId: normal
+    text: "恋人を作らないと出れない部屋なんだから、\n今からでもちょっとずつ意識しよっ、ね？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath:
     nextLineId: chapter_yowashi_1_007
     choices: []
     affectionChanges: []
@@ -113,24 +126,10 @@ MonoBehaviour:
     revealSpeakerName: 0
     consultationTitle:
     nextScenePath: 
-    nextLineId: chapter_yowashi_1_009
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_yowashi_1_009
-    speakerId: 
-    expressionId: 
-    text: "［情報］ヨワシの腕の包帯　を手に入れた！"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle:
-    nextScenePath: 
     nextLineId: chapter_yowashi_1_010
     choices: []
     affectionChanges: []
-    archiveUnlockIds:
-    - chapter_yowashi.bandage
+    archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_1_010
     speakerId: doute
@@ -143,7 +142,8 @@ MonoBehaviour:
     nextLineId: chapter_yowashi_1_011
     choices: []
     affectionChanges: []
-    archiveUnlockIds: []
+    archiveUnlockIds:
+    - chapter_yowashi.bandage
     branches: []
   - lineId: chapter_yowashi_1_011
     speakerId: yowashi
@@ -343,20 +343,7 @@ MonoBehaviour:
   - lineId: chapter_yowashi_1_026
     speakerId: doute
     expressionId: normal
-    text: "(スポ根漫画多かったな〜\n　俺も好きだし嬉しい！！)"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle:
-    nextScenePath: 
-    nextLineId: chapter_yowashi_1_027
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_yowashi_1_027
-    speakerId: 
-    expressionId: 
-    text: "［情報］ヨワシの好きな漫画　を手に入れた"
+    text: "(スポ根漫画多かったな〜俺も好きだし嬉しい！！)"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle:
@@ -364,13 +351,12 @@ MonoBehaviour:
     nextLineId: chapter_yowashi_1_028
     choices: []
     affectionChanges: []
-    archiveUnlockIds:
-    - chapter_yowashi.manga
+    archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_1_028
     speakerId: doute
     expressionId: normal
-    text: "(30分ほど熱心に話し込んでいると、ヨワシちゃんの息が切れていることに気がついた)"
+    text: "(30分ほど熱心に話し込んでいると、\nヨワシちゃんの息が切れていることに気がついた)"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle:
@@ -378,7 +364,8 @@ MonoBehaviour:
     nextLineId: chapter_yowashi_1_029
     choices: []
     affectionChanges: []
-    archiveUnlockIds: []
+    archiveUnlockIds:
+    - chapter_yowashi.manga
     branches: []
   - lineId: chapter_yowashi_1_029
     speakerId: yowashi
