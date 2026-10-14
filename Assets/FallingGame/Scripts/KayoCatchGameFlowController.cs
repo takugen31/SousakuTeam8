@@ -36,7 +36,6 @@ namespace Sousakusai8.MiniGame
 
         [Header("Transition")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.8f;
-        [SerializeField, Min(0f)] private float tenMinutesTitleDuration = 1.6f;
         [SerializeField] private string returnSceneName = "NovelScene_Kayo";
         [SerializeField] private string resumeLineId = "chapter_kayo_2_001";
 
@@ -143,7 +142,8 @@ namespace Sousakusai8.MiniGame
         {
             if (eventPhase == EventPhase.SuccessBeforeTenMinutes)
             {
-                StartCoroutine(ShowTenMinutesIntertitle());
+                eventPhase = EventPhase.SuccessAfterTenMinutes;
+                PlayEventScenario(successAfterScenario);
                 return;
             }
 
@@ -152,25 +152,6 @@ namespace Sousakusai8.MiniGame
             {
                 StartCoroutine(ReturnToKayoNovelScene());
             }
-        }
-
-        private IEnumerator ShowTenMinutesIntertitle()
-        {
-            eventPhase = EventPhase.Transitioning;
-            yield return Fade(0f, 1f);
-
-            intertitleText.text = "十分後——。";
-            intertitleText.gameObject.SetActive(true);
-
-            if (tenMinutesTitleDuration > 0f)
-            {
-                yield return new WaitForSecondsRealtime(tenMinutesTitleDuration);
-            }
-
-            PlayEventScenario(successAfterScenario);
-            eventPhase = EventPhase.SuccessAfterTenMinutes;
-            intertitleText.gameObject.SetActive(false);
-            yield return Fade(1f, 0f);
         }
 
         private IEnumerator ReturnToKayoNovelScene()
