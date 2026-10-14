@@ -65,11 +65,11 @@ MonoBehaviour:
     nextScenePath: 
     nextLineId: 
     choices:
-    - text: "［情報］ヨワシちゃんは息切れしやすい？"
+    - text: "ヨワシちゃんは息切れしやすい？"
       nextLineId: chapter_yowashi_consultation_005
-    - text: "［情報］医学書の内容"
+    - text: "医学書の内容"
       nextLineId: chapter_yowashi_consultation_004
-    - text: "［情報］ヨワシの好きな漫画"
+    - text: "ヨワシの好きな漫画"
       nextLineId: chapter_yowashi_consultation_004
     affectionChanges: []
     archiveUnlockIds: []
@@ -84,11 +84,11 @@ MonoBehaviour:
     nextScenePath: 
     nextLineId: 
     choices:
-    - text: "［情報］ヨワシの好きな漫画"
+    - text: "ヨワシの好きな漫画"
       nextLineId: chapter_yowashi_consultation_005
-    - text: "［情報］医学書の内容"
+    - text: "医学書の内容"
       nextLineId: chapter_yowashi_consultation_006
-    - text: "［情報］ヨワシの腕の包帯"
+    - text: "ヨワシの腕の包帯"
       nextLineId: chapter_yowashi_consultation_005
     affectionChanges: []
     archiveUnlockIds: []
