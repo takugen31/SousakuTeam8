@@ -12,6 +12,7 @@ using UnityEngine.UI;
 public sealed class NovelDialogueController : MonoBehaviour
 {
     private GameObject endingCard;
+    private Coroutine endingCardCoroutine;
     private static string pendingResumeLineId;
     private static bool pendingSceneFadeIn;
     private static readonly HashSet<string> revealedCharacterIds =
@@ -143,6 +144,16 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     [SerializeField, Min(0f)]
     private float sceneFadeHoldDuration = 0.15f;
+
+    [Header("Ending Presentation")]
+    [SerializeField, Min(0f)]
+    private float endingFadeOutDuration = 3.5f;
+
+    [SerializeField, Min(0f)]
+    private float endingBlackHoldDuration = 0.6f;
+
+    [SerializeField, Min(0f)]
+    private float endingTitleFadeInDuration = 2.5f;
 
     [Header("UI")]
     [SerializeField]
@@ -1289,12 +1300,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition()
     {
-        if (endingCard != null)
-        {
-            Destroy(endingCard);
-            endingCard = null;
-            isChoiceSelectionOpen = false;
-        }
+        StopEndingCard();
         moteruApproachElapsed = 0f;
         StopKayoEggView();
         StopMoteruRevealView();
@@ -1600,6 +1606,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopEndingCard();
         StopKayoEggView();
         StopMoteruRevealView();
         StopYowashiBandageView();
@@ -1629,7 +1636,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         rect.offsetMin = rect.offsetMax = Vector2.zero;
         rect.SetAsLastSibling();
         Image shade = endingCard.GetComponent<Image>();
-        shade.color = new Color(0f, 0f, 0f, .92f);
+        shade.color = new Color(0f, 0f, 0f, 0f);
         shade.raycastTarget = true;
 
         TextMeshProUGUI caption = CreateEndingText(rect, "EndingTitle", 42f);
@@ -1637,6 +1644,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         caption.rectTransform.anchorMin = new Vector2(.1f, .4f);
         caption.rectTransform.anchorMax = new Vector2(.9f, .75f);
         caption.rectTransform.offsetMin = caption.rectTransform.offsetMax = Vector2.zero;
+        CanvasGroup captionGroup = caption.gameObject.AddComponent<CanvasGroup>();
+        captionGroup.alpha = 0f;
 
         GameObject buttonObject = new GameObject("ReturnToTitle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
@@ -1651,15 +1660,68 @@ public sealed class NovelDialogueController : MonoBehaviour
         label.rectTransform.anchorMax = Vector2.one;
         label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
         Button button = buttonObject.GetComponent<Button>();
+        CanvasGroup buttonGroup = buttonObject.AddComponent<CanvasGroup>();
+        buttonGroup.alpha = 0f;
+        buttonGroup.interactable = false;
+        buttonGroup.blocksRaycasts = false;
+        button.interactable = false;
         button.onClick.AddListener(() =>
         {
-            if (isSceneLoading) return;
-            Destroy(endingCard);
-            endingCard = null;
-            isChoiceSelectionOpen = false;
+            if (isSceneLoading || !button.interactable) return;
+            StopEndingCard();
             LoadDialogueScene(line.nextScenePath, line);
         });
+        endingCardCoroutine = StartCoroutine(PlayEndingCard(shade, captionGroup, buttonGroup, button));
         return true;
+    }
+
+    private IEnumerator PlayEndingCard(Image shade, CanvasGroup caption, CanvasGroup buttonGroup, Button button)
+    {
+        // Finish the blackout before revealing any ending text.
+        float elapsed = 0f;
+        while (elapsed < endingFadeOutDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            shade.color = new Color(0f, 0f, 0f,
+                Mathf.SmoothStep(0f, 1f, elapsed / endingFadeOutDuration));
+            yield return null;
+        }
+        shade.color = Color.black;
+
+        if (endingBlackHoldDuration > 0f)
+            yield return new WaitForSecondsRealtime(endingBlackHoldDuration);
+
+        yield return FadeEndingContent(caption, endingTitleFadeInDuration);
+        yield return FadeEndingContent(buttonGroup, 0.6f);
+        buttonGroup.interactable = true;
+        buttonGroup.blocksRaycasts = true;
+        button.interactable = true;
+        endingCardCoroutine = null;
+    }
+
+    private static IEnumerator FadeEndingContent(CanvasGroup group, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            group.alpha = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            yield return null;
+        }
+        group.alpha = 1f;
+    }
+
+    private void StopEndingCard()
+    {
+        if (endingCardCoroutine != null)
+        {
+            StopCoroutine(endingCardCoroutine);
+            endingCardCoroutine = null;
+        }
+        if (endingCard == null) return;
+        Destroy(endingCard);
+        endingCard = null;
+        isChoiceSelectionOpen = false;
     }
 
     private TextMeshProUGUI CreateEndingText(RectTransform parent, string objectName, float fontSize)
