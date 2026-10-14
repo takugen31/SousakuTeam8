@@ -121,7 +121,20 @@ MonoBehaviour:
   - lineId: chapter_kayo_diary_009
     speakerId: 
     expressionId: 
-    text: "『お母さんが亡くなった。わたしのせいだ……！わたしがミスをしつずけてお母さんに芯配をかけさせたから、病気が悪くなっちゃったんだ……っ！お母さんがいない分もわたしがもっと、もっとがんばらなきゃ……！』"
+    text: "『お母さんが亡くなった。わたしのせいだ……！わたしがミスをしつずけてお母さんに芯配をかけさせたから、病気が悪くなっちゃったんだ……っ！』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath:
+    nextLineId: chapter_kayo_diary_009_b
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_kayo_diary_009_b
+    speakerId:
+    expressionId:
+    text: "『お母さんがいない分もわたしがもっと、もっとがんばらなきゃ……！』"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
