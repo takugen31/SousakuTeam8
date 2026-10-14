@@ -1757,7 +1757,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         ApplyBackground(line);
         ApplyAffectionChanges(line);
-        ApplyArchiveUnlocks(line);
+        // Kayo's entrance look runs before her introduction text is displayed.
+        if (line?.lineId != "chapter2_kayo_001") ApplyArchiveUnlocks(line);
         RestoreNamesIntroducedBefore(line);
         ApplyCharacter(line);
         StartGatheringComposition(line);
@@ -2945,6 +2946,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (currentLine?.lineId == "chapter1_kayo_014") TriggerKayoFall();
         RevealCurrentSpeakerName();
+        if (currentLine?.lineId == "chapter2_kayo_001") ApplyArchiveUnlocks(currentLine);
 
         if (currentLine != null && currentLine.HasSceneTransition)
         {
