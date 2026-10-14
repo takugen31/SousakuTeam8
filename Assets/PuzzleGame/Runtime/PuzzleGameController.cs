@@ -164,7 +164,8 @@ namespace SousakuTeam8.PuzzleGame
             _completionCanvasGroup.alpha = 0f;
             _completionBadgeRect.localScale = Vector3.one * 0.88f;
             _completionBadgeRect.gameObject.SetActive(false);
-            _statusText.text = "ピースをドラッグして場所を交換";
+            _statusText.gameObject.SetActive(true);
+            _statusText.text = "ドラッグしてピースを並び替えよう！";
             UpdateMoveCount();
 
             if (wasStarted)
@@ -310,11 +311,15 @@ namespace SousakuTeam8.PuzzleGame
 
             _header = CreateImage("Header", _safeArea, BackgroundAccentColor, false).rectTransform;
             _header.gameObject.AddComponent<PuzzlePanelFeather>();
-            var title = CreateText("Title", _header, "パズル", 44, FontStyle.Normal, TextAnchor.MiddleLeft, PrimaryTextColor);
+            var title = CreateText("Title", _header, "パズル", 44, FontStyle.Normal, TextAnchor.MiddleCenter, PrimaryTextColor);
             _titleRect = title.rectTransform;
 
             var subtitle = CreateText("Subtitle", _header, "9枚のピースを並べて、絵を完成させよう", 22, FontStyle.Normal, TextAnchor.MiddleLeft, SecondaryTextColor);
             _subtitleRect = subtitle.rectTransform;
+            subtitle.horizontalOverflow = HorizontalWrapMode.Wrap;
+            subtitle.resizeTextForBestFit = true;
+            subtitle.resizeTextMinSize = 12;
+            subtitle.resizeTextMaxSize = 22;
 
             var moveBadgeImage = CreateImage("Move Counter", _header, BackgroundAccentColor, false);
             _moveBadge = moveBadgeImage.rectTransform;
@@ -450,27 +455,30 @@ namespace SousakuTeam8.PuzzleGame
             var height = Mathf.Max(540f, _safeArea.rect.height);
             var horizontalMargin = Mathf.Clamp(width * 0.045f, 28f, 72f);
             var headerWidth = Mathf.Min(width - horizontalMargin * 2f, 980f);
-            const float headerHeight = 128f;
+            const float headerHeight = 144f;
             const float headerTop = 24f;
             const float footerHeight = 62f;
             const float footerBottom = 22f;
 
             SetCenteredTop(_header, new Vector2(headerWidth, headerHeight), headerTop);
 
-            _titleRect.anchorMin = _titleRect.anchorMax = new Vector2(0f, 1f);
-            _titleRect.pivot = new Vector2(0f, 1f);
-            _titleRect.anchoredPosition = new Vector2(32f, -12f);
-            _titleRect.sizeDelta = new Vector2(headerWidth - 180f, 55f);
+            SetCenteredTop(_titleRect, new Vector2(headerWidth - 64f, 55f), 8f);
 
-            _subtitleRect.anchorMin = _subtitleRect.anchorMax = new Vector2(0f, 1f);
+            // Center the description and counter as one compact row.
+            const float counterWidth = 112f;
+            const float descriptionGap = 16f;
+            float descriptionWidth = Mathf.Min(_subtitleRect.GetComponent<Text>().preferredWidth,
+                headerWidth - 48f - counterWidth - descriptionGap);
+            float rowWidth = descriptionWidth + descriptionGap + counterWidth;
+            _subtitleRect.anchorMin = _subtitleRect.anchorMax = new Vector2(0.5f, 1f);
             _subtitleRect.pivot = new Vector2(0f, 1f);
-            _subtitleRect.anchoredPosition = new Vector2(32f, -72f);
-            _subtitleRect.sizeDelta = new Vector2(headerWidth - 180f, 34f);
+            _subtitleRect.anchoredPosition = new Vector2(-rowWidth * 0.5f, -68f);
+            _subtitleRect.sizeDelta = new Vector2(descriptionWidth, 62f);
 
-            _moveBadge.anchorMin = _moveBadge.anchorMax = new Vector2(1f, 1f);
+            _moveBadge.anchorMin = _moveBadge.anchorMax = new Vector2(0.5f, 1f);
             _moveBadge.pivot = new Vector2(1f, 1f);
-            _moveBadge.anchoredPosition = new Vector2(-24f, -20f);
-            _moveBadge.sizeDelta = new Vector2(142f, 86f);
+            _moveBadge.anchoredPosition = new Vector2(rowWidth * 0.5f, -68f);
+            _moveBadge.sizeDelta = new Vector2(counterWidth, 62f);
 
             var boardTop = height - headerTop - headerHeight - 24f;
             var boardBottom = footerBottom + footerHeight + 24f;
@@ -495,10 +503,11 @@ namespace SousakuTeam8.PuzzleGame
             _statusRect.offsetMin = Vector2.zero;
             _statusRect.offsetMax = Vector2.zero;
 
-            _completionBadgeRect.anchorMin = _completionBadgeRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // Reuse the footer area on completion instead of overlapping the header.
+            _completionBadgeRect.anchorMin = _completionBadgeRect.anchorMax = new Vector2(0.5f, 0f);
             _completionBadgeRect.pivot = new Vector2(0.5f, 0.5f);
-            _completionBadgeRect.anchoredPosition = new Vector2(0f, boardY + _boardSize * 0.5f + 38f);
-            _completionBadgeRect.sizeDelta = new Vector2(Mathf.Min(280f, _boardSize * 0.56f), 68f);
+            _completionBadgeRect.anchoredPosition = new Vector2(0f, footerBottom + footerHeight * 0.5f);
+            _completionBadgeRect.sizeDelta = new Vector2(footerWidth, footerHeight);
             _isApplyingLayout = false;
         }
 
@@ -623,7 +632,7 @@ namespace SousakuTeam8.PuzzleGame
             _isAnimating = true;
             _slotLayer.gameObject.SetActive(false);
             _completionText.text = $"完成！  {completedMoveCount}手";
-            _statusText.text = "すべてのピースがつながりました";
+            _statusText.gameObject.SetActive(false);
             _completionBadgeRect.gameObject.SetActive(true);
             StartCoroutine(CompletionAnimationRoutine());
             Completed?.Invoke(completedMoveCount);
