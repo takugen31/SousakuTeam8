@@ -1319,9 +1319,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         chapterTransitionOverlay.color = color;
     }
 
-    private void CancelChapterTransition()
+    private void CancelChapterTransition(bool preservePushback = false)
     {
-        StopKayoPushback();
+        if (!preservePushback) StopKayoPushback();
         StopEndingCard();
         moteruApproachElapsed = 0f;
         StopKayoEggView();
@@ -2249,7 +2249,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void UpdateKayoPushback()
     {
-        if (pushedDouteRect == null || ArchiveManager.IsOpen || isChapterTransitioning ||
+        if (!isPlaying || pushedDouteRect == null || ArchiveManager.IsOpen || isChapterTransitioning ||
             isSkipConfirmationOpen || isRoomLookPlaying) return;
         pushedDouteElapsed = Mathf.Min(0.45f, pushedDouteElapsed + Time.unscaledDeltaTime);
         float t = Mathf.Clamp01(pushedDouteElapsed / 0.45f);
@@ -3888,7 +3888,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void EndDialogueImmediately()
     {
-        CancelChapterTransition();
+        // Embedded event owners fade the final frame before unloading the scene.
+        CancelChapterTransition(KeepPresentationOnCompletion);
         StopTypingAndRevealText();
         HideChoices();
 
