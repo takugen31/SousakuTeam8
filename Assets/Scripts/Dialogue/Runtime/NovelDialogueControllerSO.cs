@@ -3822,6 +3822,12 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void EndDialogue()
     {
+        if (isKayoExaminationViewActive)
+        {
+            if (!isRoomLookPlaying)
+                roomLookCoroutine = StartCoroutine(FadeOutKayoExamination());
+            return;
+        }
         if (useSearchPortraitSlide && isSearchPortraitSliding)
         {
             if (!isRoomLookPlaying)
@@ -3829,6 +3835,27 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
         EndDialogueImmediately();
+    }
+
+    private IEnumerator FadeOutKayoExamination()
+    {
+        isRoomLookPlaying = true;
+        autoAdvanceAt = -1f;
+        Image overlay = EnsureChapterTransitionOverlay();
+        if (overlay != null)
+        {
+            overlay.transform.SetAsLastSibling();
+            overlay.gameObject.SetActive(true);
+            SetChapterTransitionAlpha(0f);
+            yield return FadeLookReturn(0f, 1f);
+        }
+        while (ArchiveManager.IsOpen) yield return null;
+        // The completion callback starts the normal follow-up conversation.
+        // Restore its composition under black, then reveal it without an intertitle.
+        roomLookCoroutine = null;
+        isRoomLookPlaying = false;
+        EndDialogueImmediately();
+        if (overlay != null && isPlaying) BeginSceneEntryFadeIn();
     }
 
     private IEnumerator FadeOutSearchCloseUp()
