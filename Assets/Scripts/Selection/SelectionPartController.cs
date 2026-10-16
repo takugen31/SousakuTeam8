@@ -60,6 +60,7 @@ public sealed class SelectionPartController : MonoBehaviour
         introAdvanceAction = new InputAction("SelectionIntroAdvance", InputActionType.Button,
             "<Mouse>/rightButton");
         introAdvanceAction.AddBinding("<Mouse>/leftButton");
+        introAdvanceAction.AddBinding("<Touchscreen>/primaryTouch/press");
         introAdvanceAction.performed += OnIntroAdvancePerformed;
         introAdvanceAction.Enable();
     }
@@ -98,9 +99,8 @@ public sealed class SelectionPartController : MonoBehaviour
     private void Update()
     {
         // Accept clicks anywhere except the three character item areas.
-        if (!introDismissed && !isTransitioning && Mouse.current != null &&
-            (Mouse.current.leftButton.wasPressedThisFrame ||
-             Mouse.current.rightButton.wasPressedThisFrame))
+        if (!introDismissed && !isTransitioning &&
+            (BrowserGameControls.AdvancePressed || Mouse.current?.rightButton.wasPressedThisFrame == true))
         {
             TryDismissIntroAtPointer();
         }
@@ -108,9 +108,9 @@ public sealed class SelectionPartController : MonoBehaviour
 
     private void TryDismissIntroAtPointer()
     {
-        if (ArchiveManager.IsOpen || introDismissed || isTransitioning || Mouse.current == null ||
+        if (ArchiveManager.IsOpen || introDismissed || isTransitioning ||
             introDialoguePanel == null || introSpeakerPlate == null) return;
-        Vector2 pointer = Mouse.current.position.ReadValue();
+        Vector2 pointer = BrowserGameControls.PointerPosition;
         if (pointer.x < 0f || pointer.y < 0f ||
             pointer.x >= Screen.width || pointer.y >= Screen.height) return;
         foreach (Button button in selectionButtons)
