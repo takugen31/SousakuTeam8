@@ -1,0 +1,199 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Yowashi_MedicalBook
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_yowashi_medicalbook_001
+    speakerId: doute
+    expressionId: normal
+    text: "何だこの本は？専門用語が多すぎてよく分からない……"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_002
+    speakerId: moteru
+    expressionId: normal
+    text: "ドウテくんこんにちは。どうしたの？そんなに難しい顔して"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_003
+    speakerId: doute
+    expressionId: normal
+    text: "ん？モテル！！もしかしてモテルってこの本ってどんな本かわかったりしない？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_004
+    speakerId: moteru
+    expressionId: normal
+    text: "これは……僕もそこまでよく分からないけど、医学書じゃないかな？SpO2っていうのは聞いたことあるよ。確か……血管の中の酸素濃度じゃなかった？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_005
+    speakerId: doute
+    expressionId: normal
+    text: "え？医学書？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_006
+    speakerId: moteru
+    expressionId: normal
+    text: "うん。このあたり、喘息について書いてあるよ。こんな本ドウテくんは持ってたんだね！やっぱり凄いよ！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_007
+    speakerId: doute
+    expressionId: normal
+    text: "いやごめん……これその辺に落ちてた本らしくてさ……\n　っていうか、モテルはどうしてそんなこと知ってたんだ？そういうのってあんまり勉強する機会なくない？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_008
+    speakerId: moteru
+    expressionId: normal
+    text: "いやまぁそれは……憧れの人に何かあったらｺﾞﾆｮｺﾞﾆｮ……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_009
+    speakerId: doute
+    expressionId: normal
+    text: "？\n　よく聞こえなかったからもう一度行ってくれないか？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_010
+    speakerId: moteru
+    expressionId: normal
+    text: "だ、大丈夫！大したことじゃないから……\n　それよりこの本に書いてあること、ざっくりでいいなら教えようか？僕がわかることだけだけど……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_011
+    speakerId: doute
+    expressionId: normal
+    text: "ぜひともお願いいたします、モテル様"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_012
+    speakerId: moteru
+    expressionId: normal
+    text: "なんだかくすぐったいね。頑張るよ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_013
+    speakerId: moteru
+    expressionId: normal
+    text: "(その後3時間ほどみっちり医学書の内容を教え込まれた。)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: chapter_yowashi_medicalbook_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_medicalbook_014
+    speakerId: 
+    expressionId: 
+    text: "［情報］医学書の知識　を手に入れた！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds:
+    - chapter_yowashi.medical_knowledge
+    branches: []

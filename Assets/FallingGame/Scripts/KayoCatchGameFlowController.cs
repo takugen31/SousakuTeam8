@@ -36,7 +36,6 @@ namespace Sousakusai8.MiniGame
 
         [Header("Transition")]
         [SerializeField, Min(0f)] private float fadeDuration = 0.8f;
-        [SerializeField, Min(0f)] private float tenMinutesTitleDuration = 1.6f;
         [SerializeField] private string returnSceneName = "NovelScene_Kayo";
         [SerializeField] private string resumeLineId = "chapter_kayo_2_001";
 
@@ -143,7 +142,8 @@ namespace Sousakusai8.MiniGame
         {
             if (eventPhase == EventPhase.SuccessBeforeTenMinutes)
             {
-                StartCoroutine(ShowTenMinutesIntertitle());
+                eventPhase = EventPhase.SuccessAfterTenMinutes;
+                PlayEventScenario(successAfterScenario);
                 return;
             }
 
@@ -152,25 +152,6 @@ namespace Sousakusai8.MiniGame
             {
                 StartCoroutine(ReturnToKayoNovelScene());
             }
-        }
-
-        private IEnumerator ShowTenMinutesIntertitle()
-        {
-            eventPhase = EventPhase.Transitioning;
-            yield return Fade(0f, 1f);
-
-            intertitleText.text = "十分後——。";
-            intertitleText.gameObject.SetActive(true);
-
-            if (tenMinutesTitleDuration > 0f)
-            {
-                yield return new WaitForSecondsRealtime(tenMinutesTitleDuration);
-            }
-
-            PlayEventScenario(successAfterScenario);
-            eventPhase = EventPhase.SuccessAfterTenMinutes;
-            intertitleText.gameObject.SetActive(false);
-            yield return Fade(1f, 0f);
         }
 
         private IEnumerator ReturnToKayoNovelScene()
@@ -221,7 +202,7 @@ namespace Sousakusai8.MiniGame
 
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.referenceResolution = new Vector2(1672f, 941f);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f;
 
@@ -242,35 +223,37 @@ namespace Sousakusai8.MiniGame
             dialogueBackground.preserveAspect = false;
 
             leftPortrait = CreateImage("LeftPortrait", dialogueRoot.transform, Color.white, false);
-            SetAnchors(leftPortrait.gameObject, new Vector2(0.015f, 0.12f), new Vector2(0.30f, 0.89f));
+            SetAnchors(leftPortrait.gameObject, new Vector2(-0.018f, -0.792f), new Vector2(0.478f, 0.92f));
             leftPortrait.preserveAspect = true;
             leftPortrait.enabled = false;
 
             rightPortrait = CreateImage("RightPortrait", dialogueRoot.transform, Color.white, false);
-            SetAnchors(rightPortrait.gameObject, new Vector2(0.70f, 0.12f), new Vector2(0.985f, 0.89f));
+            SetAnchors(rightPortrait.gameObject, new Vector2(0.522f, -0.792f), new Vector2(1.018f, 0.92f));
             rightPortrait.preserveAspect = true;
             rightPortrait.enabled = false;
 
-            Image dialoguePanel = CreateImage("DialoguePanel", dialogueRoot.transform, DarkPanel, false);
-            SetAnchors(dialoguePanel.gameObject, new Vector2(0.075f, 0.045f), new Vector2(0.925f, 0.32f));
-            AddBorder(dialoguePanel.transform, 3f, Gold);
+            Image dialoguePanel = CreateImage("DialoguePanel", dialogueRoot.transform, new Color(0f, 0f, 0f, 0.72f), false);
+            SetAnchors(dialoguePanel.gameObject, new Vector2(0.075f, 0.0148875f), new Vector2(0.925f, 0.2758625f));
+            dialoguePanel.gameObject.AddComponent<DialogueWindowFeather>();
 
-            Image speaker = CreateImage("SpeakerPlate", dialoguePanel.transform, DarkPanel, false);
+            Image speaker = CreateImage("SpeakerPlate", dialogueRoot.transform, new Color(0f, 0f, 0f, 0.72f), false);
             speakerPlate = speaker.gameObject;
-            SetAnchors(speakerPlate, new Vector2(0.035f, 0.73f), new Vector2(0.25f, 0.98f));
-            AddBorder(speakerPlate.transform, 3f, Gold);
+            SetAnchors(speakerPlate, new Vector2(0.10475f, 0.24575f), new Vector2(0.2875f, 0.3145f));
+            speaker.gameObject.AddComponent<DialogueWindowFeather>().ConfigureNamePlate(dialoguePanel);
 
-            speakerText = CreateText("SpeakerName", speakerPlate.transform, string.Empty, 22f, MainText, FontStyles.Bold);
+            speakerText = CreateText("SpeakerName", speakerPlate.transform, string.Empty, 40f, MainText, FontStyles.Bold);
             Stretch(speakerText.rectTransform, 18f, 18f, 0f, 0f);
-            speakerText.alignment = TextAlignmentOptions.MidlineLeft;
+            speakerText.alignment = TextAlignmentOptions.Center;
 
-            dialogueText = CreateText("DialogueText", dialoguePanel.transform, string.Empty, 29f, MainText);
-            SetAnchors(dialogueText.gameObject, new Vector2(0.05f, 0.16f), new Vector2(0.95f, 0.72f));
+            dialogueText = CreateText("DialogueText", dialoguePanel.transform, string.Empty, 36.685f, MainText);
+            SetAnchors(dialogueText.gameObject, new Vector2(0.05f, 0.1f), new Vector2(0.95f, 0.86f));
             dialogueText.alignment = TextAlignmentOptions.TopLeft;
 
             GameObject controllerObject = new("KayoCatchEventDialogueController", typeof(RectTransform));
             controllerObject.transform.SetParent(canvasObject.transform, false);
             eventDialogueController = controllerObject.AddComponent<NovelDialogueController>();
+            // Keep the room, portraits and last page behind the fade, never the finished game.
+            eventDialogueController.KeepPresentationOnCompletion = true;
             eventDialogueController.ConfigureEmbeddedDialogue(
                 failureScenario,
                 characterDatabase,
@@ -282,6 +265,8 @@ namespace Sousakusai8.MiniGame
                 rightPortrait,
                 dialogueBackground);
             eventDialogueController.DialogueCompleted += OnEventDialogueCompleted;
+            // Original character marks are resolved from the shared resource asset.
+            DialogueAdvanceIndicator.Create(dialoguePanel.transform, eventDialogueController, null, null, null);
             dialogueRoot.SetActive(false);
 
             fadeOverlay = CreateImage(
@@ -305,6 +290,8 @@ namespace Sousakusai8.MiniGame
 
         private IEnumerator Fade(float startAlpha, float endAlpha)
         {
+            // Prevent another page/transition from starting during the current fade.
+            eventDialogueController.enabled = false;
             fadeOverlay.gameObject.SetActive(true);
             fadeOverlay.transform.SetAsLastSibling();
             fadeOverlay.raycastTarget = true;
@@ -323,6 +310,7 @@ namespace Sousakusai8.MiniGame
 
             SetFadeAlpha(endAlpha);
             fadeOverlay.raycastTarget = endAlpha > 0f;
+            eventDialogueController.enabled = endAlpha <= 0f;
         }
 
         private void SetFadeAlpha(float alpha)

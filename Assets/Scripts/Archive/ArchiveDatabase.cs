@@ -45,6 +45,9 @@ public sealed class ArchiveEntry
     [SerializeField]
     private bool showBeforeUnlock;
 
+    [SerializeField]
+    private List<string> unlockLineIds = new List<string>();
+
     public string Id => id;
     public ArchiveCategory Category => category;
     public string Title => title;
@@ -55,6 +58,7 @@ public sealed class ArchiveEntry
     public int SortOrder => sortOrder;
     public bool UnlockedAtStart => unlockedAtStart;
     public bool ShowBeforeUnlock => showBeforeUnlock;
+    public IReadOnlyList<string> UnlockLineIds => unlockLineIds;
 
     internal ArchiveEntry(
         string id,
@@ -89,6 +93,16 @@ public sealed class ArchiveDatabase : ScriptableObject
     public TMP_FontAsset UiFont => uiFont;
     public IReadOnlyList<ArchiveEntry> Entries => entries;
 
+    internal void AddEntry(ArchiveEntry entry)
+    {
+        if (entry != null && !TryGetEntry(entry.Id, out _)) entries.Add(entry);
+    }
+
+    internal void RemoveEntry(string id)
+    {
+        entries.RemoveAll(entry => entry != null && entry.Id == id);
+    }
+
     public bool TryGetEntry(string id, out ArchiveEntry entry)
     {
         entry = null;
@@ -120,7 +134,7 @@ public sealed class ArchiveDatabase : ScriptableObject
                 ArchiveCategory.Tips,
                 "アーカイブについて",
                 "獲得した情報を、いつでも振り返ることができます。",
-                "人物・場所・手がかり・記録など、ゲーム中に獲得した情報がここへ追加されます。\n\nBキーで開閉し、情報タブから項目を選択してください。",
+                "人物・場所・手がかり・記録など、ゲーム中に獲得した情報がここへ追加されます。\n\nEscキーで開閉し、情報タブから項目を選択してください。",
                 0,
                 true));
         return database;

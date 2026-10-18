@@ -19,6 +19,7 @@ public sealed class ArchiveManager : MonoBehaviour
         new HashSet<string>(StringComparer.Ordinal);
 
     private ArchiveDatabase database;
+    private readonly List<ArchiveEntry> acquiredInformation = new List<ArchiveEntry>();
     private ArchiveMenuUI menu;
     private GameObject ownedEventSystem;
 
@@ -83,6 +84,9 @@ public sealed class ArchiveManager : MonoBehaviour
 
         database = Resources.Load<ArchiveDatabase>(DatabaseResourcePath);
 
+        // Runtime acquisitions must never modify the shared database asset.
+        if (database != null) database = Instantiate(database);
+
         if (database == null)
         {
             database = ArchiveDatabase.CreateFallback();
@@ -109,6 +113,7 @@ public sealed class ArchiveManager : MonoBehaviour
 
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SaveState();
+        if (database != null) Destroy(database);
         instance = null;
     }
 
@@ -121,9 +126,7 @@ public sealed class ArchiveManager : MonoBehaviour
             return;
         }
 
-        bool isEditingSearch = menu != null && menu.IsEditingSearch;
-
-        if (keyboard.bKey.wasPressedThisFrame && !isEditingSearch)
+        if (keyboard.escapeKey.wasPressedThisFrame)
         {
             ToggleArchive();
             return;
@@ -131,12 +134,6 @@ public sealed class ArchiveManager : MonoBehaviour
 
         if (!IsOpen)
         {
-            return;
-        }
-
-        if (keyboard.escapeKey.wasPressedThisFrame)
-        {
-            CloseArchive();
             return;
         }
 
@@ -153,9 +150,62 @@ public sealed class ArchiveManager : MonoBehaviour
         return Instance.UnlockEntry(entryId);
     }
 
+    public static void UnlockInformationTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title)) return;
+        title = title.Trim();
+        ArchiveManager manager = Instance;
+        foreach (ArchiveEntry entry in manager.database.Entries)
+        {
+            if (entry.Title != title) continue;
+            manager.UnlockEntry(entry.Id);
+            return;
+        }
+        // Use a stable, collision-free title ID so repeated notices reuse the entry.
+        string id = "information." + Convert.ToBase64String(
+            System.Text.Encoding.UTF8.GetBytes(title));
+        ArchiveEntry acquired = new ArchiveEntry(
+            id, ArchiveCategory.Clue, title, "獲得した情報",
+            title, 10000 + manager.acquiredInformation.Count, false);
+        manager.acquiredInformation.Add(acquired);
+        manager.database.AddEntry(acquired);
+        manager.UnlockEntry(id);
+    }
+
     public static bool IsUnlocked(string entryId)
     {
         return Instance.unlockedIds.Contains(entryId);
+    }
+
+    public static void UnlockDialogueLine(string lineId)
+    {
+        if (string.IsNullOrWhiteSpace(lineId)) return;
+        ArchiveManager manager = Instance;
+        foreach (ArchiveEntry entry in manager.Entries)
+        {
+            if (entry?.UnlockLineIds == null) continue;
+            foreach (string trigger in entry.UnlockLineIds)
+            {
+                if (!string.Equals(trigger, lineId, StringComparison.Ordinal)) continue;
+                manager.UnlockEntry(entry.Id);
+                break;
+            }
+        }
+    }
+
+    public static bool Replace(string previousId, string replacementId)
+    {
+        ArchiveManager manager = Instance;
+        if (!manager.database.TryGetEntry(replacementId, out _)) return false;
+        bool removed = manager.unlockedIds.Remove(previousId);
+        manager.readIds.Remove(previousId);
+        bool added = manager.UnlockEntry(replacementId);
+        if (removed && !added)
+        {
+            manager.SaveState();
+            manager.ArchiveChanged?.Invoke();
+        }
+        return removed || added;
     }
 
     public static void Open()
@@ -223,10 +273,21 @@ public sealed class ArchiveManager : MonoBehaviour
     /// </summary>
     public void ResetProgress()
     {
+        foreach (ArchiveEntry entry in acquiredInformation) database.RemoveEntry(entry.Id);
+        acquiredInformation.Clear();
         unlockedIds.Clear();
         readIds.Clear();
         UnlockInitialEntries();
         SaveState();
+        ArchiveChanged?.Invoke();
+    }
+
+    public void ReloadProgress()
+    {
+        unlockedIds.Clear();
+        readIds.Clear();
+        LoadState();
+        UnlockInitialEntries();
         ArchiveChanged?.Invoke();
     }
 
@@ -265,6 +326,12 @@ public sealed class ArchiveManager : MonoBehaviour
         OpenStateChanged?.Invoke(false);
     }
 
+    public void OpenLoadFromTitle()
+    {
+        OpenArchive();
+        if (menu != null && menu.IsOpen) menu.ShowLoadFromTitle();
+    }
+
     private void UnlockInitialEntries()
     {
         bool changed = false;
@@ -301,6 +368,18 @@ public sealed class ArchiveManager : MonoBehaviour
         unlockedIds.Clear();
         readIds.Clear();
 
+        // Restore acquired entries before exposing the saved unlock/read state.
+        if (state.acquiredInformation != null)
+        {
+            foreach (ArchiveEntry entry in state.acquiredInformation)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.Id) ||
+                    database.TryGetEntry(entry.Id, out _)) continue;
+                database.AddEntry(entry);
+                acquiredInformation.Add(entry);
+            }
+        }
+
         if (state.unlockedIds != null)
         {
             unlockedIds.UnionWith(state.unlockedIds);
@@ -317,7 +396,8 @@ public sealed class ArchiveManager : MonoBehaviour
         ArchiveSaveData state = new ArchiveSaveData
         {
             unlockedIds = new List<string>(unlockedIds),
-            readIds = new List<string>(readIds)
+            readIds = new List<string>(readIds),
+            acquiredInformation = new List<ArchiveEntry>(acquiredInformation)
         };
 
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(state));
@@ -374,6 +454,7 @@ public sealed class ArchiveManager : MonoBehaviour
     {
         public List<string> unlockedIds = new List<string>();
         public List<string> readIds = new List<string>();
+        public List<ArchiveEntry> acquiredInformation = new List<ArchiveEntry>();
     }
 
 #if UNITY_EDITOR

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public static class DialogueRuntimeCsv
@@ -50,6 +51,14 @@ public static class DialogueRuntimeCsv
                 consultationTitle = Get(row, columns, "consultationTitle").Trim(),
                 revealSpeakerName = ParseBoolean(Get(row, columns, "revealSpeakerName"))
             };
+            ApplyLineFadeSettings(line, column => Get(row, columns, column));
+
+            foreach (string rawId in Get(row, columns, "archiveUnlockIds").Split(';'))
+            {
+                string id = rawId.Trim();
+                if (!string.IsNullOrEmpty(id) && !line.archiveUnlockIds.Contains(id))
+                    line.archiveUnlockIds.Add(id);
+            }
 
             if (!string.IsNullOrWhiteSpace(Get(row, columns, "backgroundPath")))
             {
@@ -85,6 +94,30 @@ public static class DialogueRuntimeCsv
         scenario.SetDefaultBackground(backgroundForPathRows);
         scenario.ReplaceAll(lines);
         return scenario;
+    }
+
+    // Shared by runtime CSV loading and the Editor importer.
+    public static void ApplyLineFadeSettings(DialogueLine line, Func<string, string> get)
+    {
+        string enabled = get("fadeBeforeLine").Trim();
+        if (enabled.Length > 0 && !ParseBoolean(enabled) &&
+            !string.Equals(enabled, "false", StringComparison.OrdinalIgnoreCase) && enabled != "0" &&
+            !string.Equals(enabled, "no", StringComparison.OrdinalIgnoreCase))
+            throw new FormatException($"{line.lineId}: fadeBeforeLine must be true or false.");
+
+        line.fadeBeforeLine = ParseBoolean(enabled);
+        line.lineFadeOutDuration = ParseFadeDuration(get("lineFadeOutDuration"), line.lineId);
+        line.lineFadeHoldDuration = ParseFadeDuration(get("lineFadeHoldDuration"), line.lineId);
+        line.lineFadeInDuration = ParseFadeDuration(get("lineFadeInDuration"), line.lineId);
+    }
+
+    private static float ParseFadeDuration(string text, string lineId)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return -1f;
+        if (!float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value) ||
+            float.IsNaN(value) || float.IsInfinity(value) || (value < 0f && value != -1f))
+            throw new FormatException($"{lineId}: fade duration must be -1 or a non-negative number of seconds: {text}");
+        return value;
     }
 
     private static string Get(

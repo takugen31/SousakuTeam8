@@ -199,6 +199,18 @@ public sealed class DialogueLine
         "相談パート開始のフェード演出とタイトルを表示します。")]
     public string consultationTitle;
 
+    [Tooltip("このセリフを表示する直前に、暗転してから画面を戻します。")]
+    public bool fadeBeforeLine;
+
+    [Tooltip("暗くする秒数。-1 はコントローラーの Chapter Fade Out Duration を使用。")]
+    public float lineFadeOutDuration = -1f;
+
+    [Tooltip("暗転を保持する秒数。-1 は Chapter Fade Hold Duration を使用。")]
+    public float lineFadeHoldDuration = -1f;
+
+    [Tooltip("画面を戻す秒数。-1 は Chapter Fade In Duration を使用。")]
+    public float lineFadeInDuration = -1f;
+
     [Tooltip(
         "このセリフを全文表示し、次へ進む操作をしたときに" +
         "読み込むUnity SceneのAssets/...unityパスです。")]

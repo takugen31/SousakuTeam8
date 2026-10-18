@@ -1,0 +1,49 @@
+<Project>
+  <!-- Ignore only deleted browser-check files in stale Unity-generated IDE projects. -->
+  <Target Name="RemoveStaleBrowserChecks" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Compile Remove="Assets\Scripts\BrowserGameControls.cs"
+               Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Scripts\BrowserGameControls.cs')" />
+      <Compile Remove="Assets\Editor\BrowserGameBuild.cs"
+               Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Editor\BrowserGameBuild.cs')" />
+      <Compile Remove="Assets\Editor\CatchSkipChecks.cs"
+               Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Editor\CatchSkipChecks.cs')" />
+    </ItemGroup>
+  </Target>
+  <!-- Include the new script even before Unity regenerates its IDE project. -->
+  <Target Name="IncludeKayoPuzzleBridge" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
+    <ItemGroup>
+      <_ExistingStoryMusic Include="@(Compile)" Condition="'%(Compile.Filename)' == 'StoryMusicController'" />
+      <_ExistingGameSave Include="@(Compile)" Condition="'%(Compile.Filename)' == 'GameSaveService'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\GameSaveService.cs" Condition="'@(_ExistingGameSave)' == ''" />
+      <_ExistingSaveUI Include="@(Compile)" Condition="'%(Compile.Filename)' == 'ArchiveMenuUI.SaveLoad'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Archive\ArchiveMenuUI.SaveLoad.cs" Condition="'@(_ExistingSaveUI)' == ''" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\StoryMusicController.cs"
+               Condition="'@(_ExistingStoryMusic)' == ''" />
+      <_ExistingAdvanceMarkSet Include="@(Compile)" Condition="'%(Compile.Filename)' == 'DialogueAdvanceMarkSet'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\DialogueAdvanceMarkSet.cs"
+               Condition="'@(_ExistingAdvanceMarkSet)' == ''" />
+      <_ExistingAdvanceIndicator Include="@(Compile)" Condition="'%(Compile.Filename)' == 'DialogueAdvanceIndicator'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\DialogueAdvanceIndicator.cs"
+               Condition="'@(_ExistingAdvanceIndicator)' == ''" />
+      <_ExistingChoiceHover Include="@(Compile)" Condition="'%(Compile.Filename)' == 'ChoiceButtonHoverScale'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\ChoiceButtonHoverScale.cs"
+               Condition="'@(_ExistingChoiceHover)' == ''" />
+      <_ExistingDialogueFeather Include="@(Compile)" Condition="'%(Compile.Filename)' == 'DialogueWindowFeather'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Dialogue\Runtime\DialogueWindowFeather.cs"
+               Condition="'@(_ExistingDialogueFeather)' == ''" />
+      <_YowashiExistingCatch Include="@(Compile)" Condition="'%(Compile.Filename)' == 'YowashiCatchGameFlowController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\FallingGame\Scripts\YowashiCatchGameFlowController.cs"
+               Condition="'@(_YowashiExistingCatch)' == ''" />
+      <_KayoExistingBridge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoPuzzleGameFlowController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoPuzzleGameFlowController.cs"
+               Condition="'@(_KayoExistingBridge)' == ''" />
+      <_KayoExistingGauge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoGaugeOutcomeController'" />
+      <_YowashiExistingPuzzle Include="@(Compile)" Condition="'%(Compile.Filename)' == 'YowashiPuzzleEntryController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\YowashiPuzzleEntryController.cs"
+               Condition="'@(_YowashiExistingPuzzle)' == ''" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoGaugeOutcomeController.cs"
+               Condition="'@(_KayoExistingGauge)' == ''" />
+    </ItemGroup>
+  </Target>
+</Project>
