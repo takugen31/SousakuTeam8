@@ -1,0 +1,263 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 53
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 504af2a38f824df9949d57bce9141765, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::DialogueCsvSyncRegistry
+  pairs:
+  - csvGuid: 01bd7c69d5060be41b2bc4adbf57c32c
+    scenarioGuid: 1decce0c61e3dfe43bf8ba33dccb529c
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter1_kayo
+    lastScenarioName: Chapter1_Kayo
+    lastContentHash: PL9mxLqXdYQ+3dBKSEB7YpsPNQiFNePN+ur0CKFV3Wc=
+    enabled: 1
+  - csvGuid: 5b8b74943bc28b743b11e16c5fe5a57b
+    scenarioGuid: e3aecef09cbefec4d93c19e29a0340bb
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter1_yowashi
+    lastScenarioName: Chapter1_Yowashi
+    lastContentHash: SJuuOcb1OUM6hsJMFyf3USpZmGUyl61Pr+bvp8HiUPo=
+    enabled: 1
+  - csvGuid: a2e9c0fc131511b4191df2c23315fb00
+    scenarioGuid: e58b9925f7e002b4d95175944e073603
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter2
+    lastScenarioName: Chapter2
+    lastContentHash: TVSW6XYxOlHps10682VpZEz3CjM1jP1XLBkalaFNh2E=
+    enabled: 1
+  - csvGuid: 937e8ce13b4686543b2c93462ad4ee54
+    scenarioGuid: 7885d344d75085e40a8b60708960c33c
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter2_end
+    lastScenarioName: Chapter2_End
+    lastContentHash: u5Y91TOIsYmvKE9XOZkC3uDDbBquDg4QK30y8LTooqc=
+    enabled: 1
+  - csvGuid: 4df474f438ed1124a8952ab6edb007c2
+    scenarioGuid: c67919f7e84a16c478dd0e6c274aa847
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter2_kayo
+    lastScenarioName: Chapter2_Kayo
+    lastContentHash: AY9Aajq+7eEP054n26IL1M4nzw33rrd1ewijYgbo6QY=
+    enabled: 1
+  - csvGuid: 2ae321724ae363a4ab081b318468c13b
+    scenarioGuid: d5a6918a9af10ed409231e973a09111b
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter2_moteru
+    lastScenarioName: Chapter2_Moteru
+    lastContentHash: rWozwtUWuwk9RPktY92O5qHEAJgzhDrhhpfjDp0pdQ8=
+    enabled: 1
+  - csvGuid: 475ed5fb0acfb234582680ea512052c1
+    scenarioGuid: b8a50b79e29d9a8469c55fb38a5d75cd
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter2_yowashi
+    lastScenarioName: Chapter2_Yowashi
+    lastContentHash: ATwoYFUetQa0B1NMmtJhEQRwyY658DBl4mSTK1h03Ms=
+    enabled: 1
+  - csvGuid: 0678c58c38dbc5143836a5a89b0b0dc0
+    scenarioGuid: d9657345466d64c4bb278eb7708c8f90
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter3
+    lastScenarioName: Chapter3
+    lastContentHash: /yMwKKPlCwPhU5ySEZFA8RXs2+F4DnnJxnZBp1EafNc=
+    enabled: 1
+  - csvGuid: ec0413f3f7b209f418894c505ff473fc
+    scenarioGuid: 9e286a1317c2af743989b01fcc0163d0
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_kayo_1
+    lastScenarioName: Chapter_Kayo_1
+    lastContentHash: rY1cvy8RnDJRouyy/PJxJE0OIIPmP8rMLkw+JLuddUc=
+    enabled: 1
+  - csvGuid: ebd3a3e1cc514ee468644595d1556280
+    scenarioGuid: 4b835d0e93d76b84f82420dcbc8d8e74
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_kayo_2
+    lastScenarioName: Chapter_Kayo_2
+    lastContentHash: cFzarxxKR//pglq4l4YdKT6SzZNk2xmbRZ6IIi417EM=
+    enabled: 1
+  - csvGuid: 96d299687e32f584886198ad349f896c
+    scenarioGuid: a14c3fc58069428438b3211cb7b4bbb7
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_kayo_4
+    lastScenarioName: Chapter_Kayo_4
+    lastContentHash: P8MjbkgINDetvM/gFqv9NkGXtbwj5uJ2T+Bvbh8HO74=
+    enabled: 1
+  - csvGuid: ad52e203dbac9ac439ffb0a63b1ca5f6
+    scenarioGuid: e14a15a7cd9633d4086f60f632e145a5
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_kayo_6
+    lastScenarioName: Chapter_Kayo_6
+    lastContentHash: SnAZhMhiLpf5joTW96VnXCzw7vMnCB9RZNL/CBzY4XI=
+    enabled: 1
+  - csvGuid: 03fcd0e6a8ec4e239f2ed0a21f446dc4
+    scenarioGuid: 850f54e9b9e34b1dad6ee0325e54f12b
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_kayo_diary
+    lastScenarioName: Chapter_Kayo_Diary
+    lastContentHash: kD6KkF/IRb+GZJKKVKY7CQI1H3a8v2rRfFB4CPGo6tk=
+    enabled: 1
+  - csvGuid: 5c0a4d3e6f708192a3b4c5d6e7f8091a
+    scenarioGuid: 6d1b5e4f708192a3b4c5d6e7f8091a2b
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_kayo_search
+    lastScenarioName: Chapter_Kayo_Search
+    lastContentHash: nNZ7IZokwOBw3xwYJS2uzImbRsRwxxu7ySafr6TrFdI=
+    enabled: 1
+  - csvGuid: 37159e916c38a73448b8c93fdfee436a
+    scenarioGuid: 7c2d17fc8e5c4a249ac0360000010001
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_moteru_1
+    lastScenarioName: Chapter_Moteru_1
+    lastContentHash: pMs5WkMQJCc3VFQxWbXqLZUqQiSDMhW/5VXA5P5aoao=
+    enabled: 1
+  - csvGuid: 5bee22249576b8c4e84382afba1350ee
+    scenarioGuid: 99888807a1a947eca129f7c3180e42d6
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_moteru_2
+    lastScenarioName: Chapter_Moteru_2
+    lastContentHash: WVMmbCBE3URyPoX2M0tu5PTB1GNo2zx+7M097Z2z3Jk=
+    enabled: 1
+  - csvGuid: 4392f1a186225624a86f4bc4a9140aad
+    scenarioGuid: b50468850c92402a96156cecb24996f6
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_moteru_4
+    lastScenarioName: Chapter_Moteru_4
+    lastContentHash: OLcwTrUIY71NGgdTkeP6Wau81IaFtbYZAtbJb337tLo=
+    enabled: 1
+  - csvGuid: b4eeb53e971060c4b8561f5d8d04a129
+    scenarioGuid: 38d2a551960f434a91822659b3ef846a
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_moteru_5
+    lastScenarioName: Chapter_Moteru_5
+    lastContentHash: baWlSQOaTRKJfKb5W6AZIoteqC1axUoh4Uk1nDfOm0I=
+    enabled: 1
+  - csvGuid: 7e8badb43a3ddeb479d02323835b3ea4
+    scenarioGuid: d3a8d6ccf1a34f8fb5853b1bd6ae6c8c
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_moteru_end
+    lastScenarioName: Chapter_Moteru_End
+    lastContentHash: cx8NuGbrKglilpep8yANRwH7RTmBakLyYeS5dF31kH8=
+    enabled: 1
+  - csvGuid: f4d3a7c8b1e24d5196a0cf733b58e241
+    scenarioGuid: cf8d3c86502709540a8bcadb9944ddf1
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: prologue1
+    lastScenarioName: Prologue1
+    lastContentHash: NcyVqXXkOMc9nY/07Y4820qYs4LCbGtYoBu6K7cn3rA=
+    enabled: 1
+  - csvGuid: 8ac19e52d6f44b70a3e1c9f825bd6047
+    scenarioGuid: 32de4174b15050344a870acf28ebf99a
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: prologue2
+    lastScenarioName: Prologue2
+    lastContentHash: xsh64QDem0Zy6ea8b8bmKfTfFKfkOsMi5r6LMWjFFB4=
+    enabled: 1
+  - csvGuid: 1c376be24ee24fa8967d286715130441
+    scenarioGuid: 826dba538b03427a814f588cb5de2b8b
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_1
+    lastScenarioName: Chapter_Yowashi_1
+    lastContentHash: Ot/v/iUVnjBKw7Svf/rkPJVQPMUCbAWmPuhh3EetsN0=
+    enabled: 1
+  - csvGuid: b275fb5e48c74779b16f613ec654ac09
+    scenarioGuid: c3a54410a71e44e7a3593740a1365eed
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_before_catch
+    lastScenarioName: Chapter_Yowashi_Before_Catch
+    lastContentHash: LvqlzlFsUe4Y6vLKjcu9dAUg9X2vsxLaG5vYtG8JrdE=
+    enabled: 1
+  - csvGuid: a6f7e08c59a3416bab9177b8df64d547
+    scenarioGuid: f85aecf746b74f9a8b291b164e18c5b0
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_catch_failure
+    lastScenarioName: Chapter_Yowashi_Catch_Failure
+    lastContentHash: LxCWQ5GAotTY4DMJICq7onSvT43AlX/Qh2nUfdTq/s4=
+    enabled: 1
+  - csvGuid: fdc4261a6f7248fd9a8433a3822b948a
+    scenarioGuid: d8c43b29dff94652b0e318e0b7c07cbd
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_catch_success
+    lastScenarioName: Chapter_Yowashi_Catch_Success
+    lastContentHash: JRfPmHYmYuYQi9HHXI/4+A385KCX2APqLPER6Gwtzs8=
+    enabled: 1
+  - csvGuid: 4b4aa6c3a058402a8f2d076b1306fd9b
+    scenarioGuid: d6f53c2278014a839a4d38961e7f4372
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_diary
+    lastScenarioName: Chapter_Yowashi_Diary
+    lastContentHash: axHAY1D9omfSJLNwgmeNcnG94eqBlYNTahHsRYiOz9s=
+    enabled: 1
+  - csvGuid: 1a650a904c364c8097ce2a43a51b1d79
+    scenarioGuid: 80fefbecf55c419cb3fcbddc688ffb14
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_medicalbook
+    lastScenarioName: Chapter_Yowashi_Medicalbook
+    lastContentHash: Bum3ad5LyikbMRmvxkZeUJQ8HUBvner3uT62jYlxiyM=
+    enabled: 1
+  - csvGuid: c7ad91e91c674b5f85e50b5b6f98e584
+    scenarioGuid: 320a3c5a5d9b4b77810653dca6e3615e
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_rescue
+    lastScenarioName: Chapter_Yowashi_Rescue
+    lastContentHash: e+JMXhx+s+jbx1kx8ozsWFqHW2FOh6ZmptNitkLrXMw=
+    enabled: 1
+  - csvGuid: 7c634e5e0f5a49fdb3a42d576998583c
+    scenarioGuid: a592ec6a731644879bf62a97688e824a
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_yowashi_tennis
+    lastScenarioName: Chapter_Yowashi_Tennis
+    lastContentHash: 68XfNe+aSLicKBGl51m1bAUlqA2I2cWQngrBwU4jCsg=
+    enabled: 1
+  - csvGuid: 7c5cfafad7e44394bd076a03d4a1d5aa
+    scenarioGuid: b7f3392d3fa54cc9b5dcad6e29c1e9c1
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter1_search
+    lastScenarioName: Chapter1_Search
+    lastContentHash: dUHPoXD5FXRxeDjSOd1t2/aKW1vOmmFFr0yxlhLgJe8=
+    enabled: 1
+  - csvGuid: 4ccd5f0d01c537b4ea10db8dbed2d9a8
+    scenarioGuid: 762f4ea685b390048845318249e7376d
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: prologue_game
+    lastScenarioName: Prologue_Game
+    lastContentHash: ycerI+rPfC9aXJ2iMEzIPvhjlr33V4cuunaTxL/GraU=
+    enabled: 1

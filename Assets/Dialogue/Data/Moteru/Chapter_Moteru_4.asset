@@ -10,17 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
   m_Name: Chapter_Moteru_4
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
   defaultBackground: {fileID: 0}
   lines:
   - lineId: chapter_moteru_4_001
     speakerId: doute
     expressionId: normal
     text: "\u30E2\u30C6\u30EB\u3063\uFF01"
-    background: {fileID: 21300000, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_002
     choices: []
@@ -34,6 +38,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_003
     choices: []
@@ -47,6 +55,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_004
     choices: []
@@ -60,6 +72,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_005
     choices: []
@@ -73,6 +89,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_006
     choices: []
@@ -86,6 +106,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_007
     choices: []
@@ -99,6 +123,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_008
     choices: []
@@ -112,6 +140,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_009
     choices: []
@@ -125,6 +157,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_010
     choices: []
@@ -138,6 +174,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_moteru_4_011
     choices: []
@@ -151,6 +191,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: 
     choices: []

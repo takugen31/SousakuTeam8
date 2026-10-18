@@ -17,10 +17,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_001
     speakerId: 
     expressionId: 
-    text: "翌日……"
+    text: "\u7FCC\u65E5\u2026\u2026"
     background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_002
     choices: []
@@ -30,10 +34,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_002
     speakerId: 
     expressionId: 
-    text: "(朝起きたらすぐヨワシちゃんに呼ばれて部屋の真ん中に集まった。どうやらみんなも呼ばれているみたいだ。)"
+    text: "(\u671D\u8D77\u304D\u305F\u3089\u3059\u3050\u30E8\u30EF\u30B7\u3061\u3083\u3093\u306B\u547C\u3070\u308C\u3066\u90E8\u5C4B\u306E\u771F\u3093\u4E2D\u306B\u96C6\u307E\u3063\u305F\u3002\u3069\u3046\u3084\u3089\u307F\u3093\u306A\u3082\u547C\u3070\u308C\u3066\u3044\u308B\u307F\u305F\u3044\u3060\u3002)"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_003
     choices: []
@@ -43,10 +51,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_003
     speakerId: yowashi
     expressionId: normal
-    text: "やあやあ諸君！元気していたかね？"
+    text: "\u3084\u3042\u3084\u3042\u8AF8\u541B\uFF01\u5143\u6C17\u3057\u3066\u3044\u305F\u304B\u306D\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_004
     choices: []
@@ -56,10 +68,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_004
     speakerId: doute
     expressionId: normal
-    text: "変わらず快調です、ヨワシ様"
+    text: "\u5909\u308F\u3089\u305A\u5FEB\u8ABF\u3067\u3059\u3001\u30E8\u30EF\u30B7\u69D8"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_005
     choices: []
@@ -69,10 +85,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_005
     speakerId: moteru
     expressionId: normal
-    text: "……？\n　あ、僕も元気だよ"
+    text: "\u2026\u2026\uFF1F\r\n\u3000\u3042\u3001\u50D5\u3082\u5143\u6C17\u3060\u3088"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_006
     choices: []
@@ -82,10 +102,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_006
     speakerId: kayo
     expressionId: normal
-    text: "わ、私も元気だけど……"
+    text: "\u308F\u3001\u79C1\u3082\u5143\u6C17\u3060\u3051\u3069\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_007
     choices: []
@@ -95,10 +119,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_007
     speakerId: yowashi
     expressionId: normal
-    text: "うむ、それは苦しゅうない！じゃあ4人とも、テニスやろっか！"
+    text: "\u3046\u3080\u3001\u305D\u308C\u306F\u82E6\u3057\u3085\u3046\u306A\u3044\uFF01\u3058\u3083\u30424\u4EBA\u3068\u3082\u3001\u30C6\u30CB\u30B9\u3084\u308D\u3063\u304B\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_008
     choices: []
@@ -108,10 +136,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_008
     speakerId: doute
     expressionId: normal
-    text: "え？テニス？"
+    text: "\u3048\uFF1F\u30C6\u30CB\u30B9\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_009
     choices: []
@@ -121,10 +153,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_009
     speakerId: yowashi
     expressionId: normal
-    text: "うん、テニスの女王様って漫画面白いじゃん？前からやってみたくてさ〜"
+    text: "\u3046\u3093\u3001\u30C6\u30CB\u30B9\u306E\u5973\u738B\u69D8\u3063\u3066\u6F2B\u753B\u9762\u767D\u3044\u3058\u3083\u3093\uFF1F\u524D\u304B\u3089\u3084\u3063\u3066\u307F\u305F\u304F\u3066\u3055\u301C"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_010
     choices: []
@@ -134,10 +170,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_010
     speakerId: doute
     expressionId: normal
-    text: "じゃあやってみよっか！2人はどう？"
+    text: "\u3058\u3083\u3042\u3084\u3063\u3066\u307F\u3088\u3063\u304B\uFF012\u4EBA\u306F\u3069\u3046\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_011
     choices: []
@@ -147,10 +187,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_011
     speakerId: moteru
     expressionId: normal
-    text: "ドウテくんがやるなら僕もやろうかな。テニスはやったことないんだけど……"
+    text: "\u30C9\u30A6\u30C6\u304F\u3093\u304C\u3084\u308B\u306A\u3089\u50D5\u3082\u3084\u308D\u3046\u304B\u306A\u3002\u30C6\u30CB\u30B9\u306F\u3084\u3063\u305F\u3053\u3068\u306A\u3044\u3093\u3060\u3051\u3069\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_012
     choices: []
@@ -160,10 +204,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_012
     speakerId: kayo
     expressionId: normal
-    text: "3人がやるなら私も……べ、別にやりたいってわけじゃないんだからね！！"
+    text: "3\u4EBA\u304C\u3084\u308B\u306A\u3089\u79C1\u3082\u2026\u2026\u3079\u3001\u5225\u306B\u3084\u308A\u305F\u3044\u3063\u3066\u308F\u3051\u3058\u3083\u306A\u3044\u3093\u3060\u304B\u3089\u306D\uFF01\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_013
     choices: []
@@ -173,10 +221,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_013
     speakerId: yowashi
     expressionId: normal
-    text: "じゃあすぐやろう！！チームは私とドウテくん、カヨちゃんとモテルくんでいい？"
+    text: "\u3058\u3083\u3042\u3059\u3050\u3084\u308D\u3046\uFF01\uFF01\u30C1\u30FC\u30E0\u306F\u79C1\u3068\u30C9\u30A6\u30C6\u304F\u3093\u3001\u30AB\u30E8\u3061\u3083\u3093\u3068\u30E2\u30C6\u30EB\u304F\u3093\u3067\u3044\u3044\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_014
     choices: []
@@ -186,10 +238,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_014
     speakerId: three_characters
     expressionId: normal
-    text: "いいよ！"
+    text: "\u3044\u3044\u3088\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_015
     choices: []
@@ -199,10 +255,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_015
     speakerId: three_characters
     expressionId: normal
-    text: "大丈夫"
+    text: "\u5927\u4E08\u592B"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_016
     choices: []
@@ -212,10 +272,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_016
     speakerId: three_characters
     expressionId: normal
-    text: "し、仕方ないわね！"
+    text: "\u3057\u3001\u4ED5\u65B9\u306A\u3044\u308F\u306D\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_017
     choices: []
@@ -225,10 +289,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_017
     speakerId: doute
     expressionId: normal
-    text: "よし、ヨワシちゃん一緒に頑張ろう！\n　昨日かなり息切れしてたけど体調は大丈夫そう？"
+    text: "\u3088\u3057\u3001\u30E8\u30EF\u30B7\u3061\u3083\u3093\u4E00\u7DD2\u306B\u9811\u5F35\u308D\u3046\uFF01\r\n\u3000\u6628\u65E5\u304B\u306A\u308A\u606F\u5207\u308C\u3057\u3066\u305F\u3051\u3069\u4F53\u8ABF\u306F\u5927\u4E08\u592B\u305D\u3046\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_018
     choices: []
@@ -238,10 +306,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_018
     speakerId: yowashi
     expressionId: normal
-    text: "もちのろんですよ！！たっぷり休んだし、何よりドウテくんもいるしね〜"
+    text: "\u3082\u3061\u306E\u308D\u3093\u3067\u3059\u3088\uFF01\uFF01\u305F\u3063\u3077\u308A\u4F11\u3093\u3060\u3057\u3001\u4F55\u3088\u308A\u30C9\u30A6\u30C6\u304F\u3093\u3082\u3044\u308B\u3057\u306D\u301C"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_019
     choices: []
@@ -251,10 +323,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_019
     speakerId: doute
     expressionId: normal
-    text: "え、それってどういう……"
+    text: "\u3048\u3001\u305D\u308C\u3063\u3066\u3069\u3046\u3044\u3046\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_020
     choices: []
@@ -264,10 +340,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_020
     speakerId: yowashi
     expressionId: normal
-    text: "さ、あの2人も盛り上がってるし、早速始めよ〜！"
+    text: "\u3055\u3001\u3042\u306E2\u4EBA\u3082\u76DB\u308A\u4E0A\u304C\u3063\u3066\u308B\u3057\u3001\u65E9\u901F\u59CB\u3081\u3088\u301C\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_021
     choices: []
@@ -277,10 +357,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_021
     speakerId: doute
     expressionId: normal
-    text: "(初めてやったテニスはとても楽しかった。みんな初めてだったみたいでぎこちなかったけれど、)"
+    text: "(\u521D\u3081\u3066\u3084\u3063\u305F\u30C6\u30CB\u30B9\u306F\u3068\u3066\u3082\u697D\u3057\u304B\u3063\u305F\u3002\u307F\u3093\u306A\u521D\u3081\u3066\u3060\u3063\u305F\u307F\u305F\u3044\u3067\u304E\u3053\u3061\u306A\u304B\u3063\u305F\u3051\u308C\u3069\u3001)"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_021_b
     choices: []
@@ -290,10 +374,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_021_b
     speakerId: doute
     expressionId: normal
-    text: "(それでも女の友達とスポーツをするという初めての経験もあいまってとても楽しかった。みんな笑顔だ。)"
+    text: "(\u305D\u308C\u3067\u3082\u5973\u306E\u53CB\u9054\u3068\u30B9\u30DD\u30FC\u30C4\u3092\u3059\u308B\u3068\u3044\u3046\u521D\u3081\u3066\u306E\u7D4C\u9A13\u3082\u3042\u3044\u307E\u3063\u3066\u3068\u3066\u3082\u697D\u3057\u304B\u3063\u305F\u3002\u307F\u3093\u306A\u7B11\u9854\u3060\u3002)"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_022
     choices: []
@@ -303,10 +391,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_022
     speakerId: doute
     expressionId: normal
-    text: "(あれ、そういえばヨワシちゃんがやけに静かじゃないか？いつもはあんなに元気にはしゃいでるのに……)"
+    text: "(\u3042\u308C\u3001\u305D\u3046\u3044\u3048\u3070\u30E8\u30EF\u30B7\u3061\u3083\u3093\u304C\u3084\u3051\u306B\u9759\u304B\u3058\u3083\u306A\u3044\u304B\uFF1F\u3044\u3064\u3082\u306F\u3042\u3093\u306A\u306B\u5143\u6C17\u306B\u306F\u3057\u3083\u3044\u3067\u308B\u306E\u306B\u2026\u2026)"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_023
     choices: []
@@ -316,10 +408,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_023
     speakerId: yowashi
     expressionId: normal
-    text: "…………"
+    text: "\u2026\u2026\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_024
     choices: []
@@ -329,10 +425,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_024
     speakerId: doute
     expressionId: normal
-    text: "ヨワシちゃん大丈夫？めっちゃ息切れしてるけど……"
+    text: "\u30E8\u30EF\u30B7\u3061\u3083\u3093\u5927\u4E08\u592B\uFF1F\u3081\u3063\u3061\u3083\u606F\u5207\u308C\u3057\u3066\u308B\u3051\u3069\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_025
     choices: []
@@ -342,10 +442,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_025
     speakerId: yowashi
     expressionId: normal
-    text: "…………"
+    text: "\u2026\u2026\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_026
     choices: []
@@ -355,10 +459,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_026
     speakerId: doute
     expressionId: normal
-    text: "ヨ、ヨワシちゃん……？"
+    text: "\u30E8\u3001\u30E8\u30EF\u30B7\u3061\u3083\u3093\u2026\u2026\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_027
     choices: []
@@ -368,10 +476,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_027
     speakerId: 
     expressionId: 
-    text: "(突然ヨワシちゃんがパタリと倒れた。)"
+    text: "(\u7A81\u7136\u30E8\u30EF\u30B7\u3061\u3083\u3093\u304C\u30D1\u30BF\u30EA\u3068\u5012\u308C\u305F\u3002)"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_028
     choices: []
@@ -381,10 +493,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_028
     speakerId: kayo
     expressionId: normal
-    text: "ヨ、ヨワシ！？大丈夫！？"
+    text: "\u30E8\u3001\u30E8\u30EF\u30B7\uFF01\uFF1F\u5927\u4E08\u592B\uFF01\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_029
     choices: []
@@ -394,10 +510,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_029
     speakerId: moteru
     expressionId: normal
-    text: "カヨさんそんなに走ると危ないよ！"
+    text: "\u30AB\u30E8\u3055\u3093\u305D\u3093\u306A\u306B\u8D70\u308B\u3068\u5371\u306A\u3044\u3088\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_030
     choices: []
@@ -407,10 +527,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_030
     speakerId: 
     expressionId: 
-    text: "(とモテルが言い終わる前にカヨちゃんが本棚に思いっきりぶつかり、カチリという音がして本棚がカヨちゃんの方に倒れ込んできた)"
+    text: "(\u3068\u30E2\u30C6\u30EB\u304C\u8A00\u3044\u7D42\u308F\u308B\u524D\u306B\u30AB\u30E8\u3061\u3083\u3093\u304C\u672C\u68DA\u306B\u601D\u3044\u3063\u304D\u308A\u3076\u3064\u304B\u308A\u3001\u30AB\u30C1\u30EA\u3068\u3044\u3046\u97F3\u304C\u3057\u3066\u672C\u68DA\u304C\u30AB\u30E8\u3061\u3083\u3093\u306E\u65B9\u306B\u5012\u308C\u8FBC\u3093\u3067\u304D\u305F)"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_031
     choices: []
@@ -420,10 +544,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_031
     speakerId: moteru
     expressionId: normal
-    text: "カヨさん大丈夫！？意識あるなら何か返事して！"
+    text: "\u30AB\u30E8\u3055\u3093\u5927\u4E08\u592B\uFF01\uFF1F\u610F\u8B58\u3042\u308B\u306A\u3089\u4F55\u304B\u8FD4\u4E8B\u3057\u3066\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_032
     choices: []
@@ -433,10 +561,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_032
     speakerId: kayo
     expressionId: normal
-    text: "わ、私は大丈夫……それよりヨワシは……ヨワシは大丈夫なの……？"
+    text: "\u308F\u3001\u79C1\u306F\u5927\u4E08\u592B\u2026\u2026\u305D\u308C\u3088\u308A\u30E8\u30EF\u30B7\u306F\u2026\u2026\u30E8\u30EF\u30B7\u306F\u5927\u4E08\u592B\u306A\u306E\u2026\u2026\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_tennis_033
     choices: []
@@ -446,10 +578,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_033
     speakerId: doute
     expressionId: normal
-    text: "少なくともさっきので怪我とかはしてないよ。だけどこれじゃ……どうすれば！！！"
+    text: "\u5C11\u306A\u304F\u3068\u3082\u3055\u3063\u304D\u306E\u3067\u602A\u6211\u3068\u304B\u306F\u3057\u3066\u306A\u3044\u3088\u3002\u3060\u3051\u3069\u3053\u308C\u3058\u3083\u2026\u2026\u3069\u3046\u3059\u308C\u3070\uFF01\uFF01\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: 
     choices: []
