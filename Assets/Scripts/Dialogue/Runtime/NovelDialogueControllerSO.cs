@@ -3860,6 +3860,15 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
+        // An empty scene-transition destination is an action, not another dialogue page.
+        // Keep ordinary empty dialogue lines and choices on the normal display path.
+        if (nextLine.HasSceneTransition && string.IsNullOrEmpty(nextLine.text) &&
+            !nextLine.HasChoices)
+        {
+            LoadDialogueScene(nextLine.nextScenePath, nextLine);
+            return;
+        }
+
         ShowLine(nextLine);
     }
 

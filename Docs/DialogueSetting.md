@@ -121,6 +121,19 @@ Prologue2
 会話終了
 ```
 
+## モテル Chapter 2 の選択肢
+
+`chapter_moteru_2.csv` の `chapter_moteru_2_008` で、次の順番に選択肢を表示します。対応する `Chapter_Moteru_2.asset` にも反映済みです。
+
+| 選択肢 | 遷移先 |
+| --- | --- |
+| そうだな、色々と話してみるよっ！ | `009` の遷移設定を使い、黒くフェードアウトして `SelectionPart.unity` へ |
+| モテルと話してるとなんだか懐かしい感じがして……もう少し話してもいいか？ | `010`「それは——」から会話を続ける |
+
+IDは `001〜012` の連番です。以前の `009` のセリフは下の選択肢に移し、重複して表示しません。現在の `009` は本文が空のシーン遷移専用行です。選択肢の行の `nextLineId` は空欄にし、`choice1NextLineId` を `chapter_moteru_2_009`、`choice2NextLineId` を `chapter_moteru_2_010` に設定します。
+
+選択先が「本文が空・選択肢なし・`nextScenePath` あり」の行の場合、追加の会話送りなしでシーン遷移を始めます。通常の空のセリフは従来どおり表示します。暗転は `NovelDialogueController` の **Use Scene Transition Fade / Scene Fade Out Duration / Scene Fade Hold Duration** に従います。現在の `NovelScene_Moteru` はフェードアウト1秒、暗転保持0.15秒です。
+
 ## プログラム査読結果
 
 適用を妨げるコード上の不具合は見つかりませんでした。

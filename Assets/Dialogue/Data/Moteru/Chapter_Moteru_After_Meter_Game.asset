@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
-  m_Name: Chapter_Moteru_5
+  m_Name: Chapter_Moteru_After_Meter_Game
   m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
   defaultBackground: {fileID: 0}
   lines:

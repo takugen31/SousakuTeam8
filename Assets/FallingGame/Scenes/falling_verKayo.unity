@@ -638,7 +638,7 @@ MonoBehaviour:
   stackedBadItemSize: {x: 1.4, y: 0.85}
   forceHighestQualityLevel: 1
   renderScale: 2
-  antiAliasingSamples: 4
+  antiAliasingSamples: 1
   scoreText: {fileID: 1951000003}
   feedbackText: {fileID: 1954000003}
   timeText: {fileID: 1955000003}

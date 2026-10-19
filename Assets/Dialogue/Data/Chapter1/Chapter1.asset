@@ -18,7 +18,7 @@ MonoBehaviour:
     speakerId: moteru
     expressionId: normal
     text: "\u3044\u305F\u305F\u2026\u2026\u79C1\u306E\u30D9\u30C3\u30C9\u56FA\u304F\u306A\u3044\u304B\u3044\u2026\u2026\uFF1F"
-    background: {fileID: 0}
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
     consultationTitle: 
     fadeBeforeLine: 0
@@ -94,7 +94,7 @@ MonoBehaviour:
     lineFadeHoldDuration: -1
     lineFadeInDuration: -1
     nextScenePath: Assets/Scenes/GameMap/Chapter1_SearchScene.unity
-    nextLineId: chapter1_006
+    nextLineId: 
     choices: []
     affectionChanges: []
     archiveUnlockIds: []
