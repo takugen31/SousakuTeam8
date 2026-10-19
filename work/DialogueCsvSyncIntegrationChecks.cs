@@ -39,7 +39,26 @@ public static class DialogueCsvSyncIntegrationChecks
             Check(scenario.Lines[0].text == "initial local edit", "initial normalization changed content");
             Check(!DialogueCsvSyncProcessor.SynchronizeNames(pair, true), "repeated normalization was not idempotent");
         });
-        steps.Enqueue(() => WriteDialogue("edited"));
+        steps.Enqueue(() => WriteDialogue(string.Empty));
+        steps.Enqueue(() =>
+        {
+            Check(scenario.Lines.Count == 2 && scenario.Lines[0].text == string.Empty && scenario.Lines[0].nextLineId == "b", "empty text was rejected or the row was skipped");
+            var runtime = DialogueRuntimeCsv.CreateScenario(pair.Load<TextAsset>(pair.csvGuid));
+            Check(runtime.Lines[0].text == string.Empty, "runtime CSV did not preserve empty text");
+            UnityEngine.Object.DestroyImmediate(runtime);
+            bool missingHeaderRejected = false;
+            var noTextColumn = new TextAsset("lineId,speakerId,expressionId,nextLineId\na,doute,normal,\n");
+            try { DialogueCsvImportService.Prepare(characters, noTextColumn); }
+            catch (FormatException) { missingHeaderRejected = true; }
+            UnityEngine.Object.DestroyImmediate(noTextColumn);
+            Check(missingHeaderRejected, "missing text column was accepted");
+            WriteDialogue("   ");
+        });
+        steps.Enqueue(() =>
+        {
+            Check(scenario.Lines[0].text == "   ", "whitespace-only text was rejected or changed");
+            WriteDialogue("edited");
+        });
         steps.Enqueue(() =>
         {
             Check(scenario.Lines[0].text == "edited", "CSV edit not detected");

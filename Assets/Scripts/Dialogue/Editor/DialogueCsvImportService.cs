@@ -264,7 +264,7 @@ internal static class DialogueCsvImportService
                 record.RowNumber);
 
             string text =
-                record.GetRequired("text");
+                record.Get("text");
 
             string nextLineId =
                 record.Get("nextLineId").Trim();

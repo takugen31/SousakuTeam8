@@ -153,7 +153,7 @@ lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1
 | `speakerId` | 任意 | 発言者の`characterId`。空欄なら地の文 |
 | `expressionId` | 任意 | 表示する表情。空欄なら立ち絵のフォールバック規則を使う |
 | `backgroundPath` | 任意 | このセリフで切り替える背景Spriteの`Assets/...`パス。空欄なら現在の背景を維持 |
-| `text` | 必須 | 表示する本文。文字列の`\n`は実際の改行へ変換される |
+| `text` | 列は必須・値は空欄可 | 表示する本文。空欄なら本文を空白で表示する。文字列の`\n`は実際の改行へ変換される |
 | `nextLineId` | 任意 | 次に表示するセリフID |
 | `choiceNText` | 任意 | プレイヤーへ表示する選択肢。`N`は1以上の連番 |
 | `choiceNNextLineId` | 選択肢使用時は必須 | 対応する選択肢を押したときの遷移先ID |
