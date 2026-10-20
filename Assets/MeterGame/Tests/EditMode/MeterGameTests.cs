@@ -11,6 +11,8 @@ namespace SousakuTeam8.MeterGame.Tests
         {
             initialGauge = 0.8f,
             drainPerSecond = 0f,
+            inputMode = MeterInputMode.Press,
+            gainPerSecondWhileHeld = 0.3f,
             minimumCenter = 0.5f,
             maximumCenter = 0.5f,
             minimumWidth = 1f,
@@ -257,7 +259,16 @@ namespace SousakuTeam8.MeterGame.Tests
             Assert.That(controller, Is.Not.Null);
             Assert.That(bar, Is.Not.Null);
             Assert.That(Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Length, Is.EqualTo(1));
-            Assert.That(Object.FindObjectsByType<Graphic>(FindObjectsSortMode.None).Length, Is.EqualTo(2));
+            Assert.That(Object.FindObjectsByType<Graphic>(FindObjectsSortMode.None).Length, Is.EqualTo(3));
+            var timer = Object.FindFirstObjectByType<MeterGameTimerView>();
+            Assert.That(timer, Is.Not.Null);
+            var timerText = timer.GetComponent<Text>();
+            Assert.That(timerText.text, Is.EqualTo("残り 60 秒"));
+            Assert.That(timerText.font, Is.Not.Null);
+            Assert.That(timerText.rectTransform.anchorMin, Is.EqualTo(Vector2.one));
+            Assert.That(timerText.rectTransform.anchorMax, Is.EqualTo(Vector2.one));
+            var timerData = new UnityEditor.SerializedObject(timer);
+            Assert.That(timerData.FindProperty("controller").objectReferenceValue, Is.EqualTo(controller));
             var prompt = Object.FindFirstObjectByType<MeterGameInputPrompt>();
             Assert.That(prompt, Is.Not.Null);
             var promptText = prompt.GetComponent<Text>();

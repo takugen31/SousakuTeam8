@@ -18,15 +18,15 @@ namespace SousakuTeam8.MeterGame
         [Range(0f, 1f), Tooltip("開始時のゲージ量")]
         public float initialGauge = 0.8f;
         [Min(0f), Tooltip("毎秒自然に減る量")]
-        public float drainPerSecond = 0.14f;
+        public float drainPerSecond = 0.25f;
         [Min(0f), Tooltip("Spaceを1回押すごとに増える量。押しっぱなしでは増えません")]
         public float gainPerPress = 0.085f;
         [Min(0f), Tooltip("バーの自然減少と入力による加算の両方に掛ける速度倍率。0で停止")]
         public float gaugeSpeedMultiplier = 1f;
         [Tooltip("Pressは1回押すごとに加算、Holdは押している間に連続加算")]
-        public MeterInputMode inputMode = MeterInputMode.Press;
+        public MeterInputMode inputMode = MeterInputMode.Hold;
         [Min(0f), Tooltip("HoldモードでSpaceを押している間、毎秒加算する量。自然減少も同時に適用")]
-        public float gainPerSecondWhileHeld = 0.3f;
+        public float gainPerSecondWhileHeld = 0.5f;
 
         [Header("Moving target range")]
         [Range(0f, 1f)] public float minimumCenter = 0.25f;
@@ -72,15 +72,15 @@ namespace SousakuTeam8.MeterGame
         [Header("Heart / result")]
         [Range(0f, 1f)] public float initialHeart;
         [Min(0f), Tooltip("範囲内に連続で何秒とどまるとハートが増え始めるか")]
-        public float requiredHoldSeconds = 0.6f;
+        public float requiredHoldSeconds = 1f;
         [Min(0f), Tooltip("条件達成後のハートの毎秒加算量。0.12なら毎秒12%、0で加算停止")]
-        public float heartGainPerSecond = 0.12f;
+        public float heartGainPerSecond = 0.05f;
         [Min(0f), Tooltip("範囲外に出ても連続滞在時間を維持する猶予秒数。範囲外では加算しない")]
         public float outsideGraceSeconds;
         [Min(0f), Tooltip("範囲外で猶予を超えたときの毎秒ハート減少量。0なら獲得済みの量を保持")]
         public float heartLossPerSecond;
         [Min(0.1f), Tooltip("ゲーム全体の制限時間（秒）")]
-        public float timeLimitSeconds = 30f;
+        public float timeLimitSeconds = 60f;
 
         public void Validate()
         {

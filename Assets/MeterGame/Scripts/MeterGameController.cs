@@ -13,6 +13,7 @@ namespace SousakuTeam8.MeterGame
         [SerializeField] private UnityEvent onFailure = new UnityEvent();
         public MeterGameState State { get; private set; }
         public MeterInputMode InputMode => settings.inputMode;
+        public float RemainingSeconds => State?.RemainingSeconds ?? settings.timeLimitSeconds;
         private bool resultNotified;
 
         private void Start() => RestartGame();
