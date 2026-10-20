@@ -12,6 +12,7 @@ using UnityEngine.UI;
 public sealed class SearchSceneController : MonoBehaviour
 {
     private const string KayoSaveKey = "KayoSearch.Acquired.v1";
+    private const string CompletionDialogueId = "search_completion";
     private string SaveKey => searchProfile != null ? searchProfile.saveKey : KayoSaveKey;
     private const float ReferenceAspect = 1672f / 941f;
     private const int SearchCanvasSortingOrder = 100;
@@ -99,6 +100,7 @@ public sealed class SearchSceneController : MonoBehaviour
     private GameObject itemDialogueRoot;
     private ItemDefinition inspectedItem;
     private ItemDefinition currentDialogueItem;
+    private ItemDefinition completionDialogueItem;
     private Image completionFadeOverlay;
     private int modalOpenedFrame = -1;
     private RoomView currentRoom = RoomView.Room1;
@@ -154,7 +156,7 @@ public sealed class SearchSceneController : MonoBehaviour
 
         if (hasCompletedSearch)
         {
-            BeginCompletionTransition();
+            FinishAcquisitionSequence();
         }
         else
         {
@@ -192,7 +194,8 @@ public sealed class SearchSceneController : MonoBehaviour
         currentRoom1Sprite = data.paperVisible && room1PaperBackground != null ? room1PaperBackground : room1Background;
         ShowRoom((RoomView)data.room);
         if (data.searchMode == "room") return;
-        ItemDefinition item = items.Find(candidate => candidate.Id == data.itemId);
+        ItemDefinition item = data.itemId == CompletionDialogueId
+            ? completionDialogueItem : items.Find(candidate => candidate.Id == data.itemId);
         if (item == null) { Debug.LogError("セーブした調査対象が見つかりません。", this); return; }
         if (data.searchMode == "modal") ShowInspection(item);
         else
@@ -303,6 +306,7 @@ public sealed class SearchSceneController : MonoBehaviour
     private void BuildItemDefinitions()
     {
         items.Clear();
+        completionDialogueItem = null;
 
         if (searchProfile != null)
         {
@@ -312,6 +316,14 @@ public sealed class SearchSceneController : MonoBehaviour
                     (RoomView)settings.room, settings.anchorMin, settings.anchorMax,
                     settings.uvRect, settings.sprite, settings.firstLineId, settings.lastLineId,
                     settings.requiresItemId, hotspotPolygon: settings.hotspotPolygon));
+            }
+            if (!string.IsNullOrWhiteSpace(searchProfile.completionFirstLineId) ||
+                !string.IsNullOrWhiteSpace(searchProfile.completionLastLineId))
+            {
+                // Reuse range playback and checkpoint handling without counting this as a fourth collectible.
+                completionDialogueItem = new ItemDefinition(CompletionDialogueId, null, "探索後の会話",
+                    RoomView.Room1, Vector2.zero, Vector2.one, new Rect(0, 0, 1, 1), null,
+                    searchProfile.completionFirstLineId, searchProfile.completionLastLineId);
             }
             return;
         }
@@ -944,6 +956,12 @@ public sealed class SearchSceneController : MonoBehaviour
         currentDialogueItem = null;
         isDialogueOpen = false;
 
+        if (completedItem != null && completedItem == completionDialogueItem)
+        {
+            BeginCompletionTransition();
+            return;
+        }
+
         if (completedItem != null &&
             completedItem.SwapRoom1BackgroundAfterDialogue &&
             room1PaperBackground != null)
@@ -956,8 +974,19 @@ public sealed class SearchSceneController : MonoBehaviour
 
     private void FinishAcquisitionSequence()
     {
+        if (isCompleting || isDialogueOpen) return;
         if (HasAcquiredAllItems())
         {
+            if (completionDialogueItem != null)
+            {
+                if (!TryStartItemDialogue(completionDialogueItem))
+                {
+                    // Never silently bypass a configured ending conversation if its CSV is not synced.
+                    Debug.LogError("探索後の会話を開始できません。終了会話のIDとCSV同期を確認してください。", this);
+                    ShowRoom(currentRoom);
+                }
+                return;
+            }
             BeginCompletionTransition();
             return;
         }

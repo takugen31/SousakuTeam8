@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SearchSceneProfileSO
   saveKey: MoteruSearch.Acquired.v1
   saveLabel: モテル編の探索
+  completionFirstLineId: search_moteru_001
+  completionLastLineId: search_moteru_003
   items:
   - id: bookshelf
     archiveId: chapter_moteru.bookshelf

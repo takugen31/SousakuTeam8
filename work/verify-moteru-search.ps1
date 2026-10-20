@@ -1,6 +1,7 @@
 param(
     [string]$UnityEditor = 'C:/Program Files/Unity/Hub/Editor/6000.3.6f1/Editor/Unity.exe',
-    [ValidateSet('Search','Diary')][string]$Suite = 'Search'
+    [ValidateSet('Search','Diary')][string]$Suite = 'Search',
+    [switch]$CompletionFixture
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
@@ -47,7 +48,8 @@ $logPath = Join-Path $testProject 'search-checks.log'
 Write-Output "Isolated Unity project: $testProject"
 $process = Start-Process -FilePath $UnityEditor -WindowStyle Hidden -PassThru -ArgumentList @(
     '-batchmode','-nographics','-projectPath',('"'+$testProject+'"'),
-    '-executeMethod',($checkName + 'Bootstrap.Run'),'-logFile',('"'+$logPath+'"'))
+    '-executeMethod',($checkName + 'Bootstrap.' + $(if ($CompletionFixture -and $Suite -eq 'Search') { 'RunWithCompletionFixture' } else { 'Run' })),
+    '-logFile',('"'+$logPath+'"'))
 $deadline = [DateTime]::UtcNow.AddMinutes(6)
 while (-not $process.WaitForExit(1000)) {
     if ([DateTime]::UtcNow -gt $deadline) { $process.Kill(); throw "Unity checks timed out: $logPath" }

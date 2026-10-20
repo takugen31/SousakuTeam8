@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Reflection;
+using SousakuTeam8.PuzzleGame;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -84,7 +85,8 @@ public sealed class MoteruSearchChecks : MonoBehaviour
                     Check(FindChild(search.transform, "PlacedImage_kayo_yowashi").activeSelf,
                         "people disappeared before their conversation finished");
                 int pages = 0;
-                while ((bool)Get(search, "isDialogueOpen"))
+                object acquisitionDialogue = Get(search, "currentDialogueItem");
+                while ((bool)Get(search, "isDialogueOpen") && ReferenceEquals(Get(search, "currentDialogueItem"), acquisitionDialogue))
                 {
                     Check(pages++ < 25, "dialogue failed to stop at configured last line");
                     Check(!search.CanInspect(id), "collected item can be inspected twice");
@@ -106,7 +108,38 @@ public sealed class MoteruSearchChecks : MonoBehaviour
                         ", screen=" + Screen.width + "x" + Screen.height);
                 }
             }
-            Check((bool)Get(search, "isCompleting"), "completion did not wait for the final conversation");
+            Check((bool)Get(search, "isDialogueOpen") && !(bool)Get(search, "isCompleting"),
+                "search faded before the ending conversation");
+            yield return null;
+            yield return null;
+            var ending = (NovelDialogueController)Get(search, "itemDialogueController");
+            for (int row = 1; row <= 3; row++)
+            {
+                float lineStarted = Time.realtimeSinceStartup;
+                while ((bool)Get(ending, "isChapterTransitioning"))
+                {
+                    Check(Time.realtimeSinceStartup - lineStarted < 10f, "ending line fade stalled");
+                    yield return null;
+                }
+                Check(((DialogueLine)Get(ending, "currentLine")).lineId == "search_moteru_" + row.ToString("000"),
+                    "wrong ending conversation row");
+                Check(!(bool)Get(search, "isCompleting") && !search.CanInspect("bookshelf"),
+                    "fade or inspection started during the ending conversation");
+                Call(ending, "CompleteTyping");
+                if (row == 2)
+                {
+                    var checkpoint = new GameSaveData();
+                    Check(search.CaptureCheckpoint(checkpoint) && checkpoint.itemId == "search_completion" &&
+                        checkpoint.lineId == "search_moteru_002" && checkpoint.stopLineId == "search_moteru_003",
+                        "ending conversation checkpoint was not captured");
+                    Call(search, "RestoreCheckpoint", checkpoint);
+                    Check(((DialogueLine)Get(ending, "currentLine")).lineId == "search_moteru_002" &&
+                        !(bool)Get(search, "isCompleting"), "ending conversation checkpoint skipped to the fade");
+                }
+                ending.Advance();
+                yield return null;
+            }
+            Check((bool)Get(search, "isCompleting"), "fade did not start after ending row 003");
             var overlay = (Image)Get(search, "completionFadeOverlay");
             started = Time.realtimeSinceStartup;
             Time.timeScale = 0f;
@@ -123,10 +156,37 @@ public sealed class MoteruSearchChecks : MonoBehaviour
             Check(SceneManager.GetActiveScene().name == "PuzzleGame", "wrong completion scene");
             Check(Time.realtimeSinceStartup - started >= 4.3f, "Kayo 2.5s fade + 2s hold was skipped");
             object request = typeof(PuzzleGameFlowController).GetField("pendingRequest", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+            var flow = FindFirstObjectByType<PuzzleGameFlowController>();
+            if (request == null && flow != null) request = Get(flow, "activeRequest");
             Check(request != null && (string)request.GetType().GetField("ReturnSceneName").GetValue(request) == "NovelScene_Moteru" &&
                 (string)request.GetType().GetField("ResumeLineId").GetValue(request) == "chapter_moteru_diary_001",
                 "Moteru diary return was not queued");
-            Debug.Log("PASS: Moteru search order " + string.Join(" -> ", order) + ": art, prerequisite, acquisition UI, archives, all 24 dialogue pages, unscaled Kayo fade, PuzzleGame.");
+            yield return null;
+            yield return null;
+            var puzzle = FindFirstObjectByType<PuzzleGameController>();
+            Check(puzzle != null, "production puzzle controller missing");
+            started = Time.realtimeSinceStartup;
+            // Trigger the real completion event; manually solving the board is outside this check.
+            Call(puzzle, "BeginCompletion");
+            while (SceneManager.GetActiveScene().name == "PuzzleGame")
+            {
+                Check(Time.realtimeSinceStartup - started < 8f, "puzzle did not return to the diary");
+                yield return null;
+            }
+            Check(SceneManager.GetActiveScene().name == "NovelScene_Moteru", "wrong puzzle return scene");
+            Check(Time.realtimeSinceStartup - started >= 1.75f, "shared puzzle completion hold/fade skipped");
+            yield return null;
+            var novel = FindFirstObjectByType<NovelDialogueController>();
+            Check(novel != null, "production novel controller missing");
+            while ((bool)Get(novel, "isChapterTransitioning") || Get(novel, "currentLine") == null)
+            {
+                Check(Time.realtimeSinceStartup - started < 12f, "diary entry fade stalled");
+                yield return null;
+            }
+            Check(((DialogueLine)Get(novel, "currentLine")).lineId == "chapter_moteru_diary_001" &&
+                ((DialogueScenarioSO)Get(novel, "currentScenario")).name == "Chapter_Moteru_Diary",
+                "puzzle returned to the beginning of the route instead of the diary");
+            Debug.Log("PASS: Moteru search order " + string.Join(" -> ", order) + ": ending 001-003, checkpoint restore, search fade, production PuzzleGame completion, NovelScene_Moteru diary 001.");
         }
         Check(GameProgress.IsValidCheckpoint(new[] {
             new GameSavePreference { key="ArchiveState.v1" }, new GameSavePreference { key="AffectionState" },
@@ -177,6 +237,32 @@ public static class MoteruSearchBootstrap
         };
     }
 
+    // Explicit control-flow fixture for an unsaved ending script; never touches the game project.
+    public static void RunWithCompletionFixture()
+    {
+        if (!Application.dataPath.Contains("MoteruSearchChecks-")) throw new Exception("Use the isolated test project.");
+        const string csvPath = "Assets/Dialogue/CSV/Moteru/chapter_moteru_search.csv";
+        var csv = AssetDatabase.LoadAssetAtPath<TextAsset>(csvPath);
+        if (!csv.text.Contains("search_moteru_001,"))
+        {
+            string text = csv.text.TrimEnd() + "\n";
+            for (int i = 1; i <= 3; i++)
+                text += "search_moteru_" + i.ToString("000") + ",doute,normal,,TEST ENDING " + i + "," +
+                    (i < 3 ? "search_moteru_" + (i + 1).ToString("000") : "") + "\n";
+            System.IO.File.WriteAllText(csvPath, text);
+            AssetDatabase.ImportAsset(csvPath, ImportAssetOptions.ForceSynchronousImport);
+            var prepared = DialogueCsvImportService.Prepare(
+                AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Dialogue/CSV/Characters.csv"),
+                AssetDatabase.LoadAssetAtPath<TextAsset>(csvPath));
+            var scenario = AssetDatabase.LoadAssetAtPath<DialogueScenarioSO>("Assets/Dialogue/Data/Moteru/Chapter_Moteru_Search.asset");
+            scenario.ReplaceAll(prepared.Lines);
+            EditorUtility.SetDirty(scenario);
+            AssetDatabase.SaveAssetIfDirty(scenario);
+            Debug.Log("INFO: ending text is a test-only fixture in the isolated project; production CSV was not modified.");
+        }
+        Run();
+    }
+
     public static void Run()
     {
         if (!Application.dataPath.Contains("MoteruSearchChecks-")) throw new Exception("Use the isolated test project.");
@@ -190,20 +276,17 @@ public static class MoteruSearchBootstrap
             throw new Exception("Paper sprite reference is unresolved or points to the wrong asset");
         if (paper.uvRect != new Rect(0, 0, 1, 1))
             throw new Exception("Paper UV rectangle is invalid: " + paper.uvRect);
-        if (prepared.Lines.Count != 24 || scenario.Lines.Count != 24) throw new Exception("Expected 24 pages");
-        for (int i=0; i<24; i++)
+        if (prepared.Lines.Count != 27 || scenario.Lines.Count != 27) throw new Exception("Expected 24 acquisition pages and 3 ending pages; save/sync the CSV first");
+        for (int i=0; i<27; i++)
             if (JsonUtility.ToJson(prepared.Lines[i]) != JsonUtility.ToJson(scenario.Lines[i]))
                 throw new Exception("CSV/asset mismatch at " + i);
-        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        EditorSceneManager.SaveScene(scene, "Assets/PuzzleGame.unity");
-        scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        EditorSceneManager.SaveScene(scene, "Assets/NovelScene_Moteru.unity");
+        EditorSceneManager.OpenScene("Assets/Scenes/GameMap/Chapter_Moteru_SearchScene.unity");
         EditorBuildSettings.scenes = new[] {
             new EditorBuildSettingsScene("Assets/Scenes/GameMap/Chapter_Moteru_SearchScene.unity", true),
-            new EditorBuildSettingsScene("Assets/PuzzleGame.unity", true),
-            new EditorBuildSettingsScene("Assets/NovelScene_Moteru.unity", true)
+            new EditorBuildSettingsScene("Assets/PuzzleGame/Scenes/PuzzleGame.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/GameMap/NovelScene_Moteru.unity", true)
         };
-        Debug.Log("PASS: production CSV imports identically to the scenario asset (24 pages).");
+        Debug.Log("PASS: CSV imports identically to the scenario asset (27 pages).");
         EditorApplication.delayCall += () => EditorApplication.EnterPlaymode();
     }
 }

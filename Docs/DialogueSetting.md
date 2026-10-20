@@ -176,9 +176,29 @@ Unityの未接続コンポーネントはC#の `??` で正しく判定できな�
 | 紙片 | 左の部屋の本棚右手前。本棚の会話後に出現 | `search_moteru_paper_001〜003` |
 | カヨとヨワシ | 右の部屋のベッドの左側 | `search_moteru_people_001〜017` |
 
-会話原稿は `Assets/Dialogue/CSV/Moteru/chapter_moteru_search.csv`、ゲーム用データは `Assets/Dialogue/Data/Moteru/Chapter_Moteru_Search.asset` です。24行を作成し、CSV Sync Settingsへペア登録済みなので、CSVを保存してUnityが再読み込みするとアセットへ反映します。各対象の最終行で会話を止め、別の対象の会話へ続けて流れないようにしています。
+会話原稿は `Assets/Dialogue/CSV/Moteru/chapter_moteru_search.csv`、ゲーム用データは `Assets/Dialogue/Data/Moteru/Chapter_Moteru_Search.asset` です。取得後会話24行に加え、全探索終了時の `search_moteru_001〜003` を再生します。CSV Sync Settingsへペア登録済みなので、CSVを保存してUnityが再読み込みするとアセットへ反映します。各対象の最終行で会話を止め、別の対象の会話へ続けて流れないようにしています。
 
-3か所すべての取得と最後の会話が終わると、カヨと同じ処理で2.5秒かけて暗転し、2秒待って `Assets/PuzzleGame/Scenes/PuzzleGame.unity` へ進みます。モテルの日記へ戻る予約も渡し、クリア後は `chapter_moteru_diary_001` から再生します。別の探索設定でパズルを単体起動したい場合は **Completion Resume Line Id** を空欄にします。
+3か所すべての取得と各対象の最後の会話が終わると、まず `search_moteru_001` を表示します。`003` まで読み終えて次へ進むと、従来どおり2.5秒かけて暗転し、2秒待って `Assets/PuzzleGame/Scenes/PuzzleGame.unity` へ進みます。モテルの日記へ戻る予約も渡し、クリア後は `chapter_moteru_diary_001` から再生します。別の探索設定でパズルを単体起動したい場合は **Completion Resume Line Id** を空欄にします。
+
+終了前の会話は **MoteruSearchProfile > Completion First Line Id / Completion Last Line Id** に `search_moteru_001` / `search_moteru_003` を設定しています。この会話は4つ目の探索対象には数えず、会話中のセーブ・ロードで途中の行と終了位置を復元します。両IDが空欄なら従来どおり会話を挟まず遷移します。設定IDがアセットにない場合はエラーを出して停止し、会話を飛ばして遷移しません。CSVの保存と同期を確認してください。
+
+CSVには終了会話3行を保存・同期済みです。`001` の `nextLineId` は `search_moteru_002`、`002` は `search_moteru_003` です。`001` の `fadeBeforeLine` は有効になっており、「——数分後。」の表示前にも暗転が入ります。
+
+### モテル探索からパズル、日記への接続
+
+ヨワシと同じ `PuzzleGameFlowController` を使用します。ヨワシは `DialoguePuzzleEntryController` がCSVのシーン移動通知を受けて戻り先を予約します。モテルは探索終了後の処理を持つ `SearchSceneController` が同じ予約APIへ渡します。探索の会話UIは実行時に作成するため、探索シーンへ `DialoguePuzzleEntryController` を追加する必要はありません。
+
+`Chapter_Moteru_SearchScene` の **Main Camera > SearchSceneController** は次の設定です。
+
+| 設定 | 値 |
+| --- | --- |
+| Puzzle Scene Name | `PuzzleGame` |
+| Completion Scene Name | `NovelScene_Moteru` |
+| Completion Resume Line Id | `chapter_moteru_diary_001` |
+
+探索後の003を読み終えると戻り先を予約してパズルへ進みます。パズルをクリアすると、ヨワシと同じく1秒待機して0.8秒で暗転し、`NovelScene_Moteru` をロードします。`NovelDialogueController` が予約された行を **Following Scenarios** から探し、`Chapter_Moteru_Diary.asset` の001からフェードインして再開します。実際のシーン名・ファイル名は `PazzleGame` ではなく `PuzzleGame` です。
+
+動作確認は探索シーンから開始してください。`PuzzleGame` を直接開いて再生した場合は戻り先の予約がないため、単体動作用となり、自動で会話シーンへは戻りません。
 
 画像と位置を変える場合は **MoteruSearchProfile > Items** を編集します。`room` は0が左、1が右。`anchorMin` / `anchorMax` は画面の左下を0、右上を1とする配置範囲で、画像とクリック範囲を共有します。`sprite` が主画像、`secondarySprite` が2人目の画像です。背景を切り出す場合だけ `uvRect` に切り出し範囲を指定し、専用画像なら `{x: 0, y: 0, width: 1, height: 1}` にします。`firstLineId` / `lastLineId` は会話の先頭と末尾、`requiresItemId` は先に調べる対象です。
 
@@ -190,7 +210,7 @@ Unityの未接続コンポーネントはC#の `??` で正しく判定できな�
 
 取得した情報は `chapter_moteru.bookshelf`・`chapter_moteru.paper_scrap`・`chapter_moteru.kayo_yowashi` としてアーカイブに保存します。取得済み判定は `MoteruSearch.Acquired.v1` に保存し、カヨの進捗とは分離しています。ニューゲームで初期化し、探索中のセーブ・ロードでも復元します。Editorの再生開始時にも初期化します。手動で初期化する場合は **Tools > Moteru Search > Clear Saved Data** を使います。
 
-検証用の `work/verify-moteru-search.ps1` は、独立したUnityプロジェクトへ本番コードとデータをコピーして実行します。CSVとアセット24行の一致、3通りの探索順、紙片の出現条件、取得UI、取得情報、会話の停止位置、時間停止中の暗転とパズルへのシーン読み込み、旧セーブ形式の受け入れ、カヨ既定の探索対象を確認済みです。検証先のパズルシーンは空の同名シーンに置き換えており、パズル本体のプレイや画面の目視確認は含みません。
+検証用の `work/verify-moteru-search.ps1` は、独立したUnityプロジェクトへ本番コードとデータをコピーして実行します。CSVとアセット27行の一致、3通りの探索順、紙片の出現条件、取得UI、取得情報、終了会話001〜003、会話途中の復元、時間停止中の探索終了フェード、旧セーブ形式の受け入れ、カヨ既定の探索対象を確認済みです。本番の `PuzzleGame` と `NovelScene_Moteru` を使用し、パズルのクリア通知から待機・暗転を経て `Chapter_Moteru_Diary` の001へ戻ることも確認しています。パズル盤面を手操作で解く検証や画面の目視確認は含みません。
 
 ## プログラム査読結果
 

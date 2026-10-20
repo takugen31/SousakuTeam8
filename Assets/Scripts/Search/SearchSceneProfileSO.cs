@@ -8,6 +8,10 @@ public sealed class SearchSceneProfileSO : ScriptableObject
 {
     public string saveKey = "MoteruSearch.Acquired.v1";
     public string saveLabel = "モテル編の探索";
+    [Tooltip("全探索と取得後会話が終わった後に再生する会話の先頭ID。空欄なら直接遷移します。")]
+    public string completionFirstLineId;
+    [Tooltip("この会話の終了後に、既存のフェードアウトとパズル遷移を開始します。")]
+    public string completionLastLineId;
     public List<SearchItemSettings> items = new List<SearchItemSettings>();
 }
 
