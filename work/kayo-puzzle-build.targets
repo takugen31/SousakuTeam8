@@ -13,6 +13,8 @@
   <!-- Include the new script even before Unity regenerates its IDE project. -->
   <Target Name="IncludeKayoPuzzleBridge" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
     <ItemGroup>
+      <!-- Ignore pre-rename entries until Unity regenerates its IDE project. -->
+      <Compile Remove="Assets\Scripts\Search\KayoPuzzleGameFlowController.cs;Assets\Scripts\Search\YowashiPuzzleEntryController.cs" />
       <_ExistingStoryMusic Include="@(Compile)" Condition="'%(Compile.Filename)' == 'StoryMusicController'" />
       <_ExistingGameSave Include="@(Compile)" Condition="'%(Compile.Filename)' == 'GameSaveService'" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\GameSaveService.cs" Condition="'@(_ExistingGameSave)' == ''" />
@@ -35,12 +37,12 @@
       <_YowashiExistingCatch Include="@(Compile)" Condition="'%(Compile.Filename)' == 'YowashiCatchGameFlowController'" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\FallingGame\Scripts\YowashiCatchGameFlowController.cs"
                Condition="'@(_YowashiExistingCatch)' == ''" />
-      <_KayoExistingBridge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoPuzzleGameFlowController'" />
-      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoPuzzleGameFlowController.cs"
+      <_KayoExistingBridge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'PuzzleGameFlowController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\PuzzleGameFlowController.cs"
                Condition="'@(_KayoExistingBridge)' == ''" />
       <_KayoExistingGauge Include="@(Compile)" Condition="'%(Compile.Filename)' == 'KayoGaugeOutcomeController'" />
-      <_YowashiExistingPuzzle Include="@(Compile)" Condition="'%(Compile.Filename)' == 'YowashiPuzzleEntryController'" />
-      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\YowashiPuzzleEntryController.cs"
+      <_YowashiExistingPuzzle Include="@(Compile)" Condition="'%(Compile.Filename)' == 'DialoguePuzzleEntryController'" />
+      <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\DialoguePuzzleEntryController.cs"
                Condition="'@(_YowashiExistingPuzzle)' == ''" />
       <Compile Include="$(MSBuildProjectDirectory)\Assets\Scripts\Search\KayoGaugeOutcomeController.cs"
                Condition="'@(_KayoExistingGauge)' == ''" />

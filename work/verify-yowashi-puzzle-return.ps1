@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 function Check($condition, $message) { if (-not $condition) { throw $message } }
-$flow = Get-Content (Join-Path $root 'Assets/Scripts/Search/KayoPuzzleGameFlowController.cs') -Raw
+$flow = Get-Content (Join-Path $root 'Assets/Scripts/Search/PuzzleGameFlowController.cs') -Raw -Encoding UTF8
 $connectStart = $flow.IndexOf('private void ConnectCompletionEvent()')
 $connectEnd = $flow.IndexOf('private void Start()', $connectStart)
 $completeStart = $flow.IndexOf('private void OnPuzzleCompleted(')
@@ -16,7 +16,7 @@ public class Puzzle {
     public bool IsComplete; public int MoveCount = 12; public bool interactable = true;
     public event Action<int> Completed;
     public void SetInteractable(bool value) { interactable = value; }
-    public void Finish() { IsComplete = true; Completed?.Invoke(MoveCount); }
+    public void Finish() { IsComplete = true; if (Completed != null) Completed(MoveCount); }
 }
 public static class Application { public static bool CanStreamedLevelBeLoaded(string scene) { return scene == "NovelScene_Yowashi" || scene == "NovelScene_Kayo"; } }
 public static class Debug { public static void LogError(string text, object owner) { throw new Exception(text); } }

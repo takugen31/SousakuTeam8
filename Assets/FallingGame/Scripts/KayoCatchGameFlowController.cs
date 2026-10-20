@@ -24,7 +24,7 @@ namespace Sousakusai8.MiniGame
         [Header("Game")]
         [SerializeField] private CatchMiniGameController miniGame;
         [SerializeField] private int successScoreExclusive = 3000;
-        [SerializeField, Min(0f)] private float resultDisplayDuration = 2f;
+        [SerializeField, Min(0f)] private float resultDisplayDuration = CatchGameFade.ResultDisplayDuration;
 
         [Header("Event CSV")]
         [SerializeField] private TextAsset successBeforeTenMinutesCsv;
@@ -35,7 +35,7 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Sprite conversationBackground;
 
         [Header("Transition")]
-        [SerializeField, Min(0f)] private float fadeDuration = 0.8f;
+        [SerializeField, Min(0f)] private float fadeDuration = CatchGameFade.FadeDuration;
         [SerializeField] private string returnSceneName = "NovelScene_Kayo";
         [SerializeField] private string resumeLineId = "chapter_kayo_2_001";
 
@@ -292,30 +292,8 @@ namespace Sousakusai8.MiniGame
         {
             // Prevent another page/transition from starting during the current fade.
             eventDialogueController.enabled = false;
-            fadeOverlay.gameObject.SetActive(true);
-            fadeOverlay.transform.SetAsLastSibling();
-            fadeOverlay.raycastTarget = true;
-            SetFadeAlpha(startAlpha);
-
-            if (fadeDuration > 0f)
-            {
-                float elapsed = 0f;
-                while (elapsed < fadeDuration)
-                {
-                    elapsed += Time.unscaledDeltaTime;
-                    SetFadeAlpha(Mathf.Lerp(startAlpha, endAlpha, Mathf.Clamp01(elapsed / fadeDuration)));
-                    yield return null;
-                }
-            }
-
-            SetFadeAlpha(endAlpha);
-            fadeOverlay.raycastTarget = endAlpha > 0f;
+            yield return CatchGameFade.Play(fadeOverlay, startAlpha, endAlpha, fadeDuration);
             eventDialogueController.enabled = endAlpha <= 0f;
-        }
-
-        private void SetFadeAlpha(float alpha)
-        {
-            fadeOverlay.color = new Color(0f, 0f, 0f, Mathf.Clamp01(alpha));
         }
 
         private Image CreateImage(string objectName, Transform parent, Color color, bool raycastTarget)

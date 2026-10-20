@@ -47,7 +47,7 @@ $archive = Get-Content (Join-Path $projectRoot 'Assets/Resources/Archive/Archive
 foreach ($row in $all | Where-Object archiveUnlockIds) { Assert-True ($archive.Contains('  - id: '+$row.archiveUnlockIds)) 'Missing archive item' }
 $controller = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
 Assert-True ($controller.Contains('SceneTransitionStarting?.Invoke(transitionLine);')) 'Transition event missing'
-$bridgeCode = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Search/YowashiPuzzleEntryController.cs') -Raw
+$bridgeCode = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Search/DialoguePuzzleEntryController.cs') -Raw
 $harness = @'
 #pragma warning disable 0649
 using System;
@@ -68,7 +68,7 @@ public class NovelDialogueController {
     public event Action<DialogueLine> SceneTransitionStarting;
     public void Transition(DialogueLine line) { SceneTransitionStarting?.Invoke(line); }
 }
-public static class KayoPuzzleGameFlowController {
+public static class PuzzleGameFlowController {
     public static int calls; public static string target, returnScene, resume; public static Texture2D image;
     public static void Queue(string a,string b,string c,Texture2D d) { calls++; target=a; returnScene=b; resume=c; image=d; }
 }
@@ -79,29 +79,29 @@ public static class YowashiPuzzleCheck {
     static void Check(bool ok,string message) { if (!ok) throw new Exception(message); }
     public static void Run() {
         var controller = new NovelDialogueController();
-        var bridge = new YowashiPuzzleEntryController();
+        var bridge = new DialoguePuzzleEntryController();
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var type = typeof(YowashiPuzzleEntryController);
+        var type = typeof(DialoguePuzzleEntryController);
         type.GetField("dialogueController",flags).SetValue(bridge,controller);
         var image = new Texture2D();
         type.GetField("diaryPuzzleImage",flags).SetValue(bridge,image);
         type.GetMethod("Awake",flags).Invoke(bridge,null);
         controller.Transition(null);
         controller.Transition(new DialogueLine { nextLineId="unrelated", nextScenePath="Title" });
-        Check(KayoPuzzleGameFlowController.calls==0,"Unrelated transition queued puzzle");
+        Check(PuzzleGameFlowController.calls==0,"Unrelated transition queued puzzle");
         var line = new DialogueLine { lineId="chapter_yowashi_1_035",nextScenePath="Assets/PuzzleGame/Scenes/PuzzleGame.unity" };
         controller.Transition(line);
-        Check(KayoPuzzleGameFlowController.calls==1 && KayoPuzzleGameFlowController.returnScene=="NovelScene_Yowashi" && KayoPuzzleGameFlowController.target=="PuzzleGame" && KayoPuzzleGameFlowController.resume=="chapter_yowashi_diary_001" && KayoPuzzleGameFlowController.image==image,"Incorrect request");
+        Check(PuzzleGameFlowController.calls==1 && PuzzleGameFlowController.returnScene=="NovelScene_Yowashi" && PuzzleGameFlowController.target=="PuzzleGame" && PuzzleGameFlowController.resume=="chapter_yowashi_diary_001" && PuzzleGameFlowController.image==image,"Incorrect request");
         controller.Transition(line);
-        Check(KayoPuzzleGameFlowController.calls==2,"Repeated/skip transition failed");
+        Check(PuzzleGameFlowController.calls==2,"Repeated/skip transition failed");
         Application.valid=false;
         bool rejected=false;
         try { controller.Transition(line); } catch (InvalidOperationException) { rejected=true; }
-        Check(rejected && KayoPuzzleGameFlowController.calls==2,"Invalid return accepted");
+        Check(rejected && PuzzleGameFlowController.calls==2,"Invalid return accepted");
         Application.valid=true;
         type.GetMethod("OnDestroy",flags).Invoke(bridge,null);
         controller.Transition(line);
-        Check(KayoPuzzleGameFlowController.calls==2,"Event subscription leaked");
+        Check(PuzzleGameFlowController.calls==2,"Event subscription leaked");
     }
 }
 '@

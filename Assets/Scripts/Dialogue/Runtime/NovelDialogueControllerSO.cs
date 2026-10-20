@@ -1290,6 +1290,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void BeginSceneEntryFadeIn()
     {
+        if (isChapterTransitioning) return;
         Image overlay = EnsureChapterTransitionOverlay();
         if (overlay == null)
         {
@@ -1449,12 +1450,66 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ShowLine(DialogueLine line)
     {
+        if (TryStartLineFade(line))
+        {
+            return;
+        }
+
         if (TryStartConsultationTransition(line))
         {
             return;
         }
 
         ShowLineImmediately(line);
+    }
+
+    private bool TryStartLineFade(DialogueLine line)
+    {
+        // Chapter/scene entry already owns the overlay; do not fade the first line twice.
+        if (line == null || !line.fadeBeforeLine || isChapterTransitioning || restoringCheckpointLine)
+            return false;
+
+        Image overlay = EnsureChapterTransitionOverlay();
+        if (overlay == null)
+        {
+            Debug.LogWarning($"{line.lineId}: セリフ暗転用のCanvasが見つかりません。", this);
+            return false;
+        }
+
+        StopTypingAndRevealText();
+        HideChoices();
+        autoAdvanceAt = -1f;
+        isChapterTransitioning = true;
+        overlay.transform.SetAsLastSibling();
+        overlay.gameObject.SetActive(true);
+        chapterTransitionCoroutine = StartCoroutine(TransitionToLine(line));
+        return true;
+    }
+
+    private IEnumerator TransitionToLine(DialogueLine line)
+    {
+        float fadeOut = line.lineFadeOutDuration < 0f ? chapterFadeOutDuration : line.lineFadeOutDuration;
+        float hold = line.lineFadeHoldDuration < 0f ? chapterFadeHoldDuration : line.lineFadeHoldDuration;
+        float fadeIn = line.lineFadeInDuration < 0f ? chapterFadeInDuration : line.lineFadeInDuration;
+        yield return FadeChapterTransition(0f, 1f, fadeOut);
+
+        // Apply once under black. Avoid ShowLineImmediately, whose composition transitions
+        // would otherwise start another coroutine writing to the same overlay.
+        PrepareLine(line);
+        if (!string.IsNullOrWhiteSpace(line.consultationTitle))
+            shownConsultationLineIds.Add(line.lineId);
+        if (bodyText != null)
+        {
+            bodyText.text = string.Empty;
+            bodyText.maxVisibleCharacters = 0;
+        }
+        chapterTransitionOverlay.transform.SetAsLastSibling();
+        if (hold > 0f) yield return new WaitForSecondsRealtime(hold);
+        yield return FadeChapterTransition(1f, 0f, fadeIn);
+        chapterTransitionOverlay.gameObject.SetActive(false);
+        isChapterTransitioning = false;
+        chapterTransitionCoroutine = null;
+        StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
     private void ShowLineImmediately(DialogueLine line)
@@ -1745,6 +1800,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         RestoreChoiceOnlyWindow();
         ResetKayoFall();
         CancelRoomLook();
+        if (chapterTransitionCoroutine != null) CancelChapterTransition();
     }
 
     private bool TryShowEndingCard(DialogueLine line)
@@ -2374,9 +2430,16 @@ public sealed class NovelDialogueController : MonoBehaviour
             int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 2 && row <= 14;
     }
 
+    public static bool IsMoteruDiaryLine(string lineId)
+    {
+        const string prefix = "chapter_moteru_diary_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 2 && row <= 11;
+    }
+
     private static bool IsCenteredNarrationLine(string lineId)
     {
-        return IsDouteMonologueLine(lineId) || IsYowashiDiaryLine(lineId) || IsKayoDiaryLine(lineId);
+        return IsDouteMonologueLine(lineId) || IsYowashiDiaryLine(lineId) || IsKayoDiaryLine(lineId) || IsMoteruDiaryLine(lineId);
     }
 
     public static bool IsKayoDiaryLine(string lineId)
@@ -2392,7 +2455,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         bool isYowashiDiary = IsYowashiDiaryLine(line?.lineId);
         bool isKayoDiary = IsKayoDiaryLine(line?.lineId);
-        string centeredCharacterId = isYowashiDiary ? "yowashi" : isKayoDiary ? "kayo" : "doute";
+        bool isMoteruDiary = IsMoteruDiaryLine(line?.lineId);
+        string centeredCharacterId = isYowashiDiary ? "yowashi" : isKayoDiary ? "kayo" : isMoteruDiary ? "moteru" : "doute";
         if (!IsCenteredNarrationLine(line?.lineId) || dialogueRoot == null || bodyText == null ||
             backgroundImage == null || backgroundImage.sprite == null || characterDatabase == null ||
             !characterDatabase.TryGetCharacter(centeredCharacterId, out CharacterData character)) return;
@@ -2411,8 +2475,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         monologueTextMargin = bodyText.margin;
         if (monologueTextParent != null && monologueTextParent != dialogueRoot.transform)
         {
-            monologuePanelGroup = monologueTextParent.GetComponent<CanvasGroup>() ??
-                monologueTextParent.gameObject.AddComponent<CanvasGroup>();
+            // Unity can return a missing-component wrapper that ?? treats as non-null.
+            // Use Unity's null comparison before accessing the native CanvasGroup.
+            monologuePanelGroup = monologueTextParent.GetComponent<CanvasGroup>();
+            if (monologuePanelGroup == null)
+                monologuePanelGroup = monologueTextParent.gameObject.AddComponent<CanvasGroup>();
             monologuePanelAlpha = monologuePanelGroup.alpha;
             monologuePanelGroup.alpha = 0f;
         }
@@ -3184,7 +3251,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (panel != null && panel != dialogueRoot?.transform &&
             (choiceOptionsRoot == null || !choiceOptionsRoot.IsChildOf(panel)))
         {
-            choiceOnlyWindowGroup = panel.GetComponent<CanvasGroup>() ?? panel.gameObject.AddComponent<CanvasGroup>();
+            choiceOnlyWindowGroup = panel.GetComponent<CanvasGroup>();
+            if (choiceOnlyWindowGroup == null)
+                choiceOnlyWindowGroup = panel.gameObject.AddComponent<CanvasGroup>();
             choiceOnlyOriginalAlpha = choiceOnlyWindowGroup.alpha;
             choiceOnlyOriginalRaycasts = choiceOnlyWindowGroup.blocksRaycasts;
             choiceOnlyWindowGroup.alpha = 0f;
@@ -3605,6 +3674,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
+        // A route picker must not carry a row from the branch the player declined.
+        if (runtimeSceneName == "SelectionPart") resumeLineId = null;
         QueueResumeLine(resumeLineId);
         isSceneLoading = true;
         isPlaying = false;
@@ -3801,6 +3872,15 @@ public sealed class NovelDialogueController : MonoBehaviour
                 $"選択肢「{choice.text}」の遷移先" +
                 $"「{choice.nextLineId}」が存在しません。");
             EndDialogue();
+            return;
+        }
+
+        // An empty scene-transition destination is an action, not another dialogue page.
+        // Keep ordinary empty dialogue lines and choices on the normal display path.
+        if (nextLine.HasSceneTransition && string.IsNullOrEmpty(nextLine.text) &&
+            !nextLine.HasChoices)
+        {
+            LoadDialogueScene(nextLine.nextScenePath, nextLine);
             return;
         }
 

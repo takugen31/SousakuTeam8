@@ -17,7 +17,7 @@ $expected = @'
 '@ | ConvertFrom-Json -AsHashtable
 
 # Use the real editor importer and CSV parser for all choice columns.
-$importer = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Editor/DialogueCsvImporterWindow.cs') -Raw
+$importer = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Editor/DialogueCsvImportService.cs') -Raw
 $parseStart = $importer.IndexOf('    private static List<DialogueChoice> ParseChoices(')
 $parseEnd = $importer.IndexOf('    private static List<string> ParseArchiveUnlockIds', $parseStart)
 $indexStart = $importer.IndexOf('    private static bool TryGetChoiceColumnIndex(')

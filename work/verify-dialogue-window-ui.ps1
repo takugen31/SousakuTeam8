@@ -46,7 +46,7 @@ foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi','NovelSc
         if ($match.Groups[1].Value -ne '0') { Assert-True ($ids -contains $match.Groups[1].Value) 'Missing scene object reference' }
     }
 }
-foreach ($controller in @('Chapter1SearchController','KayoSearchController')) {
+foreach ($controller in @('Chapter1SearchController','SearchSceneController')) {
     $source = Get-Content (Join-Path $projectRoot "Assets/Scripts/Search/$controller.cs") -Raw
     Assert-True ($source.Contains('scaler.referenceResolution = new Vector2(1672f, 941f)') -and $source.Contains('scaler.matchWidthOrHeight = 0.5f') -and $source.Contains('36.685f')) 'Search and novel dialogue scale/font settings must stay aligned'
 }

@@ -87,8 +87,8 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         if (selection != null) return selection.CurrentOperationHelp;
         Chapter1SearchController commonSearch = FindFirstObjectByType<Chapter1SearchController>();
         if (commonSearch != null) return commonSearch.CurrentOperationHelp;
-        KayoSearchController kayoSearch = FindFirstObjectByType<KayoSearchController>();
-        if (kayoSearch != null) return kayoSearch.CurrentOperationHelp;
+        SearchSceneController search = FindFirstObjectByType<SearchSceneController>();
+        if (search != null) return search.CurrentOperationHelp;
         SousakuTeam8.PuzzleGame.PuzzleGameController puzzle = FindFirstObjectByType<SousakuTeam8.PuzzleGame.PuzzleGameController>();
         if (puzzle != null) return "ピースを移動：左ドラッグ＆ドロップ";
         Sousakusai8.MiniGame.CatchMiniGameController catcher = FindFirstObjectByType<Sousakusai8.MiniGame.CatchMiniGameController>();
