@@ -386,3 +386,36 @@ MonoBehaviour:
     sortOrder: 350
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_moteru.bookshelf
+    category: 1
+    title: 本棚
+    subtitle:
+    body: "伝説の漫画『音都このこは男の娘』が並ぶ本棚。ぶつかった拍子に、何かが落ちた。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 400
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds: []
+  - id: chapter_moteru.paper_scrap
+    category: 2
+    title: 紙片
+    subtitle:
+    body: "『僕……ヒ……な……』と読める破れた紙。他の紙片を集めれば、組み立てられるかもしれない。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 410
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds: []
+  - id: chapter_moteru.kayo_yowashi
+    category: 2
+    title: カヨとヨワシ
+    subtitle:
+    body: "2人はすっかり仲良くなり、ツーショットを撮りに行った。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 420
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds: []

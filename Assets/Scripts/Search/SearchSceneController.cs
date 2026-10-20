@@ -9,9 +9,10 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed class KayoSearchController : MonoBehaviour
+public sealed class SearchSceneController : MonoBehaviour
 {
-    private const string SaveKey = "KayoSearch.Acquired.v1";
+    private const string KayoSaveKey = "KayoSearch.Acquired.v1";
+    private string SaveKey => searchProfile != null ? searchProfile.saveKey : KayoSaveKey;
     private const float ReferenceAspect = 1672f / 941f;
     private const int SearchCanvasSortingOrder = 100;
 
@@ -70,11 +71,17 @@ public sealed class KayoSearchController : MonoBehaviour
     [Tooltip("カヨの日記用パズル画像。未設定の場合は既存パズルの仮画像を使用します。")]
     private Texture2D diaryPuzzleImage;
 
+    [Header("Optional Chapter Profile")]
+    [SerializeField] private SearchSceneProfileSO searchProfile;
+    private readonly Dictionary<string, GameObject> placedImages = new Dictionary<string, GameObject>();
+    private RawImage modalSecondaryStill;
+    private TMP_Text modalPlaceholderText;
+
     private readonly HashSet<string> acquiredItemIds =
         new HashSet<string>(StringComparer.Ordinal);
     private readonly List<ItemDefinition> items = new List<ItemDefinition>();
-    private readonly List<KayoSearchHotspot> hotspots =
-        new List<KayoSearchHotspot>();
+    private readonly List<SearchSceneHotspot> hotspots =
+        new List<SearchSceneHotspot>();
 
     private Canvas canvas;
     private RectTransform backgroundFrame;
@@ -115,7 +122,7 @@ public sealed class KayoSearchController : MonoBehaviour
         if (room1Background == null || room2Background == null)
         {
             Debug.LogError(
-                "KayoSearchControllerにroom1Background / room2Backgroundが設定されていません。",
+                "SearchSceneControllerにroom1Background / room2Backgroundが設定されていません。",
                 this);
             enabled = false;
             return;
@@ -126,7 +133,7 @@ public sealed class KayoSearchController : MonoBehaviour
         CaptureAndShowCursor();
         LoadProgress();
 
-        if (acquiredItemIds.Contains("bookshelf") &&
+        if (searchProfile == null && acquiredItemIds.Contains("bookshelf") &&
             room1PaperBackground != null)
         {
             currentRoom1Sprite = room1PaperBackground;
@@ -172,7 +179,7 @@ public sealed class KayoSearchController : MonoBehaviour
         }
         data.kind = "search";
         data.room = (int)currentRoom;
-        data.label = "カヨ編の探索";
+        data.label = searchProfile != null ? searchProfile.saveLabel : "カヨ編の探索";
         data.paperVisible = currentRoom1Sprite == room1PaperBackground;
         return true;
     }
@@ -297,6 +304,18 @@ public sealed class KayoSearchController : MonoBehaviour
     {
         items.Clear();
 
+        if (searchProfile != null)
+        {
+            foreach (SearchItemSettings settings in searchProfile.items)
+            {
+                items.Add(new ItemDefinition(settings.id, settings.archiveId, settings.title,
+                    (RoomView)settings.room, settings.anchorMin, settings.anchorMax,
+                    settings.uvRect, settings.sprite, settings.firstLineId, settings.lastLineId,
+                    settings.requiresItemId, hotspotPolygon: settings.hotspotPolygon));
+            }
+            return;
+        }
+
         items.Add(
             new ItemDefinition(
                 "bookshelf",
@@ -352,7 +371,7 @@ public sealed class KayoSearchController : MonoBehaviour
     private void BuildUI()
     {
         GameObject canvasObject = new GameObject(
-            "KayoSearchCanvas",
+            searchProfile != null ? "MoteruSearchCanvas" : "KayoSearchCanvas",
             typeof(RectTransform),
             typeof(Canvas),
             typeof(CanvasScaler),
@@ -395,6 +414,32 @@ public sealed class KayoSearchController : MonoBehaviour
             false).GetComponent<Image>();
         Stretch(backgroundImage.rectTransform);
         backgroundImage.preserveAspect = false;
+
+        if (searchProfile != null)
+        {
+            foreach (SearchItemSettings settings in searchProfile.items)
+            {
+                GameObject group = new GameObject($"PlacedImage_{settings.id}", typeof(RectTransform));
+                group.transform.SetParent(backgroundFrame, false);
+                SetAnchors(group, settings.anchorMin, settings.anchorMax);
+                placedImages.Add(settings.id, group);
+                // The room already contains this art (e.g. the bookshelf). Drawing
+                // a cropped copy here would duplicate it and change its scale/margins.
+                if (settings.useBackgroundArt) continue;
+                CreatePlacedImage(group.transform, settings.sprite, settings.uvRect,
+                    settings.secondarySprite == null ? Vector2.one : new Vector2(0.5f, 1f), Vector2.zero);
+                if (!string.IsNullOrEmpty(settings.placeholderText))
+                {
+                    TMP_Text caption = CreateText("PlaceholderText", group.transform, settings.placeholderText,
+                        20f, Color.black);
+                    Stretch(caption.rectTransform, 8f, 8f, 4f, 4f);
+                    caption.alignment = TextAlignmentOptions.Center;
+                }
+                if (settings.secondarySprite != null)
+                    CreatePlacedImage(group.transform, settings.secondarySprite, new Rect(0, 0, 1, 1),
+                        Vector2.one, new Vector2(0.5f, 0f));
+            }
+        }
 
         foreach (ItemDefinition item in items)
         {
@@ -443,6 +488,60 @@ public sealed class KayoSearchController : MonoBehaviour
             new Vector2(0.57f, 0.09f));
         roomIndicator.alignment = TextAlignmentOptions.Center;
         roomIndicator.characterSpacing = 4f;
+    }
+
+    private void CreatePlacedImage(Transform parent, Sprite sprite, Rect uv, Vector2 max, Vector2 min)
+    {
+        uv = ValidatedUvRect(uv);
+        // Dedicated art needs no UV crop. Let Image preserve the sprite aspect inside
+        // the already sized item bounds, so enabling a hidden item cannot collapse
+        // its rect through AspectRatioFitter's deferred layout update.
+        if (sprite != null && uv == new Rect(0f, 0f, 1f, 1f))
+        {
+            GameObject spriteObject = CreateImage("Art", parent, Color.white, false);
+            SetAnchors(spriteObject, min, max);
+            Image spriteImage = spriteObject.GetComponent<Image>();
+            spriteImage.sprite = sprite;
+            spriteImage.preserveAspect = true;
+            return;
+        }
+
+        GameObject imageObject = new GameObject("Art", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+        imageObject.transform.SetParent(parent, false);
+        SetAnchors(imageObject, min, max);
+        RawImage image = imageObject.GetComponent<RawImage>();
+        image.texture = sprite != null ? sprite.texture : null;
+        if (sprite == null) image.color = new Color(0.94f, 0.9f, 0.77f, 1f);
+        image.uvRect = uv;
+        image.raycastTarget = false;
+        if (sprite != null)
+        {
+            AspectRatioFitter fit = imageObject.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            fit.aspectRatio = sprite.texture.width * uv.width / (sprite.texture.height * uv.height);
+        }
+    }
+
+    private static Rect ValidatedUvRect(Rect uv)
+    {
+        // Older hand-authored Rect data can deserialize as an all-zero rectangle.
+        // Reject non-finite/out-of-range dimensions before aspect or UV calculations.
+        return uv.width > 0f && uv.height > 0f && uv.x >= 0f && uv.y >= 0f &&
+            uv.xMax <= 1.0001f && uv.yMax <= 1.0001f
+            ? uv : new Rect(0f, 0f, 1f, 1f);
+    }
+
+    private static Rect InspectionUvRect(Sprite sprite, Rect configuredUv)
+    {
+        Rect uv = ValidatedUvRect(configuredUv);
+        if (sprite == null || uv != new Rect(0f, 0f, 1f, 1f)) return uv;
+
+        // Dedicated art follows the current Sprite Editor slice, just like the
+        // exploration Image. Preserve explicit background crops used by Kayo.
+        Rect slice = sprite.rect;
+        Texture2D texture = sprite.texture;
+        return ValidatedUvRect(new Rect(slice.x / texture.width, slice.y / texture.height,
+            slice.width / texture.width, slice.height / texture.height));
     }
 
     private void BuildHeader(Transform parent)
@@ -510,6 +609,14 @@ public sealed class KayoSearchController : MonoBehaviour
         modalStill.color = Color.white;
         modalStill.raycastTarget = false;
         Stretch(modalStill.rectTransform);
+        GameObject secondary = new GameObject("SecondaryItemStill", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+        secondary.transform.SetParent(stillFrame.transform, false);
+        modalSecondaryStill = secondary.GetComponent<RawImage>();
+        modalSecondaryStill.raycastTarget = false;
+        secondary.SetActive(false);
+        modalPlaceholderText = CreateText("PlaceholderText", stillFrame.transform, "", 32f, Color.black);
+        Stretch(modalPlaceholderText.rectTransform, 12f, 12f, 12f, 12f);
+        modalPlaceholderText.alignment = TextAlignmentOptions.Center;
         AddBorder(stillFrame.transform, 4f, Gold);
 
         modalTitle = CreateText(
@@ -661,7 +768,7 @@ public sealed class KayoSearchController : MonoBehaviour
             polygon.SetPoints(item.HotspotPolygon);
             polygon.raycastTarget = true;
             polygon.SetGlowIntensity(0f);
-            KayoSearchHotspot polygonHotspot = polygonObject.AddComponent<KayoSearchHotspot>();
+            SearchSceneHotspot polygonHotspot = polygonObject.AddComponent<SearchSceneHotspot>();
             polygonHotspot.Initialize(this, item.Id, polygon);
             hotspots.Add(polygonHotspot);
             return;
@@ -674,8 +781,8 @@ public sealed class KayoSearchController : MonoBehaviour
             true);
         SetAnchors(hotspotObject, item.HotspotMin, item.HotspotMax);
 
-        KayoSearchHotspot hotspot =
-            hotspotObject.AddComponent<KayoSearchHotspot>();
+        SearchSceneHotspot hotspot =
+            hotspotObject.AddComponent<SearchSceneHotspot>();
 
         GameObject glow = CreateImage(
             "GoldenGlow",
@@ -709,7 +816,21 @@ public sealed class KayoSearchController : MonoBehaviour
 
     private void RefreshHotspots()
     {
-        foreach (KayoSearchHotspot hotspot in hotspots)
+        if (searchProfile != null)
+        {
+            foreach (SearchItemSettings settings in searchProfile.items)
+            {
+                ItemDefinition item = items.Find(candidate => candidate.Id == settings.id);
+                string busyItemId = isModalOpen ? inspectedItem?.Id : isDialogueOpen ? currentDialogueItem?.Id : null;
+                bool prerequisiteConversationFinished = string.IsNullOrEmpty(settings.requiresItemId) ||
+                    busyItemId != settings.requiresItemId;
+                // Remove collected paper/people only after their acquisition conversation.
+                placedImages[settings.id].SetActive(settings.room == (int)currentRoom &&
+                    IsPrerequisiteMet(item) && prerequisiteConversationFinished &&
+                    (!settings.hideImageWhenAcquired || !acquiredItemIds.Contains(settings.id) || busyItemId == settings.id));
+            }
+        }
+        foreach (SearchSceneHotspot hotspot in hotspots)
         {
             ItemDefinition item = items.Find(candidate => candidate.Id == hotspot.ItemId);
             bool visible = item != null &&
@@ -730,11 +851,26 @@ public sealed class KayoSearchController : MonoBehaviour
         isModalOpen = true;
         modalOpenedFrame = Time.frameCount;
         modalTitle.text = item.Title;
-        modalStill.texture = item.SourceSprite.texture;
-        modalStill.uvRect = item.StillUv;
-        modalStillAspect.aspectRatio =
-            (item.StillUv.width * item.SourceSprite.texture.width) /
-            (item.StillUv.height * item.SourceSprite.texture.height);
+        modalStill.texture = item.SourceSprite != null ? item.SourceSprite.texture : null;
+        modalStill.color = item.SourceSprite != null ? Color.white : new Color(0.94f, 0.9f, 0.77f, 1f);
+        Rect displayUv = InspectionUvRect(item.SourceSprite, item.StillUv);
+        modalStill.uvRect = displayUv;
+        modalStillAspect.aspectRatio = item.SourceSprite != null ?
+            (displayUv.width * item.SourceSprite.texture.width) /
+            (displayUv.height * item.SourceSprite.texture.height) : 1.4f;
+        SearchItemSettings settings = searchProfile != null
+            ? searchProfile.items.Find(candidate => candidate.id == item.Id) : null;
+        bool paired = settings != null && settings.secondarySprite != null;
+        modalPlaceholderText.text = settings != null ? settings.placeholderText : "";
+        modalSecondaryStill.gameObject.SetActive(paired);
+        SetAnchors(modalStill.gameObject, Vector2.zero, paired ? new Vector2(0.5f, 1f) : Vector2.one);
+        if (paired)
+        {
+            modalStillAspect.aspectRatio *= 2f;
+            modalSecondaryStill.texture = settings.secondarySprite.texture;
+            modalSecondaryStill.uvRect = InspectionUvRect(settings.secondarySprite, new Rect(0f, 0f, 1f, 1f));
+            SetAnchors(modalSecondaryStill.gameObject, new Vector2(0.5f, 0f), Vector2.one);
+        }
         modalRoot.SetActive(true);
         leftArrow.gameObject.SetActive(false);
         rightArrow.gameObject.SetActive(false);
@@ -907,16 +1043,17 @@ public sealed class KayoSearchController : MonoBehaviour
         }
 
         if (!Application.CanStreamedLevelBeLoaded(puzzleSceneName) ||
-            !Application.CanStreamedLevelBeLoaded(completionSceneName))
+            (searchProfile == null && !Application.CanStreamedLevelBeLoaded(completionSceneName)))
         {
             Debug.LogError(
-                $"カヨ探索の遷移先 '{puzzleSceneName}' / '{completionSceneName}' がBuild Settingsに登録されていません。",
+                $"探索の遷移先 '{puzzleSceneName}' が有効なScene Listにありません。",
                 this);
             yield break;
         }
 
         ArchiveManager.Close();
-        KayoPuzzleGameFlowController.Queue(
+        // Profile-based search opens the standalone puzzle, without the Kayo diary return route.
+        if (searchProfile == null) PuzzleGameFlowController.Queue(
             puzzleSceneName,
             completionSceneName,
             completionResumeLineId,
@@ -1146,7 +1283,7 @@ public sealed class KayoSearchController : MonoBehaviour
             Room = room;
             HotspotMin = hotspotMin;
             HotspotMax = hotspotMax;
-            StillUv = stillUv;
+            StillUv = ValidatedUvRect(stillUv);
             SourceSprite = sourceSprite;
             DialogueStartLineId = dialogueStartLineId;
             DialogueEndLineId = dialogueEndLineId;
@@ -1157,10 +1294,18 @@ public sealed class KayoSearchController : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    [UnityEditor.MenuItem("Tools/Moteru Search/Clear Saved Data")]
+    private static void ClearMoteruSavedData()
+    {
+        PlayerPrefs.DeleteKey("MoteruSearch.Acquired.v1");
+        PlayerPrefs.Save();
+        Debug.Log("モテル探索の取得済みデータを削除しました。");
+    }
+
     [UnityEditor.MenuItem("Tools/Kayo Search/Clear Saved Data")]
     private static void ClearSavedData()
     {
-        PlayerPrefs.DeleteKey(SaveKey);
+        PlayerPrefs.DeleteKey(KayoSaveKey);
         PlayerPrefs.Save();
         Debug.Log("カヨ探索の取得済みデータを削除しました。");
     }
@@ -1168,19 +1313,20 @@ public sealed class KayoSearchController : MonoBehaviour
     [UnityEditor.InitializeOnEnterPlayMode]
     private static void ClearSearchProgressOnEnterPlayMode()
     {
-        PlayerPrefs.DeleteKey(SaveKey);
+        PlayerPrefs.DeleteKey(KayoSaveKey);
+        PlayerPrefs.DeleteKey("MoteruSearch.Acquired.v1");
         PlayerPrefs.Save();
     }
 #endif
 }
 
-internal sealed class KayoSearchHotspot :
+internal sealed class SearchSceneHotspot :
     MonoBehaviour,
     IPointerEnterHandler,
     IPointerExitHandler,
     IPointerClickHandler
 {
-    private KayoSearchController owner;
+    private SearchSceneController owner;
     private GameObject glow;
     private CanvasGroup glowCanvasGroup;
     private Chapter1SearchPolygonGraphic polygonGlow;
@@ -1190,7 +1336,7 @@ internal sealed class KayoSearchHotspot :
     public string ItemId { get; private set; }
 
     public void Initialize(
-        KayoSearchController searchController,
+        SearchSceneController searchController,
         string itemId,
         GameObject goldenGlow)
     {
@@ -1203,7 +1349,7 @@ internal sealed class KayoSearchHotspot :
     }
 
     public void Initialize(
-        KayoSearchController searchController,
+        SearchSceneController searchController,
         string itemId,
         Chapter1SearchPolygonGraphic goldenGlow)
     {

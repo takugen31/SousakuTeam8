@@ -301,3 +301,11 @@ MonoBehaviour:
     lastScenarioName: Chapter_Yowashi_Consultation
     lastContentHash: bmSH0wu4CK72MMLcJAkqGHM+fkDCpfyZnca8FkBdiyI=
     enabled: 1
+  - csvGuid: 1afdbcd4ef3e4a79aa36da64a45bc80a
+    scenarioGuid: af40e8a8a1e14af4b7c28416fd5d25df
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_moteru_search
+    lastScenarioName: Chapter_Moteru_Search
+    lastContentHash: MsphV5nm0SWguf54SHNjLVUypaUIxL/W9HkB8Lc2/OA=
+    enabled: 1

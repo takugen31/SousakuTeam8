@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-/// <summary>既存の会話シーン遷移と日記パズルの往復処理を接続する。</summary>
-public sealed class YowashiPuzzleEntryController : MonoBehaviour
+/// <summary>設定された会話行からパズルへ進む際に、戻り先の会話位置を予約する。</summary>
+public sealed class DialoguePuzzleEntryController : MonoBehaviour
 {
     [SerializeField] private NovelDialogueController dialogueController;
     [SerializeField] private string puzzleSceneName = "PuzzleGame";
@@ -16,7 +16,7 @@ public sealed class YowashiPuzzleEntryController : MonoBehaviour
         if (dialogueController == null) dialogueController = GetComponent<NovelDialogueController>();
         if (dialogueController == null)
         {
-            Debug.LogError("ヨワシの日記パズルに会話コントローラーを設定してください。", this);
+            Debug.LogError("会話からのパズル遷移に会話コントローラーを設定してください。", this);
             enabled = false;
             return;
         }
@@ -31,10 +31,10 @@ public sealed class YowashiPuzzleEntryController : MonoBehaviour
 
         string returnSceneName = gameObject.scene.name;
         if (!Application.CanStreamedLevelBeLoaded(returnSceneName))
-            throw new InvalidOperationException("ヨワシの日記パズルの戻り先Sceneが無効です。");
+            throw new InvalidOperationException("パズルの戻り先の会話Sceneが無効です。");
 
         // 通常送りと章スキップの両方が、この同じ遷移通知を通る。
-        KayoPuzzleGameFlowController.Queue(
+        PuzzleGameFlowController.Queue(
             puzzleSceneName, returnSceneName, diaryResumeLineId, diaryPuzzleImage);
     }
 

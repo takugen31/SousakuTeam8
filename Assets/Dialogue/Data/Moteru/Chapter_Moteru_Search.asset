@@ -1,0 +1,424 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Moteru_Search
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: search_moteru_people_001
+    speakerId: doute
+    expressionId: normal
+    text: "2人とも調子はどう……って何をしてんの？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_002
+    speakerId: kayo
+    expressionId: normal
+    text: "あっ！ちょっとドウテっ！助けなさいっ……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_003
+    speakerId: yowashi
+    expressionId: normal
+    text: "この我から逃げ果せることなど不可能っ！ドウテくん左手あ〜げてっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_004
+    speakerId: doute
+    expressionId: normal
+    text: "えっ！はいっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_005
+    speakerId: kayo
+    expressionId: normal
+    text: "きゃあっ！ちょっと邪魔なんだけど……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_006
+    speakerId: yowashi
+    expressionId: normal
+    text: "はいっ捕まえた〜！まさか我との契りを忘れてはいまいな……？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_007
+    speakerId: kayo
+    expressionId: normal
+    text: "うぅ……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_008
+    speakerId: doute
+    expressionId: normal
+    text: "えっと、とりあえずノったけどなんの話？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_009
+    speakerId: yowashi
+    expressionId: normal
+    text: "お、気になる？気にしてる？気になっちゃうよね〜！いやむしろ木になるよねっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_010
+    speakerId: doute
+    expressionId: normal
+    text: "いやそれはないけど"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_011
+    speakerId: kayo
+    expressionId: normal
+    text: "こいつ、相変わらず元気ね……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_012
+    speakerId: yowashi
+    expressionId: normal
+    text: "むむっ！おふたりさんは息が合うね〜ヤキモチ妬いちゃうぞっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_013
+    speakerId: yowashi
+    expressionId: normal
+    text: "ほらほらカヨちゃんも、ドウテくんとイチャついてないで！GOだよ！ツーショ撮ろっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_014
+    speakerId: kayo
+    expressionId: normal
+    text: "あっこら……！ツーショットは撮るけどせめて着替えて……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_015
+    speakerId: doute
+    expressionId: normal
+    text: "行ってしまったぞ……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_016
+    speakerId: doute
+    expressionId: normal
+    text: "（どうやら2人はケッコウ仲良くなったみたいだ、むしろ仲良しすぎるけど。——そういえば、無意識に男女で考えていたけどこの時代だし必ずしも男女って訳じゃないよな……モテル……いやいや！さすがにっ！性別以外壁はないけどもっ！）"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_people_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_people_017
+    speakerId: doute
+    expressionId: normal
+    text: "……適当に部屋を見て回るか"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_bookshelf_001
+    speakerId: doute
+    expressionId: normal
+    text: "おぉ……！相変わらずこの本棚は豪華だ……！どんなのがあるのかなぁっと"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_bookshelf_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_bookshelf_002
+    speakerId: doute
+    expressionId: normal
+    text: "わあぁ……！『音都このこは男の娘』だ！もう絶版になっちゃった伝説の漫画……！触れる日が来るなんて……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_bookshelf_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_bookshelf_003
+    speakerId: doute
+    expressionId: normal
+    text: "うわっ！興奮してぶつかっちゃった……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_bookshelf_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_bookshelf_004
+    speakerId: doute
+    expressionId: normal
+    text: "……？今、なにか落ちたような……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_paper_001
+    speakerId: doute
+    expressionId: normal
+    text: "なんだこれ、なにか文字が書いてある……『僕……ヒ……な……』うーん……頑張ってみたけどいまいち読めなさそうだな"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_paper_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_paper_002
+    speakerId: doute
+    expressionId: normal
+    text: "破れてるみたいだし他の紙も見つければ組み立てて読めるかも……！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: search_moteru_paper_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: search_moteru_paper_003
+    speakerId: doute
+    expressionId: normal
+    text: "探してみよう！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

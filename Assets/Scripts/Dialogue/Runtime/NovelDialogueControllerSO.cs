@@ -2467,8 +2467,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         monologueTextMargin = bodyText.margin;
         if (monologueTextParent != null && monologueTextParent != dialogueRoot.transform)
         {
-            monologuePanelGroup = monologueTextParent.GetComponent<CanvasGroup>() ??
-                monologueTextParent.gameObject.AddComponent<CanvasGroup>();
+            // Unity can return a missing-component wrapper that ?? treats as non-null.
+            // Use Unity's null comparison before accessing the native CanvasGroup.
+            monologuePanelGroup = monologueTextParent.GetComponent<CanvasGroup>();
+            if (monologuePanelGroup == null)
+                monologuePanelGroup = monologueTextParent.gameObject.AddComponent<CanvasGroup>();
             monologuePanelAlpha = monologuePanelGroup.alpha;
             monologuePanelGroup.alpha = 0f;
         }
@@ -3240,7 +3243,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (panel != null && panel != dialogueRoot?.transform &&
             (choiceOptionsRoot == null || !choiceOptionsRoot.IsChildOf(panel)))
         {
-            choiceOnlyWindowGroup = panel.GetComponent<CanvasGroup>() ?? panel.gameObject.AddComponent<CanvasGroup>();
+            choiceOnlyWindowGroup = panel.GetComponent<CanvasGroup>();
+            if (choiceOnlyWindowGroup == null)
+                choiceOnlyWindowGroup = panel.gameObject.AddComponent<CanvasGroup>();
             choiceOnlyOriginalAlpha = choiceOnlyWindowGroup.alpha;
             choiceOnlyOriginalRaycasts = choiceOnlyWindowGroup.blocksRaycasts;
             choiceOnlyWindowGroup.alpha = 0f;

@@ -9,7 +9,7 @@ using UnityEngine.UI;
 /// directly keeps the existing standalone puzzle behaviour.
 /// </summary>
 [DisallowMultipleComponent]
-public sealed class KayoPuzzleGameFlowController : MonoBehaviour
+public sealed class PuzzleGameFlowController : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float completedDisplayDuration = 1f;
     [SerializeField, Min(0f)] private float fadeDuration = 0.8f;
@@ -149,7 +149,7 @@ public sealed class KayoPuzzleGameFlowController : MonoBehaviour
         yield return new WaitForSecondsRealtime(completedDisplayDuration);
 
         var canvasObject = new GameObject(
-            "Kayo Puzzle Return Fade",
+            "Puzzle Return Fade",
             typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster));
         canvasObject.transform.SetParent(transform, false);
         var canvas = canvasObject.GetComponent<Canvas>();

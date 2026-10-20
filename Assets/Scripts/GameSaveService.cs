@@ -55,7 +55,7 @@ public static class GameSaveService
     private static GameSaveData pending;
     private static readonly string[] scenes = {
         "NovelScene", "NovelScene_Kayo", "NovelScene_Yowashi",
-        "Chapter1_SearchScene", "Chapter_Kayo_SearchScene", "SelectionPart"
+        "Chapter1_SearchScene", "Chapter_Kayo_SearchScene", "Chapter_Moteru_SearchScene", "SelectionPart"
     };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -90,11 +90,11 @@ public static class GameSaveService
         reason = "この場面ではセーブできません。";
         if (Array.IndexOf(scenes, data.scene) < 0) return false;
         Chapter1SearchController common = UnityEngine.Object.FindFirstObjectByType<Chapter1SearchController>();
-        KayoSearchController kayo = UnityEngine.Object.FindFirstObjectByType<KayoSearchController>();
+        SearchSceneController search = UnityEngine.Object.FindFirstObjectByType<SearchSceneController>();
         SelectionPartController selection = UnityEngine.Object.FindFirstObjectByType<SelectionPartController>();
         bool ready;
         if (common != null) ready = common.CaptureCheckpoint(data);
-        else if (kayo != null) ready = kayo.CaptureCheckpoint(data);
+        else if (search != null) ready = search.CaptureCheckpoint(data);
         else if (selection != null) ready = selection.CaptureCheckpoint(data);
         else
         {

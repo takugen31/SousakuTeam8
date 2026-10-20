@@ -134,6 +134,45 @@ IDは `001〜012` の連番です。以前の `009` のセリフは下の選択�
 
 選択先が「本文が空・選択肢なし・`nextScenePath` あり」の行の場合、追加の会話送りなしでシーン遷移を始めます。通常の空のセリフは従来どおり表示します。暗転は `NovelDialogueController` の **Use Scene Transition Fade / Scene Fade Out Duration / Scene Fade Hold Duration** に従います。現在の `NovelScene_Moteru` はフェードアウト1秒、暗転保持0.15秒です。
 
+## 会話とパズルの共通遷移処理
+
+- `DialoguePuzzleEntryController.cs`：会話からパズルへ進む直前に、戻る会話シーンと再開行を予約します。Inspectorの **Dialogue Controller / Puzzle Scene Name / Puzzle Entry Line Id / Diary Resume Line Id / Diary Puzzle Image** で各ルートの設定を行います。現在のヨワシシーンは `chapter_yowashi_1_035` から進み、`chapter_yowashi_diary_001` に戻る設定です。
+- `PuzzleGameFlowController.cs`：パズル側で予約を受け取り、クリア後に待機・暗転を行って指定の会話シーンへ戻ります。カヨ・ヨワシなどで共有します。パズルシーンを直接Playした場合は、戻り先の予約がないため単体起動として動作します。
+
+改名前のスクリプトのGUIDを引き継いでいるため、シーン上のコンポーネントの付け直しは不要です。既存の遷移タイミングと再開位置は維持しています。
+
+### 日記・独白表示時のCanvasGroup
+
+ヨワシ／カヨの日記やドウテの独白では、本文を画面中央へ移す間、通常の `DialoguePanel` を `CanvasGroup.alpha` で隠します。CanvasGroupがない場合はコードで追加するため、シーンへ手動で付ける必要はありません。
+
+Unityの未接続コンポーネントはC#の `??` で正しく判定できない場合があります。`GetComponent<CanvasGroup>()` の取得後に `== null` で判定して追加する処理へ修正しました。同じ書き方だった選択肢だけの表示にも適用しています。独立したUnity環境で修正前の例外を再現し、修正後の日記・独白・選択肢表示、元の透明度への復帰、コンポーネントの重複がないことを確認済みです。検証コードは `work/DialogueCanvasGroupChecks.cs` です。
+
+## モテルの探索パート
+
+`Assets/Scenes/GameMap/Chapter_Kayo_SearchScene.unity` と `Chapter_Moteru_SearchScene.unity` は、Main Cameraに付けた共通の `SearchSceneController` を使用します。モテル側は `Assets/Dialogue/Data/Moteru/MoteruSearchProfile.asset` で対象・画像・配置・会話範囲を切り替えます。左右の矢印、調査時の金色の強調、取得画面、会話UIはカヨと共通です。
+
+| 対象 | 配置 | 取得画面を閉じた後の会話 |
+| --- | --- | --- |
+| 本棚 | 左の部屋の左側 | `search_moteru_bookshelf_001〜004` |
+| 紙片 | 左の部屋の本棚右手前。本棚の会話後に出現 | `search_moteru_paper_001〜003` |
+| カヨとヨワシ | 右の部屋のベッドの左側 | `search_moteru_people_001〜017` |
+
+会話原稿は `Assets/Dialogue/CSV/Moteru/chapter_moteru_search.csv`、ゲーム用データは `Assets/Dialogue/Data/Moteru/Chapter_Moteru_Search.asset` です。24行を作成し、CSV Sync Settingsへペア登録済みなので、CSVを保存してUnityが再読み込みするとアセットへ反映します。各対象の最終行で会話を止め、別の対象の会話へ続けて流れないようにしています。
+
+3か所すべての取得と最後の会話が終わると、カヨと同じ処理で2.5秒かけて暗転し、2秒待って `Assets/PuzzleGame/Scenes/PuzzleGame.unity` へ進みます。カヨの日記パズル用の戻り先は予約しません。パズル完了後のモテル専用遷移は、この探索設定には含めていません。
+
+画像と位置を変える場合は **MoteruSearchProfile > Items** を編集します。`room` は0が左、1が右。`anchorMin` / `anchorMax` は画面の左下を0、右上を1とする配置範囲で、画像とクリック範囲を共有します。`sprite` が主画像、`secondarySprite` が2人目の画像です。背景を切り出す場合だけ `uvRect` に切り出し範囲を指定し、専用画像なら `{x: 0, y: 0, width: 1, height: 1}` にします。`firstLineId` / `lastLineId` は会話の先頭と末尾、`requiresItemId` は先に調べる対象です。
+
+**画像設定：** 紙片は `Assets/Art/Items/SearchGame/paper_fragment.png` を探索画面・取得画面の両方で使用します。仮表示の文字は削除済みです。本棚は `useBackgroundArt` を有効にして背景に描かれた本棚をそのまま使い、画像を重ねません。大きさ・周辺の余白・`hotspotPolygon` のクリック／強調範囲をカヨ側とそろえています。取得画面には従来どおり本棚部分の切り出しを表示します。2人は `kayo_normal.PNG` と `yowashi_normal.png` を並べる暫定設定です。専用画像を追加したら `sprite` を設定し、`placeholderText` を空欄にしてください。
+
+アセットをテキストで編集する場合、`uvRect` は `{serializedVersion: 2, x: 0, y: 0, width: 1, height: 1}` のようにバージョンも記載します。省略するとUnityが幅・高さを0として読み込み、画像が見えなくなる場合があります。不正な範囲は実行時にも画像全体へ補正します。専用画像は `Image.preserveAspect` で表示し、非表示からの復帰時にサイズ計算が不安定になるのを防いでいます。
+
+紙片などの専用画像を更新した場合、探索画面・取得画面ともに現在のスプライトの切り出し範囲と縦横比を使用します。取得画面だけPNG全体の余白が入ったり、以前の比率に引き伸ばされたりしないようにしています。本棚などの明示的な `uvRect` の切り出しは維持します。再生中に差し替えた場合は、停止して再実行すると生成済みのUIも作り直されます。
+
+取得した情報は `chapter_moteru.bookshelf`・`chapter_moteru.paper_scrap`・`chapter_moteru.kayo_yowashi` としてアーカイブに保存します。取得済み判定は `MoteruSearch.Acquired.v1` に保存し、カヨの進捗とは分離しています。ニューゲームで初期化し、探索中のセーブ・ロードでも復元します。Editorの再生開始時にも初期化します。手動で初期化する場合は **Tools > Moteru Search > Clear Saved Data** を使います。
+
+検証用の `work/verify-moteru-search.ps1` は、独立したUnityプロジェクトへ本番コードとデータをコピーして実行します。CSVとアセット24行の一致、3通りの探索順、紙片の出現条件、取得UI、取得情報、会話の停止位置、時間停止中の暗転とパズルへのシーン読み込み、旧セーブ形式の受け入れ、カヨ既定の探索対象を確認済みです。検証先のパズルシーンは空の同名シーンに置き換えており、パズル本体のプレイや画面の目視確認は含みません。
+
 ## プログラム査読結果
 
 適用を妨げるコード上の不具合は見つかりませんでした。

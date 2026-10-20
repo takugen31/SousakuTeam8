@@ -1,0 +1,12 @@
+<Project>
+  <Import Project="$(MSBuildProjectDirectory)\work\kayo-puzzle-build.targets" />
+  <!-- Unity may not have regenerated the IDE project for newly added scripts yet. -->
+  <Target Name="IncludeMoteruSearchScripts" BeforeTargets="CoreCompile" Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
+    <ItemGroup>
+      <Compile Remove="Assets\Scripts\Search\KayoSearchController.cs;Assets\Scripts\Search\SearchSceneController.cs" />
+      <Compile Include="Assets\Scripts\Search\SearchSceneController.cs" />
+      <Compile Remove="Assets\Scripts\Search\SearchSceneProfileSO.cs;Assets\FallingGame\Scripts\CatchGameFade.cs;Assets\FallingGame\Scripts\MoteruCatchGameFlowController.cs" />
+      <Compile Include="Assets\Scripts\Search\SearchSceneProfileSO.cs;Assets\FallingGame\Scripts\CatchGameFade.cs;Assets\FallingGame\Scripts\MoteruCatchGameFlowController.cs" />
+    </ItemGroup>
+  </Target>
+</Project>
