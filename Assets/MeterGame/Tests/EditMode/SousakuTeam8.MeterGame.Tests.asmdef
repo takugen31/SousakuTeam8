@@ -1,0 +1,8 @@
+{
+  "name": "SousakuTeam8.MeterGame.Tests",
+  "references": ["SousakuTeam8.MeterGame", "Unity.ugui", "Unity.InputSystem"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}
