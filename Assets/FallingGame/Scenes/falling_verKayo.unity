@@ -638,7 +638,7 @@ MonoBehaviour:
   stackedBadItemSize: {x: 1.4, y: 0.85}
   forceHighestQualityLevel: 1
   renderScale: 2
-  antiAliasingSamples: 4
+  antiAliasingSamples: 1
   scoreText: {fileID: 1951000003}
   feedbackText: {fileID: 1954000003}
   timeText: {fileID: 1955000003}
@@ -2161,7 +2161,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -3739447658544770733, guid: efe2988ead34c484c8f9cb07bee4e3c9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bbf89f33fc7045a39d78eccd93dd8cb5, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

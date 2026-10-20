@@ -596,6 +596,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1599555667}
   - component: {fileID: 1599555666}
+  - component: {fileID: 2200000000}
   m_Layer: 0
   m_Name: Catch Mini Game
   m_TagString: Untagged
@@ -637,7 +638,7 @@ MonoBehaviour:
   stackedBadItemSize: {x: 1.4, y: 0.85}
   forceHighestQualityLevel: 1
   renderScale: 2
-  antiAliasingSamples: 4
+  antiAliasingSamples: 1
   scoreText: {fileID: 1951000003}
   feedbackText: {fileID: 1954000003}
   timeText: {fileID: 1955000003}
@@ -2160,7 +2161,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3723320481748638380, guid: b74cda49f68286b4da60be85c8b7bf79, type: 3}
+  m_Sprite: {fileID: -8838777000032000206, guid: 722e4816d64bcdb469b6b6ebb1d7e425, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -9154,6 +9155,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ef7aebc75513934da083a4be6e93971, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sousakusai8.MiniGame.FallingItem
+--- !u!114 &2200000000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1599555665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86296950f3de43a3a1440569fceb5862, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Sousakusai8.MiniGame.MoteruCatchGameFlowController
+  miniGame: {fileID: 1599555666}
+  resultDisplayDuration: 2
+  fadeDuration: 0.8
+  returnSceneName: NovelScene_Moteru
+  resumeScenario: {fileID: 11400000, guid: 99888807a1a947eca129f7c3180e42d6, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

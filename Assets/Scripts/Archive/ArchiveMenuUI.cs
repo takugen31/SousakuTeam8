@@ -38,6 +38,7 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
     private GameObject notificationRoot;
     private TMP_Text notificationText;
     private Coroutine notificationCoroutine;
+    private readonly Queue<string> pendingNotifications = new Queue<string>();
     private GameObject informationRoot;
     private Button autoButton;
     private Button skipButton;
@@ -86,8 +87,8 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         if (selection != null) return selection.CurrentOperationHelp;
         Chapter1SearchController commonSearch = FindFirstObjectByType<Chapter1SearchController>();
         if (commonSearch != null) return commonSearch.CurrentOperationHelp;
-        KayoSearchController kayoSearch = FindFirstObjectByType<KayoSearchController>();
-        if (kayoSearch != null) return kayoSearch.CurrentOperationHelp;
+        SearchSceneController search = FindFirstObjectByType<SearchSceneController>();
+        if (search != null) return search.CurrentOperationHelp;
         SousakuTeam8.PuzzleGame.PuzzleGameController puzzle = FindFirstObjectByType<SousakuTeam8.PuzzleGame.PuzzleGameController>();
         if (puzzle != null) return "ピースを移動：左ドラッグ＆ドロップ";
         Sousakusai8.MiniGame.CatchMiniGameController catcher = FindFirstObjectByType<Sousakusai8.MiniGame.CatchMiniGameController>();
@@ -330,18 +331,22 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
 
     public void ShowUnlockNotification(string entryTitle)
     {
-        if (notificationCoroutine != null)
-        {
-            StopCoroutine(notificationCoroutine);
-        }
+        pendingNotifications.Enqueue(entryTitle);
+        if (notificationCoroutine == null)
+            notificationCoroutine = StartCoroutine(ShowPendingNotifications());
+    }
 
-        notificationCoroutine = StartCoroutine(
-            ShowNotificationRoutine(entryTitle));
+    private IEnumerator ShowPendingNotifications()
+    {
+        while (pendingNotifications.Count > 0)
+            yield return ShowNotificationRoutine(pendingNotifications.Dequeue());
+        notificationCoroutine = null;
     }
 
     private IEnumerator ShowNotificationRoutine(string entryTitle)
     {
         notificationText.text = $"<color=#FFD34D>New!</color>  /  {entryTitle}";
+        SizeNotificationToText();
         notificationRoot.SetActive(true);
         Canvas.ForceUpdateCanvases();
         RectTransform rect = notificationRoot.GetComponent<RectTransform>();
@@ -350,7 +355,20 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         yield return new WaitForSecondsRealtime(3.2f);
         yield return SlideNotification(rect, 0f, hiddenX);
         notificationRoot.SetActive(false);
-        notificationCoroutine = null;
+    }
+
+    private void SizeNotificationToText()
+    {
+        const float leftPadding = 48f, rightPadding = 28f, verticalPadding = 14f;
+        RectTransform rect = notificationRoot.GetComponent<RectTransform>();
+        Canvas.ForceUpdateCanvases();
+        RectTransform parent = rect.parent as RectTransform;
+        float maxWidth = parent != null ? Mathf.Max(96f, parent.rect.width * 0.75f) : 800f;
+        Vector2 natural = notificationText.GetPreferredValues(notificationText.text, Mathf.Infinity, Mathf.Infinity);
+        float width = Mathf.Clamp(Mathf.Ceil(natural.x + leftPadding + rightPadding), 96f, maxWidth);
+        Vector2 fitted = notificationText.GetPreferredValues(notificationText.text,
+            width - leftPadding - rightPadding, Mathf.Infinity);
+        rect.sizeDelta = new Vector2(width, Mathf.Ceil(fitted.y + verticalPadding * 2f));
     }
 
     private IEnumerator SlideNotification(RectTransform rect, float startX, float endX)
@@ -636,14 +654,20 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
     private void BuildNotification(Transform parent)
     {
         notificationRoot = CreatePanel("ArchiveNotification", parent, new Color(0f, 0f, 0f, 0.82f));
-        SetAnchors(notificationRoot, new Vector2(0.65f, 0.87f), new Vector2(1f, 0.95f), Vector2.zero, Vector2.zero);
+        RectTransform rect = notificationRoot.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.91f);
+        rect.pivot = new Vector2(1f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = new Vector2(280f, 68f);
         notificationRoot.GetComponent<Image>().raycastTarget = false;
-        notificationRoot.AddComponent<DialogueWindowFeather>().ConfigureLeftEdgeOnly(64f);
+        notificationRoot.AddComponent<DialogueWindowFeather>().ConfigureLeftEdgeOnly(32f);
 
-        notificationText = CreateText("Text", notificationRoot.transform, string.Empty, 16f, PrimaryTextColor, FontStyles.Bold);
-        SetAnchors(notificationText.gameObject, new Vector2(0.06f, 0f), new Vector2(0.95f, 1f), Vector2.zero, Vector2.zero);
+        notificationText = CreateText("Text", notificationRoot.transform, string.Empty, 28f, PrimaryTextColor, FontStyles.Bold);
+        notificationText.enableAutoSizing = false;
+        SetAnchors(notificationText.gameObject, Vector2.zero, Vector2.one, new Vector2(48f, 14f), new Vector2(-28f, -14f));
         notificationText.alignment = TextAlignmentOptions.MidlineLeft;
         notificationText.richText = true;
+        notificationText.textWrappingMode = TextWrappingModes.Normal;
     }
 
     private void RefreshAll()

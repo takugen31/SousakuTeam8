@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6aa9bf4aebe49eab66b2ecba1da644f, type: 3}
+  m_Name: MoteruSearchProfile
+  m_EditorClassIdentifier: Assembly-CSharp::SearchSceneProfileSO
+  saveKey: MoteruSearch.Acquired.v1
+  saveLabel: モテル編の探索
+  completionFirstLineId: search_moteru_001
+  completionLastLineId: search_moteru_003
+  items:
+  - id: bookshelf
+    archiveId: chapter_moteru.bookshelf
+    title: 本棚
+    room: 0
+    anchorMin: {x: 0.12, y: 0.11}
+    anchorMax: {x: 0.34, y: 0.66}
+    useBackgroundArt: 1
+    hotspotPolygon:
+    - {x: 0.1330, y: 0.6440}
+    - {x: 0.3164, y: 0.6440}
+    - {x: 0.3272, y: 0.6323}
+    - {x: 0.3272, y: 0.1637}
+    - {x: 0.3164, y: 0.1456}
+    - {x: 0.1330, y: 0.1456}
+    sprite: {fileID: -807315467421928614, guid: a0d5e8ce798948c98423e645ed6e234f, type: 3}
+    secondarySprite: {fileID: 0}
+    uvRect: {serializedVersion: 2, x: 0.095, y: 0.08, width: 0.27, height: 0.64}
+    firstLineId: search_moteru_bookshelf_001
+    lastLineId: search_moteru_bookshelf_004
+    requiresItemId: 
+    hideImageWhenAcquired: 0
+  - id: paper_scrap
+    archiveId: chapter_moteru.paper_scrap
+    title: 紙片
+    room: 0
+    anchorMin: {x: 0.30, y: 0.03}
+    anchorMax: {x: 0.48, y: 0.21}
+    sprite: {fileID: -4935056456545459050, guid: 7ef41c3b6dfc5414ebdfab5001f3c09f, type: 3}
+    secondarySprite: {fileID: 0}
+    placeholderText:
+    uvRect: {serializedVersion: 2, x: 0, y: 0, width: 1, height: 1}
+    firstLineId: search_moteru_paper_001
+    lastLineId: search_moteru_paper_003
+    requiresItemId: bookshelf
+    hideImageWhenAcquired: 1
+  - id: kayo_yowashi
+    archiveId: chapter_moteru.kayo_yowashi
+    title: カヨとヨワシ
+    room: 1
+    anchorMin: {x: 0.19, y: 0.13}
+    anchorMax: {x: 0.49, y: 0.68}
+    sprite: {fileID: 1240851174394323274, guid: b239034ee8fcad04788dfe82fda004a4, type: 3}
+    secondarySprite: {fileID: 1223118908298377405, guid: ab77056009af31a44b33dde5dab2de7d, type: 3}
+    uvRect: {serializedVersion: 2, x: 0, y: 0, width: 1, height: 1}
+    firstLineId: search_moteru_people_001
+    lastLineId: search_moteru_people_017
+    requiresItemId: 
+    hideImageWhenAcquired: 1

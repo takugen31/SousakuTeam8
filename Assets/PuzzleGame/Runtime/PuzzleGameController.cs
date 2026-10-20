@@ -17,13 +17,13 @@ namespace SousakuTeam8.PuzzleGame
         private const float BoardInset = 18f;
         private const float MoveAnimationDuration = 0.18f;
 
-        private static readonly Color BackgroundColor = FromHex("#101A2D");
-        private static readonly Color BackgroundAccentColor = FromHex("#1A2945");
-        private static readonly Color BoardColor = FromHex("#F1745B");
-        private static readonly Color BoardCompleteColor = FromHex("#FFD26A");
-        private static readonly Color SlotColor = FromHex("#243551");
-        private static readonly Color PrimaryTextColor = FromHex("#FFF7E8");
-        private static readonly Color SecondaryTextColor = FromHex("#AEBAD0");
+        private static readonly Color BackgroundColor = new Color(0f, 0f, 0f, 0.48f);
+        private static readonly Color BackgroundAccentColor = new Color(0f, 0f, 0f, 0.76f);
+        private static readonly Color BoardColor = new Color(0f, 0f, 0f, 0.9f);
+        private static readonly Color BoardCompleteColor = new Color(0.18f, 0.18f, 0.16f, 0.94f);
+        private static readonly Color SlotColor = new Color(0f, 0f, 0f, 0.7f);
+        private static readonly Color PrimaryTextColor = FromHex("#F5F5F0");
+        private static readonly Color SecondaryTextColor = FromHex("#DDDDD6");
         private static readonly Color NavyColor = FromHex("#0D2D58");
 
         [Header("Puzzle image")]
@@ -62,6 +62,8 @@ namespace SousakuTeam8.PuzzleGame
         private Text _completionText;
         private CanvasGroup _completionCanvasGroup;
         private Font _font;
+        [SerializeField] private Sprite roomBackground;
+        [SerializeField] private Font uiFont;
         private Texture2D _activePuzzleImage;
 
         private PuzzlePieceView _activeDrag;
@@ -92,7 +94,7 @@ namespace SousakuTeam8.PuzzleGame
         private void Awake()
         {
             _root = GetComponent<RectTransform>();
-            _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _font = uiFont != null ? uiFont : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             BuildInterface();
 
             if (startAutomatically)
@@ -107,6 +109,12 @@ namespace SousakuTeam8.PuzzleGame
             {
                 ApplyResponsiveLayout();
             }
+        }
+
+        public void ConfigureTheme(Sprite background, Font font)
+        {
+            roomBackground = background;
+            uiFont = font;
         }
 
         public void Restart()
@@ -156,7 +164,8 @@ namespace SousakuTeam8.PuzzleGame
             _completionCanvasGroup.alpha = 0f;
             _completionBadgeRect.localScale = Vector3.one * 0.88f;
             _completionBadgeRect.gameObject.SetActive(false);
-            _statusText.text = "ピースをドラッグして場所を交換";
+            _statusText.gameObject.SetActive(true);
+            _statusText.text = "ドラッグしてピースを並び替えよう！";
             UpdateMoveCount();
 
             if (wasStarted)
@@ -285,55 +294,61 @@ namespace SousakuTeam8.PuzzleGame
                 Stretch(_root);
             }
 
-            var background = CreateImage("Background", _root, BackgroundColor, false);
+            if (roomBackground != null)
+            {
+                var room = CreateImage("Room Background", _root, Color.white, false);
+                room.sprite = roomBackground;
+                Stretch(room.rectTransform);
+                var cover = room.gameObject.AddComponent<AspectRatioFitter>();
+                cover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                cover.aspectRatio = roomBackground.rect.width / roomBackground.rect.height;
+            }
+            var background = CreateImage("Background Shade", _root, BackgroundColor, false);
             Stretch(background.rectTransform);
-
-            var accentTop = CreateImage("Accent Top", _root, BackgroundAccentColor, false);
-            var accentTopRect = accentTop.rectTransform;
-            accentTopRect.anchorMin = new Vector2(0f, 1f);
-            accentTopRect.anchorMax = new Vector2(1f, 1f);
-            accentTopRect.pivot = new Vector2(0.5f, 1f);
-            accentTopRect.sizeDelta = new Vector2(0f, 8f);
 
             _safeArea = CreateRect("Safe Area", _root);
             Stretch(_safeArea);
 
-            _header = CreateRect("Header", _safeArea);
-
-            var kickerImage = CreateImage("Kicker", _header, BoardCompleteColor, false);
-            var kickerRect = kickerImage.rectTransform;
-            kickerRect.anchorMin = kickerRect.anchorMax = new Vector2(0f, 1f);
-            kickerRect.pivot = new Vector2(0f, 1f);
-            kickerRect.sizeDelta = new Vector2(178f, 32f);
-            var kicker = CreateText("Label", kickerRect, "PIECE PUZZLE", 18, FontStyle.Bold, TextAnchor.MiddleCenter, NavyColor);
-            Stretch(kicker.rectTransform, 4f);
-
-            var title = CreateText("Title", _header, "3 × 3  PUZZLE", 48, FontStyle.Bold, TextAnchor.MiddleLeft, PrimaryTextColor);
+            _header = CreateImage("Header", _safeArea, BackgroundAccentColor, false).rectTransform;
+            _header.gameObject.AddComponent<PuzzlePanelFeather>();
+            var title = CreateText("Title", _header, "パズル", 44, FontStyle.Normal, TextAnchor.MiddleCenter, PrimaryTextColor);
             _titleRect = title.rectTransform;
 
-            var subtitle = CreateText("Subtitle", _header, "9枚を正しい順番に並べて、1枚の絵を完成させよう", 19, FontStyle.Normal, TextAnchor.MiddleLeft, SecondaryTextColor);
+            var subtitle = CreateText("Subtitle", _header, "9枚のピースを並べて、絵を完成させよう", 22, FontStyle.Normal, TextAnchor.MiddleLeft, SecondaryTextColor);
             _subtitleRect = subtitle.rectTransform;
+            subtitle.horizontalOverflow = HorizontalWrapMode.Wrap;
+            subtitle.resizeTextForBestFit = true;
+            subtitle.resizeTextMinSize = 12;
+            subtitle.resizeTextMaxSize = 22;
 
             var moveBadgeImage = CreateImage("Move Counter", _header, BackgroundAccentColor, false);
             _moveBadge = moveBadgeImage.rectTransform;
-            var moveLabel = CreateText("Label", _moveBadge, "MOVES", 14, FontStyle.Bold, TextAnchor.UpperCenter, SecondaryTextColor);
-            moveLabel.rectTransform.anchorMin = new Vector2(0f, 0.5f);
-            moveLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
-            moveLabel.rectTransform.offsetMin = new Vector2(0f, -4f);
-            moveLabel.rectTransform.offsetMax = new Vector2(0f, -7f);
-            _moveCountText = CreateText("Value", _moveBadge, "00", 30, FontStyle.Bold, TextAnchor.LowerCenter, PrimaryTextColor);
-            _moveCountText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            _moveCountText.rectTransform.anchorMax = new Vector2(1f, 0.62f);
-            _moveCountText.rectTransform.offsetMin = new Vector2(0f, 4f);
-            _moveCountText.rectTransform.offsetMax = Vector2.zero;
+            moveBadgeImage.gameObject.AddComponent<PuzzlePanelFeather>();
+            var moveLabel = CreateText("Label", _moveBadge, "操作回数", 18, FontStyle.Normal, TextAnchor.MiddleCenter, SecondaryTextColor);
+            moveLabel.rectTransform.anchorMin = Vector2.zero;
+            moveLabel.rectTransform.anchorMax = new Vector2(0.58f, 1f);
+            moveLabel.rectTransform.offsetMin = new Vector2(12f, 0f);
+            moveLabel.rectTransform.offsetMax = new Vector2(-4f, 0f);
+            _moveCountText = CreateText("Value", _moveBadge, "00", 30, FontStyle.Bold, TextAnchor.MiddleCenter, PrimaryTextColor);
+            _moveCountText.rectTransform.anchorMin = new Vector2(0.58f, 0f);
+            _moveCountText.rectTransform.anchorMax = Vector2.one;
+            _moveCountText.rectTransform.offsetMin = new Vector2(4f, 0f);
+            _moveCountText.rectTransform.offsetMax = new Vector2(-12f, 0f);
+            _moveCountText.resizeTextForBestFit = true;
+            _moveCountText.resizeTextMinSize = 16;
+            _moveCountText.resizeTextMaxSize = 30;
+            _moveCountText.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             var shadowImage = CreateImage("Board Shadow", _safeArea, new Color(0f, 0f, 0f, 0.28f), false);
+            shadowImage.gameObject.AddComponent<PuzzlePanelFeather>();
             _boardShadow = shadowImage.rectTransform;
 
             _boardImage = CreateImage("Board", _safeArea, BoardColor, false);
             _board = _boardImage.rectTransform;
+            _boardImage.gameObject.AddComponent<PuzzlePanelFeather>();
 
             var boardInner = CreateImage("Board Inner", _board, BackgroundColor, false);
+            boardInner.gameObject.AddComponent<PuzzlePanelFeather>();
             Stretch(boardInner.rectTransform, 8f);
 
             _slotLayer = CreateRect("Slots", _board);
@@ -376,14 +391,16 @@ namespace SousakuTeam8.PuzzleGame
             _dragLayer = CreateRect("Drag Layer", _root);
             Stretch(_dragLayer);
 
-            _footer = CreateRect("Footer", _safeArea);
-            _statusText = CreateText("Status", _footer, string.Empty, 18, FontStyle.Normal, TextAnchor.MiddleCenter, SecondaryTextColor);
+            _footer = CreateImage("Footer", _safeArea, BackgroundAccentColor, false).rectTransform;
+            _footer.gameObject.AddComponent<PuzzlePanelFeather>();
+            _statusText = CreateText("Status", _footer, string.Empty, 26, FontStyle.Normal, TextAnchor.MiddleCenter, PrimaryTextColor);
             _statusRect = _statusText.rectTransform;
 
-            var completionImage = CreateImage("Completion Badge", _safeArea, BoardCompleteColor, false);
+            var completionImage = CreateImage("Completion Badge", _safeArea, BackgroundAccentColor, false);
+            completionImage.gameObject.AddComponent<PuzzlePanelFeather>();
             _completionBadgeRect = completionImage.rectTransform;
             _completionCanvasGroup = completionImage.gameObject.AddComponent<CanvasGroup>();
-            _completionText = CreateText("Text", _completionBadgeRect, "完成！", 25, FontStyle.Bold, TextAnchor.MiddleCenter, NavyColor);
+            _completionText = CreateText("Text", _completionBadgeRect, "完成！", 28, FontStyle.Normal, TextAnchor.MiddleCenter, FromHex("#FFD34D"));
             Stretch(_completionText.rectTransform, 8f);
             _completionBadgeRect.gameObject.SetActive(false);
 
@@ -441,31 +458,33 @@ namespace SousakuTeam8.PuzzleGame
             var width = Mathf.Max(360f, _safeArea.rect.width);
             var height = Mathf.Max(540f, _safeArea.rect.height);
             var horizontalMargin = Mathf.Clamp(width * 0.045f, 28f, 72f);
-            var headerWidth = Mathf.Min(width - horizontalMargin * 2f, 980f);
-            const float headerHeight = 128f;
+            const float counterWidth = 176f;
+            const float descriptionGap = 16f;
+            float preferredDescriptionWidth = _subtitleRect.GetComponent<Text>().preferredWidth;
+            var headerWidth = Mathf.Min(width - horizontalMargin * 2f,
+                preferredDescriptionWidth + descriptionGap + counterWidth + 64f);
+            const float headerHeight = 144f;
             const float headerTop = 24f;
             const float footerHeight = 62f;
             const float footerBottom = 22f;
 
             SetCenteredTop(_header, new Vector2(headerWidth, headerHeight), headerTop);
 
-            var kicker = (RectTransform)_header.Find("Kicker");
-            kicker.anchoredPosition = Vector2.zero;
+            SetCenteredTop(_titleRect, new Vector2(headerWidth - 64f, 55f), 8f);
 
-            _titleRect.anchorMin = _titleRect.anchorMax = new Vector2(0f, 1f);
-            _titleRect.pivot = new Vector2(0f, 1f);
-            _titleRect.anchoredPosition = new Vector2(0f, -34f);
-            _titleRect.sizeDelta = new Vector2(headerWidth - 180f, 55f);
-
-            _subtitleRect.anchorMin = _subtitleRect.anchorMax = new Vector2(0f, 1f);
+            // Center the description and counter as one compact row.
+            float descriptionWidth = Mathf.Min(preferredDescriptionWidth,
+                headerWidth - 64f - counterWidth - descriptionGap);
+            float rowWidth = descriptionWidth + descriptionGap + counterWidth;
+            _subtitleRect.anchorMin = _subtitleRect.anchorMax = new Vector2(0.5f, 1f);
             _subtitleRect.pivot = new Vector2(0f, 1f);
-            _subtitleRect.anchoredPosition = new Vector2(0f, -88f);
-            _subtitleRect.sizeDelta = new Vector2(headerWidth - 180f, 34f);
+            _subtitleRect.anchoredPosition = new Vector2(-rowWidth * 0.5f, -68f);
+            _subtitleRect.sizeDelta = new Vector2(descriptionWidth, 62f);
 
-            _moveBadge.anchorMin = _moveBadge.anchorMax = new Vector2(1f, 1f);
+            _moveBadge.anchorMin = _moveBadge.anchorMax = new Vector2(0.5f, 1f);
             _moveBadge.pivot = new Vector2(1f, 1f);
-            _moveBadge.anchoredPosition = Vector2.zero;
-            _moveBadge.sizeDelta = new Vector2(142f, 78f);
+            _moveBadge.anchoredPosition = new Vector2(rowWidth * 0.5f, -68f);
+            _moveBadge.sizeDelta = new Vector2(counterWidth, 62f);
 
             var boardTop = height - headerTop - headerHeight - 24f;
             var boardBottom = footerBottom + footerHeight + 24f;
@@ -475,7 +494,7 @@ namespace SousakuTeam8.PuzzleGame
             var boardY = boardCenterFromBottom - height * 0.5f;
 
             SetCentered(_board, Vector2.one * _boardSize, new Vector2(0f, boardY));
-            SetCentered(_boardShadow, Vector2.one * _boardSize, new Vector2(10f, boardY - 12f));
+            SetCentered(_boardShadow, Vector2.one * _boardSize, new Vector2(0f, boardY - 4f));
 
             LayoutGrid(_hasStarted && !_isAnimating);
 
@@ -490,10 +509,11 @@ namespace SousakuTeam8.PuzzleGame
             _statusRect.offsetMin = Vector2.zero;
             _statusRect.offsetMax = Vector2.zero;
 
-            _completionBadgeRect.anchorMin = _completionBadgeRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // Reuse the footer area on completion instead of overlapping the header.
+            _completionBadgeRect.anchorMin = _completionBadgeRect.anchorMax = new Vector2(0.5f, 0f);
             _completionBadgeRect.pivot = new Vector2(0.5f, 0.5f);
-            _completionBadgeRect.anchoredPosition = new Vector2(0f, boardY + _boardSize * 0.5f + 38f);
-            _completionBadgeRect.sizeDelta = new Vector2(Mathf.Min(280f, _boardSize * 0.56f), 68f);
+            _completionBadgeRect.anchoredPosition = new Vector2(0f, footerBottom + footerHeight * 0.5f);
+            _completionBadgeRect.sizeDelta = new Vector2(footerWidth, footerHeight);
             _isApplyingLayout = false;
         }
 
@@ -618,7 +638,7 @@ namespace SousakuTeam8.PuzzleGame
             _isAnimating = true;
             _slotLayer.gameObject.SetActive(false);
             _completionText.text = $"完成！  {completedMoveCount}手";
-            _statusText.text = "すべてのピースがつながりました";
+            _statusText.gameObject.SetActive(false);
             _completionBadgeRect.gameObject.SetActive(true);
             StartCoroutine(CompletionAnimationRoutine());
             Completed?.Invoke(completedMoveCount);
@@ -769,6 +789,55 @@ namespace SousakuTeam8.PuzzleGame
         private static Color FromHex(string value)
         {
             return ColorUtility.TryParseHtmlString(value, out var color) ? color : Color.magenta;
+        }
+    }
+
+    // Local to the puzzle assembly; mirrors the novel UI's feathered black panels
+    // without depending on Assembly-CSharp or introducing bitmap UI assets.
+    public sealed class PuzzlePanelFeather : BaseMeshEffect
+    {
+        public override void ModifyMesh(VertexHelper vertices)
+        {
+            if (!IsActive() || vertices.currentVertCount == 0) return;
+            Rect rect = graphic.GetPixelAdjustedRect();
+            if (rect.width <= 0f || rect.height <= 0f) return;
+            UIVertex seed = UIVertex.simpleVert;
+            vertices.PopulateUIVertex(ref seed, 0);
+            vertices.Clear();
+            float featherX = Mathf.Min(26f, rect.width * 0.25f);
+            float featherY = Mathf.Min(14f, rect.height * 0.25f);
+            // A single quad per corner creates a diagonal crease. Subdivide both
+            // axes and use a smooth separable falloff for uniform, soft corners.
+            const int steps = 12;
+            const int count = steps * 2 + 2;
+            float[] xs = new float[count], ys = new float[count], weights = new float[count];
+            for (int i = 0; i <= steps; i++)
+            {
+                float t = i / (float)steps;
+                int mirror = count - 1 - i;
+                xs[i] = rect.xMin + featherX * t;
+                xs[mirror] = rect.xMax - featherX * t;
+                ys[i] = rect.yMin + featherY * t;
+                ys[mirror] = rect.yMax - featherY * t;
+                weights[i] = weights[mirror] = Mathf.SmoothStep(0f, 1f, t);
+            }
+            for (int y = 0; y < count; y++)
+                for (int x = 0; x < count; x++)
+                {
+                    UIVertex vertex = seed;
+                    vertex.position = new Vector3(xs[x], ys[y], seed.position.z);
+                    Color color = seed.color;
+                    color.a *= weights[x] * weights[y];
+                    vertex.color = color;
+                    vertices.AddVert(vertex);
+                }
+            for (int y = 0; y < count - 1; y++)
+                for (int x = 0; x < count - 1; x++)
+                {
+                    int i = y * count + x;
+                    vertices.AddTriangle(i, i + count, i + count + 1);
+                    vertices.AddTriangle(i, i + count + 1, i + 1);
+                }
         }
     }
 }

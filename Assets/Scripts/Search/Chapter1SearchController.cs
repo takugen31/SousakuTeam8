@@ -67,6 +67,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
     private Canvas canvas;
     private RectTransform backgroundFrame;
     private Image backgroundImage;
+    private GameObject searchHeader;
     private Button leftArrow;
     private Button rightArrow;
     private TMP_Text roomIndicator;
@@ -308,12 +309,22 @@ public sealed class Chapter1SearchController : MonoBehaviour
                 "chapter1.manga",
                 "ベッドの上の漫画",
                 RoomView.Room2,
-                new Vector2(0.635f, 0.275f),
-                new Vector2(0.78f, 0.43f),
+                new Vector2(0.6639f, 0.3092f),
+                new Vector2(0.7464f, 0.3847f),
                 new Rect(0.55f, 0.17f, 0.33f, 0.39f),
                 whiteRoom2,
+                "search_bookshelf_001",
                 "search_manga_001",
-                "search_manga_001"));
+                new[]
+                {
+                    // Trace the cover and stacked page edges in white_room_2 (1672 x 941).
+                    new Vector2(0.6639f, 0.3677f),
+                    new Vector2(0.7033f, 0.3847f),
+                    new Vector2(0.7464f, 0.3634f),
+                    new Vector2(0.7464f, 0.3284f),
+                    new Vector2(0.7075f, 0.3092f),
+                    new Vector2(0.6639f, 0.3326f)
+                }));
 
         items.Add(
             new ItemDefinition(
@@ -440,6 +451,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
             new Color(0f, 0f, 0f, 0.82f),
             false);
         RectTransform headerRect = header.GetComponent<RectTransform>();
+        searchHeader = header;
         headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.035f, 1f);
         headerRect.pivot = new Vector2(0f, 1f);
         headerRect.anchoredPosition = new Vector2(0f, -16f);
@@ -626,6 +638,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
             dialogueText,
             leftPortrait,
             rightPortrait);
+        itemDialogueController.ConfigureSearchPortraitSlide(backgroundImage);
         itemDialogueController.DialogueCompleted += OnItemDialogueCompleted;
         DialogueAdvanceIndicator.Create(dialoguePanel.transform, itemDialogueController,
             kayoAdvanceMark, moteruAdvanceMark, yowashiAdvanceMark);
@@ -716,6 +729,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
 
         currentRoom = room;
+        if (searchHeader != null) searchHeader.SetActive(true);
         backgroundImage.sprite = room == RoomView.Room1 ? whiteRoom1 : whiteRoom2;
         leftArrow.gameObject.SetActive(room == RoomView.Room2);
         rightArrow.gameObject.SetActive(room == RoomView.Room1);
@@ -793,6 +807,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
 
         isDialogueOpen = true;
+        if (searchHeader != null) searchHeader.SetActive(false);
         currentDialogueItem = item;
         leftArrow.gameObject.SetActive(false);
         rightArrow.gameObject.SetActive(false);
@@ -878,6 +893,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
 
         isCompleting = true;
+        if (searchHeader != null) searchHeader.SetActive(false);
         ArchiveManager.Close();
         canvas.sortingOrder = short.MaxValue;
         leftArrow.gameObject.SetActive(false);

@@ -224,7 +224,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a8f2b1c4d5e6f708192a3b4c5d6e7f8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::KayoSearchController
+  m_EditorClassIdentifier: Assembly-CSharp::SearchSceneController
   room1Background: {fileID: -807315467421928614, guid: a0d5e8ce798948c98423e645ed6e234f, type: 3}
   room2Background: {fileID: -604532108765432109, guid: d2e3f405060708192a3b4c5d6e7f8192, type: 3}
   room1PaperBackground: {fileID: -705421109876543210, guid: c1d2e3f405060708192a3b4c5d6e7f81, type: 3}

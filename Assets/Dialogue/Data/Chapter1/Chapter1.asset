@@ -1,0 +1,288 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter1
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+  lines:
+  - lineId: chapter1_001
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3044\u305F\u305F\u2026\u2026\u79C1\u306E\u30D9\u30C3\u30C9\u56FA\u304F\u306A\u3044\u304B\u3044\u2026\u2026\uFF1F"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_002
+    speakerId: moteru
+    expressionId: normal
+    text: "\u2026\u2026\u3059\u3045"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_003
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3053\u3053\u306F\u2026\u2026\u3069\u3053\uFF1F\uFF01\u8A98\u62D0\u2026\u2026\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_004
+    speakerId: doute
+    expressionId: normal
+    text: "\u308F\u3063\u4FFA\u4EE5\u5916\u306B\u3082\u4EBA\u304C\u3044\u305F\u306E\u304B\uFF01\u8272\u3005\u3042\u308A\u3059\u304E\u3066\u6C17\u3065\u304B\u306A\u304B\u3063\u305F\u2026\u2026"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_005
+    speakerId: doute
+    expressionId: normal
+    text: "\u3068\u308A\u3042\u3048\u305A\u3053\u306E\u90E8\u5C4B\u306E\u624B\u304C\u304B\u308A\u3082\u6B32\u3057\u3044\u3057\u63A2\u7D22\u3057\u3066\u307F\u3088\u3046\u304B\u306A\u2026\u2026\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: Assets/Scenes/GameMap/Chapter1_SearchScene.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_006
+    speakerId: doute
+    expressionId: normal
+    text: "\u3072\u3068\u901A\u308A\u63A2\u7D22\u3057\u305F\u3051\u3069\u3001\u51FA\u53E3\u304C\u306A\u3044\u3001\u3088\u306A\uFF1F\u3042\u3063\u305F\u306E\u306F\u5909\u306A\u6249\u3060\u3051\u2026\u2026\u30D7\u30EC\u30A4\u30E4\u30FC\u3055\u3041\u3093\u2026\u2026\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_007
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3042\u306E\u2026\u2026\u5927\u4E08\u592B\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_008
+    speakerId: doute
+    expressionId: normal
+    text: "\u3046\u308F\u3063\u3048\u3063\u3068\u305D\u306E\u2026\u2026\u3053\u308C\u306F\u4E00\u4EBA\u3067\u558B\u3063\u3066\u305F\u308F\u3051\u3067\u306F\u306A\u304F\u3066\u3067\u3059\u306D\u2026\u2026\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_009
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3048\u3063\u3068\u2026\u2026\u306A\u3093\u306E\u3053\u3068\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_010
+    speakerId: doute
+    expressionId: normal
+    text: "\uFF08\u3082\u3057\u304B\u3057\u3066\u30D7\u30EC\u30A4\u30E4\u30FC\u3055\u3093\u3068\u306E\u4F1A\u8A71\u306F\u4ED6\u306B\u306F\u805E\u3053\u3048\u3066\u306A\u3044\u306E\u304B\u2026\u2026\uFF1F\uFF09"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_011
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3082\u3057\u4F55\u304B\u90AA\u9B54\u3057\u3061\u3083\u3063\u305F\u306E\u306A\u3089\u3054\u3081\u3093\u306D\u3002\u4ED6\u306E\u5B50\u306B\u8A71\u3057\u304B\u3051\u308B\u306E\u306F\u7DCA\u5F35\u3057\u3061\u3083\u3044\u305D\u3046\u3067\u2026\u2026\u541B\u306B\u8A71\u3057\u304B\u3051\u305F\u3093\u3060\u3051\u3069"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_012
+    speakerId: doute
+    expressionId: normal
+    text: "\u3042\u3001\u3044\u3084\u5927\u4E08\u592B\u3060\u3088\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_013
+    speakerId: moteru
+    expressionId: normal
+    text: "\u305D\u3046\uFF1F\u306A\u3089\u3088\u304B\u3063\u305F\u2026\u2026\uFF01\u305D\u306E\u3001\u3053\u306E\u90E8\u5C4B\u3092\u51FA\u308B\u305F\u3081\u306B\u306F\u5C11\u3057\u3067\u3082\u624B\u639B\u304B\u308A\u304C\u307B\u3057\u3044\u3057\u843D\u3061\u7740\u304F\u305F\u3081\u306B\u3082\u307F\u3093\u306A\u3067\u5354\u529B\u51FA\u6765\u306A\u3044\u304B\u306A\u3063\u3066"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_014
+    speakerId: doute
+    expressionId: normal
+    text: "\u305D\u308C\u306F\u305D\u3046\u3060\u306D\uFF01\u7DCA\u5F35\u3057\u3044\u3063\u3066\u8A00\u3063\u3066\u305F\u3057\u4ED6\u306E2\u4EBA\u306F\u4FFA\u304C\u547C\u3093\u3060\u65B9\u304C\u3044\u3044\u304B\u306A\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_015
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_015
+    speakerId: moteru
+    expressionId: normal
+    text: "\u3044\u3044\u306E\uFF1F"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter1_016
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter1_016
+    speakerId: doute
+    expressionId: normal
+    text: "\u30E2\u30FC\u30DE\u30F3\u30BF\u30A4\uFF01\u4FFA\u306B\u4EFB\u305B\u3066\u3063\uFF01"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

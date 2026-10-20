@@ -63,9 +63,10 @@ public class NovelDialogueController {
  public static void ResetStoryState() { Names=Array.Empty<string>(); }
 }
 public class Chapter1SearchController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="modal"; d.itemId="door"; d.room=1; return true; } }
-public class KayoSearchController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="room"; d.room=0; d.paperVisible=true; return true; } }
+public class SearchSceneController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="room"; d.room=0; d.paperVisible=true; return true; } }
 public class SelectionPartController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="selection"; d.introDismissed=true; return true; } }
 public class KayoGaugeOutcomeController { public bool CurrentResult=true; }
+public static class PuzzleGameFlowController { public static void ResetPendingRequest() {} }
 public class AffectionEntry { public string characterId; public int value; }
 public class AffectionManager {
  public static AffectionManager Instance=new AffectionManager(); public int Value=25;
@@ -153,7 +154,7 @@ Assert ([GameSaveService]::Save(2,[ref]$message)) 'Search modal save failed'
 Assert ([GameSaveService]::Read(2,[ref]$message).itemId -eq 'door') 'Modal item lost'
 $objects.Clear()
 [UnityEngine.SceneManagement.SceneManager]::Current='Chapter_Kayo_SearchScene'
-$objects[[KayoSearchController]]=[KayoSearchController]::new()
+$objects[[SearchSceneController]]=[SearchSceneController]::new()
 Assert ([GameSaveService]::Save(3,[ref]$message)) 'Kayo search save failed'
 Assert ([GameSaveService]::Read(3,[ref]$message).paperVisible) 'Paper background lost'
 $reset=[GameSaveService].GetMethod('ClearSlotsOnPlay',[Reflection.BindingFlags]'NonPublic,Static')
@@ -162,7 +163,7 @@ for ($slot=0; $slot -lt 6; $slot++) { Assert (-not [UnityEngine.PlayerPrefs]::Ha
 $novel = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
 Assert ($novel.Contains('if (!restoringCheckpointLine)')) 'Resume can reapply affection/archive effects'
 Assert ($novel.Contains('gauge.SetResult(data.kayoGaugeSucceeded)')) 'Gauge outcome restoration missing'
-foreach ($script in @('Chapter1SearchController','KayoSearchController')) {
+foreach ($script in @('Chapter1SearchController','SearchSceneController')) {
     $search = Get-Content (Join-Path $root "Assets/Scripts/Search/$script.cs") -Raw
     Assert ($search.IndexOf('GameSaveService.Consume') -lt $search.IndexOf('bool hasCompletedSearch')) 'Search completion fires before restoring modal/dialogue'
 }

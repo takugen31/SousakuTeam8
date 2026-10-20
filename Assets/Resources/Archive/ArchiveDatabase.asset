@@ -14,6 +14,188 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArchiveDatabase
   uiFont: {fileID: 11400000, guid: 605d5d10cb9d13f45b4c5b4e27b115b4, type: 2}
   entries:
+  - id: character.doute.name
+    category: 0
+    title: 蓮愛ドウテ
+    subtitle: ドウテの名前。
+    body: "名前は蓮愛ドウテ。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 400
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - prologue2_014
+  - id: character.doute.introduction
+    category: 0
+    title: ドウテの自己紹介
+    subtitle: 趣味・血液型・誕生日。
+    body: "趣味はゲーム。血液型はA型。誕生日は1月21日。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 410
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter2_kayo_002
+    - chapter2_yowashi_005
+    - chapter2_moteru_002
+  - id: character.doute.romance
+    category: 0
+    title: ドウテの恋愛経験
+    subtitle: 恋愛についての独白。
+    body: "恋愛はゲームでしかやったことがないと話している。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 420
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter3_001
+  - id: character.doute.manga
+    category: 0
+    title: ドウテの好きな漫画
+    subtitle: スポ根漫画について。
+    body: "スポ根漫画が好き。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 430
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter_yowashi_1_026
+  - id: character.kayo.name
+    category: 0
+    title: カヨの自己紹介
+    subtitle: カヨの名前。
+    body: "名前は大葉カヨ。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 440
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter2_kayo_001
+  - id: character.kayo.egg
+    category: 0
+    title: カヨの目玉焼き
+    subtitle: 髪についていた目玉焼き。
+    body: "髪に目玉焼きがついていた。カヨ本人も気づいておらず、驚いている。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 450
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter2_kayo_012
+  - id: character.kayo.childhood
+    category: 0
+    title: カヨの幼少期
+    subtitle: 日記に書かれた子供の頃の様子。
+    body: "子供の頃は今ほどドジをしなかったと、日記に書かれている。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 460
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter_kayo_diary_011
+  - id: character.kayo.mother
+    category: 0
+    title: カヨの母
+    subtitle: 日記に書かれた母について。
+    body: "母は亡くなっている。カヨは日記で、自分を責め、もっと頑張らなければと思っている。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 470
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter_kayo_diary_009
+  - id: character.kayo.overwork
+    category: 0
+    title: カヨの頑張りすぎ
+    subtitle: ドウテが気づいたこと。
+    body: "ドウテは、カヨのドジが治らないのは努力が足りないからではなく、頑張りすぎていたからだと気づいた。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 480
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter_kayo_4_005
+  - id: character.yowashi.name
+    category: 0
+    title: ヨワシの自己紹介
+    subtitle: ヨワシの名前。
+    body: "名前は空田ヨワシ。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 490
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter2_yowashi_002
+  - id: character.yowashi.age
+    category: 0
+    title: ヨワシの年齢
+    subtitle: ヨワシが答えた年齢。
+    body: "16歳。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 500
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter_yowashi_1_006
+  - id: character.yowashi.pajamas
+    category: 0
+    title: ヨワシの服装と生活
+    subtitle: 本人が説明した服装と生活。
+    body: "着ている服はパジャマ。普段からパジャマで生活しており、あまり外には出られないと話している。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 510
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter_yowashi_1_015
+  - id: character.moteru.name
+    category: 0
+    title: モテルの自己紹介
+    subtitle: モテルの名前。
+    body: "名前は凄久モテル。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 520
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter2_moteru_001
+  - id: character.moteru.gender
+    category: 0
+    title: モテルは男
+    subtitle: モテルが明かしたこと。
+    body: "モテルは男。本人がドウテに打ち明けた。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 530
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter2_moteru_013
+  - id: character.moteru.romance
+    category: 0
+    title: モテルの恋愛経験
+    subtitle: 本人が話した恋愛経験。
+    body: "恋愛をしたことがなく、同じ男の子のドウテがいることを心強く思っている。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 540
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds:
+    - chapter2_moteru_024
   - id: system.archive_guide
     category: 4
     title: アーカイブについて
@@ -84,6 +266,40 @@ MonoBehaviour:
     sortOrder: 200
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_kayo.profile
+    unlockLineIds:
+    - chapter_kayo_3_005
+    category: 0
+    title: 大葉カヨ
+    subtitle: ドジを気にしている。
+    body: "カヨは自分なりにドジを気にしており、ドジを治すために頑張り続けている。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 190
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_kayo.family
+    unlockLineIds:
+    - chapter_kayo_diary_015
+    category: 0
+    title: 大葉カヨの家族
+    subtitle: 日記から分かった家族についての情報。
+    body: "日記には母・父・姉について書かれている。父と姉は、カヨに無理をしなくていいと言い、慰めてくれた。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 195
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+  - id: chapter_kayo.clumsiness
+    category: 2
+    title: カヨのドジ
+    subtitle: 床のくぼみから分かったカヨのドジ。
+    body: "床のくぼみの情報は、カヨのドジについての情報に更新された。カヨはドジを治すことに悩んでいる。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 200
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
   - id: chapter_kayo.bookshelf
     category: 1
     title: 本棚
@@ -105,6 +321,8 @@ MonoBehaviour:
     unlockedAtStart: 0
     showBeforeUnlock: 0
   - id: chapter_yowashi.bandage
+    unlockLineIds:
+    - chapter_yowashi_1_004
     category: 2
     title: ヨワシの腕の包帯
     subtitle:
@@ -115,6 +333,8 @@ MonoBehaviour:
     unlockedAtStart: 0
     showBeforeUnlock: 0
   - id: chapter_yowashi.manga
+    unlockLineIds:
+    - chapter_yowashi_1_023
     category: 2
     title: ヨワシの好きな漫画
     subtitle:
@@ -145,6 +365,8 @@ MonoBehaviour:
     unlockedAtStart: 0
     showBeforeUnlock: 0
   - id: chapter_yowashi.breathlessness
+    unlockLineIds:
+    - chapter_yowashi_1_030
     category: 2
     title: ヨワシは息切れしやすい
     subtitle:
@@ -164,3 +386,36 @@ MonoBehaviour:
     sortOrder: 350
     unlockedAtStart: 0
     showBeforeUnlock: 0
+  - id: chapter_moteru.bookshelf
+    category: 1
+    title: 本棚
+    subtitle:
+    body: "伝説の漫画『音都このこは男の娘』が並ぶ本棚。ぶつかった拍子に、何かが落ちた。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 400
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds: []
+  - id: chapter_moteru.paper_scrap
+    category: 2
+    title: 紙片
+    subtitle:
+    body: "『僕……ヒ……な……』と読める破れた紙。他の紙片を集めれば、組み立てられるかもしれない。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 410
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds: []
+  - id: chapter_moteru.kayo_yowashi
+    category: 2
+    title: カヨとヨワシ
+    subtitle:
+    body: "2人はすっかり仲良くなり、ツーショットを撮りに行った。"
+    icon: {fileID: 0}
+    acquisitionHint:
+    sortOrder: 420
+    unlockedAtStart: 0
+    showBeforeUnlock: 0
+    unlockLineIds: []

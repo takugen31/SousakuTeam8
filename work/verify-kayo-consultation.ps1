@@ -5,7 +5,7 @@ function Assert-True([bool]$condition, [string]$message) {
 }
 
 # Run the existing importer's choice parsing code, rather than replacing its rules.
-$importer = Get-Content -LiteralPath (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Editor/DialogueCsvImporterWindow.cs') -Raw
+$importer = Get-Content -LiteralPath (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Editor/DialogueCsvImportService.cs') -Raw
 $parseStart = $importer.IndexOf('    private static List<DialogueChoice> ParseChoices(')
 $parseEnd = $importer.IndexOf('    private static List<string> ParseArchiveUnlockIds', $parseStart)
 $indexStart = $importer.IndexOf('    private static bool TryGetChoiceColumnIndex(')

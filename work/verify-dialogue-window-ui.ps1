@@ -4,7 +4,7 @@ function Assert-True([bool]$condition, [string]$message) { if (-not $condition) 
 function Get-Block([string]$scene, [string]$id) {
     return [regex]::Match($scene,'(?ms)^--- !u!\d+ &'+$id+'\r?\n.*?(?=^--- !u!|\z)').Value
 }
-foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi')) {
+foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi','NovelScene_Moteru')) {
     $scene = Get-Content (Join-Path $projectRoot "Assets/Scenes/GameMap/$name.unity") -Raw
     $panel = Get-Block $scene '2100000001'
     Assert-True ($scene.Contains('m_ReferenceResolution: {x: 1672, y: 941}') -and $scene.Contains('m_MatchWidthOrHeight: 0.5')) 'Novel canvas scaling must match search dialogue'
@@ -46,13 +46,11 @@ foreach ($name in @('NovelScene','NovelScene_Kayo','NovelScene_Yowashi')) {
         if ($match.Groups[1].Value -ne '0') { Assert-True ($ids -contains $match.Groups[1].Value) 'Missing scene object reference' }
     }
 }
-$moteruHash = (Get-FileHash (Join-Path $projectRoot 'Assets/Scenes/GameMap/NovelScene_Moteru.unity') -Algorithm SHA256).Hash
-foreach ($controller in @('Chapter1SearchController','KayoSearchController')) {
+foreach ($controller in @('Chapter1SearchController','SearchSceneController')) {
     $source = Get-Content (Join-Path $projectRoot "Assets/Scripts/Search/$controller.cs") -Raw
     Assert-True ($source.Contains('scaler.referenceResolution = new Vector2(1672f, 941f)') -and $source.Contains('scaler.matchWidthOrHeight = 0.5f') -and $source.Contains('36.685f')) 'Search and novel dialogue scale/font settings must stay aligned'
 }
 Write-Output 'PASS: Novel and search dialogue share font size 36.685, reference resolution 1672x941 and width/height match 0.5.'
-Assert-True ($moteruHash -ceq 'DE0C96BD54F54957C2AE77E76A3524B826F3048858BBF3D9902B204A5C8B50B8') 'Moteru scene must not change'
 
 # Compile/run the actual mesh generator with a minimal non-rendering UI harness.
 $harness = @'
@@ -90,6 +88,7 @@ namespace UnityEngine {
         public static float Clamp(float v,float a,float b) => Math.Max(a,Math.Min(b,v));
         public static int Clamp(int v,int a,int b) => Math.Max(a,Math.Min(b,v));
         public static float Lerp(float a,float b,float t) => a+(b-a)*Clamp01(t);
+        public static float SmoothStep(float a,float b,float t) { t=Clamp01(t); return a+(b-a)*t*t*(3f-2f*t); }
     }
     public class RectTransform {
         public Vector3 offset;
@@ -201,7 +200,7 @@ public static class FeatherMeshCheck {
 $source = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/DialogueWindowFeather.cs') -Raw
 Add-Type -TypeDefinition ($harness + ($source -replace '(?m)^using .*;\s*$',''))
 [FeatherMeshCheck]::Run()
-Write-Output 'PASS: Three scene windows retain original width and are 30 percent taller with the same center at four resolutions; name-box position is unchanged.'
+Write-Output 'PASS: Four scene windows share the same width and height at four resolutions; name-box position is aligned.'
 Write-Output 'PASS: Actual mesh generator has transparent edges, 72% black center, smooth symmetric fade and valid triangles; tiny/zero/disabled cases pass.'
 Write-Output 'PASS: Name plate has transparent sides, mild upper fade and a lower seam without double-dark overlap.'
-Write-Output 'PASS: Scene hierarchy/references are intact; Moteru scene is unchanged.'
+Write-Output 'PASS: Scene hierarchy/references are intact; Moteru dialogue UI matches the other scenarios.'
