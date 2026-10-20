@@ -7,14 +7,14 @@ using UnityEngine;
 [InitializeOnLoad]
 internal static class DialogueCsvSyncProcessor
 {
-    [Flags] private enum Operation { None = 0, Names = 1, Content = 2, Both = Names | Content }
-    private static readonly HashSet<string> changedGuids = new HashSet<string>();
+    [Flags] private enum Operation { None = 0, Names = 1, Content = 2, Export = 4, AutoContent = 8, Both = Names | AutoContent }
     // Manual commands defer the other operation for the currently observed changes.
     // A later genuine edit/rename or an explicit command releases that deferral.
     private static readonly Dictionary<string, string> deferredContent = new Dictionary<string, string>();
     private static readonly Dictionary<string, string> deferredNames = new Dictionary<string, string>();
     private static bool queued, reportSummary, processing;
     private static Operation requested;
+    private static double nextPoll;
 
     static DialogueCsvSyncProcessor()
     {
@@ -23,6 +23,13 @@ internal static class DialogueCsvSyncProcessor
             if (state == PlayModeStateChange.EnteredEditMode) RequestAll(false);
         };
         RequestAll(false);
+        // Inspector edits can remain dirty in memory without an asset import event.
+        EditorApplication.update += () =>
+        {
+            if (EditorApplication.timeSinceStartup < nextPoll || !CanSync()) return;
+            nextPoll = EditorApplication.timeSinceStartup + 0.5;
+            Queue();
+        };
     }
 
     [MenuItem("Tools/Dialogue/Sync Registered Names Only")]
@@ -39,13 +46,22 @@ internal static class DialogueCsvSyncProcessor
         AssetDatabase.Refresh();
     }
 
+    [MenuItem("Tools/Dialogue/Update Registered Contents (Assets → CSV)")]
+    private static void ExportAllMenu()
+    {
+        RequestExport(true);
+        AssetDatabase.Refresh();
+    }
+
     [MenuItem("Tools/Dialogue/Sync Registered Names Only", true)]
     [MenuItem("Tools/Dialogue/Update Registered Contents (CSV → Assets)", true)]
+    [MenuItem("Tools/Dialogue/Update Registered Contents (Assets → CSV)", true)]
     private static bool CanSync() => !EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling;
 
     internal static void RequestAll(bool report) => Request(Operation.Both, report);
     internal static void RequestNames(bool report) => Request(Operation.Names, report);
     internal static void RequestContent(bool report) => Request(Operation.Content, report);
+    internal static void RequestExport(bool report) => Request(Operation.Export, report);
 
     private static void Request(Operation operation, bool report)
     {
@@ -57,15 +73,7 @@ internal static class DialogueCsvSyncProcessor
     internal static void AssetsChanged(string[] imported, string[] deleted, string[] moved, string[] movedFrom)
     {
         if (processing) return;
-        foreach (string path in imported) AddChanged(path);
-        foreach (string path in moved) AddChanged(path);
         if (imported.Length + deleted.Length + moved.Length + movedFrom.Length > 0) Queue();
-    }
-
-    private static void AddChanged(string path)
-    {
-        string guid = AssetDatabase.AssetPathToGUID(path);
-        if (!string.IsNullOrEmpty(guid)) changedGuids.Add(guid);
     }
 
     private static void Queue()
@@ -82,10 +90,8 @@ internal static class DialogueCsvSyncProcessor
         if (processing || EditorApplication.isCompiling || EditorApplication.isUpdating) { Queue(); return; }
         Operation operation = requested;
         bool report = reportSummary;
-        var changes = new HashSet<string>(changedGuids);
         requested = Operation.None;
         reportSummary = false;
-        changedGuids.Clear();
         int renamed = 0, updated = 0, failed = 0;
         processing = true;
         try
@@ -95,16 +101,31 @@ internal static class DialogueCsvSyncProcessor
                 if (!pair.enabled) continue;
                 string currentNames = NamesSnapshot(pair);
                 string currentHash = SourceHash(pair);
-                bool missingContentFile = currentHash == null || pair.Load<CharacterDatabaseSO>(pair.databaseGuid) == null;
-                bool auto = operation == Operation.None;
-                if (operation == Operation.Names) deferredContent[pair.csvGuid] = currentHash;
-                if (operation == Operation.Content) deferredNames[pair.csvGuid] = currentNames;
+                var scenario = pair.Load<DialogueScenarioSO>(pair.scenarioGuid);
+                string scenarioHash = scenario == null ? null : DialogueCsvExportService.ContentHash(scenario.Lines);
+                string contentSnapshot = currentHash + "\0" + scenarioHash;
+                bool missingContentFile = currentHash == null || scenario == null || pair.Load<CharacterDatabaseSO>(pair.databaseGuid) == null;
+                bool auto = operation == Operation.None || (operation & Operation.AutoContent) != 0;
+                if (operation == Operation.Names) deferredContent[pair.csvGuid] = contentSnapshot;
+                if ((operation & (Operation.Content | Operation.Export)) != 0) deferredNames[pair.csvGuid] = currentNames;
                 bool doNames = (operation & Operation.Names) != 0 ||
                     (auto && !IsDeferred(deferredNames, pair.csvGuid, currentNames));
-                bool doContent = (operation & Operation.Content) != 0 ||
-                    (auto && !IsDeferred(deferredContent, pair.csvGuid, currentHash) &&
-                    (missingContentFile || changes.Contains(pair.csvGuid) || changes.Contains(pair.characterCsvGuid) || pair.lastContentError != null) &&
-                    (missingContentFile || currentHash != pair.lastContentHash || pair.lastContentError != null));
+                bool csvChanged = currentHash != pair.lastContentHash;
+                // Old registries have no asset baseline. Compare to the imported CSV, preserving asset-only edits.
+                if (string.IsNullOrEmpty(pair.lastScenarioHash) && !missingContentFile && !csvChanged)
+                {
+                    try
+                    {
+                        pair.lastScenarioHash = DialogueCsvExportService.ContentHash(DialogueCsvImportService.Prepare(
+                            pair.Load<TextAsset>(pair.characterCsvGuid), pair.Load<TextAsset>(pair.csvGuid)).Lines);
+                        DialogueCsvSyncRegistry.instance.Persist();
+                    }
+                    catch (Exception exception) { ReportError(pair, exception, false, report); }
+                }
+                bool assetChanged = scenarioHash != pair.lastScenarioHash;
+                bool doContent = (operation & (Operation.Content | Operation.Export)) != 0 ||
+                    (auto && !IsDeferred(deferredContent, pair.csvGuid, contentSnapshot) &&
+                    (missingContentFile || csvChanged || assetChanged));
                 if (doNames)
                 {
                     deferredNames.Remove(pair.csvGuid);
@@ -114,7 +135,14 @@ internal static class DialogueCsvSyncProcessor
                 if (doContent)
                 {
                     deferredContent.Remove(pair.csvGuid);
-                    try { SynchronizeContent(pair); updated++; pair.lastContentError = null; }
+                    try
+                    {
+                        // Explicit CSV wins if both manual directions are queued; automatic conflicts also prefer CSV.
+                        bool export = (operation & Operation.Content) == 0 &&
+                            ((operation & Operation.Export) != 0 || (!missingContentFile && !csvChanged && assetChanged));
+                        if (export) SynchronizeAssetToCsv(pair); else SynchronizeContent(pair);
+                        updated++; pair.lastContentError = null;
+                    }
                     catch (Exception exception) { failed++; ReportError(pair, exception, false, report); }
                 }
                 pair.lastError = string.IsNullOrEmpty(pair.lastNameError) ? pair.lastContentError :
@@ -134,9 +162,13 @@ internal static class DialogueCsvSyncProcessor
 
     private static string SourceHash(DialogueCsvSyncPair pair)
     {
-        var csv = pair.Load<TextAsset>(pair.csvGuid);
-        var characters = pair.Load<TextAsset>(pair.characterCsvGuid);
-        return csv != null && characters != null ? DialogueCsvImportService.SourceHash(characters, csv) : null;
+        string csvPath = AssetDatabase.GUIDToAssetPath(pair.csvGuid);
+        string characterPath = AssetDatabase.GUIDToAssetPath(pair.characterCsvGuid);
+        // Detect disk edits even before Unity's next automatic import, so an Inspector
+        // change cannot overwrite an externally edited CSV using a stale TextAsset.
+        if (!File.Exists(csvPath) || !File.Exists(characterPath)) return null;
+        try { return DialogueCsvImportService.SourceHash(File.ReadAllText(characterPath), File.ReadAllText(csvPath)); }
+        catch (IOException) { return null; }
     }
 
     private static void ReportError(DialogueCsvSyncPair pair, Exception exception, bool names, bool report)
@@ -149,6 +181,7 @@ internal static class DialogueCsvSyncProcessor
 
     internal static void SynchronizeContent(DialogueCsvSyncPair pair)
     {
+        RefreshCsvFiles(pair);
         var csv = pair.Load<TextAsset>(pair.csvGuid);
         var scenario = pair.Load<DialogueScenarioSO>(pair.scenarioGuid);
         var characters = pair.Load<TextAsset>(pair.characterCsvGuid);
@@ -158,14 +191,47 @@ internal static class DialogueCsvSyncProcessor
         var prepared = DialogueCsvImportService.Prepare(characters, csv);
         DialogueCsvImportService.Apply(prepared, database, scenario, false);
         pair.lastContentHash = DialogueCsvImportService.SourceHash(characters, csv);
+        pair.lastScenarioHash = DialogueCsvExportService.ContentHash(scenario.Lines);
         DialogueCsvSyncRegistry.instance.Persist();
     }
 
-    internal static void RunPairManually(DialogueCsvSyncPair pair, bool namesOnly)
+    internal static void SynchronizeAssetToCsv(DialogueCsvSyncPair pair)
+    {
+        RefreshCsvFiles(pair);
+        var csv = pair.Load<TextAsset>(pair.csvGuid);
+        var scenario = pair.Load<DialogueScenarioSO>(pair.scenarioGuid);
+        var characters = pair.Load<TextAsset>(pair.characterCsvGuid);
+        if (csv == null || scenario == null || characters == null || pair.Load<CharacterDatabaseSO>(pair.databaseGuid) == null)
+            throw new InvalidOperationException("登録ファイルが見つかりません。削除や .meta の変更を確認してください。");
+        string text = DialogueCsvExportService.Export(scenario, csv, characters);
+        DialogueCsvImportService.EnsureWritable(csv);
+        DialogueCsvImportService.EnsureWritable(scenario);
+        AssetDatabase.SaveAssetIfDirty(scenario);
+        string path = AssetDatabase.GetAssetPath(csv);
+        if (File.ReadAllText(path) != text) File.WriteAllText(path, text, new System.Text.UTF8Encoding(false));
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+        pair.lastContentHash = SourceHash(pair);
+        pair.lastScenarioHash = DialogueCsvExportService.ContentHash(scenario.Lines);
+        DialogueCsvSyncRegistry.instance.Persist();
+    }
+
+    private static void RefreshCsvFiles(DialogueCsvSyncPair pair)
+    {
+        foreach (string guid in new[] { pair.csvGuid, pair.characterCsvGuid })
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+        }
+    }
+
+    internal static void RunPairManually(DialogueCsvSyncPair pair, bool namesOnly, bool assetToCsv = false)
     {
         if (namesOnly)
         {
-            deferredContent[pair.csvGuid] = SourceHash(pair);
+            var scenario = pair.Load<DialogueScenarioSO>(pair.scenarioGuid);
+            deferredContent[pair.csvGuid] = SourceHash(pair) + "\0" +
+                (scenario == null ? null : DialogueCsvExportService.ContentHash(scenario.Lines));
             deferredNames.Remove(pair.csvGuid);
         }
         else
@@ -177,7 +243,11 @@ internal static class DialogueCsvSyncProcessor
         try
         {
             if (namesOnly) { SynchronizeNames(pair, true); pair.lastNameError = null; }
-            else { SynchronizeContent(pair); pair.lastContentError = null; }
+            else
+            {
+                if (assetToCsv) SynchronizeAssetToCsv(pair); else SynchronizeContent(pair);
+                pair.lastContentError = null;
+            }
         }
         catch (Exception exception) { ReportError(pair, exception, namesOnly, true); }
         finally { processing = false; }

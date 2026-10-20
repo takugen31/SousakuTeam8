@@ -12,7 +12,7 @@ $encoding = [Text.UTF8Encoding]::new($false)
 [IO.File]::WriteAllText((Join-Path $testProject 'Packages/manifest.json'), '{"dependencies":{}}', $encoding)
 Copy-Item -LiteralPath (Join-Path $root 'ProjectSettings/ProjectVersion.txt') -Destination (Join-Path $testProject 'ProjectSettings/ProjectVersion.txt')
 $editorSource = Join-Path $root 'Assets/Scripts/Dialogue/Editor'
-foreach ($name in @('CsvParser.cs', 'DialogueCsvImportService.cs', 'DialogueCsvImporterWindow.cs',
+foreach ($name in @('CsvParser.cs', 'DialogueCsvImportService.cs', 'DialogueCsvExportService.cs', 'DialogueCsvImporterWindow.cs',
         'DialogueCsvSyncRegistry.cs', 'DialogueCsvSyncProcessor.cs', 'DialogueCsvSyncWindow.cs')) {
     Copy-Item -LiteralPath (Join-Path $editorSource $name) -Destination $editorFolder
 }

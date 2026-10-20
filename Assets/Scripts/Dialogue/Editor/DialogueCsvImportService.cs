@@ -10,9 +10,12 @@ using UnityEngine;
 internal static class DialogueCsvImportService
 {
     internal static string SourceHash(TextAsset characters, TextAsset dialogue)
+        => SourceHash(characters.text, dialogue.text);
+
+    internal static string SourceHash(string characters, string dialogue)
     {
         using (var hash = SHA256.Create())
-            return Convert.ToBase64String(hash.ComputeHash(Encoding.UTF8.GetBytes(characters.text + "\0" + dialogue.text)));
+            return Convert.ToBase64String(hash.ComputeHash(Encoding.UTF8.GetBytes(characters + "\0" + dialogue)));
     }
 
     internal sealed class PreparedImport

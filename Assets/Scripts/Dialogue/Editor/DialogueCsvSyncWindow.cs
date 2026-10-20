@@ -31,7 +31,7 @@ internal sealed class DialogueCsvSyncWindow : EditorWindow
 
     private void OnGUI()
     {
-        EditorGUILayout.HelpBox("内容は常に CSV → .asset。改名時はCSVを小文字、アセットは _ 区切りの各語の先頭を大文字にします。\n" +
+        EditorGUILayout.HelpBox("内容は編集した側から双方向に同期します。両方変更された場合はCSVを優先します。\n改名時はCSVを小文字、アセットは _ 区切りの各語の先頭を大文字にします。\n" +
             "最初にペアを登録してください。未登録のファイルは自動で変更しません。", MessageType.Info);
         using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling))
         {
@@ -70,6 +70,11 @@ internal sealed class DialogueCsvSyncWindow : EditorWindow
             if (GUILayout.Button("全登録ペアの内容だけ更新（CSV → Asset）"))
             {
                 DialogueCsvSyncProcessor.RequestContent(true);
+                AssetDatabase.Refresh();
+            }
+            if (GUILayout.Button("全登録ペアの内容だけ更新（Asset → CSV）"))
+            {
+                DialogueCsvSyncProcessor.RequestExport(true);
                 AssetDatabase.Refresh();
             }
             var displayPairs = DialogueCsvSyncRegistry.instance.Pairs
@@ -150,7 +155,7 @@ internal sealed class DialogueCsvSyncWindow : EditorWindow
         {
             pair.enabled = enabled;
             DialogueCsvSyncRegistry.instance.Persist();
-            if (enabled) { SyncPair(pair, true); SyncPair(pair, false); }
+            if (enabled) DialogueCsvSyncProcessor.RequestAll(false);
         }
         using (new EditorGUI.DisabledScope(true))
         {
@@ -164,7 +169,8 @@ internal sealed class DialogueCsvSyncWindow : EditorWindow
         using (new EditorGUI.DisabledScope(!pair.enabled))
         {
             if (GUILayout.Button("改名だけ反映")) SyncPair(pair, true);
-            if (GUILayout.Button("内容だけ更新")) SyncPair(pair, false);
+            if (GUILayout.Button("CSV → Asset")) SyncPair(pair, false);
+            if (GUILayout.Button("Asset → CSV")) DialogueCsvSyncProcessor.RunPairManually(pair, false, true);
         }
         if (GUILayout.Button("登録解除（ファイルは残す）")) DialogueCsvSyncRegistry.instance.Remove(pair);
         EditorGUILayout.EndHorizontal();

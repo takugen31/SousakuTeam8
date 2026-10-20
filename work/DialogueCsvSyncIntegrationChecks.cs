@@ -18,6 +18,7 @@ public static class DialogueCsvSyncIntegrationChecks
     private static string expectedText;
     private static string root = "Assets/Checks";
     private static int passed;
+    private static string idleCsv, idleAsset;
 
     public static void Run()
     {
@@ -139,16 +140,120 @@ public static class DialogueCsvSyncIntegrationChecks
         steps.Enqueue(() =>
         {
             Check(database.Characters[0].displayName == "Renamed character", "character CSV edit not detected");
-            string csvBefore = File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid));
+            scenario.Lines[0].text = "asset, \"引用\"\n日本語";
+            scenario.Lines[0].lineFadeHoldDuration = 0.75f;
+            scenario.Lines[1].choices.Clear();
+            scenario.Lines[1].branches.Add(new DialogueBranch { nextLineId = "a", conditions = new List<AffectionCondition> {
+                new AffectionCondition { characterId = "doute", comparison = AffectionCondition.ComparisonType.GreaterOrEqual, value = 3 } } });
+            EditorUtility.SetDirty(scenario);
+            // Deliberately do not save: Inspector dirty edits must also be detected.
+        });
+        steps.Enqueue(() =>
+        {
+            var parsed = DialogueCsvImportService.Prepare(characters, pair.Load<TextAsset>(pair.csvGuid));
+            Check(parsed.Lines[0].text == "asset, \"引用\"\n日本語" && parsed.Lines[0].lineFadeHoldDuration == 0.75f,
+                "dirty Inspector edits/quoted multiline text/fade did not reach CSV");
+            Check(parsed.Lines[1].choices.Count == 0 && parsed.Lines[1].branches[0].conditions[0].value == 3,
+                "removed choices or affection branches were lost");
+            string before = File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid));
+            DialogueCsvSyncProcessor.RequestAll(false);
+            Check(File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid)) == before, "unchanged refresh rewrote CSV");
+            // Both sides change before the delayed synchronizer runs: CSV must win.
+            scenario.Lines[0].text = "conflicting asset";
+            EditorUtility.SetDirty(scenario);
+            WriteDialogue("CSV wins");
+        });
+        steps.Enqueue(() =>
+        {
+            Check(scenario.Lines[0].text == "CSV wins", "simultaneous edits did not prefer CSV");
+            scenario.Lines[0].text = "asset before import";
+            EditorUtility.SetDirty(scenario);
+            // Do not Refresh: external disk edits must win even before the TextAsset is imported.
+            File.WriteAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid), Dialogue("disk CSV wins"));
+            typeof(DialogueCsvSyncProcessor).GetMethod("ProcessPending", System.Reflection.BindingFlags.Static |
+                System.Reflection.BindingFlags.NonPublic).Invoke(null, null);
+            Check(scenario.Lines[0].text == "disk CSV wins", "unimported CSV edit was overwritten by the asset");
+            // Upgrade an old registration with no asset baseline; preserve asset-only changes.
+            pair.lastScenarioHash = null;
+            scenario.Lines[0].text = "migration edit";
+            EditorUtility.SetDirty(scenario);
+            DialogueCsvSyncProcessor.RequestAll(false);
+        });
+        steps.Enqueue(() =>
+        {
+            Check(DialogueCsvImportService.Prepare(characters, pair.Load<TextAsset>(pair.csvGuid)).Lines[0].text == "migration edit",
+                "old registry migration discarded asset edits");
+            scenario.Lines[0].text = "manual export";
+            EditorUtility.SetDirty(scenario);
+            Check(EditorApplication.ExecuteMenuItem("Tools/Dialogue/Update Registered Contents (Assets → CSV)"), "asset-to-CSV menu missing");
+        });
+        steps.Enqueue(() =>
+        {
+            Check(DialogueCsvImportService.Prepare(characters, pair.Load<TextAsset>(pair.csvGuid)).Lines[0].text == "manual export",
+                "manual asset-to-CSV did not export");
+            WriteDialogue("after move");
             scenario.Lines[0].text = "asset only";
             EditorUtility.SetDirty(scenario);
-            AssetDatabase.SaveAssetIfDirty(scenario);
-            Check(File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid)) == csvBefore, "asset content flowed back into CSV");
             Check(EditorApplication.ExecuteMenuItem("Tools/Dialogue/Update Registered Contents (CSV → Assets)"), "contents-only menu missing");
         });
         steps.Enqueue(() =>
         {
             Check(scenario.Lines[0].text == "after move", "manual sync did not restore CSV content");
+            // Export preserves a custom column and supports adding further choices.
+            string csvPath = AssetDatabase.GUIDToAssetPath(pair.csvGuid);
+            File.WriteAllText(csvPath, File.ReadAllText(csvPath).Replace("choice1NextLineId\n", "choice1NextLineId,customNote\n")
+                .Replace("0.4,,\n", "0.4,,,keep me\n").Replace("Again,a\n", "Again,a,second note\n"));
+            AssetDatabase.ImportAsset(csvPath, ImportAssetOptions.ForceSynchronousImport);
+            scenario.Lines[1].choices.Add(new DialogueChoice { text = "追加の選択肢", nextLineId = "a" });
+            DialogueCsvSyncProcessor.RunPairManually(pair, false, true);
+            var exported = CsvParser.ParseRecords(File.ReadAllText(csvPath));
+            Check(exported[0].Get("customNote") == "keep me" && exported[1].Get("choice2Text") == "追加の選択肢",
+                "custom CSV column or additional choice was lost");
+            idleCsv = File.ReadAllText(csvPath);
+            idleAsset = File.ReadAllText(AssetDatabase.GetAssetPath(scenario));
+            DialogueCsvSyncProcessor.RequestAll(false);
+        });
+        steps.Enqueue(() =>
+        {
+            Check(File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid)) == idleCsv &&
+                File.ReadAllText(AssetDatabase.GetAssetPath(scenario)) == idleAsset,
+                "synchronization loop rewrote unchanged data");
+            scenario.Lines[0].nextLineId = "missing";
+            EditorUtility.SetDirty(scenario);
+        });
+        steps.Enqueue(() =>
+        {
+            Check(File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid)) == idleCsv && !string.IsNullOrEmpty(pair.lastContentError),
+                "invalid Inspector edit damaged CSV or lacked an error");
+            scenario.Lines[0].nextLineId = "b";
+            scenario.Lines[0].text = "asset recovery";
+            EditorUtility.SetDirty(scenario);
+        });
+        steps.Enqueue(() =>
+        {
+            Check(string.IsNullOrEmpty(pair.lastContentError) &&
+                DialogueCsvImportService.Prepare(characters, pair.Load<TextAsset>(pair.csvGuid)).Lines[0].text == "asset recovery",
+                "corrected Inspector edit did not recover");
+            idleCsv = File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid));
+            File.SetAttributes(AssetDatabase.GUIDToAssetPath(pair.csvGuid), FileAttributes.ReadOnly);
+            scenario.Lines[0].text = "readonly CSV recovery";
+            EditorUtility.SetDirty(scenario);
+        });
+        steps.Enqueue(() =>
+        {
+            Check(File.ReadAllText(AssetDatabase.GUIDToAssetPath(pair.csvGuid)) == idleCsv && !string.IsNullOrEmpty(pair.lastContentError),
+                "asset export ignored read-only CSV");
+            File.SetAttributes(AssetDatabase.GUIDToAssetPath(pair.csvGuid), FileAttributes.Normal);
+            DialogueCsvSyncProcessor.RequestAll(false);
+        });
+        steps.Enqueue(() =>
+        {
+            Check(DialogueCsvImportService.Prepare(characters, pair.Load<TextAsset>(pair.csvGuid)).Lines[0].text == "readonly CSV recovery",
+                "read-only CSV export did not recover");
+            WriteDialogue("after move");
+        });
+        steps.Enqueue(() =>
+        {
             string assetPath = AssetDatabase.GetAssetPath(scenario);
             string before = File.ReadAllText(assetPath);
             DialogueCsvSyncProcessor.SynchronizeContent(pair);
@@ -300,7 +405,7 @@ public static class DialogueCsvSyncIntegrationChecks
             if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.timeSinceStartup < nextStep) return;
             if (steps.Count == 0)
             {
-                Debug.Log($"PASS: Dialogue CSV sync integration ({passed} steps): edits, full parser, bidirectional rename, folder move, character CSV, manual CSV authority, unchanged import, errors/recovery, duplicate association, collisions, pause, simultaneous rename, persistence, deletion, unregister.");
+                Debug.Log($"PASS: Dialogue CSV sync integration ({passed} steps): dirty Inspector edits, quoted multiline CSV export, removed/added choices, branches, custom columns, CSV conflict priority, migration, both manual directions, no feedback loop, read-only CSV/asset, invalid data recovery, renames/moves, registration, pause, persistence, deletion.");
                 EditorApplication.update -= Tick;
                 EditorApplication.Exit(0);
                 return;

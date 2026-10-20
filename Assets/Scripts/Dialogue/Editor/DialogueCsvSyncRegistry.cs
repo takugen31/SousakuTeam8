@@ -14,6 +14,7 @@ internal sealed class DialogueCsvSyncPair
     public string lastCsvName;
     public string lastScenarioName;
     public string lastContentHash;
+    public string lastScenarioHash;
     public bool enabled = true;
     [NonSerialized] public string lastError;
     [NonSerialized] public string lastNameError;
@@ -72,6 +73,7 @@ internal sealed class DialogueCsvSyncRegistry : ScriptableSingleton<DialogueCsvS
         pair.lastError = null;
         pair.lastNameError = pair.lastContentError = null;
         pair.lastContentHash = DialogueCsvImportService.SourceHash(characters, csv);
+        pair.lastScenarioHash = DialogueCsvExportService.ContentHash(scenario.Lines);
         Persist();
         return pair;
     }
