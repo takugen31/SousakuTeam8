@@ -68,7 +68,7 @@ public sealed class SearchSceneController : MonoBehaviour
     private string puzzleSceneName = "PuzzleGame";
 
     [SerializeField]
-    [Tooltip("カヨの日記用パズル画像。未設定の場合は既存パズルの仮画像を使用します。")]
+    [Tooltip("各ルートの日記用パズル画像。未設定の場合は既存パズルの仮画像を使用します。")]
     private Texture2D diaryPuzzleImage;
 
     [Header("Optional Chapter Profile")]
@@ -1042,8 +1042,9 @@ public sealed class SearchSceneController : MonoBehaviour
             yield return new WaitForSecondsRealtime(postFadeDelay);
         }
 
+        bool hasPuzzleReturn = !string.IsNullOrWhiteSpace(completionResumeLineId);
         if (!Application.CanStreamedLevelBeLoaded(puzzleSceneName) ||
-            (searchProfile == null && !Application.CanStreamedLevelBeLoaded(completionSceneName)))
+            (hasPuzzleReturn && !Application.CanStreamedLevelBeLoaded(completionSceneName)))
         {
             Debug.LogError(
                 $"探索の遷移先 '{puzzleSceneName}' が有効なScene Listにありません。",
@@ -1052,8 +1053,8 @@ public sealed class SearchSceneController : MonoBehaviour
         }
 
         ArchiveManager.Close();
-        // Profile-based search opens the standalone puzzle, without the Kayo diary return route.
-        if (searchProfile == null) PuzzleGameFlowController.Queue(
+        // Any chapter can opt into a diary return; an empty resume ID keeps standalone behaviour.
+        if (hasPuzzleReturn) PuzzleGameFlowController.Queue(
             puzzleSceneName,
             completionSceneName,
             completionResumeLineId,

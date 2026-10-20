@@ -1,0 +1,309 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
+  m_Name: Chapter_Moteru_Diary
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
+  defaultBackground: {fileID: 0}
+  lines:
+  - lineId: chapter_moteru_diary_001
+    speakerId: doute
+    expressionId: normal
+    text: "よし！組み立て成功！手がかりかもしれないし、内容を見てみよう……！"
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_002
+    speakerId: 
+    expressionId: 
+    text: "『20XX年5月12日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_003
+    speakerId: 
+    expressionId: 
+    text: "『おとこなのにおんなみたいってみんなにいわれるんだ。ぼくがよわっちいからなんだって、つよくなりたい！』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_004
+    speakerId: 
+    expressionId: 
+    text: "『20XX年6月13日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_005
+    speakerId: 
+    expressionId: 
+    text: "『ひーろーがいた！すっっっごくかっこよかった！ぼくをみんなからたすけてじゃくにくきょうしょく？っていってた！ぼくもあんなふうになれたらなぁ』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_006
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_006
+    speakerId: 
+    expressionId: 
+    text: "『20XX年4月26日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_007
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_007
+    speakerId: 
+    expressionId: 
+    text: "『ぼくのヒーローはとってもかっこいい！いつもいつもみんなにやさしくて、どうどうとしてるんだ！お友だちがおおいのはうれしいけど、あの日からなかなか遊べなくてさびしいな』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_008
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_008
+    speakerId: 
+    expressionId: 
+    text: "『20XX年6月22日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_009
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_009
+    speakerId: 
+    expressionId: 
+    text: "『今日もあの子はかっこいい……！立ち姿だけでもかっこいいのはもちろんだけど、今日はまた特別！雨でほんの少しだけしょんぼりしてたけど、女の子を傘に入れてあげてるあの子の優しさを見てたらそれも吹き飛んじゃった！……僕が女の子なら、僕もあの子と一緒に傘に入れたのかな、なんて。いやいや、さすがに……僕は、男の子だもんね』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_010
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_010
+    speakerId: 
+    expressionId: 
+    text: "『20XX年9月22日』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_011
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_011
+    speakerId: 
+    expressionId: 
+    text: "『きっとあの子にはもっと、可愛くて優しくて強くて料理もできてみんなに好かれるヒロインが現れるはずなのに、僕があの子、ドウテくんの、ヒロインになれたなら……なんて贅沢な考えがあの日から消えてくれない。早く僕を諦めさせてくれるヒロインが現れるといいな』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_012
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_012
+    speakerId: doute
+    expressionId: normal
+    text: "（日記のページの隅にはモテルの名前が書かれて終わっている。）"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_013
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_013
+    speakerId: doute
+    expressionId: normal
+    text: "これって……！まさか、モテルの……？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_014
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_014
+    speakerId: doute
+    expressionId: normal
+    text: "（これを読んで俺はどうしようか？）"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: 
+    choices:
+    - text: "他のふたりを攻略する"
+      nextLineId: chapter_moteru_diary_015
+    - text: "モテルを攻略する"
+      nextLineId: chapter_moteru_diary_016
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_015
+    speakerId: 
+    expressionId: 
+    text: ""
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: Assets/Scenes/GameMap/SelectionPart.unity
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_016
+    speakerId: doute
+    expressionId: normal
+    text: "（俺はモテルのこの気持ちに応えられるか分からないけど、放っておくことなんてできないよな……！）"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: chapter_moteru_diary_017
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_diary_017
+    speakerId: doute
+    expressionId: normal
+    text: "モテルともう一度ちゃんと話そうっ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
+    nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

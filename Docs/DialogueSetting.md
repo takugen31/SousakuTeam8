@@ -147,6 +147,25 @@ IDは `001〜012` の連番です。以前の `009` のセリフは下の選択�
 
 Unityの未接続コンポーネントはC#の `??` で正しく判定できない場合があります。`GetComponent<CanvasGroup>()` の取得後に `== null` で判定して追加する処理へ修正しました。同じ書き方だった選択肢だけの表示にも適用しています。独立したUnity環境で修正前の例外を再現し、修正後の日記・独白・選択肢表示、元の透明度への復帰、コンポーネントの重複がないことを確認済みです。検証コードは `work/DialogueCanvasGroupChecks.cs` です。
 
+## モテルの日記・中央表示
+
+原稿は `Assets/Dialogue/CSV/Moteru/chapter_moteru_diary.csv`、対応アセットは `Assets/Dialogue/Data/Moteru/Chapter_Moteru_Diary.asset` です。17行を作成し、CSV Sync Settingsへ同期ペアとして登録しています。原稿の日付・ひらがな・文章の順番は提示された内容を維持しています。
+
+| セリフID末尾 | 表示と動作 |
+| --- | --- |
+| `001` | ドウテの「よし！組み立て成功！」。通常の会話UI |
+| `002〜011` | 日付と日記本文。モテルのnormal画像を中央へ拡大し、薄い黒色を重ねて本文を中央表示 |
+| `012〜013` | 通常UIに戻り、名前を見つけたドウテの反応 |
+| `014` | 「これを読んで俺はどうしようか？」と2つの選択肢 |
+| `015` | 上「他のふたりを攻略する」の遷移専用行。追加クリックなしで暗転し `SelectionPart` へ |
+| `016〜017` | 下「モテルを攻略する」の返答2行。その後、章切り替えの暗転を経て `Chapter_Moteru_After_Mini_Game` の `chapter_moteru_4_001`「モテルっ！」へ |
+
+演出はヨワシ・カヨと共通の `StartDouteMonologueView()` を使います。`IsMoteruDiaryLine()` が `chapter_moteru_diary_002〜011` を判定するため、本文の行を増減した場合はC#側の範囲も変更します。通常の立ち絵・名前欄・会話パネルを一時的に隠し、日記が終わると元の配置・透明度へ復帰します。
+
+通常の接続は **Chapter_Moteru_2末尾 → Chapter_Moteru_SearchScene → PuzzleGame → NovelScene_Moteruの日記001** です。探索シーンの **Completion Scene Name** を `NovelScene_Moteru`、**Completion Resume Line Id** を `chapter_moteru_diary_001` に設定済みです。パズルのクリア後は共通の `PuzzleGameFlowController` が1秒待機＋0.8秒の暗転で戻します。`NovelScene_Moteru` の **Following Scenarios** には Chapter 2 → Diary → After Mini Game の順で登録しています。パズルの直接起動には、引き続き戻り先の予約がありません。
+
+`work/verify-moteru-search.ps1 -Suite Diary` で、独立したUnity環境へ実際のパズル・モテル会話シーンをコピーし、17行のインポート一致、パズルからの日記再開、本文10行の中央表示、通常UIへの復帰、両選択肢と次のモテル会話への接続を検証しています。パズルはクリア通知をコードから発生させる検証で、盤面を手操作で解くテストは含みません。`-Suite Search` は探索側の取得順と日記の戻り先予約を確認します。
+
 ## モテルの探索パート
 
 `Assets/Scenes/GameMap/Chapter_Kayo_SearchScene.unity` と `Chapter_Moteru_SearchScene.unity` は、Main Cameraに付けた共通の `SearchSceneController` を使用します。モテル側は `Assets/Dialogue/Data/Moteru/MoteruSearchProfile.asset` で対象・画像・配置・会話範囲を切り替えます。左右の矢印、調査時の金色の強調、取得画面、会話UIはカヨと共通です。
@@ -159,7 +178,7 @@ Unityの未接続コンポーネントはC#の `??` で正しく判定できな�
 
 会話原稿は `Assets/Dialogue/CSV/Moteru/chapter_moteru_search.csv`、ゲーム用データは `Assets/Dialogue/Data/Moteru/Chapter_Moteru_Search.asset` です。24行を作成し、CSV Sync Settingsへペア登録済みなので、CSVを保存してUnityが再読み込みするとアセットへ反映します。各対象の最終行で会話を止め、別の対象の会話へ続けて流れないようにしています。
 
-3か所すべての取得と最後の会話が終わると、カヨと同じ処理で2.5秒かけて暗転し、2秒待って `Assets/PuzzleGame/Scenes/PuzzleGame.unity` へ進みます。カヨの日記パズル用の戻り先は予約しません。パズル完了後のモテル専用遷移は、この探索設定には含めていません。
+3か所すべての取得と最後の会話が終わると、カヨと同じ処理で2.5秒かけて暗転し、2秒待って `Assets/PuzzleGame/Scenes/PuzzleGame.unity` へ進みます。モテルの日記へ戻る予約も渡し、クリア後は `chapter_moteru_diary_001` から再生します。別の探索設定でパズルを単体起動したい場合は **Completion Resume Line Id** を空欄にします。
 
 画像と位置を変える場合は **MoteruSearchProfile > Items** を編集します。`room` は0が左、1が右。`anchorMin` / `anchorMax` は画面の左下を0、右上を1とする配置範囲で、画像とクリック範囲を共有します。`sprite` が主画像、`secondarySprite` が2人目の画像です。背景を切り出す場合だけ `uvRect` に切り出し範囲を指定し、専用画像なら `{x: 0, y: 0, width: 1, height: 1}` にします。`firstLineId` / `lastLineId` は会話の先頭と末尾、`requiresItemId` は先に調べる対象です。
 

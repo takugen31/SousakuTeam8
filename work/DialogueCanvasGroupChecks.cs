@@ -35,7 +35,7 @@ public sealed class DialogueCanvasGroupChecks : MonoBehaviour
         background.sprite = sprite;
         var database = ScriptableObject.CreateInstance<CharacterDatabaseSO>();
         var characters = new List<CharacterData>();
-        foreach (string id in new[] { "doute", "yowashi", "kayo" })
+        foreach (string id in new[] { "doute", "yowashi", "kayo", "moteru" })
             characters.Add(new CharacterData { characterId = id, expressions = new List<CharacterExpression> {
                 new CharacterExpression { expressionId = "normal", portrait = sprite } } });
         database.ReplaceAll(characters);
@@ -56,7 +56,8 @@ public sealed class DialogueCanvasGroupChecks : MonoBehaviour
         Debug.Log("PASS: original ?? expression reproduces MissingComponentException on a panel without CanvasGroup.");
 
         foreach (string id in new[] { "chapter_yowashi_diary_002", "chapter_yowashi_diary_003",
-            "chapter_yowashi_diary_014", "chapter_kayo_diary_002", "chapter3_009" })
+            "chapter_yowashi_diary_014", "chapter_kayo_diary_002", "chapter_moteru_diary_002",
+            "chapter_moteru_diary_011", "chapter3_009" })
         {
             Call(controller, "StartDouteMonologueView", new DialogueLine { lineId = id });
             CanvasGroup group = panel.GetComponent<CanvasGroup>();

@@ -2430,9 +2430,16 @@ public sealed class NovelDialogueController : MonoBehaviour
             int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 2 && row <= 14;
     }
 
+    public static bool IsMoteruDiaryLine(string lineId)
+    {
+        const string prefix = "chapter_moteru_diary_";
+        return lineId != null && lineId.StartsWith(prefix, StringComparison.Ordinal) &&
+            int.TryParse(lineId.Substring(prefix.Length), out int row) && row >= 2 && row <= 11;
+    }
+
     private static bool IsCenteredNarrationLine(string lineId)
     {
-        return IsDouteMonologueLine(lineId) || IsYowashiDiaryLine(lineId) || IsKayoDiaryLine(lineId);
+        return IsDouteMonologueLine(lineId) || IsYowashiDiaryLine(lineId) || IsKayoDiaryLine(lineId) || IsMoteruDiaryLine(lineId);
     }
 
     public static bool IsKayoDiaryLine(string lineId)
@@ -2448,7 +2455,8 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         bool isYowashiDiary = IsYowashiDiaryLine(line?.lineId);
         bool isKayoDiary = IsKayoDiaryLine(line?.lineId);
-        string centeredCharacterId = isYowashiDiary ? "yowashi" : isKayoDiary ? "kayo" : "doute";
+        bool isMoteruDiary = IsMoteruDiaryLine(line?.lineId);
+        string centeredCharacterId = isYowashiDiary ? "yowashi" : isKayoDiary ? "kayo" : isMoteruDiary ? "moteru" : "doute";
         if (!IsCenteredNarrationLine(line?.lineId) || dialogueRoot == null || bodyText == null ||
             backgroundImage == null || backgroundImage.sprite == null || characterDatabase == null ||
             !characterDatabase.TryGetCharacter(centeredCharacterId, out CharacterData character)) return;
@@ -3666,6 +3674,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
+        // A route picker must not carry a row from the branch the player declined.
+        if (runtimeSceneName == "SelectionPart") resumeLineId = null;
         QueueResumeLine(resumeLineId);
         isSceneLoading = true;
         isPlaying = false;

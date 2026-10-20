@@ -1,9 +1,12 @@
-param([string]$UnityEditor = 'C:/Program Files/Unity/Hub/Editor/6000.3.6f1/Editor/Unity.exe')
+param(
+    [string]$UnityEditor = 'C:/Program Files/Unity/Hub/Editor/6000.3.6f1/Editor/Unity.exe',
+    [ValidateSet('Search','Diary')][string]$Suite = 'Search'
+)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $testProject = Join-Path $root ('Temp/MoteruSearchChecks-' + [guid]::NewGuid().ToString('N'))
 foreach ($folder in @('Assets/Editor','Assets/Dialogue/CSV/Moteru','Assets/Dialogue/Data/Moteru',
-    'Assets/Scenes/GameMap','Assets/Fonts/Noto_Sans_JP','Packages','ProjectSettings')) {
+    'Assets/Scenes/GameMap','Assets/PuzzleGame/Scenes','Assets/Fonts/Noto_Sans_JP','Packages','ProjectSettings')) {
     New-Item -ItemType Directory -Path (Join-Path $testProject $folder) -Force | Out-Null
 }
 $encoding = [Text.UTF8Encoding]::new($false)
@@ -18,32 +21,40 @@ foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/Puzz
 }
 foreach ($file in @('Assets/Dialogue/CSV/Characters.csv',
     'Assets/Dialogue/CSV/Moteru/chapter_moteru_search.csv',
+    'Assets/Dialogue/CSV/Moteru/chapter_moteru_diary.csv',
     'Assets/Dialogue/Data/CharacterDatabase.asset',
     'Assets/Dialogue/Data/Moteru/Chapter_Moteru_Search.asset',
     'Assets/Dialogue/Data/Moteru/MoteruSearchProfile.asset',
     'Assets/Scenes/GameMap/Chapter_Moteru_SearchScene.unity',
+    'Assets/Scenes/GameMap/NovelScene_Moteru.unity',
+    'Assets/PuzzleGame/Scenes/PuzzleGame.unity',
     'Assets/Fonts/Noto_Sans_JP/NotoSansJP-Black SDF.asset',
     'Assets/Fonts/Noto_Sans_JP/NotoSansJP-Black.ttf')) {
     foreach ($suffix in @('', '.meta')) {
         Copy-Item -LiteralPath (Join-Path $root ($file + $suffix)) -Destination (Join-Path $testProject ($file + $suffix))
     }
 }
-$source = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'MoteruSearchChecks.cs'))
+Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Dialogue/Data/Moteru') -File | ForEach-Object {
+    Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $testProject ('Assets/Dialogue/Data/Moteru/' + $_.Name))
+}
+$checkName = if ($Suite -eq 'Diary') { 'MoteruDiary' } else { 'MoteruSearch' }
+$source = [IO.File]::ReadAllText((Join-Path $PSScriptRoot ($checkName + 'Checks.cs')))
 $split = $source.IndexOf('[InitializeOnLoad]')
-[IO.File]::WriteAllText((Join-Path $testProject 'Assets/MoteruSearchChecks.cs'), $source.Substring(0,$split), $encoding)
-[IO.File]::WriteAllText((Join-Path $testProject 'Assets/Editor/MoteruSearchBootstrap.cs'),
+[IO.File]::WriteAllText((Join-Path $testProject ('Assets/' + $checkName + 'Checks.cs')), $source.Substring(0,$split), $encoding)
+[IO.File]::WriteAllText((Join-Path $testProject ('Assets/Editor/' + $checkName + 'Bootstrap.cs')),
     "using System; using UnityEditor; using UnityEditor.SceneManagement; using UnityEngine;`n" + $source.Substring($split), $encoding)
 $logPath = Join-Path $testProject 'search-checks.log'
 Write-Output "Isolated Unity project: $testProject"
 $process = Start-Process -FilePath $UnityEditor -WindowStyle Hidden -PassThru -ArgumentList @(
     '-batchmode','-nographics','-projectPath',('"'+$testProject+'"'),
-    '-executeMethod','MoteruSearchBootstrap.Run','-logFile',('"'+$logPath+'"'))
+    '-executeMethod',($checkName + 'Bootstrap.Run'),'-logFile',('"'+$logPath+'"'))
 $deadline = [DateTime]::UtcNow.AddMinutes(6)
 while (-not $process.WaitForExit(1000)) {
     if ([DateTime]::UtcNow -gt $deadline) { $process.Kill(); throw "Unity checks timed out: $logPath" }
 }
 $output = Get-Content -LiteralPath $logPath -Raw -Encoding UTF8
 $output -split '\r?\n' | Where-Object { $_ -match '^PASS:|^FAIL:|error CS|^Exception:' } | Write-Output
-if ($process.ExitCode -ne 0 -or $output -notmatch 'PASS: Moteru search integration completed') {
+$successMarker = if ($Suite -eq 'Diary') { 'PASS: Moteru diary integration completed' } else { 'PASS: Moteru search integration completed' }
+if ($process.ExitCode -ne 0 -or -not $output.Contains($successMarker)) {
     throw "Unity checks failed (exit $($process.ExitCode)): $logPath"
 }

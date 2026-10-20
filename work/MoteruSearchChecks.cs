@@ -122,8 +122,10 @@ public sealed class MoteruSearchChecks : MonoBehaviour
             Time.timeScale = 1f;
             Check(SceneManager.GetActiveScene().name == "PuzzleGame", "wrong completion scene");
             Check(Time.realtimeSinceStartup - started >= 4.3f, "Kayo 2.5s fade + 2s hold was skipped");
-            Check(typeof(PuzzleGameFlowController).GetField("pendingRequest", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null) == null,
-                "Moteru queued a Kayo diary return");
+            object request = typeof(PuzzleGameFlowController).GetField("pendingRequest", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+            Check(request != null && (string)request.GetType().GetField("ReturnSceneName").GetValue(request) == "NovelScene_Moteru" &&
+                (string)request.GetType().GetField("ResumeLineId").GetValue(request) == "chapter_moteru_diary_001",
+                "Moteru diary return was not queued");
             Debug.Log("PASS: Moteru search order " + string.Join(" -> ", order) + ": art, prerequisite, acquisition UI, archives, all 24 dialogue pages, unscaled Kayo fade, PuzzleGame.");
         }
         Check(GameProgress.IsValidCheckpoint(new[] {
@@ -194,9 +196,12 @@ public static class MoteruSearchBootstrap
                 throw new Exception("CSV/asset mismatch at " + i);
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         EditorSceneManager.SaveScene(scene, "Assets/PuzzleGame.unity");
+        scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        EditorSceneManager.SaveScene(scene, "Assets/NovelScene_Moteru.unity");
         EditorBuildSettings.scenes = new[] {
             new EditorBuildSettingsScene("Assets/Scenes/GameMap/Chapter_Moteru_SearchScene.unity", true),
-            new EditorBuildSettingsScene("Assets/PuzzleGame.unity", true)
+            new EditorBuildSettingsScene("Assets/PuzzleGame.unity", true),
+            new EditorBuildSettingsScene("Assets/NovelScene_Moteru.unity", true)
         };
         Debug.Log("PASS: production CSV imports identically to the scenario asset (24 pages).");
         EditorApplication.delayCall += () => EditorApplication.EnterPlaymode();

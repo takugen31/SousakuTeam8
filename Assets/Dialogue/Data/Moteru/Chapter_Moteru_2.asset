@@ -233,7 +233,7 @@ MonoBehaviour:
     lineFadeOutDuration: -1
     lineFadeHoldDuration: -1
     lineFadeInDuration: -1
-    nextScenePath: 
+    nextScenePath: Assets/Scenes/GameMap/Chapter_Moteru_SearchScene.unity
     nextLineId: 
     choices: []
     affectionChanges: []

@@ -309,3 +309,11 @@ MonoBehaviour:
     lastScenarioName: Chapter_Moteru_Search
     lastContentHash: MsphV5nm0SWguf54SHNjLVUypaUIxL/W9HkB8Lc2/OA=
     enabled: 1
+  - csvGuid: ce2021528f7e4674b47ea3bb1d8f9513
+    scenarioGuid: 5cbd485daba04e03a41886e24695a180
+    characterCsvGuid: 78f3c1cc9f46c2347a352f386bb60350
+    databaseGuid: d92603f43a2d34e41befd61fe218478e
+    lastCsvName: chapter_moteru_diary
+    lastScenarioName: Chapter_Moteru_Diary
+    lastContentHash:
+    enabled: 1

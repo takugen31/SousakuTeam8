@@ -237,8 +237,8 @@ MonoBehaviour:
   sceneFadeInDuration: 1
   fadeOutDuration: 2.5
   postFadeDelay: 2
-  completionSceneName:
-  completionResumeLineId:
+  completionSceneName: NovelScene_Moteru
+  completionResumeLineId: chapter_moteru_diary_001
   puzzleSceneName: PuzzleGame
   diaryPuzzleImage: {fileID: 0}
   searchProfile: {fileID: 11400000, guid: db41560b81b5498dae06eea9641cc0ad, type: 2}
