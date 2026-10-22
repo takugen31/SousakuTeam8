@@ -52,7 +52,7 @@ namespace Sousakusai8.MiniGame
             ArchiveManager.Close();
             yield return CatchGameFade.Play(fadeOverlay, 0f, 1f, fadeDuration);
             // Override any queued position from before the game: always start Chapter_Moteru_2.
-            NovelDialogueController.QueueResumeLine(resumeLineId, true);
+            NovelDialogueController.QueueResumeLineForScene(returnSceneName, resumeLineId, true);
             try
             {
                 SceneManager.LoadScene(returnSceneName, LoadSceneMode.Single);

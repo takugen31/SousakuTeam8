@@ -102,6 +102,7 @@ public static class GameProgress
     /// </summary>
     public static void ResetAll()
     {
+        DialogueProgressStore.Clear();
         NovelDialogueController.ResetStoryState();
         PuzzleGameFlowController.ResetPendingRequest();
         PlayerPrefs.DeleteKey(ArchiveSaveKey);

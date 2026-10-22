@@ -179,7 +179,7 @@ public sealed class PuzzleGameFlowController : MonoBehaviour
         overlay.color = Color.black;
         ArchiveManager.Close();
         // Overwrite any earlier search resume request; the diary must be read first.
-        NovelDialogueController.QueueResumeLine(activeRequest.ResumeLineId, true);
+        NovelDialogueController.QueueResumeLineForScene(activeRequest.ReturnSceneName, activeRequest.ResumeLineId, true);
         PlayerPrefs.DeleteKey(PendingReturnKey);
         SceneManager.LoadScene(activeRequest.ReturnSceneName, LoadSceneMode.Single);
     }

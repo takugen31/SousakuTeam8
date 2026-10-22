@@ -9,12 +9,13 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public sealed class NovelDialogueController : MonoBehaviour
+public sealed partial class NovelDialogueController : MonoBehaviour
 {
     private GameObject endingCard;
     private Coroutine endingCardCoroutine;
     private static string pendingResumeLineId;
     private static bool pendingSceneFadeIn;
+    private static string pendingResumeScene;
     private static readonly HashSet<string> revealedCharacterIds =
         new HashSet<string>(System.StringComparer.Ordinal);
 
@@ -27,6 +28,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         pendingResumeLineId = null;
         pendingSceneFadeIn = false;
+        pendingResumeScene = null;
         revealedCharacterIds.Clear();
     }
 
@@ -40,6 +42,26 @@ public sealed class NovelDialogueController : MonoBehaviour
         ResetPendingResumeLine();
     }
 
+    public static void ClearResumeRequest()
+    {
+        pendingResumeLineId = null;
+        pendingSceneFadeIn = false;
+        pendingResumeScene = null;
+    }
+
+    public static void QueueResumeLineForScene(string sceneName, string lineId, bool fadeInAfterSceneLoad = true)
+    {
+        QueueResumeLine(lineId, fadeInAfterSceneLoad);
+        pendingResumeScene = sceneName;
+    }
+
+    public static void QueueResumeLineIfEmptyForScene(string sceneName, string fallbackLineId, bool fadeInAfterSceneLoad = true)
+    {
+        if (pendingResumeScene != null && pendingResumeScene != sceneName) ClearResumeRequest();
+        QueueResumeLineIfEmpty(fallbackLineId, fadeInAfterSceneLoad);
+        pendingResumeScene = sceneName;
+    }
+
     public static void QueueResumeLine(
         string lineId,
         bool fadeInAfterSceneLoad)
@@ -49,6 +71,7 @@ public sealed class NovelDialogueController : MonoBehaviour
                 ? null
                 : lineId.Trim();
         pendingSceneFadeIn = fadeInAfterSceneLoad;
+        pendingResumeScene = null;
     }
 
     public static void QueueResumeLineIfEmpty(
@@ -419,6 +442,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             currentScenario = candidate;
             currentScenarioIndex = i;
             stopAfterLineId = data.stopLineId;
+            BeginProgressSession(!playOnStart);
+            progressAppliedLineIds.Add(candidate.name + "|" + line.lineId);
             shownConsultationLineIds.Clear();
             if (data.consultationLines != null) shownConsultationLineIds.UnionWith(data.consultationLines);
             ResetKnownCharacterNames();
@@ -452,6 +477,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnEnable()
     {
+        DialogueProgressStore.SettingsChanged += OnProgressSettingChanged;
         BindSkipConfirmationButtons();
     }
 
@@ -609,10 +635,17 @@ public sealed class NovelDialogueController : MonoBehaviour
     public void StartDialogue()
     {
         stopAfterLineId = null;
-        bool shouldFadeIn = pendingSceneFadeIn;
-        pendingSceneFadeIn = false;
+        BeginProgressSession();
+        bool requestForThisScene = pendingResumeScene == null || pendingResumeScene == gameObject.scene.name;
+        bool shouldFadeIn = DialogueProgressStore.Enabled && requestForThisScene && pendingSceneFadeIn;
+        if (requestForThisScene) pendingSceneFadeIn = false;
 
-        if (!TryStartPendingResumeLine())
+        if (!DialogueProgressStore.Enabled)
+        {
+            ClearResumeRequest();
+            StartDialogueInternal();
+        }
+        else if (!TryStartPendingResumeLine() && !TryRestoreSceneProgress())
         {
             StartDialogueInternal();
         }
@@ -629,7 +662,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         entryScenario = null;
         entryLine = null;
         if (!playOnStart || !isActiveAndEnabled || scenario == null) return false;
-        if (!string.IsNullOrWhiteSpace(pendingResumeLineId))
+        if (DialogueProgressStore.Enabled &&
+            (pendingResumeScene == null || pendingResumeScene == gameObject.scene.name) &&
+            !string.IsNullOrWhiteSpace(pendingResumeLineId))
         {
             int count = 1 + (followingScenarios?.Count ?? 0);
             for (int i = 0; i < count; i++)
@@ -642,6 +677,7 @@ public sealed class NovelDialogueController : MonoBehaviour
                 }
             }
         }
+        if (TryGetProgressEntryMusic(out entryScenario, out entryLine)) return true;
         entryScenario = scenario;
         if (!string.IsNullOrWhiteSpace(startLineId) && scenario.TryGetLine(startLineId, out entryLine)) return true;
         return scenario.TryGetFirstLine(out entryLine);
@@ -649,8 +685,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private bool TryStartPendingResumeLine()
     {
+        if (pendingResumeScene != null && pendingResumeScene != gameObject.scene.name) return false;
         string resumeLineId = pendingResumeLineId;
         pendingResumeLineId = null;
+        pendingResumeScene = null;
 
         if (string.IsNullOrWhiteSpace(resumeLineId))
         {
@@ -772,6 +810,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         startLineId = lineId;
         stopAfterLineId = null;
+        BeginProgressSession();
         StartDialogueInternal();
     }
 
@@ -855,8 +894,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void StartEmbeddedDialogue()
     {
+        startLineId = null;
         stopAfterLineId = null;
-        StartDialogueInternal();
+        BeginProgressSession(true);
+        if (!TryRestoreSceneProgress()) StartDialogueInternal();
     }
 
     public void PlayDialogueRange(
@@ -868,7 +909,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         followingScenarios.Clear();
         startLineId = firstLineId;
         stopAfterLineId = lastLineId;
-        StartDialogueInternal();
+        BeginProgressSession(true);
+        if (!TryRestoreSceneProgress()) StartDialogueInternal();
     }
 
     public void Advance()
@@ -1787,6 +1829,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        SaveSceneProgress();
+        DialogueProgressStore.SettingsChanged -= OnProgressSettingChanged;
         StopKayoPushback();
         StopEndingCard();
         StopKayoEggView();
@@ -1960,7 +2004,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
 
         ApplyBackground(line);
-        if (!restoringCheckpointLine)
+        if (!restoringCheckpointLine && ShouldApplyProgressLine(line))
         {
             ApplyAffectionChanges(line);
             // Kayo's entrance look runs before her introduction text is displayed.
@@ -3242,6 +3286,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
             StartWindowShake();
         StartKayoPushback(currentLine);
+        RefreshProgressState();
     }
 
     private void ShowChoiceOnlyWindow()
@@ -3431,7 +3476,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         int totalCharacters =
             bodyText.textInfo.characterCount;
 
-        float visibleCharacters = 0f;
+        float visibleCharacters = Mathf.Clamp(bodyText.maxVisibleCharacters, 0, totalCharacters);
 
         while (bodyText.maxVisibleCharacters < totalCharacters)
         {
@@ -3479,9 +3524,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void HandleLineFullyDisplayed()
     {
+        RefreshProgressState();
         if (currentLine?.lineId == "chapter1_kayo_014") TriggerKayoFall();
         RevealCurrentSpeakerName();
-        if (currentLine?.lineId == "chapter2_kayo_001") ApplyArchiveUnlocks(currentLine);
+        if (!restoringCheckpointLine && currentLine?.lineId == "chapter2_kayo_001") ApplyArchiveUnlocks(currentLine);
 
         if (currentLine != null && currentLine.HasSceneTransition)
         {
@@ -3643,18 +3689,6 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
-        string resumeLineId = transitionLine?.nextLineId;
-
-        if (string.IsNullOrWhiteSpace(resumeLineId) &&
-            transitionLine != null &&
-            currentScenario != null &&
-            currentScenario.TryGetNextLine(
-                transitionLine.lineId,
-                out DialogueLine nextLine))
-        {
-            resumeLineId = nextLine.lineId;
-        }
-
         string runtimeSceneName;
 
         try
@@ -3674,9 +3708,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
-        // A route picker must not carry a row from the branch the player declined.
-        if (runtimeSceneName == "SelectionPart") resumeLineId = null;
-        QueueResumeLine(resumeLineId);
+        // The source scene owns its cursor; unrelated dialogue scenes never consume it.
+        SaveSceneDeparture(transitionLine);
         isSceneLoading = true;
         isPlaying = false;
         autoAdvanceAt = -1f;
@@ -3730,6 +3763,9 @@ public sealed class NovelDialogueController : MonoBehaviour
         QueueResumeLine(null);
         isSceneLoading = false;
         isPlaying = true;
+        progressDeparted = false;
+        progressResumeLineId = null;
+        SaveSceneProgress();
 
         if (chapterTransitionOverlay != null)
         {
@@ -4066,6 +4102,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void EndDialogueImmediately()
     {
+        SaveSceneCompletion();
         // Embedded event owners fade the final frame before unloading the scene.
         CancelChapterTransition(KeepPresentationOnCompletion);
         StopTypingAndRevealText();

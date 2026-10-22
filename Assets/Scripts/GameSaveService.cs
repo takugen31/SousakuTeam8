@@ -181,9 +181,12 @@ public static class GameSaveService
             return false;
         }
         string[] previousNames = NovelDialogueController.CaptureRevealedNames();
+        DialogueProgressStore.Timeline previousTimeline = DialogueProgressStore.CaptureTimeline();
         ArchiveManager.Close();
         try
         {
+            // A manual load starts a new timeline. Outgoing scene callbacks cannot re-save the future.
+            DialogueProgressStore.Clear();
             NovelDialogueController.ResetStoryState();
             NovelDialogueController.RestoreRevealedNames(data.revealedNames);
             GameProgress.RestoreCheckpoint(data.progress);
@@ -196,6 +199,8 @@ public static class GameSaveService
         catch (Exception exception)
         {
             pending = null;
+            try { DialogueProgressStore.RestoreTimeline(previousTimeline); }
+            catch (Exception rollbackException) { Debug.LogException(rollbackException); }
             try { GameProgress.RestoreCheckpoint(previousProgress); }
             catch (Exception rollbackException) { Debug.LogException(rollbackException); }
             NovelDialogueController.RestoreRevealedNames(previousNames);

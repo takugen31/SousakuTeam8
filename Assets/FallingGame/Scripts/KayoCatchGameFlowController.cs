@@ -167,7 +167,7 @@ namespace Sousakusai8.MiniGame
                 yield break;
             }
 
-            NovelDialogueController.QueueResumeLineIfEmpty(resumeLineId, true);
+            NovelDialogueController.QueueResumeLineIfEmptyForScene(returnSceneName, resumeLineId, true);
             SceneManager.LoadScene(returnSceneName, LoadSceneMode.Single);
         }
 

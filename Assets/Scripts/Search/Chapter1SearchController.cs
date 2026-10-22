@@ -935,7 +935,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
 
         ArchiveManager.Close();
-        NovelDialogueController.QueueResumeLine(completionResumeLineId);
+        NovelDialogueController.QueueResumeLineForScene(completionSceneName, completionResumeLineId, false);
         SceneManager.LoadScene(completionSceneName, LoadSceneMode.Single);
     }
 

@@ -54,7 +54,7 @@ namespace Sousakusai8.MiniGame
             yield return new WaitForSecondsRealtime(resultDisplayDuration);
             ArchiveManager.Close();
             // ゲーム前の会話を繰り返さず、結果に対応した原文の位置へ戻る。
-            NovelDialogueController.QueueResumeLine(resumeLineId, true);
+            NovelDialogueController.QueueResumeLineForScene(returnSceneName, resumeLineId, true);
             SceneManager.LoadScene(returnSceneName, LoadSceneMode.Single);
         }
 
