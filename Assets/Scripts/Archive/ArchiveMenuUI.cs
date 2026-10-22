@@ -196,7 +196,6 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
         autoButton.onClick.AddListener(() => FindCurrentDialogue()?.ToggleAutoPlay());
         CreateMenuItem("Restart", "最初から", 0.20f).onClick.AddListener(() => restartConfirmation.SetActive(true));
-        BuildProgressSetting();
         contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, new Color(0.95f, 0.95f, 0.95f, 1f));
         SetAnchors(contextHelp.gameObject, new Vector2(0.20f, 0.015f), new Vector2(0.20f, 0.09f), Vector2.zero, Vector2.zero);
         contextHelp.alignment = TextAlignmentOptions.MidlineLeft;
@@ -236,7 +235,6 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
     private void Update()
     {
         if (!IsOpen) return;
-        UpdateProgressSetting();
         UpdateSaveAvailability();
         NovelDialogueController dialogue = FindCurrentDialogue();
         autoButton.interactable = dialogue != null;

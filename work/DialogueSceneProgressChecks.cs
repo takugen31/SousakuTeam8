@@ -32,7 +32,22 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
     private IEnumerator Start()
     {
         DontDestroyOnLoad(gameObject);
-        DialogueProgressStore.Enabled = true;
+        Check(Resources.Load<TextAsset>("DialogueSceneProgressSettings") != null, "production progress settings JSON was not bundled");
+        PlayerPrefs.SetInt("Dialogue.SceneProgress.Enabled.v1", 0);
+        Check(DialogueProgressSettings.IsEnabled(A), "obsolete player preference overrode the JSON setting");
+        UseConfiguration("{\"enabled\":false,\"scenes\":[{\"scene\":\"NovelScene_Moteru\",\"enabled\":true}]}");
+        Check(!DialogueProgressSettings.IsEnabled(A) && !DialogueProgressSettings.IsEnabled(B), "global OFF did not override scene settings");
+        UseConfiguration("{\"defaultSceneEnabled\":true,\"scenes\":[{\"scene\":\"NovelScene_Moteru\",\"enabled\":false}]}");
+        Check(!DialogueProgressSettings.IsEnabled(A) && DialogueProgressSettings.IsEnabled(B), "explicit scene OFF did not override default ON");
+        UseConfiguration("{broken");
+        Check(DialogueProgressSettings.IsEnabled(A), "invalid settings did not use the documented ON fallback");
+        UseConfiguration("{\"scenes\":[{\"scene\":\"NovelScene_Moteru\"},{\"scene\":\"Assets/Scenes/NovelScene_Moteru.unity\"}]}");
+        Check(DialogueProgressSettings.IsEnabled(A), "duplicate normalized scene names did not use the fallback");
+        UseConfiguration(null);
+        var menu = ArchiveManager.Instance.GetComponent<ArchiveMenuUI>();
+        foreach (var button in menu.GetComponentsInChildren<Button>(true))
+            Check(button.name != "ProgressSave", "Esc menu still exposes the progress toggle");
+        Debug.Log("PASS: bundled JSON is authoritative, global OFF overrides scene settings, legacy preferences are ignored, and the Esc toggle is absent.");
         GameProgress.ResetAll();
         affection = new GameObject("Affection").AddComponent<AffectionManager>();
         affection.SetAffection("kayo", 0);
@@ -129,24 +144,31 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         Check(!(bool)Get(a, "isPlaying") && completions == 1, "completed conversation replayed or completion event missing");
         Debug.Log("PASS: unselected choices reopen, chosen branches stay advanced, and completed conversations remain completed with owner notification.");
 
-        DialogueProgressStore.Enabled = false;
         SceneManager.LoadScene(B); yield return null;
+        UseConfiguration("{\"enabled\":true,\"defaultSceneEnabled\":false,\"scenes\":[{\"scene\":\"ProgressOther\",\"enabled\":true}]}");
+        Check(!DialogueProgressSettings.IsEnabled("Assets/Scenes/NovelScene_Moteru.unity") &&
+            DialogueProgressSettings.IsEnabled("Assets/Scenes/ProgressOther.unity"), "scene path and default/OFF resolution failed");
+        b = Create(other); yield return null;
+        Check(Id(b) == "b2", "disabling A discarded enabled B's saved progress");
         Check(DialogueProgressTransitions.ReturnToScene(A, "a6", false), "OFF blocked scene navigation");
         yield return null;
         a = Create(main); yield return null;
         Check(Id(a) == "a1", "OFF did not ignore saved cursor and explicit request");
         Complete(a); a.Advance(); yield return null;
-        DialogueProgressStore.Enabled = true;
         SceneManager.LoadScene(B); yield return null;
+        Check(!PlayerPrefs.GetString("Dialogue.SceneProgress.v1").Contains("ProgressMain"), "disabled scene retained or wrote playback history");
+        Check(!DialogueProgressStore.TryGetSceneEntry(A, out _), "OFF retained a result entry point");
+        UseConfiguration(null);
         SceneManager.LoadScene(A); yield return null;
         a = Create(main); yield return null;
-        Check(Id(a) == "a2", "OFF/ON did not start recording the current session");
+        Check(Id(a) == "a1", "re-enabling A resurrected history from before OFF");
+        Complete(a); a.Advance(); yield return null;
         SceneManager.LoadScene(B); yield return null;
         Check(DialogueProgressTransitions.ReturnToScene(A, "a6", false, DialogueProgressEntryMode.PreferSavedProgress), "history-first return failed");
         yield return null;
         a=Create(main); yield return null;
         Check(Id(a)=="a2", "history-first return used its fallback despite saved progress");
-        Debug.Log("PASS: unified progress transitions load scenes with ON/OFF, prefer saved history when requested, and consume entry points only after successful entry; music preview is read-only.");
+        Debug.Log("PASS: mixed scene ON/OFF preserves enabled scenes, clears disabled history, suppresses OFF playback/result restoration and recording, navigates normally, and resumes fresh progress after re-enabling; history-first entries and music preview work.");
         string savedKey=(string)Get(a,"progressKey");
         Check(DialogueProgressStore.TryGet(savedKey,out var oldState), "missing history for compatibility fixture");
         PlayerPrefs.SetString("Dialogue.SceneProgress.v1", JsonUtility.ToJson(new LegacyArchive { entries = new List<DialogueProgressState>{oldState} }));
@@ -188,12 +210,12 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         Check(GameSaveService.Save(0, out string message), "manual save failed: " + message);
         manual.Advance(); yield return null;
         SceneManager.LoadScene(B); yield return null;
-        DialogueProgressStore.Enabled = false;
+        UseConfiguration("{\"enabled\":false}");
         Check(GameSaveService.Load(0, out message), "manual load failed: " + message);
         yield return null;
         manual = Create(main); yield return null;
         Check(Id(manual) == "a2" && !(bool)Get(manual, "isTyping"), "manual slot did not override OFF/scene history");
-        DialogueProgressStore.Enabled = true;
+        UseConfiguration(null);
         SceneManager.LoadScene(A); yield return null;
         a = Create(main); yield return null;
         Check(Id(a) == "a1", "manual load retained future history in another scene");
@@ -245,6 +267,17 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         text="A long dialogue line for checking the exact character cursor when returning to this scene. " + id,
         affectionChanges = delta == 0 ? new List<AffectionDelta>() : new List<AffectionDelta> { new AffectionDelta { characterId="kayo", value=delta } }
     };
+
+    // Simulate a new launch with another pre-authored JSON, without exposing a runtime setting API.
+    private static void UseConfiguration(string json)
+    {
+        var flags = BindingFlags.NonPublic | BindingFlags.Static;
+        var type = typeof(DialogueProgressSettings);
+        object configuration = json == null ? null : type.GetMethod("Parse", flags).Invoke(null, new object[] { json });
+        type.GetField("settings", flags).SetValue(null, configuration);
+        typeof(DialogueProgressStore).GetField("entries", flags).SetValue(null, null);
+        DialogueProgressStore.TryGetSceneEntry(A, out _); // Load/filter saved state as startup does.
+    }
 
     [Serializable]
     private sealed class LegacyArchive

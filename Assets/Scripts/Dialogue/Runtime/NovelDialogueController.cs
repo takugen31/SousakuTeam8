@@ -415,7 +415,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void OnEnable()
     {
-        DialogueProgressStore.SettingsChanged += OnProgressSettingChanged;
         BindSkipConfirmationButtons();
     }
 
@@ -1666,7 +1665,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private void OnDisable()
     {
         SaveSceneProgress();
-        DialogueProgressStore.SettingsChanged -= OnProgressSettingChanged;
         StopKayoPushback();
         StopEndingCard();
         StopKayoEggView();

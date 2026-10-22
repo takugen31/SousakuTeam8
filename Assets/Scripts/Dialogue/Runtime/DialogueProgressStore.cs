@@ -2,28 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Persistence and settings only. Never restores global affection or acquisitions.</summary>
+/// <summary>Persistence only. Never restores global affection or acquisitions.</summary>
 public static class DialogueProgressStore
 {
     private const string StateKey = "Dialogue.SceneProgress.v1";
-    private const string EnabledKey = "Dialogue.SceneProgress.Enabled.v1";
     private static Dictionary<string, DialogueProgressState> entries;
     private static Dictionary<string, DialogueProgressSceneEntry> sceneEntries;
     public static int Generation { get; private set; }
-    public static event Action SettingsChanged;
-
-    public static bool Enabled
-    {
-        get => PlayerPrefs.GetInt(EnabledKey, 1) != 0;
-        set
-        {
-            if (Enabled == value) return;
-            PlayerPrefs.SetInt(EnabledKey, value ? 1 : 0);
-            // Starting again with ON must not resurrect a position from before OFF.
-            Clear();
-            SettingsChanged?.Invoke();
-        }
-    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -31,8 +16,11 @@ public static class DialogueProgressStore
         entries = null;
         sceneEntries = null;
         Generation = 0;
-        SettingsChanged = null;
     }
+
+    // Discard disabled scenes' old history before any scene/controller can use it.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void LoadOnStart() => EnsureLoaded();
 
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnEnterPlayMode]
@@ -47,12 +35,12 @@ public static class DialogueProgressStore
     {
         EnsureLoaded();
         state = null;
-        return Enabled && entries.TryGetValue(key, out state);
+        return IsKeyEnabled(key) && entries.TryGetValue(key, out state);
     }
 
     public static void Save(DialogueProgressState state, int generation)
     {
-        if (!Enabled || generation != Generation || !IsValid(state)) return;
+        if (generation != Generation || !IsValid(state) || !IsKeyEnabled(state.key)) return;
         EnsureLoaded();
         entries[state.key] = state;
         Flush();
@@ -62,12 +50,12 @@ public static class DialogueProgressStore
     {
         EnsureLoaded();
         entry = null;
-        return Enabled && sceneEntries.TryGetValue(scene, out entry);
+        return DialogueProgressSettings.IsEnabled(scene) && sceneEntries.TryGetValue(scene, out entry);
     }
 
     public static void SetSceneEntry(DialogueProgressSceneEntry entry)
     {
-        if (!Enabled || !IsValid(entry)) return;
+        if (!IsValid(entry) || !DialogueProgressSettings.IsEnabled(entry.scene)) return;
         EnsureLoaded();
         sceneEntries[entry.scene] = entry;
         Flush();
@@ -120,17 +108,34 @@ public static class DialogueProgressStore
         {
             var archive = JsonUtility.FromJson<DialogueProgressArchive>(PlayerPrefs.GetString(StateKey));
             if (archive == null || archive.version != 1 || archive.entries == null) return;
+            bool discarded = false;
             foreach (var state in archive.entries)
-                if (IsValid(state)) entries[state.key] = state;
+            {
+                if (!IsValid(state)) continue;
+                if (IsKeyEnabled(state.key)) entries[state.key] = state;
+                else discarded = true;
+            }
             // Missing in earlier v1 archives; playback history remains compatible.
             if (archive.sceneEntries != null)
                 foreach (var entry in archive.sceneEntries)
-                    if (IsValid(entry)) sceneEntries[entry.scene] = entry;
+                {
+                    if (!IsValid(entry)) continue;
+                    if (DialogueProgressSettings.IsEnabled(entry.scene)) sceneEntries[entry.scene] = entry;
+                    else discarded = true;
+                }
+            if (discarded) Flush();
         }
         catch (Exception exception)
         {
             Debug.LogWarning("会話プログレスを読み込めないため、通常の開始位置を使用します。 " + exception.Message);
         }
+    }
+
+    private static bool IsKeyEnabled(string key)
+    {
+        if (string.IsNullOrEmpty(key)) return false;
+        int separator = key.IndexOf('|');
+        return DialogueProgressSettings.IsEnabled(separator < 0 ? key : key.Substring(0, separator));
     }
 
     private static bool IsValid(DialogueProgressState state) => state != null &&

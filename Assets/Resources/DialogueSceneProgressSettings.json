@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "defaultSceneEnabled": true,
+  "scenes": [
+    { "scene": "NovelScene", "enabled": true },
+    { "scene": "NovelScene_Kayo", "enabled": true },
+    { "scene": "NovelScene_Moteru", "enabled": true },
+    { "scene": "NovelScene_Yowashi", "enabled": true },
+    { "scene": "Chapter1_SearchScene", "enabled": true },
+    { "scene": "Chapter_Kayo_SearchScene", "enabled": true },
+    { "scene": "Chapter_Moteru_SearchScene", "enabled": true },
+    { "scene": "falling_verKayo", "enabled": true }
+  ]
+}

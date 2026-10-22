@@ -6,18 +6,48 @@
 
 会話シーンAから別シーンBへ移動したとき、Aの会話位置を自動保存します。その後Aへ戻ると、保存した位置と表示状態から再開します。手動セーブの6枠とは別の保存先・処理です。
 
-対象シーン名の許可リストはありません。`NovelDialogueController` を使うすべてのシーンが対象です。探索画面などの埋め込み会話も、同じコントローラーの会話再生APIを通して記録します。探索画面自体やミニゲーム盤面の復元は、会話プログレスの対象外です。
+`NovelDialogueController` を使うすべてのシーンが対象で、保存・復元の有効状態を事前のJSONで指定します。探索画面などの埋め込み会話も、同じコントローラーの会話再生APIを通して記録し、所属シーンの設定に従います。探索画面自体やミニゲーム盤面の復元は、会話プログレスの対象外です。
 
 | 設定 | 次回の会話シーン入場時 |
 | --- | --- |
 | ON（既定） | 保存した位置から再開。ミニゲーム結果などの明示的な再開要求があれば、その行を優先 |
 | OFF | シーンに設定された通常の開始位置から開始。プログレス保存・復元と、シーン間の再開要求を無効化 |
 
-Escメニューの **「会話プログレス」** を押すと切り替えられます。設定は全シーン共通で、終了後も保持します。切り替えても現在表示中の会話を即座に飛ばすことはありません。
+### ON/OFFを事前設定する場所
 
-切り替え時には既存の会話履歴を消去します。OFFからONへ戻した場合は、その時点から新たに進行を記録し、OFFにする前の古い位置は復活しません。好感度・アーカイブ・探索アイテムや手動セーブ枠は、この切り替えでは初期化しません。
+**[Assets/Resources/DialogueSceneProgressSettings.json](../Assets/Resources/DialogueSceneProgressSettings.json) を、ゲーム起動前・Play Mode開始前に編集します。Escメニューの切り替えボタンは削除しました。InspectorにもON/OFFのチェック項目はありません。**
 
-OFFの状態でミニゲームから会話へ戻った場合も、会話シーンの先頭へ戻ります。シーンの序盤にミニゲームへの遷移がある場合は、再度その遷移に到達します。
+設定例（以下は抜粋で、実ファイルには現在の会話対象8シーンを列挙済みです）:
+
+```json
+{
+  "enabled": true,
+  "defaultSceneEnabled": true,
+  "scenes": [
+    { "scene": "NovelScene", "enabled": true },
+    { "scene": "NovelScene_Kayo", "enabled": false },
+    { "scene": "NovelScene_Moteru", "enabled": true },
+    { "scene": "NovelScene_Yowashi", "enabled": true }
+  ]
+}
+```
+
+| 項目 | 設定方法 |
+| --- | --- |
+| ルートの `enabled` | 全体スイッチ。`false` なら、個別設定にかかわらずすべてOFF。すべてONにする場合は `true` にし、各シーンもONにする |
+| `defaultSceneEnabled` | `scenes` に書いていないシーンの既定値。`false` にすれば、個別にONとしたシーンだけ有効 |
+| `scenes[].scene` | 拡張子なしのシーン名。大文字・小文字を区別。同名シーンを複数作らず、1シーンにつき1項目とする。既存の `.unity` パスでも指定可能 |
+| `scenes[].enabled` | そのシーンだけ `true`（続きから）／`false`（通常の先頭から）。同じシーン内のすべての会話コントローラーに適用 |
+
+現在のJSONは全対象シーンONです。たとえばカヨ本編だけOFFにするなら `NovelScene_Kayo` の `enabled` を `false` にします。カヨ探索内のアイテム会話もOFFにするなら `Chapter_Kayo_SearchScene`、キャッチ後のイベント会話もOFFにするなら `falling_verKayo` をそれぞれOFFにしてください。
+
+設定は起動時に読み込み、その実行中は固定です。編集後はPlay Modeを開始し直してください。ビルド版はJSONをResourcesアセットとして同梱するため、変更後に再ビルドします。プレイヤーがゲーム内で変更する設定ではありません。旧Escメニューで保存したPlayerPrefsのON/OFFは参照しません。JSONの欠落・不正なJSON・シーン名の重複などで設定を読めない場合は、警告を出し全シーンONに戻します。
+
+Inspectorの `NovelDialogueController > Scene Progress > Progress Id` は保存する会話の識別子です。設定ファイルの読み取りは [DialogueProgressSettings.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressSettings.cs)、保存・復元時のシーン別制御は `DialogueProgressStore` と `NovelDialogueController.Progress.cs` が担当します。確認用APIは `DialogueProgressSettings.IsEnabled("NovelScene_Kayo")` です。実行中に設定を変更するAPIはありません。
+
+起動時にOFFのシーンの古い会話履歴とシーン別開始位置を消去し、その実行中は記録しません。後から設定をONへ戻して起動しても、OFFにする前の古い位置は復活しません。ONの別シーンの履歴は維持します。好感度・アーカイブ・探索アイテムや手動セーブ枠は、この設定変更では初期化しません。
+
+戻り先の会話シーンがOFFなら、ミニゲームから会話へ戻った場合も、会話シーンの先頭へ戻ります。シーンの序盤にミニゲームへの遷移がある場合は、再度その遷移に到達します。
 
 ## 現在のシーンで使われている場所
 
@@ -73,7 +103,7 @@ OFFの状態でミニゲームから会話へ戻った場合も、会話シー�
 
 - [SelectionPart](../Assets/Scenes/GameMap/SelectionPart.unity) の `SelectionPartController` は選択先を読み込みます。移動先の会話シーンが自分の履歴を復元するため、選択側で会話行を指定する必要はありません。相手選択画面自身は `NovelDialogueController` を持たず、会話履歴の保存対象ではありません。
 - [Title](../Assets/Scenes/GameMap/Title.unity) の `TitleMenu.StartGame()` と、Escメニューの「最初から」は `GameProgress.ResetAll()` を通して会話履歴・開始位置を消去します。タイトルからの手動ロードとの関係は [SaveLoad.md](SaveLoad.md) を参照してください。
-- ON/OFFは実行時に自動生成される `[Archive System]` 上の `ArchiveMenuUI` が提供します。`ArchiveMenuUI.Progress.cs` の `BuildProgressSetting()` がEscメニューにボタンを追加します。各シーンに設定用コンポーネントを配置する必要はありません。
+- ON/OFFは `Assets/Resources/DialogueSceneProgressSettings.json` で事前指定します。`[Archive System]` 上の `ArchiveMenuUI` に切り替えボタンはありません。各シーンに設定用コンポーネントを配置する必要もありません。
 - 現在のゲージ結果はカヨ会話内の `KayoGaugeOutcomeController` が扱い、今回のプログレスはその結果を保存します。独立したゲージゲーム盤面や、別途追加したシーンへ自動的に戻り経路を配線する機能ではありません。
 
 ### コード上で保存・復元を呼ぶタイミング
@@ -121,9 +151,9 @@ Inspectorでは本編の `DialogueController` にある `Scenario`、`Following 
 | キー | 内容 |
 | --- | --- |
 | `Dialogue.SceneProgress.v1` | `entries`（会話履歴）と `sceneEntries`（シーン別開始位置）を持つ共通JSON |
-| `Dialogue.SceneProgress.Enabled.v1` | 共通ON/OFF設定。未設定はON |
+| `Dialogue.SceneProgress.Enabled.v1`（旧） | 旧Escメニューの共通ON/OFF設定。現在は参照せず、JSON設定を使用 |
 
-製品実行時は履歴も終了後に残ります。ただし新規開始時は既存の進行データと一緒に初期化します。Unity Editorでは、好感度・探索などの既存の開発用初期化に合わせ、Play Modeに入るたび会話履歴を削除します。ON/OFF設定は保持します。
+製品実行時はONのシーンの履歴が終了後にも残ります。OFFのシーンの履歴・開始位置は起動時に破棄します。新規開始時は既存の進行データと一緒に初期化します。Unity Editorでは、好感度・探索などの既存の開発用初期化に合わせ、Play Modeに入るたび全会話履歴を削除します。ON/OFFは毎回JSONから読み込みます。
 
 手動ロードは、プログレスがOFFでも保存枠の内容を復元します。ロード成功時は古いシーン履歴を持ち越さず、ロードした時点から新しい履歴を作ります。ロード処理がシーン読み込み前に失敗した場合は、元の履歴に戻します。新規開始・手動ロードでは世代番号を更新し、離脱中の旧コントローラーから未来の履歴が再保存されることを防ぎます。
 
@@ -132,11 +162,12 @@ Inspectorでは本編の `DialogueController` にある `Scenario`、`Following 
 | ファイル | 責務 |
 | --- | --- |
 | [DialogueProgressState.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressState.cs) | 会話履歴・画像状態のデータ形式 |
-| [DialogueProgressStore.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressStore.cs) | 設定、JSON保存・読み込み、履歴消去、世代管理 |
+| [DialogueSceneProgressSettings.json](../Assets/Resources/DialogueSceneProgressSettings.json) | 全体・既定値・シーン別のON/OFFを事前設定 |
+| [DialogueProgressSettings.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressSettings.cs) | ResourcesのJSON読み込み、検証、シーンごとの有効状態の解決 |
+| [DialogueProgressStore.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressStore.cs) | 履歴JSON保存・読み込み、OFFシーンの履歴除去、履歴消去、世代管理 |
 | [DialogueProgressTransitions.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressTransitions.cs) | 開始位置の記録、シーン読み込み、失敗時の開始位置復旧 |
 | [NovelDialogueController.Progress.cs](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.Progress.cs) | 会話状態と履歴の変換、再開位置の解決、表示復元 |
 | [NovelDialogueController.cs](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs) | 通常の会話再生。開始・終了・遷移時にプログレス側を呼び出す |
-| [ArchiveMenuUI.Progress.cs](../Assets/Scripts/Archive/ArchiveMenuUI.Progress.cs) | EscメニューのON/OFF操作と表示 |
 
 `GameSaveService` の枠へ自動保存する処理はありません。プログレス専用のデータ形式と保存キーを使います。`GameProgress.ResetAll()` と手動ロードには、履歴の初期化を接続しています。
 
@@ -166,14 +197,14 @@ DialogueProgressTransitions.ReturnToScene(
     "NovelScene_Example", "chapter_example_after_game_001", true,
     DialogueProgressEntryMode.PreferSavedProgress);
 
-// 共通設定を変更する。
-DialogueProgressStore.Enabled = false;
+// 事前設定されたシーンの有効状態を確認する（実行中は読み取りのみ）。
+bool enabled = DialogueProgressSettings.IsEnabled("NovelScene_Kayo");
 
 // 履歴とシーン別開始位置を初期化する。
 DialogueProgressStore.Clear();
 ```
 
-`ReturnToScene()` が開始位置の記録とシーン読み込みを行います。OFFでも移動は行い、開始位置は記録せず先頭から再生します。読み込み要求に失敗した場合は以前の開始位置へ戻し、`false` を返します。
+`ReturnToScene()` が開始位置の記録とシーン読み込みを行います。戻り先シーンがOFFでも移動は行い、開始位置は記録せず先頭から再生します。呼び出し元のミニゲームの設定ではなく、戻り先の会話シーンの設定で判断します。読み込み要求に失敗した場合は以前の開始位置へ戻し、`false` を返します。
 
 通常の会話からの離脱は出発元自身の履歴に続きを保存します。会話A→会話B→会話Aでも、BがAの会話位置を消費しません。
 
@@ -207,4 +238,4 @@ Inspectorの `Scene Progress > Progress Id` を設定すると、Hierarchyパス
 
 `work/verify-dialogue-scene-progress.ps1` は専用のUnityプロジェクトと専用PlayerPrefsで、本番の会話コントローラー・保存処理・シーン読み込みを使って検証します。通常のプロジェクトのシーンやセーブデータをテストのために書き換えません。
 
-検証対象は、A→B→A、部分表示と全文表示、画像配置、通過済み遷移、ミニゲーム結果の優先、選択前後、会話完了、複数コントローラー、埋め込み会話、ON/OFF、新規開始、手動ロード、破損データ、共通遷移API、履歴優先、開始位置の消費、BGM参照です。
+検証対象は、A→B→A、部分表示と全文表示、画像配置、通過済み遷移、ミニゲーム結果の優先、選択前後、会話完了、複数コントローラー、埋め込み会話、JSONの全体・シーン別ON/OFFと未指定シーンの既定値、旧設定の無視、OFF履歴の破棄とONシーンの履歴維持、Esc切り替えボタンの削除、新規開始、手動ロード、破損データ、共通遷移API、履歴優先、開始位置の消費、BGM参照です。

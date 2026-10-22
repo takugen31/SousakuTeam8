@@ -34,6 +34,10 @@ foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/Puzz
     Get-ChildItem -LiteralPath (Join-Path $root $folder) | Copy-Item -Destination $destination -Recurse -Force
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Assets/Resources/StoryMusic/MusicPlan.json'), '{"dialogueScenes":[],"sceneCues":[],"scenarios":[]}', $utf8)
+Copy-Item -LiteralPath (Join-Path $root 'Assets/Resources/DialogueSceneProgressSettings.json') -Destination (Join-Path $testProject 'Assets/Resources') -Force
+# Reused isolated projects may still contain the removed menu partial from a previous run.
+$removedMenuScript = Join-Path $testProject 'Assets/Scripts/Archive/ArchiveMenuUI.Progress.cs'
+if (Test-Path -LiteralPath $removedMenuScript) { Remove-Item -LiteralPath $removedMenuScript }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueSceneProgressChecks.cs') -Destination (Join-Path $testProject 'Assets')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueScriptBindingChecks.cs') -Destination (Join-Path $testProject 'Assets/Editor')
 New-Item -ItemType Directory -Path (Join-Path $testProject 'Assets/Scenes/GameMap') -Force | Out-Null

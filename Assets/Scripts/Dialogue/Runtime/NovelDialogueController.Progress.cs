@@ -68,21 +68,11 @@ public sealed partial class NovelDialogueController
         }
     }
 
-    private void OnProgressSettingChanged()
-    {
-        progressGeneration = DialogueProgressStore.Generation;
-        progressCompleted = progressDeparted = false;
-        progressResumeLineId = null;
-        lastProgressState = null;
-        progressAppliedLineIds.Clear();
-        // Enabling in the middle of a line must not apply its effects again on return.
-        if (currentLine != null && currentScenario != null)
-            progressAppliedLineIds.Add(currentScenario.name + "|" + currentLine.lineId);
-    }
+    private bool IsSceneProgressEnabled => DialogueProgressSettings.IsEnabled(gameObject.scene.name);
 
     private bool ShouldApplyProgressLine(DialogueLine line)
     {
-        return !DialogueProgressStore.Enabled || line == null || currentScenario == null ||
+        return !IsSceneProgressEnabled || line == null || currentScenario == null ||
             progressAppliedLineIds.Add(currentScenario.name + "|" + line.lineId);
     }
 
@@ -232,16 +222,16 @@ public sealed partial class NovelDialogueController
         return null;
     }
 
-    // No scene whitelist: every NovelDialogueController, including embedded conversations, participates.
+    // Embedded conversations inherit the setting of their owning scene.
     private void LateUpdate()
     {
-        if (!DialogueProgressStore.Enabled || progressDeparted || progressCompleted || restoringSceneProgress) return;
+        if (!IsSceneProgressEnabled || progressDeparted || progressCompleted || restoringSceneProgress) return;
         RefreshProgressState();
     }
 
     private void RefreshProgressState()
     {
-        if (string.IsNullOrEmpty(progressKey) || progressGeneration != DialogueProgressStore.Generation ||
+        if (!IsSceneProgressEnabled || string.IsNullOrEmpty(progressKey) || progressGeneration != DialogueProgressStore.Generation ||
             currentLine == null || currentScenario == null || bodyText == null || progressDeparted || progressCompleted ||
             isRoomLookPlaying || isChapterTransitioning) return;
         var gauge = GetComponent<KayoGaugeOutcomeController>();
@@ -259,7 +249,7 @@ public sealed partial class NovelDialogueController
 
     private void SaveSceneProgress()
     {
-        if (!DialogueProgressStore.Enabled || restoringSceneProgress) return;
+        if (!IsSceneProgressEnabled || restoringSceneProgress) return;
         RefreshProgressState();
         if (lastProgressState == null) return;
         lastProgressState.completed = progressCompleted;
