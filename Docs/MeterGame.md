@@ -2,7 +2,7 @@
 
 ## 起動・配置
 
-- シーン: `Assets/MeterGame/Scenes/MeterGameExample.unity`
+- シーン: `Assets/MeterGame/Scenes/TensionManagementMinigame.unity`
 - Unity 6000.3.6f1 で開き、Play すると自動で開始。
 - Game ビューを選択して **Space キーを長押し**するとゲージが連続的に増える。既定はHoldモード。入力方式をPressに変えると1回押すごとの加算になる。
 - このゲーム専用の Scripts / Art / Scenes / Tests はすべて `Assets/MeterGame/` 配下に配置する。
@@ -156,3 +156,5 @@ Unity 6000.3.6f1 の検証用プロジェクトで EditMode テスト **30件す
 操作案内の通常表示・強調中・長押しモードの文言も1920×1080で描画確認済み。
 
 手動では Play 中に Space の長押し・解放でカーソルを範囲内に維持し、ハートが蓄積することを確認する。成功の確認を短縮する場合は「ハート加算量 / 秒」を1、「必要な連続滞在時間」を0にする。失敗を短縮する場合は「制限時間」を1にする。
+
+タイミング型の新しいMeterGameExampleについては [TimingMeterGame.md](TimingMeterGame.md) を参照。

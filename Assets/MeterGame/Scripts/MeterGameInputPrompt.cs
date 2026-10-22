@@ -20,6 +20,16 @@ namespace SousakuTeam8.MeterGame
         [SerializeField] private Color emphasisColor = new Color32(255, 212, 111, 255);
         private Vector3 baseScale;
         private float elapsed;
+        private bool externalPresentation;
+        private bool externalVisible;
+        private string externalMessage;
+
+        public void SetPresentation(bool visible, string message)
+        {
+            externalPresentation = true;
+            externalVisible = visible;
+            externalMessage = message;
+        }
 
         private void Awake()
         {
@@ -32,13 +42,13 @@ namespace SousakuTeam8.MeterGame
         private void LateUpdate()
         {
             if (label == null) return;
-            bool playing = controller == null || controller.State == null ||
+            bool playing = externalPresentation ? externalVisible : controller == null || controller.State == null ||
                 controller.State.Result == MeterGameResult.Playing;
             label.enabled = playing;
             if (!playing) return;
 
-            label.text = controller != null && controller.InputMode == MeterInputMode.Hold
-                ? holdMessage : pressMessage;
+            label.text = externalPresentation ? externalMessage :
+                controller != null && controller.InputMode == MeterInputMode.Hold ? holdMessage : pressMessage;
             elapsed = Mathf.Repeat(elapsed + Time.unscaledDeltaTime, emphasisInterval);
             float phase = Mathf.Clamp01(elapsed / emphasisDuration);
             float pulse = Mathf.Sin(phase * Mathf.PI);

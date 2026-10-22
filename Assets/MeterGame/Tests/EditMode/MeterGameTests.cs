@@ -253,7 +253,7 @@ namespace SousakuTeam8.MeterGame.Tests
         [Test]
         public void ExampleSceneHasOneTopCenteredBarAndWiredController()
         {
-            EditorSceneManager.OpenScene("Assets/MeterGame/Scenes/MeterGameExample.unity", OpenSceneMode.Single);
+            EditorSceneManager.OpenScene("Assets/MeterGame/Scenes/TensionManagementMinigame.unity", OpenSceneMode.Single);
             var controller = Object.FindFirstObjectByType<MeterGameController>();
             var bar = Object.FindFirstObjectByType<MeterGameBarView>();
             Assert.That(controller, Is.Not.Null);

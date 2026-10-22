@@ -7,11 +7,11 @@ namespace SousakuTeam8.MeterGame
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class MeterGameBarView : MaskableGraphic
     {
-        private float gauge = 0.8f;
-        private float heart;
-        private float minimum = 0.65f;
-        private float maximum = 0.95f;
-        private bool inTarget = true;
+        [SerializeField, HideInInspector] private float gauge = 0.8f;
+        [SerializeField, HideInInspector] private float heart;
+        [SerializeField, HideInInspector] private float minimum = 0.65f;
+        [SerializeField, HideInInspector] private float maximum = 0.95f;
+        [SerializeField, HideInInspector] private bool inTarget = true;
         private MeterGameResult result;
         private static readonly Color Gold = new Color32(255, 201, 99, 255);
         private static readonly Color Pink = new Color32(255, 91, 162, 255);
@@ -27,6 +27,17 @@ namespace SousakuTeam8.MeterGame
             maximum = state.TargetMaximum;
             inTarget = state.IsInTarget;
             result = state.Result;
+            SetVerticesDirty();
+        }
+
+        public void Show(float gaugeValue, float heartValue, float targetMinimum, float targetMaximum, MeterGameResult gameResult)
+        {
+            gauge = Mathf.Clamp01(gaugeValue);
+            heart = Mathf.Clamp01(heartValue);
+            minimum = Mathf.Clamp01(targetMinimum);
+            maximum = Mathf.Clamp(targetMaximum, minimum, 1f);
+            inTarget = gauge >= minimum && gauge <= maximum;
+            result = gameResult;
             SetVerticesDirty();
         }
 

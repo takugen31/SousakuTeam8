@@ -360,6 +360,11 @@ GameObject:
   - component: {fileID: 100002}
   - component: {fileID: 100003}
   - component: {fileID: 100004}
+  - component: {fileID: 100005}
+  - component: {fileID: 100006}
+  - component: {fileID: 100007}
+  - component: {fileID: 100008}
+  - component: {fileID: 100009}
   m_Layer: 5
   m_Name: MeterGameCanvas
   m_TagString: Untagged
@@ -437,44 +442,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 100000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a7d95520a6c4fd5a27a9e455600341a, type: 3}
+  m_Script: {fileID: 11500000, guid: 80ca293d7f69442583b6bb40bb280001, type: 3}
   m_Name:
   m_EditorClassIdentifier:
   settings:
-    initialGauge: 0.8
-    drainPerSecond: 0.25
-    gainPerPress: 0.085
-    gaugeSpeedMultiplier: 1
-    inputMode: 1
-    gainPerSecondWhileHeld: 0.5
-    minimumCenter: 0.25
-    maximumCenter: 0.8
-    minimumWidth: 0.18
-    maximumWidth: 0.3
-    positionPeriod: 7
-    widthPeriod: 5
-    positionSpeedMultiplier: 1
-    widthSpeedMultiplier: 1
-    minimumTransitionSeconds: 0.12
-    useCustomInitialTarget: 0
-    initialTargetCenter: 0.8
-    initialTargetWidth: 0.3
-    randomness: 1
-    positionRandomness: 1
-    widthRandomness: 1
-    timingRandomness: 1
-    suddenMoveChance: 0.25
-    suddenSpeedMultiplier: 3
-    narrowChance: 0.35
-    narrowWidthFraction: 0.15
+    setCount: 5
+    requiredSuccesses: 3
+    fillPerSecond: 0.4
+    successZoneStart: 0.9
+    maximumGraceSeconds: 0.35
+    randomizeSpeed: 0
+    minimumSpeedMultiplier: 0.85
+    maximumSpeedMultiplier: 1.15
+    speedIncreasePerSet: 0
     randomSeed: 0
-    initialHeart: 0
-    requiredHoldSeconds: 1
-    heartGainPerSecond: 0.05
-    outsideGraceSeconds: 0
-    heartLossPerSecond: 0
-    timeLimitSeconds: 60
-  barView: {fileID: 100013}
+    resultDisplaySeconds: 1
+    animateResults: 1
+    resultScaleAmount: 0.035
+    successFlashCount: 3
+    useFade: 1
+    fadeOutSeconds: 0.25
+    fadeHoldSeconds: 0.1
+    fadeInSeconds: 0.25
+  input: {fileID: 100006}
+  presenter: {fileID: 100007}
+  feedback: {fileID: 100008}
+  transition: {fileID: 100009}
+  onSetSuccess:
+    m_PersistentCalls:
+      m_Calls: []
+  onSetFailure:
+    m_PersistentCalls:
+      m_Calls: []
   onSuccess:
     m_PersistentCalls:
       m_Calls: []
@@ -492,6 +491,7 @@ GameObject:
   - component: {fileID: 100011}
   - component: {fileID: 100012}
   - component: {fileID: 100013}
+  - component: {fileID: 100014}
   m_Layer: 5
   m_Name: MeterBar
   m_TagString: Untagged
@@ -542,6 +542,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+  gauge: 0
+  heart: 0
+  minimum: 0.9
+  maximum: 1
+  inTarget: 0
 --- !u!1 &100020
 GameObject:
   m_ObjectHideFlags: 0
@@ -617,7 +622,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Spaceキー : 増加、範囲内にゲージを留めよう！"
+  m_Text: "MAX付近でSpace！  1/5 セット  成功 0/3"
 --- !u!114 &100024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -645,7 +650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f07b0c4b682d4edb9436c6a99f2f1c38, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  controller: {fileID: 100004}
+  controller: {fileID: 0}
   label: {fileID: 100023}
   glow: {fileID: 100024}
   pressMessage: "Spaceキー : 増加、範囲内にゲージを留めよう！"
@@ -667,7 +672,6 @@ GameObject:
   - component: {fileID: 100032}
   - component: {fileID: 100033}
   - component: {fileID: 100034}
-  - component: {fileID: 100035}
   m_Layer: 5
   m_Name: RemainingTime
   m_TagString: Untagged
@@ -730,7 +734,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "残り 60 秒"
+  m_Text: "残り 2.9 秒"
 --- !u!114 &100034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -746,20 +750,90 @@ MonoBehaviour:
   m_EffectColor: {r: 0.16, g: 0.04, b: 0.1, a: 0.8}
   m_EffectDistance: {x: 1, y: -2}
   m_UseGraphicAlpha: 1
---- !u!114 &100035
+--- !u!225 &100005
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
+--- !u!114 &100006
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100030}
+  m_GameObject: {fileID: 100000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80f2800938d94fab94d1d2736c72f922, type: 3}
+  m_Script: {fileID: 11500000, guid: 80ca293d7f69442583b6bb40bb280002, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  controller: {fileID: 100004}
-  label: {fileID: 100033}
+
+--- !u!114 &100007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80ca293d7f69442583b6bb40bb280003, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  bar: {fileID: 100013}
+  prompt: {fileID: 100025}
+  timerLabel: {fileID: 100033}
+--- !u!114 &100008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80ca293d7f69442583b6bb40bb280004, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  bar: {fileID: 100013}
+  glow: {fileID: 100014}
+  successColor: {r: 1, g: 0.9, b: 0.4, a: 1}
+  failureColor: {r: 0.48, g: 0.38, b: 0.85, a: 1}
+--- !u!114 &100009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80ca293d7f69442583b6bb40bb280005, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  uiGroup: {fileID: 100005}
+--- !u!114 &100014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  m_EffectColor: {r: 1, g: 0.9, b: 0.4, a: 0}
+  m_EffectDistance: {x: 0, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
