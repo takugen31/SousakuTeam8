@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed class DialogueSceneProgressChecks : MonoBehaviour
+public sealed partial class DialogueSceneProgressChecks : MonoBehaviour
 {
     private const string A = "NovelScene_Moteru";
     private const string B = "ProgressOther";
@@ -32,6 +32,7 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
     private IEnumerator Start()
     {
         DontDestroyOnLoad(gameObject);
+        GameAutoSaveSettings.Enabled = false;
         Check(Resources.Load<TextAsset>("DialogueSceneProgressSettings") != null, "production progress settings JSON was not bundled");
         PlayerPrefs.SetInt("Dialogue.SceneProgress.Enabled.v1", 0);
         Check(DialogueProgressSettings.IsEnabled(A), "obsolete player preference overrode the JSON setting");
@@ -257,6 +258,7 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         a = Create(main); yield return null;
         Check(Id(a) == "a1", "corrupt history prevented normal start");
         Debug.Log("PASS: corrupt progress falls back to normal start.");
+        yield return RunAutoSaveChecks();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
     }

@@ -140,6 +140,7 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         HideSaveLoad();
         archiveFrame.SetActive(false);
         menuRoot.SetActive(true);
+        UpdateAutoSaveSetting();
         restartConfirmation.SetActive(false);
         windowRoot.GetComponent<Image>().color = Color.clear;
     }
@@ -196,6 +197,7 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
         autoButton.onClick.AddListener(() => FindCurrentDialogue()?.ToggleAutoPlay());
         CreateMenuItem("Restart", "最初から", 0.20f).onClick.AddListener(() => restartConfirmation.SetActive(true));
+        BuildAutoSaveSetting();
         contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, new Color(0.95f, 0.95f, 0.95f, 1f));
         SetAnchors(contextHelp.gameObject, new Vector2(0.20f, 0.015f), new Vector2(0.20f, 0.09f), Vector2.zero, Vector2.zero);
         contextHelp.alignment = TextAlignmentOptions.MidlineLeft;

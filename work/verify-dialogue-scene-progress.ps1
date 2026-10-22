@@ -1,6 +1,7 @@
 param(
     [string]$UnityEditor = 'D:/Unity/Unity Editer/6000.3.6f1/Editor/Unity.exe',
-    [string]$ReuseProject
+    [string]$ReuseProject,
+    [switch]$AutoSaveScreenshots
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
@@ -22,12 +23,12 @@ function Add-LocalPackage([string]$package) {
     foreach ($dependency in $packageInfo.dependencies.PSObject.Properties) { Add-LocalPackage $dependency.Name }
 }
 foreach ($package in @('com.unity.ugui','com.unity.inputsystem','com.unity.render-pipelines.universal')) { Add-LocalPackage $package }
-foreach ($module in @('audio','imageconversion','physics','physics2d','jsonserialize','ui','animation','imgui','uielements','video','director','unitywebrequest')) {
+foreach ($module in @('audio','imageconversion','physics','physics2d','jsonserialize','ui','animation','imgui','uielements','video','director','unitywebrequest','screencapture')) {
     $dependencies['com.unity.modules.'+$module] = '1.0.0'
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Packages/manifest.json'), (@{dependencies=$dependencies} | ConvertTo-Json), $utf8)
 Copy-Item -LiteralPath (Join-Path $root 'ProjectSettings/ProjectVersion.txt') -Destination (Join-Path $testProject 'ProjectSettings')
-foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data')) {
+foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data','Assets/Resources/Archive','Assets/Fonts/Noto_Sans_JP')) {
     $destination = Join-Path $testProject $folder
     New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force | Out-Null
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
@@ -39,6 +40,7 @@ Copy-Item -LiteralPath (Join-Path $root 'Assets/Resources/DialogueSceneProgressS
 $removedMenuScript = Join-Path $testProject 'Assets/Scripts/Archive/ArchiveMenuUI.Progress.cs'
 if (Test-Path -LiteralPath $removedMenuScript) { Remove-Item -LiteralPath $removedMenuScript }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueSceneProgressChecks.cs') -Destination (Join-Path $testProject 'Assets')
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'GameAutoSaveChecks.cs') -Destination (Join-Path $testProject 'Assets')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueScriptBindingChecks.cs') -Destination (Join-Path $testProject 'Assets/Editor')
 New-Item -ItemType Directory -Path (Join-Path $testProject 'Assets/Scenes/GameMap') -Force | Out-Null
 foreach ($scene in @('NovelScene','NovelScene_Kayo','NovelScene_Moteru','NovelScene_Yowashi')) {
@@ -57,7 +59,7 @@ public static class DialogueSceneProgressBootstrap {
   PlayerSettings.companyName="DialogueProgressChecks"; PlayerSettings.productName=System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(Application.dataPath));
   DialogueScriptBindingChecks.Run();
   var scenes=new System.Collections.Generic.List<EditorBuildSettingsScene>();
-  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene"}) {
+  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene","Chapter_Moteru_SearchScene"}) {
    var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
    string path="Assets/Scenes/"+name+".unity"; EditorSceneManager.SaveScene(scene,path); scenes.Add(new EditorBuildSettingsScene(path,true));
   }
@@ -70,8 +72,10 @@ public static class DialogueSceneProgressBootstrap {
 [IO.File]::WriteAllText((Join-Path $testProject 'Assets/Editor/DialogueSceneProgressBootstrap.cs'), $bootstrap, $utf8)
 $logPath = Join-Path $testProject 'progress-checks.log'
 Write-Output "Isolated Unity project: $testProject"
-$process = Start-Process -FilePath $UnityEditor -WindowStyle Hidden -PassThru -ArgumentList @(
-    '-batchmode','-nographics','-projectPath',('"'+$testProject+'"'),'-executeMethod','DialogueSceneProgressBootstrap.Run','-logFile',('"'+$logPath+'"'))
+$unityArguments = @('-batchmode','-projectPath',('"'+$testProject+'"'),'-executeMethod','DialogueSceneProgressBootstrap.Run','-logFile',('"'+$logPath+'"'))
+if ($AutoSaveScreenshots) { $unityArguments += @('-autoSaveScreenshots','-screen-width','1672','-screen-height','941') }
+else { $unityArguments += '-nographics' }
+$process = Start-Process -FilePath $UnityEditor -WindowStyle Hidden -PassThru -ArgumentList $unityArguments
 $deadline = [DateTime]::UtcNow.AddMinutes(6)
 while (-not $process.WaitForExit(1000)) {
     if ([DateTime]::UtcNow -gt $deadline) { $process.Kill(); throw "Unity checks timed out: $logPath" }

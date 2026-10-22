@@ -102,6 +102,7 @@ public static class GameProgress
     /// </summary>
     public static void ResetAll()
     {
+        GameAutoSaveController.CancelPending();
         DialogueProgressStore.Clear();
         NovelDialogueController.RestoreRevealedNames(null);
         PuzzleGameFlowController.ResetPendingRequest();

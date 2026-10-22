@@ -26,6 +26,8 @@ public sealed class GameSaveData
     public bool paperVisible;
     public bool introDismissed;
     public bool kayoGaugeSucceeded;
+    // Completion boundaries replay the source scene's normal completion flow on load.
+    public bool restartScene;
 }
 
 [Serializable]
@@ -47,14 +49,14 @@ public sealed class GameSaveImage
     public Vector3 scale;
 }
 
-/// <summary>Six manual checkpoints. New game resets progress, never these slots.</summary>
-public static class GameSaveService
+/// <summary>Six manual checkpoints and one independent automatic checkpoint.</summary>
+public static partial class GameSaveService
 {
     public const int SlotCount = 6;
     private const string Prefix = "GameSave.Slot.v1.";
     private static GameSaveData pending;
     private static readonly string[] scenes = {
-        "NovelScene", "NovelScene_Kayo", "NovelScene_Yowashi",
+        "NovelScene", "NovelScene_Kayo", "NovelScene_Moteru", "NovelScene_Yowashi",
         "Chapter1_SearchScene", "Chapter_Kayo_SearchScene", "Chapter_Moteru_SearchScene", "SelectionPart"
     };
 
@@ -67,6 +69,7 @@ public static class GameSaveService
     {
         pending = null;
         for (int i = 0; i < SlotCount; i++) PlayerPrefs.DeleteKey(Prefix + i);
+        PlayerPrefs.DeleteKey(AutoSaveKey);
         PlayerPrefs.Save();
     }
 #endif
@@ -84,7 +87,7 @@ public static class GameSaveService
         return TryCapture(out _, out reason);
     }
 
-    private static bool TryCapture(out GameSaveData data, out string reason)
+    private static bool TryCapture(out GameSaveData data, out string reason, bool sceneDeparture = false)
     {
         data = new GameSaveData { scene = SceneManager.GetActiveScene().name };
         reason = "この場面ではセーブできません。";
@@ -93,8 +96,8 @@ public static class GameSaveService
         SearchSceneController search = UnityEngine.Object.FindFirstObjectByType<SearchSceneController>();
         SelectionPartController selection = UnityEngine.Object.FindFirstObjectByType<SelectionPartController>();
         bool ready;
-        if (common != null) ready = common.CaptureCheckpoint(data);
-        else if (search != null) ready = search.CaptureCheckpoint(data);
+        if (common != null) ready = common.CaptureCheckpoint(data, sceneDeparture);
+        else if (search != null) ready = search.CaptureCheckpoint(data, sceneDeparture);
         else if (selection != null) ready = selection.CaptureCheckpoint(data);
         else
         {
@@ -114,8 +117,12 @@ public static class GameSaveService
     {
         if (slot < 0 || slot >= SlotCount) { message = "保存先が無効です。"; return false; }
         if (!TryCapture(out GameSaveData data, out message)) return false;
+        return WriteCheckpoint(Prefix + slot, data, out message);
+    }
+
+    private static bool WriteCheckpoint(string key, GameSaveData data, out string message)
+    {
         data.timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-        string key = Prefix + slot;
         bool existed = PlayerPrefs.HasKey(key);
         string previous = PlayerPrefs.GetString(key, "");
         try
@@ -141,10 +148,16 @@ public static class GameSaveService
     {
         message = null;
         if (slot < 0 || slot >= SlotCount) { message = "保存先が無効です。"; return null; }
-        if (!PlayerPrefs.HasKey(Prefix + slot)) return null;
+        return ReadCheckpoint(Prefix + slot, out message);
+    }
+
+    private static GameSaveData ReadCheckpoint(string key, out string message)
+    {
+        message = null;
+        if (!PlayerPrefs.HasKey(key)) return null;
         try
         {
-            GameSaveData data = JsonUtility.FromJson<GameSaveData>(PlayerPrefs.GetString(Prefix + slot));
+            GameSaveData data = JsonUtility.FromJson<GameSaveData>(PlayerPrefs.GetString(key));
             if (!IsValid(data)) { message = "このセーブデータは読み込めません。"; return null; }
             return data;
         }
@@ -171,6 +184,11 @@ public static class GameSaveService
     {
         GameSaveData data = Read(slot, out message);
         if (data == null) { message ??= "この枠にはセーブデータがありません。"; return false; }
+        return LoadCheckpoint(data, out message);
+    }
+
+    private static bool LoadCheckpoint(GameSaveData data, out string message)
+    {
         if (!Application.CanStreamedLevelBeLoaded(data.scene)) { message = "保存した場面が見つかりません。"; return false; }
         GameSavePreference[] previousProgress;
         try { previousProgress = GameProgress.CaptureCheckpoint(); }
@@ -185,12 +203,13 @@ public static class GameSaveService
         ArchiveManager.Close();
         try
         {
-            // A manual load starts a new timeline. Outgoing scene callbacks cannot re-save the future.
+            // A checkpoint load starts a new timeline; outgoing callbacks cannot re-save the future.
             DialogueProgressStore.Clear();
             NovelDialogueController.RestoreRevealedNames(data.revealedNames);
             GameProgress.RestoreCheckpoint(data.progress);
-            pending = data;
+            pending = data.restartScene ? null : data;
             Time.timeScale = 1f;
+            GameAutoSaveController.PrepareForLoad();
             SceneManager.LoadScene(data.scene, LoadSceneMode.Single);
             message = null;
             return true;
@@ -198,6 +217,7 @@ public static class GameSaveService
         catch (Exception exception)
         {
             pending = null;
+            GameAutoSaveController.CancelLoadSuppression();
             try { DialogueProgressStore.RestoreTimeline(previousTimeline); }
             catch (Exception rollbackException) { Debug.LogException(rollbackException); }
             try { GameProgress.RestoreCheckpoint(previousProgress); }

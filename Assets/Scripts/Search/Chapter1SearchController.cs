@@ -132,8 +132,18 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
     }
 
-    public bool CaptureCheckpoint(GameSaveData data)
+    public bool CaptureCheckpoint(GameSaveData data, bool sceneDeparture = false)
     {
+        if (sceneDeparture && isCompleting)
+        {
+            data.kind = "search";
+            data.label = "部屋の探索完了";
+            data.text = "探索完了後の場面へ進む";
+            data.room = (int)currentRoom;
+            data.searchMode = "room";
+            data.restartScene = true;
+            return true;
+        }
         if (isFadingIn || isCompleting) return false;
         if (isDialogueOpen)
         {
