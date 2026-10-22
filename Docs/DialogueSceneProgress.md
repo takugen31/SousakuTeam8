@@ -1,5 +1,7 @@
 # シーンごとの会話プログレス
 
+最終確認: 2026-10-23。現在のシーンファイル・会話CSV・スクリプトの接続に基づきます。手動セーブ枠の仕様は [SaveLoad.md](SaveLoad.md) を参照してください。
+
 ## 動作
 
 会話シーンAから別シーンBへ移動したとき、Aの会話位置を自動保存します。その後Aへ戻ると、保存した位置と表示状態から再開します。手動セーブの6枠とは別の保存先・処理です。
@@ -16,6 +18,78 @@ Escメニューの **「会話プログレス」** を押すと切り替えら�
 切り替え時には既存の会話履歴を消去します。OFFからONへ戻した場合は、その時点から新たに進行を記録し、OFFにする前の古い位置は復活しません。好感度・アーカイブ・探索アイテムや手動セーブ枠は、この切り替えでは初期化しません。
 
 OFFの状態でミニゲームから会話へ戻った場合も、会話シーンの先頭へ戻ります。シーンの序盤にミニゲームへの遷移がある場合は、再度その遷移に到達します。
+
+## 現在のシーンで使われている場所
+
+### 会話を記録・復元するコンポーネント
+
+| シーン | Hierarchyで確認する場所 | 使用される場面・処理 |
+| --- | --- | --- |
+| [NovelScene](../Assets/Scenes/GameMap/NovelScene.unity) | `DialogueController` の `NovelDialogueController` | 共通ルートの会話全体。入場時に保存済みの行・表示状態を復元し、探索などへの離脱時に進行を保存 |
+| [NovelScene_Kayo](../Assets/Scenes/GameMap/NovelScene_Kayo.unity) | `DialogueController` の `NovelDialogueController` | カヨの会話全体。キャッチ・探索・パズルをまたぐ会話再開。同じオブジェクトの `KayoGaugeOutcomeController` の結果も履歴に保存 |
+| [NovelScene_Moteru](../Assets/Scenes/GameMap/NovelScene_Moteru.unity) | `DialogueController` の `NovelDialogueController` | モテルの会話全体。キャッチ後の章、探索・パズル後の日記、選択肢後の進行を再開 |
+| [NovelScene_Yowashi](../Assets/Scenes/GameMap/NovelScene_Yowashi.unity) | `DialogueController` の `NovelDialogueController` | ヨワシの会話全体。日記パズルとキャッチの成功・失敗に応じた再開 |
+| [Chapter1_SearchScene](../Assets/Scenes/GameMap/Chapter1_SearchScene.unity) | `Main Camera` の `Chapter1SearchController` → 実行時生成の `EmbeddedItemDialogueController` | 取得アイテムの会話を `PlayDialogueRange()` で開始すると、会話範囲ごとの履歴を復元 |
+| [Chapter_Kayo_SearchScene](../Assets/Scenes/GameMap/Chapter_Kayo_SearchScene.unity) | `Main Camera` の `SearchSceneController` → 実行時生成の `EmbeddedItemDialogueController` | カヨ探索中のアイテム会話。対象の会話範囲が開始された時点で復元 |
+| [Chapter_Moteru_SearchScene](../Assets/Scenes/GameMap/Chapter_Moteru_SearchScene.unity) | `Main Camera` の `SearchSceneController` → 実行時生成の `EmbeddedItemDialogueController` | モテル探索中のアイテム会話と、設定された探索完了時の会話範囲。モテル用プロファイルを使用 |
+| [falling_verKayo](../Assets/FallingGame/Scenes/falling_verKayo.unity) | `Catch Mini Game` の `KayoCatchGameFlowController` → 実行時生成の `KayoCatchEventDialogueController` | ゲーム後の成功・失敗イベント会話。`StartEmbeddedDialogue()` でシナリオ別の履歴を復元 |
+
+`EmbeddedItemDialogueController` と `KayoCatchEventDialogueController` は実行時に生成されるため、通常のEdit ModeのHierarchyには表示されません。いずれも `NovelDialogueController` を追加して使うため、同じプログレス処理が適用されます。
+
+探索シーンへ入っただけでは、最後に開いていたアイテム会話の画面までは自動で開きません。探索側が対象の会話を開始した時点で、その範囲の続きを復元します。探索する部屋・調査画面の復元は [手動セーブ・ロード](SaveLoad.md) 側の機能です。また、カヨのゲーム内会話が復元対象でも、キャッチゲームのスコア・残り時間・イベント所有側のフェーズ全体を復元する機能ではありません。
+
+### ミニゲーム・探索からの戻り先を指定する場所
+
+次の処理は、ミニゲームの途中経過を保存するのではなく、会話へ戻るときの開始位置をプログレスへ書き込みます。
+
+| シーンとGameObject | 担当コンポーネント | 完了時の処理 |
+| --- | --- | --- |
+| `Chapter1_SearchScene` / `Main Camera` | [Chapter1SearchController](../Assets/Scripts/Search/Chapter1SearchController.cs) | 探索完了後、`NovelScene` の `chapter1_006` を指定して戻る。入場フェードなし |
+| `Chapter_Kayo_SearchScene` / `Main Camera` | [SearchSceneController](../Assets/Scripts/Search/SearchSceneController.cs) | 探索完了後に `PuzzleGame` へ進み、戻り先を `NovelScene_Kayo` / `chapter_kayo_diary_001` としてパズルへ渡す |
+| `Chapter_Moteru_SearchScene` / `Main Camera` | `SearchSceneController` | 探索完了後に `PuzzleGame` へ進み、戻り先を `NovelScene_Moteru` / `chapter_moteru_diary_001` として渡す |
+| `NovelScene_Yowashi` / `DialogueController` | [DialoguePuzzleEntryController](../Assets/Scripts/Search/DialoguePuzzleEntryController.cs) | `chapter_yowashi_1_035` からパズルへ出る際、戻り先を `NovelScene_Yowashi` / `chapter_yowashi_diary_001` として渡す。通常送り・章スキップの両方で動作 |
+| [PuzzleGame](../Assets/PuzzleGame/Scenes/PuzzleGame.unity) / `Puzzle Game` | [PuzzleGameFlowController](../Assets/Scripts/Search/PuzzleGameFlowController.cs) | `Completed` イベント後、上記コンテキストにあるシーン・日記行へ `ReturnToScene()` で戻る |
+| `falling_verKayo` / `Catch Mini Game` | [KayoCatchGameFlowController](../Assets/FallingGame/Scripts/KayoCatchGameFlowController.cs) | 結果イベント会話の後に `NovelScene_Kayo` へ戻る。保存履歴優先、履歴なしなら `chapter_kayo_2_001` |
+| [falling_verMoteru](../Assets/FallingGame/Scenes/falling_verMoteru.unity) / `Catch Mini Game` | [MoteruCatchGameFlowController](../Assets/FallingGame/Scripts/MoteruCatchGameFlowController.cs) | `RoundEnded` 後に `NovelScene_Moteru` へ戻る。`resumeScenario` の先頭行を優先し、現在は `chapter_moteru_2_001` |
+| [falling_verYowashi](../Assets/FallingGame/Scenes/falling_verYowashi.unity) / `Catch Mini Game` | [YowashiCatchGameFlowController](../Assets/FallingGame/Scripts/YowashiCatchGameFlowController.cs) | `RoundEnded` 後に `NovelScene_Yowashi` へ戻る。成功は `chapter_yowashi_catchsuccess_001`、失敗は `chapter_yowashi_catchfailure_001`。現在は3000点を超えると成功 |
+
+`SearchSceneController` と `DialoguePuzzleEntryController` は、画像・戻り経路・日記行を `PuzzleGameFlowController.Queue()` で渡します。パズル完了時の会話開始位置の保存とシーン読み込みは、`DialogueProgressTransitions.ReturnToScene()` が担当します。パズルを単独で開いて戻りコンテキストがない場合は、この会話復帰処理は動作しません。
+
+### 現在の具体的な往復経路
+
+| 出発する会話行 | 遷移経路 | ONで戻ったときの開始位置 |
+| --- | --- | --- |
+| 共通 `chapter1_005` | `NovelScene` → `Chapter1_SearchScene` → `NovelScene` | `chapter1_006` |
+| カヨ `chapter_kayo_1_002` | `NovelScene_Kayo` → `falling_verKayo` → 結果イベント会話 → `NovelScene_Kayo` | 保存済みの続き。初回の通常経路は次章の `chapter_kayo_2_001` |
+| カヨ `chapter_kayo_2_027` | `NovelScene_Kayo` → `Chapter_Kayo_SearchScene` → `PuzzleGame` → `NovelScene_Kayo` | `chapter_kayo_diary_001` |
+| モテル `chapter_moteru_1_040` | `NovelScene_Moteru` → `falling_verMoteru` → `NovelScene_Moteru` | `chapter_moteru_2_001` |
+| モテル `chapter_moteru_2_013` | `NovelScene_Moteru` → `Chapter_Moteru_SearchScene` → `PuzzleGame` → `NovelScene_Moteru` | `chapter_moteru_diary_001` |
+| ヨワシ `chapter_yowashi_1_035` | `NovelScene_Yowashi` → `PuzzleGame` → `NovelScene_Yowashi` | `chapter_yowashi_diary_001` |
+| ヨワシ `chapter_yowashi_beforecatch_019` | `NovelScene_Yowashi` → `falling_verYowashi` → `NovelScene_Yowashi` | 成功・失敗それぞれの開始行 |
+
+出発行は各ルートの `Assets/Dialogue/CSV`、戻り先は各Sceneに保存されている設定値と接続スクリプトで確認できます。会話本編ではCSVからインポートした `DialogueScenarioSO` を使用します。
+
+### 相手選択・タイトル・共通メニュー
+
+- [SelectionPart](../Assets/Scenes/GameMap/SelectionPart.unity) の `SelectionPartController` は選択先を読み込みます。移動先の会話シーンが自分の履歴を復元するため、選択側で会話行を指定する必要はありません。相手選択画面自身は `NovelDialogueController` を持たず、会話履歴の保存対象ではありません。
+- [Title](../Assets/Scenes/GameMap/Title.unity) の `TitleMenu.StartGame()` と、Escメニューの「最初から」は `GameProgress.ResetAll()` を通して会話履歴・開始位置を消去します。タイトルからの手動ロードとの関係は [SaveLoad.md](SaveLoad.md) を参照してください。
+- ON/OFFは実行時に自動生成される `[Archive System]` 上の `ArchiveMenuUI` が提供します。`ArchiveMenuUI.Progress.cs` の `BuildProgressSetting()` がEscメニューにボタンを追加します。各シーンに設定用コンポーネントを配置する必要はありません。
+- 現在のゲージ結果はカヨ会話内の `KayoGaugeOutcomeController` が扱い、今回のプログレスはその結果を保存します。独立したゲージゲーム盤面や、別途追加したシーンへ自動的に戻り経路を配線する機能ではありません。
+
+### コード上で保存・復元を呼ぶタイミング
+
+| タイミング | 呼び出しと役割 |
+| --- | --- |
+| 本編会話シーンへの入場 | `NovelDialogueController.Start()` → `StartDialogue()` → `StartSceneWithProgress()`。手動ロードのデータがあれば `RestoreCheckpoint()` が先に実行される |
+| 探索中の範囲会話の開始 | `PlayDialogueRange()` → `BeginProgressSession(true)` → `TryRestoreSceneProgress()` |
+| カヨのゲーム内イベント会話の開始 | `StartEmbeddedDialogue()` → `BeginProgressSession(true)` → `TryRestoreSceneProgress()` |
+| 会話再生中 | `LateUpdate()`、文字送り開始・全文表示時に `RefreshProgressState()` でメモリ上の状態を更新。毎フレームPlayerPrefsへ書き込む処理ではない |
+| 会話行から別シーンへ出る直前 | `LoadDialogueScene()` → `SaveSceneDeparture()`。遷移行を通過済みとして次の行を記録 |
+| 外部からのシーン離脱・無効化、一時停止・終了 | `OnDisable()`、`OnApplicationPause(true)`、`OnApplicationQuit()` → `SaveSceneProgress()` |
+| 会話終了 | `EndDialogueImmediately()` → `SaveSceneCompletion()`。再訪時も完了状態を復元 |
+| ミニゲームなどからの会話復帰 | `DialogueProgressTransitions.ReturnToScene()` → `DialogueProgressStore.SetSceneEntry()` → シーン読み込み。戻り先が開始位置を使ってから消費する |
+
+Inspectorでは本編の `DialogueController` にある `Scenario`、`Following Scenarios`、`Play On Start`、`Scene Progress > Progress Id` を確認します。戻り先の変更は探索・キャッチ側の `completionSceneName` / `completionResumeLineId`、`returnSceneName` / `resumeLineId`、`resumeScenario` など、上表の担当コンポーネントで行います。
 
 ## 保存内容とタイミング
 
@@ -46,7 +120,7 @@ OFFの状態でミニゲームから会話へ戻った場合も、会話シー�
 
 | キー | 内容 |
 | --- | --- |
-| `Dialogue.SceneProgress.v1` | シーン・コントローラー・会話範囲別の履歴を持つJSON |
+| `Dialogue.SceneProgress.v1` | `entries`（会話履歴）と `sceneEntries`（シーン別開始位置）を持つ共通JSON |
 | `Dialogue.SceneProgress.Enabled.v1` | 共通ON/OFF設定。未設定はON |
 
 製品実行時は履歴も終了後に残ります。ただし新規開始時は既存の進行データと一緒に初期化します。Unity Editorでは、好感度・探索などの既存の開発用初期化に合わせ、Play Modeに入るたび会話履歴を削除します。ON/OFF設定は保持します。
@@ -59,37 +133,65 @@ OFFの状態でミニゲームから会話へ戻った場合も、会話シー�
 | --- | --- |
 | [DialogueProgressState.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressState.cs) | 会話履歴・画像状態のデータ形式 |
 | [DialogueProgressStore.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressStore.cs) | 設定、JSON保存・読み込み、履歴消去、世代管理 |
+| [DialogueProgressTransitions.cs](../Assets/Scripts/Dialogue/Runtime/DialogueProgressTransitions.cs) | 開始位置の記録、シーン読み込み、失敗時の開始位置復旧 |
 | [NovelDialogueController.Progress.cs](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.Progress.cs) | 会話状態と履歴の変換、再開位置の解決、表示復元 |
-| [NovelDialogueControllerSO.cs](../Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs) | 通常の会話再生。開始・終了・遷移時にプログレス側を呼び出す |
+| [NovelDialogueController.cs](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs) | 通常の会話再生。開始・終了・遷移時にプログレス側を呼び出す |
 | [ArchiveMenuUI.Progress.cs](../Assets/Scripts/Archive/ArchiveMenuUI.Progress.cs) | EscメニューのON/OFF操作と表示 |
 
 `GameSaveService` の枠へ自動保存する処理はありません。プログレス専用のデータ形式と保存キーを使います。`GameProgress.ResetAll()` と手動ロードには、履歴の初期化を接続しています。
 
-## 再開要求と復元の優先順位
+## 開始位置と復元の優先順位
 
 1. 手動セーブ枠のロード
-2. ON時のみ、戻り先シーンを指定した明示的な再開要求
-3. ON時のみ、そのシーンの会話プログレス
+2. ON時のみ、プログレス内に記録された対象シーンの開始位置
+3. ON時のみ、その会話の保存履歴
 4. 通常の開始位置
 
-キャッチゲームの成功・失敗や日記パズルの完了は、従来どおり結果用のセリフを明示します。要求に戻り先シーン名を付け、途中で別の会話シーンに入っても誤って消費しないようにしています。
+開始位置には次の2つのモードがあります。
+
+| モード | 動作・利用箇所 |
+| --- | --- |
+| `OverrideSavedProgress`（既定） | 指定行を優先。ヨワシの成否、モテルのキャッチ完了、各日記パズル、共通探索 |
+| `PreferSavedProgress` | 保存履歴を先に復元し、履歴なし・復元不可なら指定行を使う。カヨのキャッチ完了 |
+
+開始位置は履歴と同じJSONに保存します。複数シーンが互いの開始位置を上書きすることはありません。対象行を持つコントローラーが開始できた時点で消費します。別シーンや、その行を持たない別コントローラーは消費しません。BGMの入場判定は読み取りのみです。
 
 ```csharp
-// 結果に応じたセリフへ戻す。ON時は保存済みの位置より優先する。
-NovelDialogueController.QueueResumeLineForScene(
-    "NovelScene_Example", "chapter_example_success_001", true);
-SceneManager.LoadScene("NovelScene_Example", LoadSceneMode.Single);
+// 成功・失敗などの結果で開始行を決め、そのシーンへ戻る。
+DialogueProgressTransitions.ReturnToScene(
+    "NovelScene_Example", "chapter_example_success_001");
 
-// コードから共通設定を変更する。
+// 保存された続きがあれば優先する。
+DialogueProgressTransitions.ReturnToScene(
+    "NovelScene_Example", "chapter_example_after_game_001", true,
+    DialogueProgressEntryMode.PreferSavedProgress);
+
+// 共通設定を変更する。
 DialogueProgressStore.Enabled = false;
 
-// 会話履歴だけを初期化する。設定・手動枠・好感度などは変更しない。
+// 履歴とシーン別開始位置を初期化する。
 DialogueProgressStore.Clear();
 ```
 
-通常の会話からの離脱では再開要求を積みません。出発元自身の履歴に続きを保存します。そのため会話A→会話B→会話Aでも、BがAの再開位置を消費することはありません。
+`ReturnToScene()` が開始位置の記録とシーン読み込みを行います。OFFでも移動は行い、開始位置は記録せず先頭から再生します。読み込み要求に失敗した場合は以前の開始位置へ戻し、`false` を返します。
+
+通常の会話からの離脱は出発元自身の履歴に続きを保存します。会話A→会話B→会話Aでも、BがAの会話位置を消費しません。
+
+### 旧方式からの移行
+
+会話コントローラー内のstaticの単一再開ID、フェード予約、旧再開APIと検索処理は削除しました。互換ラッパーも残していません。人物名の共有状態と通常の会話再生は継続して使います。
+
+キャッチ3ルート、共通探索、各日記パズルは、すべて `DialogueProgressTransitions` に移行しました。Sceneに保存された戻り先・行ID・シナリオのフィールドは維持し、SceneやCSVの設定を変更せず移行しています。
+
+以前の `Dialogue.SceneProgress.v1` に `sceneEntries` が含まれていなくても、会話履歴は引き続き読み込めます。手動スロットのデータ形式は変更していません。
+
+パズルに使用画像と戻り経路を渡すコンテキストは残しています。会話復元の責務はプログレス側にあり、コンテキストは会話復元やパズル盤面のセーブではありません。
 
 ## 識別子とシーン追加
+
+会話コンポーネントの主ファイルは `NovelDialogueController.cs` です。ファイル名とクラス名を一致させ、`.meta` のGUIDを維持してください。主ファイルの名前が異なる状態で `partial` 分割すると、C#のコンパイルが通ってもUnityがシーンのスクリプトを解決できず、会話が始まらない場合があります。検証では `MonoScript.GetClass()` と実際の4会話シーンのコンポーネント・設定参照も確認します。
+
+開いているシーンの会話Inspector設定だけを保存時点に戻すには、Edit Modeで `Tools > Dialogue > Restore Inspector From Saved Scene` を使います。シーン全体は再読み込みせず、会話コンポーネントの値と参照だけを復元します。ほかの未保存変更は保持し、復元操作はUndoで戻せます。変更後のシーンは自動保存しません。保存する前にInspectorを確認してください。
 
 通常のキーは、シーンのアセットパスとコントローラーのHierarchyパスから自動作成します。同名の兄弟オブジェクトは同名内の順番で区別します。シーンの移動、オブジェクト名や階層の変更でキーが変わると、旧履歴は参照されません。
 
@@ -105,4 +207,4 @@ Inspectorの `Scene Progress > Progress Id` を設定すると、Hierarchyパス
 
 `work/verify-dialogue-scene-progress.ps1` は専用のUnityプロジェクトと専用PlayerPrefsで、本番の会話コントローラー・保存処理・シーン読み込みを使って検証します。通常のプロジェクトのシーンやセーブデータをテストのために書き換えません。
 
-検証対象は、A→B→A、部分表示と全文表示、画像配置、通過済み遷移、ミニゲーム結果の優先、選択前後、会話完了、複数コントローラー、埋め込み会話、ON/OFF、新規開始、手動ロード、破損データです。
+検証対象は、A→B→A、部分表示と全文表示、画像配置、通過済み遷移、ミニゲーム結果の優先、選択前後、会話完了、複数コントローラー、埋め込み会話、ON/OFF、新規開始、手動ロード、破損データ、共通遷移API、履歴優先、開始位置の消費、BGM参照です。

@@ -70,7 +70,7 @@ foreach($meta in (& rg --files (Join-Path $root 'Assets/Dialogue/Data') -g '*.as
 }
 $moteru=Get-Content (Join-Path $root 'Assets/Scenes/GameMap/NovelScene_Moteru.unity') -Raw
 Assert-True (-not $moteru.Contains('omitOuterDialogueQuotes: 1')) 'Moteru must retain its existing presentation'
-$controller=Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$controller=Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 $start=$controller.IndexOf('    public static string GetDialogueDisplayText(')
 $end=$controller.IndexOf('    private void StartTyping(', $start)
 $method=$controller.Substring($start,$end-$start)

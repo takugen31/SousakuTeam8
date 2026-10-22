@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Sousakusai8.MiniGame
@@ -51,18 +49,11 @@ namespace Sousakusai8.MiniGame
             yield return new WaitForSecondsRealtime(resultDisplayDuration);
             ArchiveManager.Close();
             yield return CatchGameFade.Play(fadeOverlay, 0f, 1f, fadeDuration);
-            // Override any queued position from before the game: always start Chapter_Moteru_2.
-            NovelDialogueController.QueueResumeLineForScene(returnSceneName, resumeLineId, true);
-            try
+            // The result selects Chapter_Moteru_2 in the progress timeline.
+            if (!DialogueProgressTransitions.ReturnToScene(returnSceneName, resumeLineId))
             {
-                SceneManager.LoadScene(returnSceneName, LoadSceneMode.Single);
-            }
-            catch (Exception exception)
-            {
-                NovelDialogueController.QueueResumeLine(null);
                 fadeOverlay.gameObject.SetActive(false);
                 returning = false;
-                Debug.LogError($"モテルの会話シーンに戻れませんでした。\n{exception}", this);
             }
         }
 

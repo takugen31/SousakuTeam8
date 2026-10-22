@@ -1,7 +1,6 @@
 using System.Collections;
 using SousakuTeam8.PuzzleGame;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -178,9 +177,14 @@ public sealed class PuzzleGameFlowController : MonoBehaviour
 
         overlay.color = Color.black;
         ArchiveManager.Close();
-        // Overwrite any earlier search resume request; the diary must be read first.
-        NovelDialogueController.QueueResumeLineForScene(activeRequest.ReturnSceneName, activeRequest.ResumeLineId, true);
-        PlayerPrefs.DeleteKey(PendingReturnKey);
-        SceneManager.LoadScene(activeRequest.ReturnSceneName, LoadSceneMode.Single);
+        // The diary is the destination entry point in the shared progress timeline.
+        if (DialogueProgressTransitions.ReturnToScene(activeRequest.ReturnSceneName, activeRequest.ResumeLineId))
+            PlayerPrefs.DeleteKey(PendingReturnKey);
+        else
+        {
+            isReturning = false;
+            overlay.gameObject.SetActive(false);
+            puzzle.SetInteractable(true);
+        }
     }
 }

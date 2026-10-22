@@ -1,6 +1,8 @@
 # Dialogueシステム仕様・運用ガイド
 
-最終更新: 2026-08-26
+シーンをまたぐ会話の保存・復元とミニゲームからの戻りは、[DialogueSceneProgress.md](DialogueSceneProgress.md) を参照してください。手動スロットは [SaveLoad.md](SaveLoad.md) に記載しています。
+
+最終更新: 2026-10-23（会話プログレスとの接続・データ参照を更新）
 
 ## 概要
 
@@ -28,9 +30,9 @@ Chapter 2
 | --- | --- |
 | [`CharacterDatabaseSO.cs`](../Assets/Scripts/Dialogue/Runtime/CharacterDatabaseSO.cs) | キャラクター名、名前色、表情、立ち絵を保持する |
 | [`DialogueScenarioSO.cs`](../Assets/Scripts/Dialogue/Runtime/DialogueScenarioSO.cs) | 1つのシナリオに含まれるセリフと遷移情報を保持する |
-| [`NovelDialogueControllerSO.cs`](../Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs) | 会話の開始、文字送り、章送り、終了、UI更新を制御する |
+| [`NovelDialogueController.cs`](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs) | 会話の開始、文字送り、章送り、終了、UI更新を制御する |
 
-`NovelDialogueControllerSO.cs`というファイル名ですが、定義されている`NovelDialogueController`はScriptableObjectではなく`MonoBehaviour`です。
+`NovelDialogueController` は `MonoBehaviour` です。Unityがシーン内のコンポーネントを解決できるよう、主ファイル名をクラス名と同じ `NovelDialogueController.cs` にしています。`partial` の補助ファイルだけを主ファイルの代わりにアタッチしないでください。
 
 ### Editor
 
@@ -44,11 +46,11 @@ Chapter 2
 | ファイル | 内容 |
 | --- | --- |
 | [`Characters.csv`](../Assets/Dialogue/CSV/Characters.csv) | キャラクターと表情の入力データ |
-| [`prologue_station.csv`](../Assets/Dialogue/CSV/Prologue/prologue_station.csv) | 現在のプロローグ本文 |
+| [`prologue1.csv`](../Assets/Dialogue/CSV/Prologue/prologue1.csv) | プロローグ前半の本文 |
 | [`CharacterDatabase.asset`](../Assets/Dialogue/Data/CharacterDatabase.asset) | インポート済みキャラクターデータ |
-| [`Prologue.asset`](../Assets/Dialogue/Data/Prologue.asset) | インポート済みプロローグ |
+| [`Prologue1.asset`](../Assets/Dialogue/Data/Prologue/Prologue1.asset) | インポート済みプロローグ前半 |
 
-現時点ではChapter 1とChapter 2のCSVおよび`DialogueScenarioSO`はまだ作成されていません。
+Chapter 1以降と各キャラクターの会話データも、`Assets/Dialogue/CSV` と `Assets/Dialogue/Data` に配置されています。
 
 ## データの流れ
 
@@ -462,7 +464,7 @@ flowchart TD
 
 ### `StartDialogue()`
 
-最初に設定された`Scenario`から会話全体を開始します。`Start Line Id`が設定されていれば、そのIDから開始します。
+会話プログレスがONなら、シーン別開始位置と保存履歴から開始します。復元対象がない場合、またはOFFの場合は、最初の`Scenario`の`Start Line Id`、未設定なら先頭行から開始します。
 
 ### `StartDialogueAt(string lineId)`
 
@@ -529,7 +531,6 @@ line_a → line_b → line_a
 ### 現在未対応の機能
 
 - ゲーム状態を使った条件分岐
-- セーブデータからの章・行の復元
 - 章開始／章終了ごとのイベント
 - 会話履歴
 - ボイス再生

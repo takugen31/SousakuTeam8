@@ -8,6 +8,7 @@ public static class DialogueProgressStore
     private const string StateKey = "Dialogue.SceneProgress.v1";
     private const string EnabledKey = "Dialogue.SceneProgress.Enabled.v1";
     private static Dictionary<string, DialogueProgressState> entries;
+    private static Dictionary<string, DialogueProgressSceneEntry> sceneEntries;
     public static int Generation { get; private set; }
     public static event Action SettingsChanged;
 
@@ -20,7 +21,6 @@ public static class DialogueProgressStore
             PlayerPrefs.SetInt(EnabledKey, value ? 1 : 0);
             // Starting again with ON must not resurrect a position from before OFF.
             Clear();
-            NovelDialogueController.ClearResumeRequest();
             SettingsChanged?.Invoke();
         }
     }
@@ -29,6 +29,7 @@ public static class DialogueProgressStore
     private static void ResetStatics()
     {
         entries = null;
+        sceneEntries = null;
         Generation = 0;
         SettingsChanged = null;
     }
@@ -57,10 +58,32 @@ public static class DialogueProgressStore
         Flush();
     }
 
+    public static bool TryGetSceneEntry(string scene, out DialogueProgressSceneEntry entry)
+    {
+        EnsureLoaded();
+        entry = null;
+        return Enabled && sceneEntries.TryGetValue(scene, out entry);
+    }
+
+    public static void SetSceneEntry(DialogueProgressSceneEntry entry)
+    {
+        if (!Enabled || !IsValid(entry)) return;
+        EnsureLoaded();
+        sceneEntries[entry.scene] = entry;
+        Flush();
+    }
+
+    public static void RemoveSceneEntry(string scene)
+    {
+        EnsureLoaded();
+        if (sceneEntries.Remove(scene)) Flush();
+    }
+
     public static void Clear()
     {
         Generation++;
         entries = new Dictionary<string, DialogueProgressState>(StringComparer.Ordinal);
+        sceneEntries = new Dictionary<string, DialogueProgressSceneEntry>(StringComparer.Ordinal);
         PlayerPrefs.DeleteKey(StateKey);
         PlayerPrefs.Save();
     }
@@ -83,6 +106,7 @@ public static class DialogueProgressStore
         else PlayerPrefs.SetString(StateKey, timeline.json);
         Generation = timeline.generation;
         entries = null;
+        sceneEntries = null;
         PlayerPrefs.Save();
     }
 
@@ -90,6 +114,7 @@ public static class DialogueProgressStore
     {
         if (entries != null) return;
         entries = new Dictionary<string, DialogueProgressState>(StringComparer.Ordinal);
+        sceneEntries = new Dictionary<string, DialogueProgressSceneEntry>(StringComparer.Ordinal);
         if (!PlayerPrefs.HasKey(StateKey)) return;
         try
         {
@@ -97,6 +122,10 @@ public static class DialogueProgressStore
             if (archive == null || archive.version != 1 || archive.entries == null) return;
             foreach (var state in archive.entries)
                 if (IsValid(state)) entries[state.key] = state;
+            // Missing in earlier v1 archives; playback history remains compatible.
+            if (archive.sceneEntries != null)
+                foreach (var entry in archive.sceneEntries)
+                    if (IsValid(entry)) sceneEntries[entry.scene] = entry;
         }
         catch (Exception exception)
         {
@@ -110,11 +139,19 @@ public static class DialogueProgressStore
         state.revealedNames != null && state.consultationLines != null && state.appliedLineIds != null &&
         state.images != null && state.images.Length == 3 && Array.TrueForAll(state.images, image => image != null);
 
+    private static bool IsValid(DialogueProgressSceneEntry entry) => entry != null &&
+        !string.IsNullOrWhiteSpace(entry.scene) && !string.IsNullOrWhiteSpace(entry.lineId) &&
+        (entry.mode == DialogueProgressEntryMode.OverrideSavedProgress || entry.mode == DialogueProgressEntryMode.PreferSavedProgress);
+
     private static void Flush()
     {
         try
         {
-            var archive = new DialogueProgressArchive { entries = new List<DialogueProgressState>(entries.Values) };
+            var archive = new DialogueProgressArchive
+            {
+                entries = new List<DialogueProgressState>(entries.Values),
+                sceneEntries = new List<DialogueProgressSceneEntry>(sceneEntries.Values)
+            };
             PlayerPrefs.SetString(StateKey, JsonUtility.ToJson(archive));
             PlayerPrefs.Save();
         }

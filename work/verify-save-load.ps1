@@ -60,12 +60,17 @@ public class NovelDialogueController {
  public bool CaptureCheckpoint(GameSaveData d) { if(!Ready) return false; d.kind="dialogue"; d.scenario="Chapter_Kayo_6"; d.lineId="chapter_kayo_6_035"; d.label="カヨとの会話"; d.text="test"; d.textFullyDisplayed=true; d.images=new[]{new GameSaveImage(),new GameSaveImage(),new GameSaveImage()}; return true; }
  public static string[] CaptureRevealedNames() => Names;
  public static void RestoreRevealedNames(string[] n) { Names=n; }
- public static void ResetStoryState() { Names=Array.Empty<string>(); }
 }
 public class Chapter1SearchController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="modal"; d.itemId="door"; d.room=1; return true; } }
 public class SearchSceneController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="room"; d.room=0; d.paperVisible=true; return true; } }
 public class SelectionPartController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="selection"; d.introDismissed=true; return true; } }
 public class KayoGaugeOutcomeController { public bool CurrentResult=true; }
+public static class DialogueProgressStore {
+ public sealed class Timeline {}
+ public static Timeline CaptureTimeline() => new Timeline();
+ public static void RestoreTimeline(Timeline timeline) {}
+ public static void Clear() {}
+}
 public static class PuzzleGameFlowController { public static void ResetPendingRequest() {} }
 public class AffectionEntry { public string characterId; public int value; }
 public class AffectionManager {
@@ -160,8 +165,8 @@ Assert ([GameSaveService]::Read(3,[ref]$message).paperVisible) 'Paper background
 $reset=[GameSaveService].GetMethod('ClearSlotsOnPlay',[Reflection.BindingFlags]'NonPublic,Static')
 $reset.Invoke($null,@([UnityEditor.EnterPlayModeOptions]::None)) | Out-Null
 for ($slot=0; $slot -lt 6; $slot++) { Assert (-not [UnityEngine.PlayerPrefs]::HasKey("GameSave.Slot.v1.$slot")) 'Play-mode reset failed' }
-$novel = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
-Assert ($novel.Contains('if (!restoringCheckpointLine)')) 'Resume can reapply affection/archive effects'
+$novel = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
+Assert ($novel.Contains('if (!restoringCheckpointLine && ShouldApplyProgressLine(line))')) 'Resume can reapply affection/archive effects'
 Assert ($novel.Contains('gauge.SetResult(data.kayoGaugeSucceeded)')) 'Gauge outcome restoration missing'
 foreach ($script in @('Chapter1SearchController','SearchSceneController')) {
     $search = Get-Content (Join-Path $root "Assets/Scripts/Search/$script.cs") -Raw

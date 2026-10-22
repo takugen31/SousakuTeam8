@@ -1,7 +1,6 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Sousakusai8.MiniGame
@@ -167,8 +166,12 @@ namespace Sousakusai8.MiniGame
                 yield break;
             }
 
-            NovelDialogueController.QueueResumeLineIfEmptyForScene(returnSceneName, resumeLineId, true);
-            SceneManager.LoadScene(returnSceneName, LoadSceneMode.Single);
+            if (!DialogueProgressTransitions.ReturnToScene(returnSceneName, resumeLineId, true,
+                DialogueProgressEntryMode.PreferSavedProgress))
+            {
+                intertitleText.text = "会話シーンに戻れませんでした。";
+                intertitleText.gameObject.SetActive(true);
+            }
         }
 
         private void PlayEventScenario(DialogueScenarioSO scenario)

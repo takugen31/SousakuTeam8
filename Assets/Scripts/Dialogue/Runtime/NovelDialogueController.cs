@@ -13,9 +13,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 {
     private GameObject endingCard;
     private Coroutine endingCardCoroutine;
-    private static string pendingResumeLineId;
-    private static bool pendingSceneFadeIn;
-    private static string pendingResumeScene;
     private static readonly HashSet<string> revealedCharacterIds =
         new HashSet<string>(System.StringComparer.Ordinal);
 
@@ -24,68 +21,9 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     public event Action<DialogueLine> SceneTransitionStarting;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetPendingResumeLine()
+    private static void ResetRevealedCharacterNames()
     {
-        pendingResumeLineId = null;
-        pendingSceneFadeIn = false;
-        pendingResumeScene = null;
         revealedCharacterIds.Clear();
-    }
-
-    public static void QueueResumeLine(string lineId)
-    {
-        QueueResumeLine(lineId, false);
-    }
-
-    public static void ResetStoryState()
-    {
-        ResetPendingResumeLine();
-    }
-
-    public static void ClearResumeRequest()
-    {
-        pendingResumeLineId = null;
-        pendingSceneFadeIn = false;
-        pendingResumeScene = null;
-    }
-
-    public static void QueueResumeLineForScene(string sceneName, string lineId, bool fadeInAfterSceneLoad = true)
-    {
-        QueueResumeLine(lineId, fadeInAfterSceneLoad);
-        pendingResumeScene = sceneName;
-    }
-
-    public static void QueueResumeLineIfEmptyForScene(string sceneName, string fallbackLineId, bool fadeInAfterSceneLoad = true)
-    {
-        if (pendingResumeScene != null && pendingResumeScene != sceneName) ClearResumeRequest();
-        QueueResumeLineIfEmpty(fallbackLineId, fadeInAfterSceneLoad);
-        pendingResumeScene = sceneName;
-    }
-
-    public static void QueueResumeLine(
-        string lineId,
-        bool fadeInAfterSceneLoad)
-    {
-        pendingResumeLineId =
-            string.IsNullOrWhiteSpace(lineId)
-                ? null
-                : lineId.Trim();
-        pendingSceneFadeIn = fadeInAfterSceneLoad;
-        pendingResumeScene = null;
-    }
-
-    public static void QueueResumeLineIfEmpty(
-        string fallbackLineId,
-        bool fadeInAfterSceneLoad)
-    {
-        if (string.IsNullOrWhiteSpace(pendingResumeLineId))
-        {
-            pendingResumeLineId = string.IsNullOrWhiteSpace(fallbackLineId)
-                ? null
-                : fallbackLineId.Trim();
-        }
-
-        pendingSceneFadeIn = fadeInAfterSceneLoad;
     }
 
     [Header("Dialogue Data")]
@@ -635,109 +573,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     public void StartDialogue()
     {
         stopAfterLineId = null;
-        BeginProgressSession();
-        bool requestForThisScene = pendingResumeScene == null || pendingResumeScene == gameObject.scene.name;
-        bool shouldFadeIn = DialogueProgressStore.Enabled && requestForThisScene && pendingSceneFadeIn;
-        if (requestForThisScene) pendingSceneFadeIn = false;
-
-        if (!DialogueProgressStore.Enabled)
-        {
-            ClearResumeRequest();
-            StartDialogueInternal();
-        }
-        else if (!TryStartPendingResumeLine() && !TryRestoreSceneProgress())
-        {
-            StartDialogueInternal();
-        }
-
-        if (shouldFadeIn && isPlaying)
-        {
-            BeginSceneEntryFadeIn();
-        }
-    }
-
-    // Read-only preview for sceneLoaded: resolve resume music before Start or intro animation.
-    public bool TryGetSceneEntryMusic(out DialogueScenarioSO entryScenario, out DialogueLine entryLine)
-    {
-        entryScenario = null;
-        entryLine = null;
-        if (!playOnStart || !isActiveAndEnabled || scenario == null) return false;
-        if (DialogueProgressStore.Enabled &&
-            (pendingResumeScene == null || pendingResumeScene == gameObject.scene.name) &&
-            !string.IsNullOrWhiteSpace(pendingResumeLineId))
-        {
-            int count = 1 + (followingScenarios?.Count ?? 0);
-            for (int i = 0; i < count; i++)
-            {
-                DialogueScenarioSO candidate = i == 0 ? scenario : followingScenarios[i - 1];
-                if (candidate != null && candidate.TryGetLine(pendingResumeLineId, out entryLine))
-                {
-                    entryScenario = candidate;
-                    return true;
-                }
-            }
-        }
-        if (TryGetProgressEntryMusic(out entryScenario, out entryLine)) return true;
-        entryScenario = scenario;
-        if (!string.IsNullOrWhiteSpace(startLineId) && scenario.TryGetLine(startLineId, out entryLine)) return true;
-        return scenario.TryGetFirstLine(out entryLine);
-    }
-
-    private bool TryStartPendingResumeLine()
-    {
-        if (pendingResumeScene != null && pendingResumeScene != gameObject.scene.name) return false;
-        string resumeLineId = pendingResumeLineId;
-        pendingResumeLineId = null;
-        pendingResumeScene = null;
-
-        if (string.IsNullOrWhiteSpace(resumeLineId))
-        {
-            return false;
-        }
-
-        if (characterDatabase == null)
-        {
-            Debug.LogError("CharacterDatabaseが設定されていません。");
-            return false;
-        }
-
-        int scenarioCount = 1 + (followingScenarios?.Count ?? 0);
-
-        for (int index = 0; index < scenarioCount; index++)
-        {
-            DialogueScenarioSO candidate =
-                index == 0 ? scenario : followingScenarios[index - 1];
-
-            if (candidate == null ||
-                !candidate.TryGetLine(resumeLineId, out DialogueLine resumeLine))
-            {
-                continue;
-            }
-
-            CancelChapterTransition();
-            HideChoices();
-            ResetKnownCharacterNames();
-            shownConsultationLineIds.Clear();
-            currentScenario = candidate;
-            currentScenarioIndex = index;
-            isPlaying = true;
-
-            if (dialogueRoot != null)
-            {
-                dialogueRoot.SetActive(true);
-            }
-
-            ResetBackgroundForScenario();
-            ResetPortraitsForScenario();
-            ShowLine(resumeLine);
-            return true;
-        }
-
-        Debug.LogWarning(
-            $"再開セリフ「{resumeLineId}」が登録シナリオ内に存在しません。" +
-            "通常の開始位置から再生します。",
-            this);
-        return false;
+        StartSceneWithProgress();
     }
 
     private void StartDialogueInternal()
@@ -3760,7 +3596,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         string scenePath,
         System.Exception exception)
     {
-        QueueResumeLine(null);
         isSceneLoading = false;
         isPlaying = true;
         progressDeparted = false;

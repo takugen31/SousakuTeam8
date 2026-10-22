@@ -6,7 +6,7 @@ Check ([string]::IsNullOrEmpty($row.text)) 'Update message still displayed'
 Check ($row.choice1Text -eq 'カヨのドジを治すべきか否か' -and $row.choice1NextLineId -eq 'chapter_kayo_3_009') 'Consultation choice lost'
 $asset = Get-Content (Join-Path $root 'Assets/Dialogue/Data/Kayo/Chapter_Kayo_3.asset') -Raw
 Check ([regex]::IsMatch($asset, 'lineId: chapter_kayo_3_008\s+speakerId:\s+expressionId:\s+text:\s+background:')) 'Runtime asset message not removed'
-$controller = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$controller = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 Check ($controller.Contains('line?.lineId == "chapter_kayo_3_008"') -and $controller.Contains('ArchiveManager.Unlock("chapter_kayo.profile")') -and $controller.Contains('ArchiveManager.Replace("chapter_kayo.floor_dent", "chapter_kayo.clumsiness")')) 'Update cue missing'
 $database = Get-Content (Join-Path $root 'Assets/Resources/Archive/ArchiveDatabase.asset') -Raw
 foreach ($id in @('chapter_kayo.profile', 'chapter_kayo.floor_dent', 'chapter_kayo.clumsiness')) { Check ($database.Contains("id: $id")) "Unknown archive id $id" }

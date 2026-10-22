@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class Chapter1SearchController : MonoBehaviour
@@ -935,8 +934,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         }
 
         ArchiveManager.Close();
-        NovelDialogueController.QueueResumeLineForScene(completionSceneName, completionResumeLineId, false);
-        SceneManager.LoadScene(completionSceneName, LoadSceneMode.Single);
+        DialogueProgressTransitions.ReturnToScene(completionSceneName, completionResumeLineId, false);
     }
 
     private void LoadProgress()

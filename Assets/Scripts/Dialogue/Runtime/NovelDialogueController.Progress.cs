@@ -19,7 +19,7 @@ public sealed partial class NovelDialogueController
     private DialogueProgressState lastProgressState;
     private readonly HashSet<string> progressAppliedLineIds = new HashSet<string>(StringComparer.Ordinal);
 
-    private void BeginProgressSession(bool embedded = false)
+    private string GetProgressKey(bool embedded = false)
     {
         string controllerId = progressId;
         if (string.IsNullOrEmpty(controllerId))
@@ -47,8 +47,13 @@ public sealed partial class NovelDialogueController
             controllerId = string.Join("/", parts);
         }
         string sceneId = string.IsNullOrEmpty(gameObject.scene.path) ? gameObject.scene.name : gameObject.scene.path;
-        progressKey = sceneId + "|" + controllerId + (embedded
+        return sceneId + "|" + controllerId + (embedded
             ? "|" + scenario?.name + "|" + startLineId + "|" + stopAfterLineId : "|scene");
+    }
+
+    private void BeginProgressSession(bool embedded = false)
+    {
+        progressKey = GetProgressKey(embedded);
         progressGeneration = DialogueProgressStore.Generation;
         progressCompleted = progressDeparted = false;
         progressResumeLineId = null;
@@ -81,21 +86,55 @@ public sealed partial class NovelDialogueController
             progressAppliedLineIds.Add(currentScenario.name + "|" + line.lineId);
     }
 
-    private bool TryGetProgressEntryMusic(out DialogueScenarioSO entryScenario, out DialogueLine entryLine)
+    private void StartSceneWithProgress()
+    {
+        BeginProgressSession();
+        bool started = false;
+        bool fadeIn = false;
+        if (DialogueProgressStore.TryGetSceneEntry(gameObject.scene.name, out var entry) &&
+            TryFindProgressLine(entry.lineId, null, out var targetScenario, out var targetLine, out int index))
+        {
+            if (entry.mode == DialogueProgressEntryMode.PreferSavedProgress)
+                started = TryRestoreSceneProgress();
+            if (!started)
+            {
+                CancelChapterTransition();
+                HideChoices();
+                ResetKnownCharacterNames();
+                shownConsultationLineIds.Clear();
+                currentScenario = targetScenario;
+                currentScenarioIndex = index;
+                isPlaying = true;
+                if (dialogueRoot != null) dialogueRoot.SetActive(true);
+                ResetBackgroundForScenario();
+                ResetPortraitsForScenario();
+                ShowLine(targetLine);
+                started = true;
+            }
+            fadeIn = entry.fadeIn;
+            DialogueProgressStore.RemoveSceneEntry(gameObject.scene.name);
+        }
+        // A controller without the requested row must not consume another controller's entry.
+        if (!started && !TryRestoreSceneProgress()) StartDialogueInternal();
+        if (fadeIn && isPlaying) BeginSceneEntryFadeIn();
+    }
+
+    /// <summary>Read-only entry preview used by sceneLoaded music resolution.</summary>
+    public bool TryGetSceneEntryMusic(out DialogueScenarioSO entryScenario, out DialogueLine entryLine)
     {
         entryScenario = null;
         entryLine = null;
-        // Music is queried before Start(), so build the same stable key without consuming data.
-        string previousKey = progressKey;
-        if (progressKey == null) BeginProgressSession();
-        bool found = DialogueProgressStore.TryGet(progressKey, out var state) &&
+        if (!playOnStart || !isActiveAndEnabled || scenario == null) return false;
+        bool hasEntry = DialogueProgressStore.TryGetSceneEntry(gameObject.scene.name, out var entry);
+        if (hasEntry && entry.mode == DialogueProgressEntryMode.OverrideSavedProgress &&
+            TryFindProgressLine(entry.lineId, null, out entryScenario, out entryLine, out _)) return true;
+        if (DialogueProgressStore.TryGet(GetProgressKey(), out var state) &&
             TryFindProgressLine(state.departed ? state.resumeLineId : state.lineId,
-                state.departed ? null : state.scenario, out entryScenario, out entryLine, out _);
-        if (found) return true;
-        entryScenario = null;
-        entryLine = null;
-        progressKey = previousKey;
-        return false;
+                state.departed ? null : state.scenario, out entryScenario, out entryLine, out _)) return true;
+        if (hasEntry && TryFindProgressLine(entry.lineId, null, out entryScenario, out entryLine, out _)) return true;
+        entryScenario = scenario;
+        if (!string.IsNullOrWhiteSpace(startLineId) && scenario.TryGetLine(startLineId, out entryLine)) return true;
+        return scenario.TryGetFirstLine(out entryLine);
     }
 
     private bool TryRestoreSceneProgress()

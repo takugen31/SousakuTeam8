@@ -27,7 +27,7 @@ foreach ($module in @('audio','imageconversion','physics','physics2d','jsonseria
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Packages/manifest.json'), (@{dependencies=$dependencies} | ConvertTo-Json), $utf8)
 Copy-Item -LiteralPath (Join-Path $root 'ProjectSettings/ProjectVersion.txt') -Destination (Join-Path $testProject 'ProjectSettings')
-foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders')) {
+foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data')) {
     $destination = Join-Path $testProject $folder
     New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force | Out-Null
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
@@ -35,6 +35,13 @@ foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/Puzz
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Assets/Resources/StoryMusic/MusicPlan.json'), '{"dialogueScenes":[],"sceneCues":[],"scenarios":[]}', $utf8)
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueSceneProgressChecks.cs') -Destination (Join-Path $testProject 'Assets')
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueScriptBindingChecks.cs') -Destination (Join-Path $testProject 'Assets/Editor')
+New-Item -ItemType Directory -Path (Join-Path $testProject 'Assets/Scenes/GameMap') -Force | Out-Null
+foreach ($scene in @('NovelScene','NovelScene_Kayo','NovelScene_Moteru','NovelScene_Yowashi')) {
+    foreach ($suffix in @('.unity','.unity.meta')) {
+        Copy-Item -LiteralPath (Join-Path $root ('Assets/Scenes/GameMap/'+$scene+$suffix)) -Destination (Join-Path $testProject 'Assets/Scenes/GameMap')
+    }
+}
 $bootstrap = @'
 using System;
 using UnityEditor;
@@ -44,6 +51,7 @@ public static class DialogueSceneProgressBootstrap {
  public static void Run() {
   if (!Application.dataPath.Contains("DialogueSceneProgressChecks-")) throw new Exception("Use an isolated project.");
   PlayerSettings.companyName="DialogueProgressChecks"; PlayerSettings.productName=System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(Application.dataPath));
+  DialogueScriptBindingChecks.Run();
   var scenes=new System.Collections.Generic.List<EditorBuildSettingsScene>();
   foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene"}) {
    var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);

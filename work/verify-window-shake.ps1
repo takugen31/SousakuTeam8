@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 function Assert-Shake($condition, $message) { if (-not $condition) { throw $message } }
 Assert-Shake ($source.Contains('currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru"')) 'Shake cue not restricted to Moteru panic line'
 Assert-Shake ($source.Contains('panel == dialogueRoot.transform') -and $source.Contains('!plate.IsChildOf(panel)')) 'Portraits may shake or the name plate may receive double transforms'

@@ -96,9 +96,9 @@ namespace UnityEngine.SceneManagement {
     public static class SceneManager { public static int loads; public static string loaded; public static void LoadScene(string name,LoadSceneMode mode) { loads++; loaded=name; } }
 }
 public static class ArchiveManager { public static void Close() { } }
-public static class NovelDialogueController {
+public static class DialogueProgressTransitions {
     public static string resume; public static bool fade;
-    public static void QueueResumeLine(string id,bool showFade) { resume=id; fade=showFade; }
+    public static bool ReturnToScene(string scene,string id,bool showFade=true) { resume=id; fade=showFade; SceneManager.LoadScene(scene,LoadSceneMode.Single); return true; }
 }
 namespace Sousakusai8.MiniGame {
     public class CatchMiniGameController {
@@ -125,8 +125,8 @@ public static class YowashiCatchCheck {
             type.GetMethod("Awake",flags).Invoke(flow,null);
             int before=SceneManager.loads;
             game.End(score);
-            Check(SceneManager.loads==before+1 && SceneManager.loaded=="NovelScene_Yowashi" && NovelDialogueController.fade,"Game return failed");
-            Check(NovelDialogueController.resume==(score>3000?"chapter_yowashi_catchsuccess_001":"chapter_yowashi_catchfailure_001"),"Wrong result branch");
+            Check(SceneManager.loads==before+1 && SceneManager.loaded=="NovelScene_Yowashi" && DialogueProgressTransitions.fade,"Game return failed");
+            Check(DialogueProgressTransitions.resume==(score>3000?"chapter_yowashi_catchsuccess_001":"chapter_yowashi_catchfailure_001"),"Wrong result branch");
             game.End(score);
             Check(SceneManager.loads==before+1,"Duplicate return");
             type.GetMethod("OnDestroy",flags).Invoke(flow,null);

@@ -187,7 +187,6 @@ public static class GameSaveService
         {
             // A manual load starts a new timeline. Outgoing scene callbacks cannot re-save the future.
             DialogueProgressStore.Clear();
-            NovelDialogueController.ResetStoryState();
             NovelDialogueController.RestoreRevealedNames(data.revealedNames);
             GameProgress.RestoreCheckpoint(data.progress);
             pending = data;

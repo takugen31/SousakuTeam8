@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Sousakusai8.MiniGame
 {
@@ -54,8 +53,7 @@ namespace Sousakusai8.MiniGame
             yield return new WaitForSecondsRealtime(resultDisplayDuration);
             ArchiveManager.Close();
             // ゲーム前の会話を繰り返さず、結果に対応した原文の位置へ戻る。
-            NovelDialogueController.QueueResumeLineForScene(returnSceneName, resumeLineId, true);
-            SceneManager.LoadScene(returnSceneName, LoadSceneMode.Single);
+            if (!DialogueProgressTransitions.ReturnToScene(returnSceneName, resumeLineId)) returning = false;
         }
 
         private void OnDestroy()

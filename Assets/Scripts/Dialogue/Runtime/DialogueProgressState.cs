@@ -40,4 +40,21 @@ public sealed class DialogueProgressArchive
 {
     public int version = 1;
     public List<DialogueProgressState> entries = new List<DialogueProgressState>();
+    public List<DialogueProgressSceneEntry> sceneEntries = new List<DialogueProgressSceneEntry>();
+}
+
+public enum DialogueProgressEntryMode
+{
+    OverrideSavedProgress,
+    PreferSavedProgress
+}
+
+/// <summary>A scene's next entry point, stored in the same timeline as its playback history.</summary>
+[Serializable]
+public sealed class DialogueProgressSceneEntry
+{
+    public string scene;
+    public string lineId;
+    public bool fadeIn;
+    public DialogueProgressEntryMode mode;
 }

@@ -3,7 +3,7 @@ $root = Split-Path $PSScriptRoot -Parent
 $rows = Import-Csv (Join-Path $root 'Assets/Dialogue/CSV/Chapter1/chapter1_search.csv')
 $asset = Get-Content (Join-Path $root 'Assets/Dialogue/Data/Chapter1Search.asset') -Raw
 $search = Get-Content (Join-Path $root 'Assets/Scripts/Search/Chapter1SearchController.cs') -Raw
-$dialogue = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$dialogue = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 function Assert-Order($condition, $message) { if (-not $condition) { throw $message } }
 $first = $rows | Where-Object lineId -eq 'search_bookshelf_001'
 $next = $rows | Where-Object lineId -eq $first.nextLineId

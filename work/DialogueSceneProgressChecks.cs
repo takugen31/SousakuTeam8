@@ -93,18 +93,22 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         a = Create(main); yield return null;
         Check(Id(a) == "a4" && affection.GetAffection("kayo") == 17, "departed row replayed or successor effects missing");
         SceneManager.LoadScene(B); yield return null;
-        NovelDialogueController.QueueResumeLineForScene(A, "a6", false);
+        DialogueProgressStore.SetSceneEntry(new DialogueProgressSceneEntry { scene=A, lineId="a6", fadeIn=false });
         // An unrelated dialogue scene must not consume A's result request.
         b = Create(other); yield return null;
         Check(Id(b) == "b2", "targeted request affected the wrong scene");
         SceneManager.LoadScene(A); yield return null;
-        a = Create(main); yield return null;
+        a = Create(main);
+        Check(a.TryGetSceneEntryMusic(out _, out var preview) && preview.lineId == "a6" &&
+            DialogueProgressStore.TryGetSceneEntry(A, out _), "music preview consumed or ignored the progress entry");
+        yield return null;
         Check(Id(a) == "a6", "explicit minigame outcome did not override saved scene cursor");
+        Check(!DialogueProgressStore.TryGetSceneEntry(A, out _), "entry point was not consumed after restoration");
         Debug.Log("PASS: passed transition resumes at successor without replaying game; explicit result requests are scoped to destination and override scene history.");
 
         SceneManager.LoadScene(B); yield return null;
-        NovelDialogueController.QueueResumeLineForScene(A, "a5", false);
-        SceneManager.LoadScene(A); yield return null;
+        Check(DialogueProgressTransitions.ReturnToScene(A, "a5", false), "new transition API did not load the destination");
+        yield return null;
         a = Create(main); yield return null; Complete(a); yield return null;
         Check((bool)Get(a, "isChoiceSelectionOpen"), "choice not opened");
         SceneManager.LoadScene(B); yield return null;
@@ -127,8 +131,8 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
 
         DialogueProgressStore.Enabled = false;
         SceneManager.LoadScene(B); yield return null;
-        NovelDialogueController.QueueResumeLineForScene(A, "a6", false);
-        SceneManager.LoadScene(A); yield return null;
+        Check(DialogueProgressTransitions.ReturnToScene(A, "a6", false), "OFF blocked scene navigation");
+        yield return null;
         a = Create(main); yield return null;
         Check(Id(a) == "a1", "OFF did not ignore saved cursor and explicit request");
         Complete(a); a.Advance(); yield return null;
@@ -137,6 +141,23 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         SceneManager.LoadScene(A); yield return null;
         a = Create(main); yield return null;
         Check(Id(a) == "a2", "OFF/ON did not start recording the current session");
+        SceneManager.LoadScene(B); yield return null;
+        Check(DialogueProgressTransitions.ReturnToScene(A, "a6", false, DialogueProgressEntryMode.PreferSavedProgress), "history-first return failed");
+        yield return null;
+        a=Create(main); yield return null;
+        Check(Id(a)=="a2", "history-first return used its fallback despite saved progress");
+        Debug.Log("PASS: unified progress transitions load scenes with ON/OFF, prefer saved history when requested, and consume entry points only after successful entry; music preview is read-only.");
+        string savedKey=(string)Get(a,"progressKey");
+        Check(DialogueProgressStore.TryGet(savedKey,out var oldState), "missing history for compatibility fixture");
+        PlayerPrefs.SetString("Dialogue.SceneProgress.v1", JsonUtility.ToJson(new LegacyArchive { entries = new List<DialogueProgressState>{oldState} }));
+        typeof(DialogueProgressStore).GetField("entries", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null,null);
+        Check(DialogueProgressStore.TryGet(savedKey,out _) && !DialogueProgressStore.TryGetSceneEntry(A,out _), "v1 history without scene entry data failed to load");
+        DialogueProgressStore.SetSceneEntry(new DialogueProgressSceneEntry { scene=A, lineId="a6" });
+        DialogueProgressStore.SetSceneEntry(new DialogueProgressSceneEntry { scene=B, lineId="b2" });
+        typeof(DialogueProgressStore).GetField("entries", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null,null);
+        Check(DialogueProgressStore.TryGetSceneEntry(A,out var pointA) && pointA.lineId=="a6" &&
+            DialogueProgressStore.TryGetSceneEntry(B,out var pointB) && pointB.lineId=="b2", "scene entry points overwrite each other or fail JSON reload");
+        Debug.Log("PASS: existing v1 playback history loads without scene entries; multiple scene destinations persist independently in the shared archive.");
         GameProgress.ResetAll();
         SceneManager.LoadScene(B); yield return null;
         SceneManager.LoadScene(A); yield return null;
@@ -224,6 +245,13 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         text="A long dialogue line for checking the exact character cursor when returning to this scene. " + id,
         affectionChanges = delta == 0 ? new List<AffectionDelta>() : new List<AffectionDelta> { new AffectionDelta { characterId="kayo", value=delta } }
     };
+
+    [Serializable]
+    private sealed class LegacyArchive
+    {
+        public int version=1;
+        public List<DialogueProgressState> entries;
+    }
 
     private NovelDialogueController Create(DialogueScenarioSO scenario, string id="main", bool autoStart=true)
     {
