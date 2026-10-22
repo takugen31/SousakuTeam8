@@ -28,7 +28,7 @@ namespace SousakuTeam8.MeterGame.Timing
         [Min(0f), InspectorName("結果を表示する秒数")] public float resultDisplaySeconds = 1f;
         [InspectorName("結果アニメーションを有効化")] public bool animateResults = true;
         [Range(0f, 0.15f), InspectorName("結果アニメーションの拡縮量")] public float resultScaleAmount = 0.035f;
-        [Min(0f), InspectorName("成功時の輝きの回数")] public float successFlashCount = 3f;
+        [Min(0f), InspectorName("成功時の輝きの回数")] public float successFlashCount = 1f;
 
         [Header("セット間のフェード")]
         [InspectorName("フェードを有効化")] public bool useFade = true;

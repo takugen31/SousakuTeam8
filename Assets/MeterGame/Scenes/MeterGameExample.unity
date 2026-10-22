@@ -457,7 +457,7 @@ MonoBehaviour:
     resultDisplaySeconds: 1
     animateResults: 1
     resultScaleAmount: 0.035
-    successFlashCount: 3
+    successFlashCount: 1
     useFade: 1
     fadeOutSeconds: 0.25
     fadeHoldSeconds: 0.1

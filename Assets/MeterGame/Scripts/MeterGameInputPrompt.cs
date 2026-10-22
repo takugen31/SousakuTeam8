@@ -26,6 +26,8 @@ namespace SousakuTeam8.MeterGame
 
         public void SetPresentation(bool visible, string message)
         {
+            if (!externalPresentation || externalVisible != visible || externalMessage != message)
+                elapsed = 0f;
             externalPresentation = true;
             externalVisible = visible;
             externalMessage = message;
@@ -49,7 +51,10 @@ namespace SousakuTeam8.MeterGame
 
             label.text = externalPresentation ? externalMessage :
                 controller != null && controller.InputMode == MeterInputMode.Hold ? holdMessage : pressMessage;
-            elapsed = Mathf.Repeat(elapsed + Time.unscaledDeltaTime, emphasisInterval);
+            // Externally supplied instructions/results animate once per message.
+            elapsed = externalPresentation
+                ? Mathf.Min(elapsed + Time.unscaledDeltaTime, emphasisDuration)
+                : Mathf.Repeat(elapsed + Time.unscaledDeltaTime, emphasisInterval);
             float phase = Mathf.Clamp01(elapsed / emphasisDuration);
             float pulse = Mathf.Sin(phase * Mathf.PI);
             pulse *= pulse;
