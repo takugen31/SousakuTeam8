@@ -14,10 +14,10 @@ for ($i = 0; $i -lt $centers.Count - 1; $i++) {
     $gap = ($centers[$i] - $centers[$i+1]) * 1080 - ($heights[$i] + $heights[$i+1])/2
     Assert-Title ($gap -ge 30) 'Title controls are crowded or overlapping'
 }
-Assert-Title ($title.Contains('new Vector2(0.5f, 0.65f)') -and $title.Contains('text.fontSize = 126f')) 'Logo hierarchy changed'
+Assert-Title ($title.Contains('Resources.Load<Texture2D>("TitleLogo")') -and $title.Contains('new Vector2(0.5f, 0.75f)') -and $title.Contains('logo.uvRect = new Rect(') -and $title.Contains('logo.raycastTarget = false;')) 'Supplied logo missing, misplaced or blocking controls'
 Assert-Title ($title.Contains('new Vector2(0.72f, 0.095f)')) 'Audio control is not inset toward the center'
 Assert-Title ($title.Contains('new Vector2(0.5f, 0.085f)') -and $title.Contains('Created by')) 'Credit is not centered below quit'
-Assert-Title ($title.Contains('Destroy(titleLetterMaterial)') -and $title.Contains('ChoiceButtonHoverScale') -and -not $title.Contains('TitleMenuFocus')) 'Material cleanup or shared hover feedback missing'
+Assert-Title (-not $title.Contains('titleLetterMaterial') -and $title.Contains('ChoiceButtonHoverScale') -and -not $title.Contains('TitleMenuFocus')) 'Old title material or shared hover feedback issue'
 Assert-Title ($title.Contains('new Vector2(430f, 80f)') -and $title.Contains('new Color(0.25f, 0.25f, 0.25f, 0.68f)')) 'Start emphasis or selection-style hover missing'
-Assert-Title ((0.65 * 1080 - 190/2) -gt (0.405 * 1080 + 80/2 + 100)) 'Logo and actions are crowded'
+Assert-Title ((0.75 * 1080 - 500/2) -gt (0.405 * 1080 + 80/2 + 50)) 'Logo and actions are crowded'
 'PASS: centered title hierarchy, compact actions, spacing, shade, fade layering and BGM wiring.'

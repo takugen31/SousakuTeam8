@@ -16,7 +16,6 @@ public class TitleMenu : MonoBehaviour
 
     private bool isTransitioning = false;
     private TMP_Text bgmLabel;
-    private Material titleLetterMaterial;
 
     private void Awake()
     {
@@ -80,28 +79,7 @@ public class TitleMenu : MonoBehaviour
         {
             if (text.name == "TitleText")
             {
-                text.transform.SetParent(canvas.transform, false);
-                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.65f), new Vector2(1000f, 190f));
-                text.color = Color.white;
-                text.font = font;
-                text.text = text.text.Replace("♡", "<color=#F2BACB>♡</color>");
-                text.richText = true;
-                text.characterSpacing = 4f;
-                text.fontSize = 126f;
-                text.enableAutoSizing = false;
-                text.fontStyle = FontStyles.Normal;
-                text.alignment = TextAlignmentOptions.Center;
-                text.textWrappingMode = TextWrappingModes.NoWrap;
-                text.raycastTarget = false;
-                titleLetterMaterial = new Material(text.fontSharedMaterial);
-                titleLetterMaterial.SetColor(ShaderUtilities.ID_OutlineColor, new Color(0.05f, 0.16f, 0.30f, 0.7f));
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.09f);
-                titleLetterMaterial.EnableKeyword("UNDERLAY_ON");
-                titleLetterMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0.02f, 0.08f, 0.18f, 0.45f));
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.6f);
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.6f);
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.25f);
-                text.fontSharedMaterial = titleLetterMaterial;
+                text.gameObject.SetActive(false);
             }
             else if (text.name == "TeamText")
             {
@@ -121,8 +99,7 @@ public class TitleMenu : MonoBehaviour
             }
         }
 
-        Image rule = CreateTitlePanel("TitleRule", canvas.transform, new Color(1f, 1f, 1f, 0.38f));
-        PlaceTitleRect(rule.rectTransform, new Vector2(0.5f, 0.535f), new Vector2(360f, 1.5f));
+        ConfigureTitleLogo(canvas);
 
         foreach (Toggle toggle in canvas.GetComponentsInChildren<Toggle>(true))
             if (toggle.name == "BGMToggle") toggle.gameObject.SetActive(false);
@@ -144,9 +121,25 @@ public class TitleMenu : MonoBehaviour
         if (fadePanel != null) fadePanel.transform.SetAsLastSibling();
     }
 
-    private void OnDestroy()
+    private static void ConfigureTitleLogo(Canvas canvas)
     {
-        if (titleLetterMaterial != null) Destroy(titleLetterMaterial);
+        Texture2D texture = Resources.Load<Texture2D>("TitleLogo");
+        if (texture == null)
+        {
+            Debug.LogError("タイトルロゴ画像が見つかりません。");
+            return;
+        }
+        var logoObject = new GameObject("TitleLogo", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+        logoObject.transform.SetParent(canvas.transform, false);
+        RawImage logo = logoObject.GetComponent<RawImage>();
+        logo.texture = texture;
+        logo.raycastTarget = false;
+        // Visible bounds of the supplied 3508 x 2480 PNG, with two pixels of padding.
+        // Crop only the UI's UVs so the original artwork and transparency stay intact.
+        Rect artwork = new Rect(346f, 475f, 2380f, 1537f);
+        logo.uvRect = new Rect(artwork.x / 3508f, artwork.y / 2480f, artwork.width / 3508f, artwork.height / 2480f);
+        float scale = Mathf.Min(880f / artwork.width, 500f / artwork.height);
+        PlaceTitleRect(logo.rectTransform, new Vector2(0.5f, 0.75f), new Vector2(artwork.width, artwork.height) * scale);
     }
 
     private static Image CreateTitlePanel(string name, Transform parent, Color color)
