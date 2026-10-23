@@ -314,7 +314,7 @@ namespace SousakuTeam8.PuzzleGame
             var title = CreateText("Title", _header, "パズル", 44, FontStyle.Normal, TextAnchor.MiddleCenter, PrimaryTextColor);
             _titleRect = title.rectTransform;
 
-            var subtitle = CreateText("Subtitle", _header, "9枚のピースを並べて、絵を完成させよう", 22, FontStyle.Normal, TextAnchor.MiddleLeft, SecondaryTextColor);
+            var subtitle = CreateText("Subtitle", _header, "9枚のピースを並べて、日記を完成させよう", 22, FontStyle.Normal, TextAnchor.MiddleLeft, SecondaryTextColor);
             _subtitleRect = subtitle.rectTransform;
             subtitle.horizontalOverflow = HorizontalWrapMode.Wrap;
             subtitle.resizeTextForBestFit = true;
