@@ -71,9 +71,9 @@ public class TitleMenu : MonoBehaviour
         shade.rectTransform.anchorMax = Vector2.one;
         shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
         shade.gameObject.AddComponent<TitleBottomShade>();
-        ConfigureTitleButton(start, canvas.transform, 0.405f, 32f, new Vector2(430f, 80f));
-        ConfigureTitleButton(load, canvas.transform, 0.265f, 30f, new Vector2(350f, 66f));
-        if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.17f, 30f, new Vector2(350f, 66f));
+        ConfigureTitleButton(start, canvas.transform, 0.28f, 32f, new Vector2(430f, 72f));
+        ConfigureTitleButton(load, canvas.transform, 0.19f, 30f, new Vector2(350f, 60f));
+        if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.105f, 30f, new Vector2(350f, 56f));
 
         foreach (TMP_Text text in canvas.GetComponentsInChildren<TMP_Text>(true))
         {
@@ -84,7 +84,7 @@ public class TitleMenu : MonoBehaviour
             else if (text.name == "TeamText")
             {
                 text.transform.SetParent(canvas.transform, false);
-                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.085f), new Vector2(470f, 64f));
+                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.035f), new Vector2(470f, 40f));
                 text.color = new Color(0.035f, 0.09f, 0.14f, 0.85f);
                 text.font = font;
                 text.text = "<size=15>Created by</size>\n<size=21>新入生創作祭8班</size>";
@@ -111,8 +111,8 @@ public class TitleMenu : MonoBehaviour
         bgmLabel = labelObject.GetComponent<TextMeshProUGUI>();
         bgmLabel.font = font;
         bgmLabel.text = "BGM：" + (bgmSource != null && bgmSource.mute ? "OFF" : "ON");
-        ConfigureTitleButton(audioButton, canvas.transform, 0.095f, 21f, new Vector2(200f, 48f));
-        PlaceTitleRect(audioControl.rectTransform, new Vector2(0.72f, 0.095f), new Vector2(200f, 48f));
+        ConfigureTitleButton(audioButton, canvas.transform, 0.045f, 21f, new Vector2(200f, 44f));
+        PlaceTitleRect(audioControl.rectTransform, new Vector2(0.76f, 0.045f), new Vector2(200f, 44f));
         audioButton.onClick.AddListener(() =>
         {
             if (isTransitioning || ArchiveManager.IsOpen || bgmSource == null) return;
@@ -138,8 +138,8 @@ public class TitleMenu : MonoBehaviour
         // Crop only the UI's UVs so the original artwork and transparency stay intact.
         Rect artwork = new Rect(346f, 475f, 2380f, 1537f);
         logo.uvRect = new Rect(artwork.x / 3508f, artwork.y / 2480f, artwork.width / 3508f, artwork.height / 2480f);
-        float scale = Mathf.Min(880f / artwork.width, 500f / artwork.height);
-        PlaceTitleRect(logo.rectTransform, new Vector2(0.5f, 0.75f), new Vector2(artwork.width, artwork.height) * scale);
+        float scale = Mathf.Min(880f / artwork.width, 520f / artwork.height);
+        PlaceTitleRect(logo.rectTransform, new Vector2(0.5f, 0.595f), new Vector2(artwork.width, artwork.height) * scale);
     }
 
     private static Image CreateTitlePanel(string name, Transform parent, Color color)
