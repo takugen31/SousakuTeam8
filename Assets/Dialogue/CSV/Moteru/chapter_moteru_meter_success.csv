@@ -1,0 +1,16 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath,notes
+chapter_moteru_meter_success_001,moteru,normal,Assets/Art/Backgrounds/white_room.png,かえしてよ、ドウテくんっ！,chapter_moteru_meter_success_002,,,,,
+chapter_moteru_meter_success_002,doute,normal,,悪いがこいつを渡すわけにはいかないんだ……！すまんモテルっ！,chapter_moteru_meter_success_003,,,,,
+chapter_moteru_meter_success_003,moteru,normal,,～っ！こ、こうなったうえは……ていやっ！,chapter_moteru_meter_success_004,,,,,
+chapter_moteru_meter_success_004,doute,normal,,な、何を……ってどわあっ！,chapter_moteru_meter_success_005,,,,,
+chapter_moteru_meter_success_005,,,,（モテルがこちらに突進してきた！やばっこのまま倒れ……！）,chapter_moteru_meter_success_006,,,,,
+chapter_moteru_meter_success_006,,,,ドンガラガッシャーン！！！,chapter_moteru_meter_success_007,,,,,
+chapter_moteru_meter_success_007,doute,normal,,モテル、大丈……ぶ……,chapter_moteru_meter_success_008,,,,,
+chapter_moteru_meter_success_008,doute,normal,,……へ,chapter_moteru_meter_success_009,,,,,モテルがドウテを押し倒しているスチル（素材未指定）
+chapter_moteru_meter_success_009,moteru,normal,,………………,chapter_moteru_meter_success_010,,,,,
+chapter_moteru_meter_success_010,doute,normal,,えっと、モテル、大丈夫か？,chapter_moteru_meter_success_011,,,,,
+chapter_moteru_meter_success_011,moteru,normal,,？？？え、わ、…………,chapter_moteru_meter_success_012,,,,,
+chapter_moteru_meter_success_012,moteru,normal,,きゅう,chapter_moteru_meter_success_013,,,,,
+chapter_moteru_meter_success_013,,,,（ドターン！）,chapter_moteru_meter_success_014,,,,,
+chapter_moteru_meter_success_014,doute,normal,,モテル——！！！,chapter_moteru_meter_success_015,,,,,
+chapter_moteru_meter_success_015,,,,（顔を真っ赤にさせて気絶してしまった……。まぁ日記は守れたし、一旦寝かせておいても大丈夫……だよな？）,,,,,Assets/Scenes/GameMap/NovelScene_Moteru.unity,
