@@ -4,38 +4,43 @@ namespace SousakuTeam8.MeterGame.Timing
 {
     public enum TimingRoundResult { Playing, Success, Failure }
 
-    /// <summary>One rising gauge. Input is evaluated at the end of the supplied time step.</summary>
+    /// <summary>A gauge that bounces between zero and one until a press resolves the set.</summary>
     public sealed class TimingRoundState
     {
         public float FillPerSecond { get; }
         public float SuccessZoneStart { get; }
-        public float GraceSeconds { get; }
-        public float ElapsedSeconds { get; private set; }
+        public float SuccessZoneEnd { get; }
+        private double elapsedSeconds;
+        public float ElapsedSeconds => (float)elapsedSeconds;
         public float FillDuration => 1f / FillPerSecond;
-        public float Deadline => FillDuration + GraceSeconds;
-        public float Gauge => Mathf.Clamp01(ElapsedSeconds * FillPerSecond);
-        public float RemainingSeconds => Mathf.Max(0f, Deadline - ElapsedSeconds);
+        public float Gauge
+        {
+            get
+            {
+                double phase = elapsedSeconds * FillPerSecond % 2d;
+                return (float)(phase <= 1d ? phase : 2d - phase);
+            }
+        }
         public TimingRoundResult Result { get; private set; }
 
-        public TimingRoundState(float fillPerSecond, float successZoneStart, float graceSeconds)
+        public TimingRoundState(float fillPerSecond, float successZoneStart, float successZoneEnd = 1f)
         {
             FillPerSecond = Mathf.Max(0.01f, fillPerSecond);
-            SuccessZoneStart = Mathf.Clamp01(successZoneStart);
-            GraceSeconds = Mathf.Max(0f, graceSeconds);
+            float start = Mathf.Clamp01(successZoneStart);
+            float end = Mathf.Clamp01(successZoneEnd);
+            SuccessZoneStart = Mathf.Min(start, end);
+            SuccessZoneEnd = Mathf.Max(start, end);
         }
 
         public void Tick(float deltaTime, bool pressed)
         {
             if (Result != TimingRoundResult.Playing || deltaTime < 0f) return;
-            float inputTime = ElapsedSeconds + deltaTime;
-            ElapsedSeconds = Mathf.Min(inputTime, Deadline);
+            elapsedSeconds += deltaTime;
             if (pressed)
             {
-                bool insideWindow = Gauge + 0.000001f >= SuccessZoneStart && inputTime <= Deadline + 0.000001f;
-                Result = insideWindow ? TimingRoundResult.Success : TimingRoundResult.Failure;
+                bool inside = Gauge + 0.000001f >= SuccessZoneStart && Gauge <= SuccessZoneEnd + 0.000001f;
+                Result = inside ? TimingRoundResult.Success : TimingRoundResult.Failure;
             }
-            else if (inputTime >= Deadline)
-                Result = TimingRoundResult.Failure;
         }
     }
 }

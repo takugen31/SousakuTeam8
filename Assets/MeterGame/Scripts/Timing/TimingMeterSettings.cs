@@ -11,12 +11,12 @@ namespace SousakuTeam8.MeterGame.Timing
         [Min(1), InspectorName("必要成功数 m（n未満）")] public int requiredSuccesses = 3;
 
         [Header("ゲージと判定（次のセットから反映）")]
-        [Min(0.01f), InspectorName("ゲージ増加量 / 秒"), Tooltip("0.4なら2.5秒で0からMAXへ到達")]
+        [Min(0.01f), InspectorName("ゲージ移動量 / 秒"), Tooltip("0.4なら片道2.5秒、往復5秒。増加・減少は同じ速度")]
         public float fillPerSecond = 0.4f;
-        [Range(0f, 1f), InspectorName("成功範囲の開始位置"), Tooltip("0.9なら90%〜100%で成功")]
-        public float successZoneStart = 0.9f;
-        [Min(0f), InspectorName("MAX到達後の猶予秒数")]
-        public float maximumGraceSeconds = 0.35f;
+        [Range(0.01f, 1f), InspectorName("成功範囲の幅"), Tooltip("バー全体に対する幅。0.1なら10%。位置はセットごとに自動抽選")]
+        public float successZoneWidth = 0.1f;
+        [Range(0f, 0.5f), InspectorName("前セットからの最小移動割合"), Tooltip("配置可能な移動幅に対する割合。0.1なら配置可能幅の10%以上離す。0なら制限なし")]
+        public float minimumPositionChange = 0.1f;
         [InspectorName("セットごとの速度をランダム化")] public bool randomizeSpeed;
         [Min(0.01f), InspectorName("ランダム速度の最小倍率")] public float minimumSpeedMultiplier = 0.85f;
         [Min(0.01f), InspectorName("ランダム速度の最大倍率")] public float maximumSpeedMultiplier = 1.15f;
@@ -41,8 +41,8 @@ namespace SousakuTeam8.MeterGame.Timing
             setCount = Mathf.Max(2, setCount);
             requiredSuccesses = Mathf.Clamp(requiredSuccesses, 1, setCount - 1);
             fillPerSecond = Mathf.Max(0.01f, fillPerSecond);
-            successZoneStart = Mathf.Clamp01(successZoneStart);
-            maximumGraceSeconds = Mathf.Max(0f, maximumGraceSeconds);
+            successZoneWidth = Mathf.Clamp(successZoneWidth, 0.01f, 1f);
+            minimumPositionChange = Mathf.Clamp(minimumPositionChange, 0f, 0.5f);
             minimumSpeedMultiplier = Mathf.Max(0.01f, minimumSpeedMultiplier);
             maximumSpeedMultiplier = Mathf.Max(minimumSpeedMultiplier, maximumSpeedMultiplier);
             speedIncreasePerSet = Mathf.Max(0f, speedIncreasePerSet);

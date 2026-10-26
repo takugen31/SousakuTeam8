@@ -9,10 +9,12 @@ namespace SousakuTeam8.MeterGame.Timing
     {
         private readonly TimingMeterSettings settings;
         private readonly Random random;
+        private readonly Random positionRandom;
         private readonly List<TimingRoundResult> results = new List<TimingRoundResult>();
         private bool roundRecorded;
         public int SetCount { get; }
         public int RequiredSuccesses { get; }
+        public int RandomSeed { get; }
         public int CurrentSetNumber { get; private set; } = 1;
         public int SuccessCount { get; private set; }
         public bool IsFinished => results.Count == SetCount;
@@ -26,7 +28,10 @@ namespace SousakuTeam8.MeterGame.Timing
             settings.Validate();
             SetCount = settings.setCount;
             RequiredSuccesses = settings.requiredSuccesses;
-            random = new Random(settings.randomSeed == 0 ? Guid.NewGuid().GetHashCode() : settings.randomSeed);
+            RandomSeed = settings.randomSeed == 0 ? Guid.NewGuid().GetHashCode() : settings.randomSeed;
+            random = new Random(RandomSeed);
+            // Keep placement reproducible even when speed randomization is toggled.
+            positionRandom = new Random(RandomSeed ^ 0x5f3759df);
             Results = results.AsReadOnly();
             CreateRound();
         }
@@ -56,8 +61,28 @@ namespace SousakuTeam8.MeterGame.Timing
                 ? settings.minimumSpeedMultiplier + (settings.maximumSpeedMultiplier - settings.minimumSpeedMultiplier) * (float)random.NextDouble()
                 : 1f;
             float rate = settings.fillPerSecond * variation * (1f + settings.speedIncreasePerSet * (CurrentSetNumber - 1));
-            Round = new TimingRoundState(rate, settings.successZoneStart, settings.maximumGraceSeconds);
+            float start = PickZoneStart();
+            Round = new TimingRoundState(rate, start, start + settings.successZoneWidth);
             roundRecorded = false;
+        }
+
+        private float PickZoneStart()
+        {
+            double available = 1d - settings.successZoneWidth;
+            if (available <= 0d) return 0f;
+            if (Round == null || settings.minimumPositionChange <= 0f)
+                return (float)(positionRandom.NextDouble() * available);
+
+            double previous = Math.Min(Round.SuccessZoneStart, available);
+            double distance = available * settings.minimumPositionChange;
+            double leftLength = Math.Max(0d, previous - distance);
+            double rightStart = Math.Min(available, previous + distance);
+            double rightLength = available - rightStart;
+            double total = leftLength + rightLength;
+            // At the largest separation, a centered previous zone leaves only the two ends.
+            if (total <= 0d) return positionRandom.Next(2) == 0 ? 0f : (float)available;
+            double sample = positionRandom.NextDouble() * total;
+            return (float)(sample < leftLength ? sample : rightStart + sample - leftLength);
         }
     }
 }
