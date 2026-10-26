@@ -25,7 +25,9 @@
 - バー内の枠：成功タイミングの範囲。既定の幅は10%、位置はセットごとに抽選。
 - 白いカーソル：自動で増減する現在のゲージ量。
 - 右のハート：必要成功数に対する達成率。必要成功数に達すると100%になるが、残りセットは続く。
-- 上部：現在のセット番号、成功回数 / 必要成功数、各セットの「成功！」「失敗…」、最終結果。
+- 上部：現在のセット番号、成功回数 / 必要成功数、各セットの「成功！」「失敗…」。
+- 最終結果：全セット終了後のフェード後に、半透明な黒背景（最前面）とともに画面中央へ表示する。
+- 画面下部（横軸の1/4・3/4）にはデフォルメキャラクターを常時表示し、背景の前面・結果オーバーレイの後面に配置する。一定時間ごとに左右へ揺らし、結果表示に遷移すると徐々に直立へ収束して停止する。カヨは揺れの向きに合わせて deformed_kayo_1 / deformed_kayo_2 を切り替える。
 - 成功時：金色の輝きと拡大のアニメーション。
 - 失敗時：紫・青色への変化と沈むような影・縮小のアニメーション。
 - 結果表示 → UIのフェードアウト → 非表示で待機 → 次セットを0で準備 → フェードイン → 操作受付を再開。
@@ -81,9 +83,10 @@ Controllerの **On Set Success / On Set Failure** は各セットの判定時に
 | `Scripts/Timing/TimingSessionState.cs` | nセットの結果記録、必要成功数、成功範囲の位置・速度の抽選 |
 | `Scripts/Timing/TimingSpaceInput.cs` | Spaceの新規押下検出 |
 | `Scripts/Timing/TimingMeterController.cs` | セット進行とイベント・演出の制御 |
-| `Scripts/Timing/TimingMeterPresenter.cs` | バー・ハート・案内・経過時間への反映 |
+| `Scripts/Timing/TimingMeterPresenter.cs` | バー・ハート・案内・経過時間・最終結果オーバーレイへの反映 |
 | `Scripts/Timing/TimingMeterFeedback.cs` | 成功・失敗の色、拡縮、輝き |
 | `Scripts/Timing/TimingMeterTransition.cs` | CanvasGroupによるフェード |
+| `Scripts/Timing/TimingChibiSway.cs` | 結果画面のキャラクターを左右に揺らし、向きに合わせて画像を切替 |
 | `Editor/TimingMeterControllerEditor.cs` | 調整方法の案内、実行中の状態表示、再スタートボタン |
 | `Scripts/MeterGameBarView.cs` | 両ゲーム共通のバー描画 |
 | `Scripts/MeterGameInputPrompt.cs` | 両ゲーム共通の案内文字の強調 |
