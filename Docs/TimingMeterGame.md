@@ -6,6 +6,8 @@
 既存のゲージ維持型は `Assets/MeterGame/Scenes/TensionManagementMinigame.unity`。
 専用のコード・素材・テストはすべて `Assets/MeterGame/` 配下に配置する。
 
+`NovelScene_Kayo` / `NovelScene_Moteru` / `NovelScene_Yowashi` の各シーンに配置した `TimingMeterGameEntryController` が、会話からの遷移時に戻り先シーン・キャラクター・再開行を予約する。`TimingMeterGame` 側の `TimingMeterGameFlowController` が予約を受け取り、結果表示後に待機＋フェードで元のシーンへ戻す（待機2秒・フェード0.8秒）。直接Playした場合は単体起動としてカヨ表示のまま戻り遷移しない。
+
 ## ルール
 
 - 各セットでゲージが0から自動で増え、Spaceを押すまでMAX → 0 → MAXと往復し続ける。増加・減少は同じ一定速度で、端では待たずに折り返す。既定は毎秒0.4、片道2.5秒・往復5秒。
@@ -27,7 +29,7 @@
 - 右のハート：必要成功数に対する達成率。必要成功数に達すると100%になるが、残りセットは続く。
 - 上部：現在のセット番号、成功回数 / 必要成功数、各セットの「成功！」「失敗…」。
 - 最終結果：全セット終了後のフェード後に、半透明な黒背景（最前面）とともに画面中央へ表示する。
-- 画面下部（横軸の1/4・3/4）にはデフォルメキャラクターを常時表示し、背景の前面・結果オーバーレイの後面に配置する。一定時間ごとに左右へ揺らし、結果表示に遷移すると徐々に直立へ収束して停止する。カヨは揺れの向きに合わせて deformed_kayo_1 / deformed_kayo_2 を切り替える。
+- 画面下部（横軸の1/4・3/4）にはデフォルメキャラクターを常時表示し、背景の前面・結果オーバーレイの後面に配置する。一定時間ごとに左右へ揺らし、結果表示に遷移すると徐々に直立へ収束して停止する。1/4はドウテ固定、3/4は遷移元に応じてカヨ・モテル・ヨワシを切り替える。カヨは `deformed_kayo_1` / `deformed_kayo_2`、モテルは `deformed_moteru_1` / `deformed_moteru_2` を揺れの向きに合わせて切り替え、ヨワシは `deformed_yowashi` 単一のため切り替えず揺れる。
 - 成功時：金色の輝きと拡大のアニメーション。
 - 失敗時：紫・青色への変化と沈むような影・縮小のアニメーション。
 - 結果表示 → UIのフェードアウト → 非表示で待機 → 次セットを0で準備 → フェードイン → 操作受付を再開。
@@ -86,7 +88,9 @@ Controllerの **On Set Success / On Set Failure** は各セットの判定時に
 | `Scripts/Timing/TimingMeterPresenter.cs` | バー・ハート・案内・経過時間・最終結果オーバーレイへの反映 |
 | `Scripts/Timing/TimingMeterFeedback.cs` | 成功・失敗の色、拡縮、輝き |
 | `Scripts/Timing/TimingMeterTransition.cs` | CanvasGroupによるフェード |
-| `Scripts/Timing/TimingChibiSway.cs` | 結果画面のキャラクターを左右に揺らし、向きに合わせて画像を切替 |
+| `Scripts/Timing/TimingChibiSway.cs` | キャラクターを左右に揺らし、向きに合わせて画像を切替 |
+| `Scripts/Search/TimingMeterGameFlowController.cs` | 会話シーンからの予約を受け取り、キャラクター切替と結果後の戻り遷移を制御 |
+| `Scripts/Search/TimingMeterGameEntryController.cs` | 会話シーン側でメーターゲームへの遷移時に戻り先を予約 |
 | `Editor/TimingMeterControllerEditor.cs` | 調整方法の案内、実行中の状態表示、再スタートボタン |
 | `Scripts/MeterGameBarView.cs` | 両ゲーム共通のバー描画 |
 | `Scripts/MeterGameInputPrompt.cs` | 両ゲーム共通の案内文字の強調 |

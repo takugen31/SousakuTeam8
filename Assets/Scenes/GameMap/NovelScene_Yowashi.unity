@@ -691,6 +691,7 @@ GameObject:
   - component: {fileID: 1633669556}
   - component: {fileID: 1633669557}
   - component: {fileID: 1633669558}
+  - component: {fileID: 1633669559}
   m_Layer: 5
   m_Name: DialogueController
   m_TagString: Untagged
@@ -715,6 +716,24 @@ MonoBehaviour:
   puzzleEntryLineId: chapter_yowashi_1_035
   diaryResumeLineId: chapter_yowashi_diary_001
   diaryPuzzleImage: {fileID: 0}
+--- !u!114 &1633669559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633669555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2a3f4e5d6c7b8a99092b3c4d5e6f708, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TimingMeterGameEntryController
+  dialogueController: {fileID: 1633669557}
+  meterSceneName: TimingMeterGame
+  meterEntryLineId: 
+  characterId: yowashi
+  successResumeLineId: 
+  failureResumeLineId: 
 --- !u!224 &1633669556
 RectTransform:
   m_ObjectHideFlags: 0
