@@ -173,6 +173,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     [SerializeField] private bool normalizeBustPortraitSizes;
     [SerializeField] private bool mirrorDoutePortrait;
+    [SerializeField, Min(0.01f)] private float doutePortraitScale = 0.68f;
+    private bool leftPortraitBaseCaptured;
+    private Vector2 leftPortraitBasePosition;
+    private Vector3 leftPortraitBaseScale;
     [SerializeField, Min(0.01f)] private float kayoPortraitScale = 1.0f;
     [SerializeField] private float kayoPortraitUpwardOffset = 0.09f;
     private bool rightPortraitBaseCaptured;
@@ -796,7 +800,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         bodyText = dialogueText;
         omitOuterDialogueQuotes = true;
         normalizeBustPortraitSizes = true;
-        mirrorDoutePortrait = true;
+        mirrorDoutePortrait = false;
         leftPortraitImage = leftPortrait;
         rightPortraitImage = rightPortrait;
         playbackControlsRoot = null;
@@ -3139,10 +3143,21 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ApplyProtagonistFacing()
     {
-        if (!mirrorDoutePortrait || protagonistCharacterId != "doute" || leftPortraitImage == null) return;
-        Vector3 scale = leftPortraitImage.rectTransform.localScale;
-        scale.x = -Mathf.Abs(scale.x);
-        leftPortraitImage.rectTransform.localScale = scale;
+        if (protagonistCharacterId != "doute" || leftPortraitImage == null) return;
+        RectTransform rect = leftPortraitImage.rectTransform;
+        if (!leftPortraitBaseCaptured)
+        {
+            leftPortraitBasePosition = rect.anchoredPosition;
+            leftPortraitBaseScale = rect.localScale;
+            leftPortraitBaseCaptured = true;
+        }
+        float factor = normalizeBustPortraitSizes ? doutePortraitScale : 1f;
+        Vector3 scale = leftPortraitBaseScale * factor;
+        scale.x = Mathf.Abs(scale.x) * (mirrorDoutePortrait ? -1f : 1f);
+        rect.localScale = scale;
+        // Keep the head at the same height while matching the other portraits' scale.
+        rect.anchoredPosition = leftPortraitBasePosition + Vector2.up *
+            (rect.rect.height * (1f - rect.pivot.y) * leftPortraitBaseScale.y * (1f - factor));
     }
 
     private void ResetPortraitsForScenario()
