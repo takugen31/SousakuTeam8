@@ -23,8 +23,11 @@ public sealed class TimingMeterGameFlowController : MonoBehaviour
     private const string PendingReturnKey = "TimingMeter.PendingReturn.v1";
 
     private static Request pendingRequest;
-    [SerializeField] private Request activeRequest;
+    // Runtime state only: Unity inline serialization can create an empty Request
+    // when this scene is played directly.
+    private Request activeRequest;
     private bool isReturning;
+    private bool resultRecorded;
 
     [System.Serializable]
     private sealed class Request
@@ -63,13 +66,16 @@ public sealed class TimingMeterGameFlowController : MonoBehaviour
 
     private void Start()
     {
+        activeRequest = null;
         if (game == null) game = FindFirstObjectByType<TimingMeterController>();
 
         string characterId = "kayo";
         if (pendingRequest == null && PlayerPrefs.HasKey(PendingReturnKey))
             pendingRequest = JsonUtility.FromJson<Request>(PlayerPrefs.GetString(PendingReturnKey));
 
-        if (pendingRequest != null && gameObject.scene.name == pendingRequest.MeterSceneName)
+        if (pendingRequest != null && gameObject.scene.name == pendingRequest.MeterSceneName &&
+            !string.IsNullOrWhiteSpace(pendingRequest.ReturnSceneName) &&
+            Application.CanStreamedLevelBeLoaded(pendingRequest.ReturnSceneName))
         {
             activeRequest = pendingRequest;
             pendingRequest = null;
@@ -83,11 +89,22 @@ public sealed class TimingMeterGameFlowController : MonoBehaviour
 
     private void Update()
     {
-        if (game == null || activeRequest == null || isReturning) return;
-        if (game.Phase != TimingMeterPhase.Complete) return;
+        if (game == null) return;
+        if (game.Phase != TimingMeterPhase.Complete)
+        {
+            resultRecorded = false;
+            return;
+        }
+
+        bool success = game.Session != null && game.Session.IsSuccessful;
+        if (!resultRecorded)
+        {
+            TimingGameResults.Save(activeRequest?.CharacterId, success);
+            resultRecorded = true;
+        }
+        if (activeRequest == null || isReturning) return;
 
         isReturning = true;
-        bool success = game.Session != null && game.Session.IsSuccessful;
         StartCoroutine(ReturnToSource(success));
     }
 
@@ -105,6 +122,11 @@ public sealed class TimingMeterGameFlowController : MonoBehaviour
 
     private IEnumerator ReturnToSource(bool success)
     {
+        // Keep the final result visible unless a valid source scene was reserved.
+        if (activeRequest == null || string.IsNullOrWhiteSpace(activeRequest.ReturnSceneName) ||
+            !Application.CanStreamedLevelBeLoaded(activeRequest.ReturnSceneName))
+            yield break;
+
         yield return new WaitForSecondsRealtime(resultDisplayDuration);
 
         Image overlay = BuildFadeOverlay();

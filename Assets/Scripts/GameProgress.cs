@@ -102,6 +102,8 @@ public static class GameProgress
     /// </summary>
     public static void ResetAll()
     {
+        TimingGameResults.ResetAll();
+        TimingMeterGameFlowController.ResetPendingRequest();
         NovelDialogueController.ResetStoryState();
         PuzzleGameFlowController.ResetPendingRequest();
         PlayerPrefs.DeleteKey(ArchiveSaveKey);

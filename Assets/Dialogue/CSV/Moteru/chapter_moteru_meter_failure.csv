@@ -1,4 +1,4 @@
 lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath,notes
 chapter_moteru_meter_failure_001,moteru,normal,Assets/Art/Backgrounds/white_room.png,かえしてよ、ドウテくんっ！,chapter_moteru_meter_failure_002,,,,,
 chapter_moteru_meter_failure_002,doute,normal,,いやいやさすがに渡せないって……ぶべらっ！,chapter_moteru_meter_failure_003,,,,,
-chapter_moteru_meter_failure_003,,,,（思い切り顔面から転んでしまった！日記は守れたけど痛い……！）,,,,,Assets/Scenes/GameMap/NovelScene_Moteru.unity,
+chapter_moteru_meter_failure_003,,,,（思い切り顔面から転んでしまった！日記は守れたけど痛い……！）,chapter_moteru_5_001,,,,Assets/Scenes/GameMap/NovelScene_Moteru.unity,

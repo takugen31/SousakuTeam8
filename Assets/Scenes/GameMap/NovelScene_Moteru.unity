@@ -752,6 +752,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 99888807a1a947eca129f7c3180e42d6, type: 2}
   - {fileID: 11400000, guid: 5cbd485daba04e03a41886e24695a180, type: 2}
   - {fileID: 11400000, guid: b50468850c92402a96156cecb24996f6, type: 2}
+  - {fileID: 11400000, guid: 102d8f3b6a3246dc9d3ef1e09f0c4bc5, type: 2}
+  - {fileID: 11400000, guid: 5606abd0875f48328dd3bea92a25acbb, type: 2}
   - {fileID: 11400000, guid: 38d2a551960f434a91822659b3ef846a, type: 2}
   - {fileID: 11400000, guid: d3a8d6ccf1a34f8fb5853b1bd6ae6c8c, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
