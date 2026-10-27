@@ -22,6 +22,8 @@ MonoBehaviour:
       portrait: {fileID: 336508224431435947, guid: 940bdae383811264ab11469415714f30, type: 3}
     - expressionId: surprised
       portrait: {fileID: 336508224431435947, guid: 940bdae383811264ab11469415714f30, type: 3}
+    - expressionId: chibi
+      portrait: {fileID: 7400144533266576722, guid: 1143363f80ab428d9c6b9fd94c199b28, type: 3}
   - characterId: kayo
     displayName: "\u30AB\u30E8"
     nameColor: {r: 0.5019608, g: 0.78431374, b: 1, a: 1}
