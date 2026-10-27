@@ -1,0 +1,3 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_kayo_meter_failure_001,doute,normal,Assets/Art/Backgrounds/white_room.png,時間はかかっちゃったけど、なんとか壊すことが出来たぞ……！,chapter_kayo_meter_failure_002,,,,,,,,
+chapter_kayo_meter_failure_002,doute,normal,,カヨちゃん！今のうちにこっちへ！,chapter_kayo_6_001,,,,,,,,Assets/Scenes/GameMap/NovelScene_Kayo.unity

@@ -1,0 +1,6 @@
+{
+  "name": "SousakuTeam8.MeterGame.Editor",
+  "references": ["SousakuTeam8.MeterGame"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

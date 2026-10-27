@@ -195,7 +195,7 @@ MonoBehaviour:
     lineFadeOutDuration: -1
     lineFadeHoldDuration: -1
     lineFadeInDuration: -1
-    nextScenePath: 
+    nextScenePath: Assets/MeterGame/Scenes/TimingMeterGame.unity
     nextLineId: 
     choices: []
     affectionChanges: []
