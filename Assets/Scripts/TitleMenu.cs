@@ -16,7 +16,6 @@ public class TitleMenu : MonoBehaviour
 
     private bool isTransitioning = false;
     private TMP_Text bgmLabel;
-    private Material titleLetterMaterial;
 
     private void Awake()
     {
@@ -72,41 +71,20 @@ public class TitleMenu : MonoBehaviour
         shade.rectTransform.anchorMax = Vector2.one;
         shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
         shade.gameObject.AddComponent<TitleBottomShade>();
-        ConfigureTitleButton(start, canvas.transform, 0.405f, 32f, new Vector2(430f, 80f));
-        ConfigureTitleButton(load, canvas.transform, 0.265f, 30f, new Vector2(350f, 66f));
-        if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.17f, 30f, new Vector2(350f, 66f));
+        ConfigureTitleButton(start, canvas.transform, 0.28f, 32f, new Vector2(430f, 72f));
+        ConfigureTitleButton(load, canvas.transform, 0.19f, 30f, new Vector2(350f, 60f));
+        if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.105f, 30f, new Vector2(350f, 56f));
 
         foreach (TMP_Text text in canvas.GetComponentsInChildren<TMP_Text>(true))
         {
             if (text.name == "TitleText")
             {
-                text.transform.SetParent(canvas.transform, false);
-                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.65f), new Vector2(1000f, 190f));
-                text.color = Color.white;
-                text.font = font;
-                text.text = text.text.Replace("♡", "<color=#F2BACB>♡</color>");
-                text.richText = true;
-                text.characterSpacing = 4f;
-                text.fontSize = 126f;
-                text.enableAutoSizing = false;
-                text.fontStyle = FontStyles.Normal;
-                text.alignment = TextAlignmentOptions.Center;
-                text.textWrappingMode = TextWrappingModes.NoWrap;
-                text.raycastTarget = false;
-                titleLetterMaterial = new Material(text.fontSharedMaterial);
-                titleLetterMaterial.SetColor(ShaderUtilities.ID_OutlineColor, new Color(0.05f, 0.16f, 0.30f, 0.7f));
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.09f);
-                titleLetterMaterial.EnableKeyword("UNDERLAY_ON");
-                titleLetterMaterial.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0.02f, 0.08f, 0.18f, 0.45f));
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.6f);
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.6f);
-                titleLetterMaterial.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.25f);
-                text.fontSharedMaterial = titleLetterMaterial;
+                text.gameObject.SetActive(false);
             }
             else if (text.name == "TeamText")
             {
                 text.transform.SetParent(canvas.transform, false);
-                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.085f), new Vector2(470f, 64f));
+                PlaceTitleRect(text.rectTransform, new Vector2(0.5f, 0.035f), new Vector2(470f, 40f));
                 text.color = new Color(0.035f, 0.09f, 0.14f, 0.85f);
                 text.font = font;
                 text.text = "<size=15>Created by</size>\n<size=21>新入生創作祭8班</size>";
@@ -121,8 +99,7 @@ public class TitleMenu : MonoBehaviour
             }
         }
 
-        Image rule = CreateTitlePanel("TitleRule", canvas.transform, new Color(1f, 1f, 1f, 0.38f));
-        PlaceTitleRect(rule.rectTransform, new Vector2(0.5f, 0.535f), new Vector2(360f, 1.5f));
+        ConfigureTitleLogo(canvas);
 
         foreach (Toggle toggle in canvas.GetComponentsInChildren<Toggle>(true))
             if (toggle.name == "BGMToggle") toggle.gameObject.SetActive(false);
@@ -134,8 +111,8 @@ public class TitleMenu : MonoBehaviour
         bgmLabel = labelObject.GetComponent<TextMeshProUGUI>();
         bgmLabel.font = font;
         bgmLabel.text = "BGM：" + (bgmSource != null && bgmSource.mute ? "OFF" : "ON");
-        ConfigureTitleButton(audioButton, canvas.transform, 0.095f, 21f, new Vector2(200f, 48f));
-        PlaceTitleRect(audioControl.rectTransform, new Vector2(0.72f, 0.095f), new Vector2(200f, 48f));
+        ConfigureTitleButton(audioButton, canvas.transform, 0.045f, 21f, new Vector2(200f, 44f));
+        PlaceTitleRect(audioControl.rectTransform, new Vector2(0.76f, 0.045f), new Vector2(200f, 44f));
         audioButton.onClick.AddListener(() =>
         {
             if (isTransitioning || ArchiveManager.IsOpen || bgmSource == null) return;
@@ -144,9 +121,25 @@ public class TitleMenu : MonoBehaviour
         if (fadePanel != null) fadePanel.transform.SetAsLastSibling();
     }
 
-    private void OnDestroy()
+    private static void ConfigureTitleLogo(Canvas canvas)
     {
-        if (titleLetterMaterial != null) Destroy(titleLetterMaterial);
+        Texture2D texture = Resources.Load<Texture2D>("TitleLogo");
+        if (texture == null)
+        {
+            Debug.LogError("タイトルロゴ画像が見つかりません。");
+            return;
+        }
+        var logoObject = new GameObject("TitleLogo", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+        logoObject.transform.SetParent(canvas.transform, false);
+        RawImage logo = logoObject.GetComponent<RawImage>();
+        logo.texture = texture;
+        logo.raycastTarget = false;
+        // Visible bounds of the supplied 3508 x 2480 PNG, with two pixels of padding.
+        // Crop only the UI's UVs so the original artwork and transparency stay intact.
+        Rect artwork = new Rect(346f, 475f, 2380f, 1537f);
+        logo.uvRect = new Rect(artwork.x / 3508f, artwork.y / 2480f, artwork.width / 3508f, artwork.height / 2480f);
+        float scale = Mathf.Min(880f / artwork.width, 520f / artwork.height);
+        PlaceTitleRect(logo.rectTransform, new Vector2(0.5f, 0.595f), new Vector2(artwork.width, artwork.height) * scale);
     }
 
     private static Image CreateTitlePanel(string name, Transform parent, Color color)

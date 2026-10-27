@@ -105,6 +105,8 @@ public static class GameProgress
         GameAutoSaveController.CancelPending();
         DialogueProgressStore.Clear();
         NovelDialogueController.RestoreRevealedNames(null);
+        TimingGameResults.ResetAll();
+        TimingMeterGameFlowController.ResetPendingRequest();
         PuzzleGameFlowController.ResetPendingRequest();
         PlayerPrefs.DeleteKey(ArchiveSaveKey);
         PlayerPrefs.DeleteKey(AffectionSaveKey);

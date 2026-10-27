@@ -1,0 +1,4 @@
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,choice1Text,choice1NextLineId,choice2Text,choice2NextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
+chapter_kayo_meter_success_001,doute,normal,Assets/Art/Backgrounds/white_room.png,よし、壊すことが出来たぞ……！ってあれ？今、なにか落ちてきたような……,chapter_kayo_meter_success_002,,,,,,,,
+chapter_kayo_meter_success_002,doute,normal,,なんだ、これ……紙？って、そんな場合じゃないっ！,chapter_kayo_meter_success_003,,,,,,,,
+chapter_kayo_meter_success_003,doute,normal,,カヨちゃん！今のうちにこっちへ！,chapter_kayo_6_001,,,,,,,,Assets/Scenes/GameMap/NovelScene_Kayo.unity

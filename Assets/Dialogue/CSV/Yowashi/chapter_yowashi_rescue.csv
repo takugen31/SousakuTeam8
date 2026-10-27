@@ -14,7 +14,7 @@ chapter_yowashi_rescue_011,doute,normal,,"(やばいやばいやばい！！
 chapter_yowashi_rescue_012,yowashi,normal,,何よりドウテくんもいるしね〜,chapter_yowashi_rescue_013,,,,,,,,
 chapter_yowashi_rescue_013,doute,normal,,"(そうだ、ヨワシちゃんはきっと俺なら助けてくれると信じてたんだ。それにヨワシちゃんがくれた医学書も、そんなに都合よく喘息の本が落ちてると思えないし……
 　きっともし自分に何かあった時に助けてくれると信じて、俺に医学書を渡してくれたんじゃないか？)",chapter_yowashi_rescue_014,,,,,,,,
-chapter_yowashi_rescue_014,doute,normal,,ヨワシちゃんは俺が必ず助ける！,,,,成功,chapter_yowashi_rescue_015,失敗,chapter_yowashi_rescue_039,,
+chapter_yowashi_rescue_014,doute,normal,,ヨワシちゃんは俺が必ず助ける！,,Assets/MeterGame/Scenes/TimingMeterGame.unity,,,,,,,
 chapter_yowashi_rescue_015,doute,normal,,ヨワシちゃん聞こえる？大丈夫？,chapter_yowashi_rescue_016,,,,,,,,
 chapter_yowashi_rescue_016,yowashi,normal,,……,chapter_yowashi_rescue_017,,,,,,,,
 chapter_yowashi_rescue_017,doute,normal,,ヨワシちゃん！！！,chapter_yowashi_rescue_018,,,,,,,,

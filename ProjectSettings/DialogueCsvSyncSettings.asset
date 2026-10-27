@@ -20,6 +20,7 @@ MonoBehaviour:
     lastCsvName: chapter1_kayo
     lastScenarioName: Chapter1_Kayo
     lastContentHash: PL9mxLqXdYQ+3dBKSEB7YpsPNQiFNePN+ur0CKFV3Wc=
+    lastScenarioHash: hpBdtN5B1wrF4u9xGcGiY8Efqv3E/wrZ9Uoz7qoR5Rg=
     enabled: 1
   - csvGuid: 5b8b74943bc28b743b11e16c5fe5a57b
     scenarioGuid: e3aecef09cbefec4d93c19e29a0340bb
@@ -28,6 +29,7 @@ MonoBehaviour:
     lastCsvName: chapter1_yowashi
     lastScenarioName: Chapter1_Yowashi
     lastContentHash: SJuuOcb1OUM6hsJMFyf3USpZmGUyl61Pr+bvp8HiUPo=
+    lastScenarioHash: NId8SQtFDME3sFuT5XMgOvcVylLXJ1SgmuJigAcHSx8=
     enabled: 1
   - csvGuid: a2e9c0fc131511b4191df2c23315fb00
     scenarioGuid: e58b9925f7e002b4d95175944e073603
@@ -36,6 +38,7 @@ MonoBehaviour:
     lastCsvName: chapter2
     lastScenarioName: Chapter2
     lastContentHash: TVSW6XYxOlHps10682VpZEz3CjM1jP1XLBkalaFNh2E=
+    lastScenarioHash: hU8AgbaTLe9JlDGou2JOMuVhO0dWIoWoQ5yCa6Oz+A4=
     enabled: 1
   - csvGuid: 937e8ce13b4686543b2c93462ad4ee54
     scenarioGuid: 7885d344d75085e40a8b60708960c33c
@@ -44,6 +47,7 @@ MonoBehaviour:
     lastCsvName: chapter2_end
     lastScenarioName: Chapter2_End
     lastContentHash: u5Y91TOIsYmvKE9XOZkC3uDDbBquDg4QK30y8LTooqc=
+    lastScenarioHash: l95RnML3ME4P7QQd9PUBNi4nFeNxEVs8l3AUssd30R0=
     enabled: 1
   - csvGuid: 4df474f438ed1124a8952ab6edb007c2
     scenarioGuid: c67919f7e84a16c478dd0e6c274aa847
@@ -52,6 +56,7 @@ MonoBehaviour:
     lastCsvName: chapter2_kayo
     lastScenarioName: Chapter2_Kayo
     lastContentHash: AY9Aajq+7eEP054n26IL1M4nzw33rrd1ewijYgbo6QY=
+    lastScenarioHash: AqWw4dRwE0bDV6oJhwt+XneREY4rGzS457Ta5mg9o3s=
     enabled: 1
   - csvGuid: 2ae321724ae363a4ab081b318468c13b
     scenarioGuid: d5a6918a9af10ed409231e973a09111b
@@ -60,6 +65,7 @@ MonoBehaviour:
     lastCsvName: chapter2_moteru
     lastScenarioName: Chapter2_Moteru
     lastContentHash: rWozwtUWuwk9RPktY92O5qHEAJgzhDrhhpfjDp0pdQ8=
+    lastScenarioHash: 1WItiW7oYRhaYrAk9B+9pFxsTsuvuAbzQFRXMSDdzGA=
     enabled: 1
   - csvGuid: 475ed5fb0acfb234582680ea512052c1
     scenarioGuid: b8a50b79e29d9a8469c55fb38a5d75cd
@@ -68,6 +74,7 @@ MonoBehaviour:
     lastCsvName: chapter2_yowashi
     lastScenarioName: Chapter2_Yowashi
     lastContentHash: ATwoYFUetQa0B1NMmtJhEQRwyY658DBl4mSTK1h03Ms=
+    lastScenarioHash: Pbd8Rjpwp0HreI+TGOW3TGch4RICZFDWLSUvc+k+/dM=
     enabled: 1
   - csvGuid: 0678c58c38dbc5143836a5a89b0b0dc0
     scenarioGuid: d9657345466d64c4bb278eb7708c8f90
@@ -76,6 +83,7 @@ MonoBehaviour:
     lastCsvName: chapter3
     lastScenarioName: Chapter3
     lastContentHash: /yMwKKPlCwPhU5ySEZFA8RXs2+F4DnnJxnZBp1EafNc=
+    lastScenarioHash: bcuOipkpDZwEurOoCi2cPSd54BqLrCW3S9JMgPLxPvk=
     enabled: 1
   - csvGuid: ec0413f3f7b209f418894c505ff473fc
     scenarioGuid: 9e286a1317c2af743989b01fcc0163d0
@@ -84,6 +92,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_1
     lastScenarioName: Chapter_Kayo_1
     lastContentHash: rY1cvy8RnDJRouyy/PJxJE0OIIPmP8rMLkw+JLuddUc=
+    lastScenarioHash: u+vz3r3mX7bzooTF2H4Cjq3aw2nI1SQf2RlgSsU5hDY=
     enabled: 1
   - csvGuid: ebd3a3e1cc514ee468644595d1556280
     scenarioGuid: 4b835d0e93d76b84f82420dcbc8d8e74
@@ -92,6 +101,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_2
     lastScenarioName: Chapter_Kayo_2
     lastContentHash: cFzarxxKR//pglq4l4YdKT6SzZNk2xmbRZ6IIi417EM=
+    lastScenarioHash: n25i4W3POq2uaa5TfbzGTTx9NnroQvioNAT0P7Nsdr4=
     enabled: 1
   - csvGuid: 96d299687e32f584886198ad349f896c
     scenarioGuid: a14c3fc58069428438b3211cb7b4bbb7
@@ -100,6 +110,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_4
     lastScenarioName: Chapter_Kayo_4
     lastContentHash: P8MjbkgINDetvM/gFqv9NkGXtbwj5uJ2T+Bvbh8HO74=
+    lastScenarioHash: 2Ts/G2FSmvbOKV0bDqnn4Sz9WnOz0xWPqItSoeH++zU=
     enabled: 1
   - csvGuid: ad52e203dbac9ac439ffb0a63b1ca5f6
     scenarioGuid: e14a15a7cd9633d4086f60f632e145a5
@@ -108,6 +119,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_6
     lastScenarioName: Chapter_Kayo_6
     lastContentHash: SnAZhMhiLpf5joTW96VnXCzw7vMnCB9RZNL/CBzY4XI=
+    lastScenarioHash: O8i7d/O1yrKePKCTPwkvBsBEVPLXr/HMJgyssr/OgjQ=
     enabled: 1
   - csvGuid: 03fcd0e6a8ec4e239f2ed0a21f446dc4
     scenarioGuid: 850f54e9b9e34b1dad6ee0325e54f12b
@@ -116,6 +128,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_diary
     lastScenarioName: Chapter_Kayo_Diary
     lastContentHash: kD6KkF/IRb+GZJKKVKY7CQI1H3a8v2rRfFB4CPGo6tk=
+    lastScenarioHash: bzcHN9fqO1oye3TMpyI3sb5R+rbApcPkKvsacsYKVD0=
     enabled: 1
   - csvGuid: 5c0a4d3e6f708192a3b4c5d6e7f8091a
     scenarioGuid: 6d1b5e4f708192a3b4c5d6e7f8091a2b
@@ -124,6 +137,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_search
     lastScenarioName: Chapter_Kayo_Search
     lastContentHash: nNZ7IZokwOBw3xwYJS2uzImbRsRwxxu7ySafr6TrFdI=
+    lastScenarioHash: FA2mNeCmGtE8Z8MIjb9JdEvRqPJo4SPtuHeJLGql+fs=
     enabled: 1
   - csvGuid: 37159e916c38a73448b8c93fdfee436a
     scenarioGuid: 7c2d17fc8e5c4a249ac0360000010001
@@ -132,6 +146,7 @@ MonoBehaviour:
     lastCsvName: chapter_moteru_1
     lastScenarioName: Chapter_Moteru_1
     lastContentHash: pMs5WkMQJCc3VFQxWbXqLZUqQiSDMhW/5VXA5P5aoao=
+    lastScenarioHash: 5p+waHAJgeQA5kt/aL9/SNrQUaQ+pnilUMvVY1FX790=
     enabled: 1
   - csvGuid: 5bee22249576b8c4e84382afba1350ee
     scenarioGuid: 99888807a1a947eca129f7c3180e42d6
@@ -139,7 +154,8 @@ MonoBehaviour:
     databaseGuid: d92603f43a2d34e41befd61fe218478e
     lastCsvName: chapter_moteru_2
     lastScenarioName: Chapter_Moteru_2
-    lastContentHash: Y3ih79BA+xnMhHNSnjmQErosAwl5jBNjvnDlq5wkkHc=
+    lastContentHash: hWg41Rr3uBpdP0ldgEtx6gu6XeVQIYZcPXa2spebPYk=
+    lastScenarioHash: TQHZc3IgR9hOOO96xZoqPfhDxGQkVfgZySDYB6bPr2o=
     enabled: 1
   - csvGuid: 4392f1a186225624a86f4bc4a9140aad
     scenarioGuid: b50468850c92402a96156cecb24996f6
@@ -148,6 +164,7 @@ MonoBehaviour:
     lastCsvName: chapter_moteru_after_mini_game
     lastScenarioName: Chapter_Moteru_After_Mini_Game
     lastContentHash: OLcwTrUIY71NGgdTkeP6Wau81IaFtbYZAtbJb337tLo=
+    lastScenarioHash: 4N5W59A8+fsHbBytbXg+qBGL8yeWsEAXTuVTlHzn4LY=
     enabled: 1
   - csvGuid: b4eeb53e971060c4b8561f5d8d04a129
     scenarioGuid: 38d2a551960f434a91822659b3ef846a
@@ -156,6 +173,7 @@ MonoBehaviour:
     lastCsvName: chapter_moteru_after_meter_game
     lastScenarioName: Chapter_Moteru_After_Meter_Game
     lastContentHash: baWlSQOaTRKJfKb5W6AZIoteqC1axUoh4Uk1nDfOm0I=
+    lastScenarioHash: DTaBi0a1Hfpu5OX15jU+H20MTIktxofeeEQvt5BNmIg=
     enabled: 1
   - csvGuid: 7e8badb43a3ddeb479d02323835b3ea4
     scenarioGuid: d3a8d6ccf1a34f8fb5853b1bd6ae6c8c
@@ -164,6 +182,7 @@ MonoBehaviour:
     lastCsvName: chapter_moteru_end
     lastScenarioName: Chapter_Moteru_End
     lastContentHash: cx8NuGbrKglilpep8yANRwH7RTmBakLyYeS5dF31kH8=
+    lastScenarioHash: DgtLCtqe6fg2pMRJ5rrvKEQCagu3cirJ266snS4S+zg=
     enabled: 1
   - csvGuid: f4d3a7c8b1e24d5196a0cf733b58e241
     scenarioGuid: cf8d3c86502709540a8bcadb9944ddf1
@@ -172,6 +191,7 @@ MonoBehaviour:
     lastCsvName: prologue1
     lastScenarioName: Prologue1
     lastContentHash: NcyVqXXkOMc9nY/07Y4820qYs4LCbGtYoBu6K7cn3rA=
+    lastScenarioHash: hifadldZCT0asFuVZzeKA9gmuMnJ3RDIKYbhHzp6iaE=
     enabled: 1
   - csvGuid: 8ac19e52d6f44b70a3e1c9f825bd6047
     scenarioGuid: 32de4174b15050344a870acf28ebf99a
@@ -180,6 +200,7 @@ MonoBehaviour:
     lastCsvName: prologue2
     lastScenarioName: Prologue2
     lastContentHash: xsh64QDem0Zy6ea8b8bmKfTfFKfkOsMi5r6LMWjFFB4=
+    lastScenarioHash: E/iQfbFhGLKxn2NXPrwYs8TpRECZ8aV09p/+5Xjqne0=
     enabled: 1
   - csvGuid: 1c376be24ee24fa8967d286715130441
     scenarioGuid: 826dba538b03427a814f588cb5de2b8b
@@ -188,6 +209,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_1
     lastScenarioName: Chapter_Yowashi_1
     lastContentHash: Ot/v/iUVnjBKw7Svf/rkPJVQPMUCbAWmPuhh3EetsN0=
+    lastScenarioHash: PwXXrCMTHGEL6gc4W8EVTwibHSvA2ahbjJeImBlx7Ec=
     enabled: 1
   - csvGuid: b275fb5e48c74779b16f613ec654ac09
     scenarioGuid: c3a54410a71e44e7a3593740a1365eed
@@ -196,6 +218,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_before_catch
     lastScenarioName: Chapter_Yowashi_Before_Catch
     lastContentHash: LvqlzlFsUe4Y6vLKjcu9dAUg9X2vsxLaG5vYtG8JrdE=
+    lastScenarioHash: u+4sBYBl/9UR5xnRU/6nTfhiE4F2CeVdWpjUHwNDLbQ=
     enabled: 1
   - csvGuid: a6f7e08c59a3416bab9177b8df64d547
     scenarioGuid: f85aecf746b74f9a8b291b164e18c5b0
@@ -204,6 +227,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_catch_failure
     lastScenarioName: Chapter_Yowashi_Catch_Failure
     lastContentHash: LxCWQ5GAotTY4DMJICq7onSvT43AlX/Qh2nUfdTq/s4=
+    lastScenarioHash: O5n9Bp4n6x65fyLQO2/6/OIPvfHB6vyqrwcFRfYcMlw=
     enabled: 1
   - csvGuid: fdc4261a6f7248fd9a8433a3822b948a
     scenarioGuid: d8c43b29dff94652b0e318e0b7c07cbd
@@ -212,6 +236,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_catch_success
     lastScenarioName: Chapter_Yowashi_Catch_Success
     lastContentHash: JRfPmHYmYuYQi9HHXI/4+A385KCX2APqLPER6Gwtzs8=
+    lastScenarioHash: amyK44Ur6NS9YQiwlF7/t/cX67HSezKtbEHjux0r4Hg=
     enabled: 1
   - csvGuid: 4b4aa6c3a058402a8f2d076b1306fd9b
     scenarioGuid: d6f53c2278014a839a4d38961e7f4372
@@ -220,6 +245,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_diary
     lastScenarioName: Chapter_Yowashi_Diary
     lastContentHash: axHAY1D9omfSJLNwgmeNcnG94eqBlYNTahHsRYiOz9s=
+    lastScenarioHash: 2DBK/m6fxfH22X1MdGuEI89W+VTh0RKD7NPvClpsrdM=
     enabled: 1
   - csvGuid: 1a650a904c364c8097ce2a43a51b1d79
     scenarioGuid: 80fefbecf55c419cb3fcbddc688ffb14
@@ -228,6 +254,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_medicalbook
     lastScenarioName: Chapter_Yowashi_Medicalbook
     lastContentHash: Bum3ad5LyikbMRmvxkZeUJQ8HUBvner3uT62jYlxiyM=
+    lastScenarioHash: YArPvXe1Kp9eob0ltLpV4OtiSKnsZiU6/Y//E3wr6cY=
     enabled: 1
   - csvGuid: c7ad91e91c674b5f85e50b5b6f98e584
     scenarioGuid: 320a3c5a5d9b4b77810653dca6e3615e
@@ -236,6 +263,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_rescue
     lastScenarioName: Chapter_Yowashi_Rescue
     lastContentHash: e+JMXhx+s+jbx1kx8ozsWFqHW2FOh6ZmptNitkLrXMw=
+    lastScenarioHash: v21sPGXOknXDXx6tpiY2QHSd9roixehnmM5+2f52rvg=
     enabled: 1
   - csvGuid: 7c634e5e0f5a49fdb3a42d576998583c
     scenarioGuid: a592ec6a731644879bf62a97688e824a
@@ -244,6 +272,7 @@ MonoBehaviour:
     lastCsvName: chapter_yowashi_tennis
     lastScenarioName: Chapter_Yowashi_Tennis
     lastContentHash: 68XfNe+aSLicKBGl51m1bAUlqA2I2cWQngrBwU4jCsg=
+    lastScenarioHash: dVnwVI1SK8clreVpxOQgT0+zf6h7eTysxHGZFyLbHQ8=
     enabled: 1
   - csvGuid: 7c5cfafad7e44394bd076a03d4a1d5aa
     scenarioGuid: b7f3392d3fa54cc9b5dcad6e29c1e9c1
@@ -252,6 +281,7 @@ MonoBehaviour:
     lastCsvName: chapter1_search
     lastScenarioName: Chapter1_Search
     lastContentHash: dUHPoXD5FXRxeDjSOd1t2/aKW1vOmmFFr0yxlhLgJe8=
+    lastScenarioHash: LoQCG5KBK5FBlBxfnFGRBurlR/s5MqVvATtMwDDdQsY=
     enabled: 1
   - csvGuid: 4ccd5f0d01c537b4ea10db8dbed2d9a8
     scenarioGuid: 762f4ea685b390048845318249e7376d
@@ -260,6 +290,7 @@ MonoBehaviour:
     lastCsvName: prologue_game
     lastScenarioName: Prologue_Game
     lastContentHash: ycerI+rPfC9aXJ2iMEzIPvhjlr33V4cuunaTxL/GraU=
+    lastScenarioHash: dAOwrhgeJtKnicR/9ropFVyPxIzaiHmtyoDg9KKFHIc=
     enabled: 1
   - csvGuid: 050f7084ff875a84b84b1c965a42e4c8
     scenarioGuid: a41c6e59be1b4aa1a0e87a0b2c9135f7
@@ -268,6 +299,7 @@ MonoBehaviour:
     lastCsvName: chapter1
     lastScenarioName: Chapter1
     lastContentHash: DMI5/7lBq6/6H3794gEQWSnZhKBsC7dWJuX3SGCHOOU=
+    lastScenarioHash: Np79O5A+5mhidxFrPkmEjRalyHPSUhfNX195em3PPw0=
     enabled: 1
   - csvGuid: a9d3f4b3351ca334ab665fb0d7cd3843
     scenarioGuid: ba42d8c2717aec344b00dfe090c1fdf6
@@ -276,6 +308,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_5
     lastScenarioName: Chapter_Kayo_5
     lastContentHash: L75ZyYWhP769iAtw2UFXaimGv8n6DyubECmGEJhRkEc=
+    lastScenarioHash: QFdN2/27psjfq8T+LORsR+cABbcWQXtnbVdgeSwwRhI=
     enabled: 1
   - csvGuid: 586521612f7b68e4d99d492e9cd82e86
     scenarioGuid: fc58f33b8057e83448d53b7c43fd1169
@@ -284,6 +317,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_end
     lastScenarioName: Chapter_Kayo_End
     lastContentHash: 2WkbXz/Bj+cC6bdzNnRMvRiIcQaownELjy6s9IanQKI=
+    lastScenarioHash: vP9Il0li3jXTAV61pg4ZfD4VZHlBiIu+qHrwZnmj0+Q=
     enabled: 1
   - csvGuid: 4054f28cbebdf674192eb5006dc5c0fe
     scenarioGuid: 6553fee95283e8b4a9d7e6289eb039fd
@@ -292,6 +326,7 @@ MonoBehaviour:
     lastCsvName: chapter_kayo_3
     lastScenarioName: Chapter_Kayo_3
     lastContentHash: NhURKCfy5migJ5Wf10C0anaJVl77Gd0TxY6i3dWJZno=
+    lastScenarioHash: fCM1pRH6lTIJtdIhuuGWmYcMshzWpjbgHDFLiPudZ7M=
     enabled: 1
   - csvGuid: f2c74e33b270401cbcff670213f54681
     scenarioGuid: af0a183b132a498fac8e85252db919b0
@@ -299,7 +334,8 @@ MonoBehaviour:
     databaseGuid: d92603f43a2d34e41befd61fe218478e
     lastCsvName: chapter_yowashi_consultation
     lastScenarioName: Chapter_Yowashi_Consultation
-    lastContentHash: bmSH0wu4CK72MMLcJAkqGHM+fkDCpfyZnca8FkBdiyI=
+    lastContentHash: YmABjAj18wmbUbhTOFjqoUHN9vpFUgwBThw6fAjYP74=
+    lastScenarioHash: U4WfooHViQCkNC/+iNdkdAKhOsMSe9S0S678LLeMZZU=
     enabled: 1
   - csvGuid: 1afdbcd4ef3e4a79aa36da64a45bc80a
     scenarioGuid: af40e8a8a1e14af4b7c28416fd5d25df
@@ -307,7 +343,8 @@ MonoBehaviour:
     databaseGuid: d92603f43a2d34e41befd61fe218478e
     lastCsvName: chapter_moteru_search
     lastScenarioName: Chapter_Moteru_Search
-    lastContentHash: MsphV5nm0SWguf54SHNjLVUypaUIxL/W9HkB8Lc2/OA=
+    lastContentHash: +OCAOcuq1I/n9XMcrlVb8yG57Y5Ur7uUxlR0+kUQ5rA=
+    lastScenarioHash: mN9W4qFsb8HDAg5ju2vLmREtcOZUMlcEAjq9qw8r4r8=
     enabled: 1
   - csvGuid: ce2021528f7e4674b47ea3bb1d8f9513
     scenarioGuid: 5cbd485daba04e03a41886e24695a180
@@ -315,5 +352,6 @@ MonoBehaviour:
     databaseGuid: d92603f43a2d34e41befd61fe218478e
     lastCsvName: chapter_moteru_diary
     lastScenarioName: Chapter_Moteru_Diary
-    lastContentHash:
+    lastContentHash: w7vK6I/08ps8+BX+Hsy8gN60/fkx3OGXol4FG3yFF4w=
+    lastScenarioHash: 6UXruEdUpsQEZuaS3gSkZBxZEX8kBKdLErL9g7mmzwc=
     enabled: 1

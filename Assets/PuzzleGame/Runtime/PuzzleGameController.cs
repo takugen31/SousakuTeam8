@@ -11,7 +11,7 @@ namespace SousakuTeam8.PuzzleGame
     [RequireComponent(typeof(RectTransform))]
     public sealed class PuzzleGameController : MonoBehaviour
     {
-        private const string DefaultPuzzleImageResourcePath = "PuzzleGame/PuzzleSource";
+        private const string DefaultPuzzleImageResourcePath = "PuzzleGame/PuzzleSource_kayo";
         private const float PlayingPieceGap = 10f;
         private const float CompletedBoardScale = 1.025f;
         private const float BoardInset = 18f;
@@ -27,7 +27,7 @@ namespace SousakuTeam8.PuzzleGame
         private static readonly Color NavyColor = FromHex("#0D2D58");
 
         [Header("Puzzle image")]
-        [Tooltip("One source image that is automatically divided into a 3 x 3 grid. When empty, Resources/PuzzleGame/PuzzleSource is used.")]
+        [Tooltip("One source image that is automatically divided into a 3 x 3 grid. When empty, Resources/PuzzleGame/PuzzleSource_kayo is used.")]
         [SerializeField] private Texture2D puzzleImage;
 
         [Header("Start settings")]
@@ -199,6 +199,7 @@ namespace SousakuTeam8.PuzzleGame
             {
                 var piece = _pieces[pieceId];
                 piece.SetImage(image, PuzzleImageSlicer.GetUvRect(pieceId));
+                piece.Image.color = Color.white;
 
                 var fallbackNumber = piece.RectTransform.Find("Fallback Number");
                 if (fallbackNumber != null)
@@ -314,7 +315,7 @@ namespace SousakuTeam8.PuzzleGame
             var title = CreateText("Title", _header, "パズル", 44, FontStyle.Normal, TextAnchor.MiddleCenter, PrimaryTextColor);
             _titleRect = title.rectTransform;
 
-            var subtitle = CreateText("Subtitle", _header, "9枚のピースを並べて、絵を完成させよう", 22, FontStyle.Normal, TextAnchor.MiddleLeft, SecondaryTextColor);
+            var subtitle = CreateText("Subtitle", _header, "9枚のピースを並べて、日記を完成させよう", 22, FontStyle.Normal, TextAnchor.MiddleLeft, SecondaryTextColor);
             _subtitleRect = subtitle.rectTransform;
             subtitle.horizontalOverflow = HorizontalWrapMode.Wrap;
             subtitle.resizeTextForBestFit = true;
