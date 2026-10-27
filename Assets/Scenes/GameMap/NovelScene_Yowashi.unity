@@ -730,10 +730,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TimingMeterGameEntryController
   dialogueController: {fileID: 1633669557}
   meterSceneName: TimingMeterGame
-  meterEntryLineId: 
+  meterEntryLineId: chapter_yowashi_rescue_014
   characterId: yowashi
-  successResumeLineId: 
-  failureResumeLineId: 
+  successResumeLineId: chapter_yowashi_rescue_015
+  failureResumeLineId: chapter_yowashi_rescue_039
 --- !u!224 &1633669556
 RectTransform:
   m_ObjectHideFlags: 0
