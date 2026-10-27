@@ -1,6 +1,7 @@
 characterId,displayName,nameColor,expressionId,portraitPath,nameKnownInitially
 doute,ドウテ,#FFFFFF,normal,Assets/Art/Portraits/doute_normal.png,true
 doute,,#FFFFFF,surprised,Assets/Art/Portraits/doute_normal.png,
+doute,,#FFFFFF,chibi,Assets/Art/Portraits/doute_chibi.png,
 kayo,カヨ,#80C8FF,normal,Assets/Art/Portraits/カヨ立ち絵修正版1.png,false
 moteru,モテル,#80C8FF,normal,Assets/Art/Portraits/moteru_normal.png,false
 yowashi,ヨワシ,#80C8FF,normal,Assets/Art/Portraits/yowashi_normal.png,false

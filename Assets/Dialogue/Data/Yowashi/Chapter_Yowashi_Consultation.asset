@@ -17,14 +17,18 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_001
     speakerId: player
     expressionId: normal
-    text:
+    text: 
     background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
-    nextLineId:
+    nextLineId: 
     choices:
-    - text: "一回状況を整理しよう"
+    - text: "\u4E00\u56DE\u72B6\u6CC1\u3092\u6574\u7406\u3057\u3088\u3046"
       nextLineId: chapter_yowashi_consultation_002
     affectionChanges: []
     archiveUnlockIds: []
@@ -32,10 +36,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_002
     speakerId: doute
     expressionId: normal
-    text: "整理してる暇なんて！みんな危ない状況なんですよ！"
+    text: "\u6574\u7406\u3057\u3066\u308B\u6687\u306A\u3093\u3066\uFF01\u307F\u3093\u306A\u5371\u306A\u3044\u72B6\u6CC1\u306A\u3093\u3067\u3059\u3088\uFF01"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_consultation_003
     choices: []
@@ -45,10 +53,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_003
     speakerId: player
     expressionId: normal
-    text: "僕は特別な存在だから。僕と話してる間は時間は進まないよ。"
+    text: "\u50D5\u306F\u7279\u5225\u306A\u5B58\u5728\u3060\u304B\u3089\u3002\u50D5\u3068\u8A71\u3057\u3066\u308B\u9593\u306F\u6642\u9593\u306F\u9032\u307E\u306A\u3044\u3088\u3002"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_consultation_004
     choices: []
@@ -58,48 +70,94 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_004
     speakerId: doute
     expressionId: normal
-    text: "そ、そうなんですか……じゃあひとまず、ヨワシちゃんが倒れたのって……"
+    text: "\u305D\u3001\u305D\u3046\u306A\u3093\u3067\u3059\u304B\u2026\u2026\u3058\u3083\u3042\u3072\u3068\u307E\u305A\u3001\u30E8\u30EF\u30B7\u3061\u3083\u3093\u304C\u5012\u308C\u305F\u306E\u3063\u3066\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: 
     choices:
-    - text: "ヨワシちゃんは息切れしやすい？"
+    - text: "\u30E8\u30EF\u30B7\u3061\u3083\u3093\u306F\u606F\u5207\u308C\u3057\u3084\u3059\u3044\uFF1F"
       nextLineId: chapter_yowashi_consultation_005
     - text: "医学書の内容"
-      nextLineId: chapter_yowashi_consultation_004
+      nextLineId: chapter_yowashi_consultation_004_wrong
     - text: "ヨワシの好きな漫画"
-      nextLineId: chapter_yowashi_consultation_004
+      nextLineId: chapter_yowashi_consultation_004_wrong
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_004_wrong
+    speakerId: player
+    expressionId: normal
+    text: "(いや、それは多分関係ないな)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_yowashi_consultation_004
+    choices: []
     affectionChanges: []
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_consultation_005
     speakerId: doute
     expressionId: normal
-    text: "なるほど、確かに普段から息切れしてましたね……\n　じゃあ今のヨワシちゃんには何をしてあげれば！？"
+    text: "\u306A\u308B\u307B\u3069\u3001\u78BA\u304B\u306B\u666E\u6BB5\u304B\u3089\u606F\u5207\u308C\u3057\u3066\u307E\u3057\u305F\u306D\u2026\u2026\r\n\u3000\u3058\u3083\u3042\u4ECA\u306E\u30E8\u30EF\u30B7\u3061\u3083\u3093\u306B\u306F\u4F55\u3092\u3057\u3066\u3042\u3052\u308C\u3070\uFF01\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: 
     choices:
     - text: "ヨワシの好きな漫画"
-      nextLineId: chapter_yowashi_consultation_005
+      nextLineId: chapter_yowashi_consultation_005_wrong
     - text: "医学書の内容"
       nextLineId: chapter_yowashi_consultation_006
     - text: "ヨワシの腕の包帯"
-      nextLineId: chapter_yowashi_consultation_005
+      nextLineId: chapter_yowashi_consultation_005_wrong
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_005_wrong
+    speakerId: player
+    expressionId: normal
+    text: "(いや、それは多分関係ないな)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_yowashi_consultation_005
+    choices: []
     affectionChanges: []
     archiveUnlockIds: []
     branches: []
   - lineId: chapter_yowashi_consultation_006
     speakerId: doute
     expressionId: normal
-    text: "そうか、あの本！もしかしてあそこにあった内容さえあれば、応急措置ができる？"
+    text: "\u305D\u3046\u304B\u3001\u3042\u306E\u672C\uFF01\u3082\u3057\u304B\u3057\u3066\u3042\u305D\u3053\u306B\u3042\u3063\u305F\u5185\u5BB9\u3055\u3048\u3042\u308C\u3070\u3001\u5FDC\u6025\u63AA\u7F6E\u304C\u3067\u304D\u308B\uFF1F"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_consultation_007
     choices: []
@@ -109,10 +167,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_007
     speakerId: player
     expressionId: normal
-    text: "おそらくね。あとは頑張ってね"
+    text: "\u304A\u305D\u3089\u304F\u306D\u3002\u3042\u3068\u306F\u9811\u5F35\u3063\u3066\u306D"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_consultation_008
     choices: []
@@ -122,10 +184,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_008
     speakerId: doute
     expressionId: normal
-    text: "待ってください、カヨちゃんは……"
+    text: "\u5F85\u3063\u3066\u304F\u3060\u3055\u3044\u3001\u30AB\u30E8\u3061\u3083\u3093\u306F\u2026\u2026"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_yowashi_consultation_009
     choices: []
@@ -135,10 +201,14 @@ MonoBehaviour:
   - lineId: chapter_yowashi_consultation_009
     speakerId: player
     expressionId: normal
-    text: "そっちはきっと大丈夫だよ"
+    text: "\u305D\u3063\u3061\u306F\u304D\u3063\u3068\u5927\u4E08\u592B\u3060\u3088"
     background: {fileID: 0}
     revealSpeakerName: 0
-    consultationTitle:
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: 
     choices: []
