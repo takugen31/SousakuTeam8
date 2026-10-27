@@ -12,8 +12,8 @@ public sealed class TimingMeterGameEntryController : MonoBehaviour
     [SerializeField] private string meterSceneName = "TimingMeterGame";
     [SerializeField] private string meterEntryLineId = "chapter_kayo_5_025";
     [SerializeField] private string characterId = "kayo";
-    [SerializeField] private string successResumeLineId = "chapter_kayo_5_success_001";
-    [SerializeField] private string failureResumeLineId = "chapter_kayo_5_failure_001";
+    [SerializeField] private string successResumeLineId = "chapter_kayo_meter_success_001";
+    [SerializeField] private string failureResumeLineId = "chapter_kayo_meter_failure_001";
 
     private void Awake()
     {

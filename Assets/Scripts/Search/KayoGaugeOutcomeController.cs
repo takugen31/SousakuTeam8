@@ -2,15 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ゲージゲーム未実装の間はCSVの成功／失敗選択で結果を受け取る。
-/// 本実装時も救助後のChapter 6を開始する前にSetResultを呼ぶ。
+/// カヨ専用のゲージ結果を参照し、Chapter 6の成功限定会話を切り替える。
 /// </summary>
 public sealed class KayoGaugeOutcomeController : MonoBehaviour
 {
     [SerializeField] private NovelDialogueController dialogueController;
     [SerializeField] private DialogueScenarioSO rescueAftermath;
-    [SerializeField] private string successLineId = "chapter_kayo_5_success_001";
-    [SerializeField] private string failureLineId = "chapter_kayo_5_failure_001";
+    [SerializeField] private string successLineId = "chapter_kayo_meter_success_001";
+    [SerializeField] private string failureLineId = "chapter_kayo_meter_failure_001";
     [Tooltip("原文の『ゲージゲームをクリアしていた場合』の直前の行。")]
     [SerializeField] private string lastCommonLineId = "chapter_kayo_6_056";
 
@@ -51,8 +50,8 @@ public sealed class KayoGaugeOutcomeController : MonoBehaviour
 
         failureAftermath.ReplaceAll(commonLines);
         dialogueController.LineStarted += OnLineStarted;
-        // 結果を選ばず章スキップした場合も、紙の発見を成功扱いにしない。
-        SetResult(false);
+        // シーン再ロード後もカヨの結果を復元。未プレイは成功扱いにしない。
+        SetResult(TimingGameResults.Get("kayo").Latest == TimingGameResults.Outcome.Success);
     }
 
     public void SetResult(bool succeeded)
