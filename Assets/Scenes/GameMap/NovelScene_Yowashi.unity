@@ -714,7 +714,7 @@ MonoBehaviour:
   puzzleSceneName: PuzzleGame
   puzzleEntryLineId: chapter_yowashi_1_035
   diaryResumeLineId: chapter_yowashi_diary_001
-  diaryPuzzleImage: {fileID: 0}
+  diaryPuzzleImage: {fileID: 2800000, guid: e513d777c6b44cc4f81e5eca4a53b8bc, type: 3}
 --- !u!224 &1633669556
 RectTransform:
   m_ObjectHideFlags: 0
