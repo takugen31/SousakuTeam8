@@ -68,9 +68,26 @@ MonoBehaviour:
     - text: "ヨワシちゃんは息切れしやすい？"
       nextLineId: chapter_yowashi_consultation_005
     - text: "医学書の内容"
-      nextLineId: chapter_yowashi_consultation_004
+      nextLineId: chapter_yowashi_consultation_004_wrong
     - text: "ヨワシの好きな漫画"
-      nextLineId: chapter_yowashi_consultation_004
+      nextLineId: chapter_yowashi_consultation_004_wrong
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_004_wrong
+    speakerId: player
+    expressionId: normal
+    text: "(いや、それは多分関係ないな)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_yowashi_consultation_004
+    choices: []
     affectionChanges: []
     archiveUnlockIds: []
     branches: []
@@ -85,11 +102,28 @@ MonoBehaviour:
     nextLineId: 
     choices:
     - text: "ヨワシの好きな漫画"
-      nextLineId: chapter_yowashi_consultation_005
+      nextLineId: chapter_yowashi_consultation_005_wrong
     - text: "医学書の内容"
       nextLineId: chapter_yowashi_consultation_006
     - text: "ヨワシの腕の包帯"
-      nextLineId: chapter_yowashi_consultation_005
+      nextLineId: chapter_yowashi_consultation_005_wrong
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_consultation_005_wrong
+    speakerId: player
+    expressionId: normal
+    text: "(いや、それは多分関係ないな)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_yowashi_consultation_005
+    choices: []
     affectionChanges: []
     archiveUnlockIds: []
     branches: []
