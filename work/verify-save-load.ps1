@@ -1,6 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $saveSource = Get-Content (Join-Path $root 'Assets/Scripts/GameSaveService.cs') -Raw
+$continueSource = Get-Content (Join-Path $root 'Assets/Scripts/GameSaveService.Continue.cs') -Raw
+$continueSource = [regex]::Replace($continueSource, '(?m)^using .*;\r?\n', '')
 $progressSource = Get-Content (Join-Path $root 'Assets/Scripts/GameProgress.cs') -Raw
 $saveSource = [regex]::Replace($saveSource, '(?m)^using .*;\r?\n', '')
 $progressSource = [regex]::Replace($progressSource, '(?m)^using .*;\r?\n', '')
@@ -60,20 +62,23 @@ public class NovelDialogueController {
  public bool CaptureCheckpoint(GameSaveData d) { if(!Ready) return false; d.kind="dialogue"; d.scenario="Chapter_Kayo_6"; d.lineId="chapter_kayo_6_035"; d.label="カヨとの会話"; d.text="test"; d.textFullyDisplayed=true; d.images=new[]{new GameSaveImage(),new GameSaveImage(),new GameSaveImage()}; return true; }
  public static string[] CaptureRevealedNames() => Names;
  public static void RestoreRevealedNames(string[] n) { Names=n; }
+ public void SaveProgressForContinuation() {}
 }
 public class Chapter1SearchController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="modal"; d.itemId="door"; d.room=1; return true; } }
 public class SearchSceneController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="room"; d.room=0; d.paperVisible=true; return true; } }
 public class SelectionPartController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="selection"; d.introDismissed=true; return true; } }
 public class KayoGaugeOutcomeController { public bool CurrentResult=true; }
 public static class DialogueProgressStore {
- public sealed class Timeline {}
+ public sealed class Timeline { public string json; public int generation; }
+ public static int Generation;
  public static Timeline CaptureTimeline() => new Timeline();
  public static void RestoreTimeline(Timeline timeline) {}
  public static void Clear() {}
 }
 public static class PuzzleGameFlowController { public static void ResetPendingRequest() {} }
 public static class TimingMeterGameFlowController { public static void ResetPendingRequest() {} }
-public static class TimingGameResults { public static void ResetAll() {} }
+public static class TimingGameResults { public class Snapshot {} public static Snapshot[] Capture() => new Snapshot[0]; public static void Restore(Snapshot[] state) {} public static void ResetAll() {} }
+public class DialogueProgressImage {}
 public class AffectionEntry { public string characterId; public int value; }
 public class AffectionManager {
  public static AffectionManager Instance=new AffectionManager(); public int Value=25;
@@ -90,7 +95,7 @@ public class ArchiveManager {
  public void OpenArchive() {}
 }
 '@
-Add-Type -TypeDefinition ($stubs + "`n" + $saveSource + "`n" + $progressSource) -CompilerOptions '/define:UNITY_EDITOR' -WarningAction SilentlyContinue
+Add-Type -TypeDefinition ($stubs + "`n" + $saveSource + "`n" + $continueSource + "`n" + $progressSource) -CompilerOptions '/define:UNITY_EDITOR' -WarningAction SilentlyContinue
 function Assert($condition, $message) { if (-not $condition) { throw $message } }
 $objects = [UnityEngine.Object]::Objects
 $dialogue = [NovelDialogueController]::new()

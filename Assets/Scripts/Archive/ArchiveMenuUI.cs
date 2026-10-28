@@ -45,7 +45,8 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
     private TMP_Text autoLabel;
     private GameObject menuRoot;
     private GameObject archiveFrame;
-    private GameObject restartConfirmation;
+    private GameObject returnToTitleConfirmation;
+    private TMP_Text returnToTitleWarning;
     private TMP_Text contextHelp;
 
     private void UpdateContextHelp()
@@ -140,7 +141,7 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         HideSaveLoad();
         archiveFrame.SetActive(false);
         menuRoot.SetActive(true);
-        restartConfirmation.SetActive(false);
+        returnToTitleConfirmation.SetActive(false);
         windowRoot.GetComponent<Image>().color = Color.clear;
     }
 
@@ -195,34 +196,42 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         autoButton = CreateMenuItem("AutoPlay", "オート：OFF", 0.30f);
         autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
         autoButton.onClick.AddListener(() => FindCurrentDialogue()?.ToggleAutoPlay());
-        CreateMenuItem("Restart", "最初から", 0.20f).onClick.AddListener(() => restartConfirmation.SetActive(true));
+        CreateMenuItem("ReturnToTitle", "タイトルに戻る", 0.20f).onClick.AddListener(() =>
+        {
+            returnToTitleWarning.text = "本当にタイトルに戻りますか？\n現在の進行状況を保存します。";
+            returnToTitleConfirmation.SetActive(true);
+            returnToTitleConfirmation.transform.SetAsLastSibling();
+        });
         contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, new Color(0.95f, 0.95f, 0.95f, 1f));
         SetAnchors(contextHelp.gameObject, new Vector2(0.20f, 0.015f), new Vector2(0.20f, 0.09f), Vector2.zero, Vector2.zero);
         contextHelp.alignment = TextAlignmentOptions.MidlineLeft;
         contextHelp.textWrappingMode = TextWrappingModes.NoWrap;
         contextHelp.richText = true;
 
-        restartConfirmation = CreatePanel("RestartConfirmation", windowRoot.transform, new Color(0f, 0f, 0f, 0.72f));
-        Stretch(restartConfirmation.GetComponent<RectTransform>());
-        GameObject box = CreatePanel("Confirmation", restartConfirmation.transform, new Color(0f, 0f, 0f, 0.8f));
+        returnToTitleConfirmation = CreatePanel("ReturnToTitleConfirmation", windowRoot.transform, new Color(0f, 0f, 0f, 0.72f));
+        Stretch(returnToTitleConfirmation.GetComponent<RectTransform>());
+        GameObject box = CreatePanel("Confirmation", returnToTitleConfirmation.transform, new Color(0f, 0f, 0f, 0.8f));
         SetAnchors(box, new Vector2(0.27f, 0.33f), new Vector2(0.73f, 0.67f), Vector2.zero, Vector2.zero);
         box.AddComponent<DialogueWindowFeather>();
-        TMP_Text warning = CreateText("Warning", box.transform, "進行状況を初期化して、最初から始めますか？", 30f, Color.white, FontStyles.Bold);
+        TMP_Text warning = CreateText("Warning", box.transform, "本当にタイトルに戻りますか？", 30f, Color.white, FontStyles.Bold);
+        returnToTitleWarning = warning;
         SetAnchors(warning.gameObject, new Vector2(0.08f, 0.48f), new Vector2(0.92f, 0.86f), Vector2.zero, Vector2.zero);
         warning.alignment = TextAlignmentOptions.Center;
-        Button restart = CreateButton("Confirm", box.transform, "最初から", 28f, new Color(0.15f, 0.15f, 0.15f, 0.8f));
+        Button restart = CreateButton("Confirm", box.transform, "はい", 28f, new Color(0.15f, 0.15f, 0.15f, 0.8f));
         SetAnchors(restart.gameObject, new Vector2(0.10f, 0.16f), new Vector2(0.46f, 0.38f), Vector2.zero, Vector2.zero);
         restart.onClick.AddListener(() =>
         {
-            manager.CloseArchive();
-            GameProgress.ResetAll();
-            Time.timeScale = 1f;
-            SceneManager.LoadScene("NovelScene", LoadSceneMode.Single);
+            if (!GameSaveService.ReturnToTitle(out string message))
+            {
+                returnToTitleWarning.text = message;
+                returnToTitleConfirmation.SetActive(true);
+                returnToTitleConfirmation.transform.SetAsLastSibling();
+            }
         });
-        Button cancel = CreateButton("Cancel", box.transform, "戻る", 28f, new Color(0.15f, 0.15f, 0.15f, 0.8f));
+        Button cancel = CreateButton("Cancel", box.transform, "いいえ", 28f, new Color(0.15f, 0.15f, 0.15f, 0.8f));
         SetAnchors(cancel.gameObject, new Vector2(0.54f, 0.16f), new Vector2(0.90f, 0.38f), Vector2.zero, Vector2.zero);
-        cancel.onClick.AddListener(() => restartConfirmation.SetActive(false));
-        restartConfirmation.SetActive(false);
+        cancel.onClick.AddListener(() => returnToTitleConfirmation.SetActive(false));
+        returnToTitleConfirmation.SetActive(false);
     }
 
     private NovelDialogueController FindCurrentDialogue()

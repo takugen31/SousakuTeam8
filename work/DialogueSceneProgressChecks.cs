@@ -265,6 +265,8 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         a = Create(main); yield return null;
         Check(Id(a) == "a1", "corrupt history prevented normal start");
         Debug.Log("PASS: corrupt progress falls back to normal start.");
+        yield return CheckSkipBoundaries();
+        yield return CheckTitleContinuation();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
     }
@@ -316,6 +318,163 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         go.SetActive(true);
         return controller;
     }
+    private IEnumerator CheckSkipBoundaries()
+    {
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        GameProgress.ResetAll();
+        var first = AssetDatabase.LoadAssetAtPath<DialogueScenarioSO>("Assets/Dialogue/Data/Prologue/Prologue1.asset");
+        var second = AssetDatabase.LoadAssetAtPath<DialogueScenarioSO>("Assets/Dialogue/Data/Prologue/Prologue2.asset");
+        Check(first != null && second != null, "production prologues missing");
+        var prologue = Create(first, "skipPrologue");
+        Set(prologue, "followingScenarios", new List<DialogueScenarioSO> { second, main });
+        yield return null;
+        prologue.SkipToNextScenario(); yield return null;
+        Check(SceneManager.GetActiveScene().name == "NovelScene" && Get(prologue,"currentScenario") == second &&
+            Id(prologue) == second.Lines[0].lineId, "Prologue1 skip jumped past Prologue2 to a later scene");
+        prologue.SkipToNextScenario(); yield return null;
+        Check((bool)Get(prologue,"isChoiceSelectionOpen") && ((DialogueLine)Get(prologue,"currentLine")).HasChoices,
+            "Prologue2 skip bypassed the player decision");
+        string choiceId = Id(prologue);
+        prologue.SkipToNextScenario(); yield return null;
+        Check(Id(prologue) == choiceId && (bool)Get(prologue,"isChoiceSelectionOpen"), "skip chose an unanswered decision");
+
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        var route = ScriptableObject.CreateInstance<DialogueScenarioSO>();
+        route.name = "SkipRoute"; route.hideFlags = HideFlags.DontUnloadUnusedAsset;
+        var entry = Line("skipEntry");
+        entry.branches.Add(new DialogueBranch { nextLineId="skipChoice", affectionChanges=new List<AffectionDelta> {
+            new AffectionDelta { characterId="kayo", value=50 } } });
+        var unreachable = Line("unreachable"); unreachable.nextScenePath="Assets/Scenes/ProgressOther.unity";
+        var decision = Line("skipChoice"); decision.text="Choose.";
+        decision.choices.Add(new DialogueChoice { text="Continue", nextLineId="skipEnd" });
+        var end = Line("skipEnd"); end.text="End of route."; end.nextScenePath="Assets/Scenes/ProgressOther.unity";
+        route.ReplaceAll(new List<DialogueLine> { entry, unreachable, decision, end });
+        var controller = Create(route, "skipRoute"); yield return null;
+        int before = affection.GetAffection("kayo");
+        controller.SkipToNextScenario(); yield return null;
+        Check(Id(controller)=="skipChoice" && (bool)Get(controller,"isChoiceSelectionOpen") &&
+            SceneManager.GetActiveScene().name=="NovelScene", "skip inspected an unreachable scene transition instead of the active branch");
+        Check(affection.GetAffection("kayo")==before, "skip inspection applied branch effects");
+        string transitionId=null; controller.SceneTransitionStarting += line => transitionId=line.lineId;
+        Call(controller,"SelectChoice",decision.choices[0]); yield return null;
+        controller.SkipToNextScenario(); yield return null;
+        Check(SceneManager.GetActiveScene().name=="NovelScene" && Id(controller)=="skipEnd" &&
+            !(bool)Get(controller,"isTyping") && transitionId==null, "skip executed rather than displayed the scene boundary");
+        controller.Advance(); yield return null;
+        Check(SceneManager.GetActiveScene().name==B && transitionId=="skipEnd", "selected route did not preserve scene entry callbacks");
+
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        var both = Line("choiceAndScene"); both.text="Choose first.";
+        both.nextScenePath="Assets/Scenes/ProgressOther.unity";
+        both.choices.Add(new DialogueChoice { text="Continue", nextLineId="choiceAndScene" });
+        route = ScriptableObject.CreateInstance<DialogueScenarioSO>(); route.name="ChoicePriority";
+        route.ReplaceAll(new List<DialogueLine>{both});
+        controller=Create(route,"choicePriority"); yield return null;
+        controller.SkipToNextScenario(); yield return null;
+        Check(SceneManager.GetActiveScene().name=="NovelScene" && (bool)Get(controller,"isChoiceSelectionOpen"),
+            "a choice did not take priority over a scene transition on the same row");
+
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        route = ScriptableObject.CreateInstance<DialogueScenarioSO>(); route.name="SceneBeforeChoice";
+        entry=Line("intro"); entry.nextLineId="firstScene";
+        var firstScene=Line("firstScene"); firstScene.text="Stop here."; firstScene.nextScenePath="Assets/Scenes/ProgressOther.unity";
+        var laterChoice=Line("laterChoice"); laterChoice.choices.Add(new DialogueChoice { text="Later", nextLineId="lastScene" });
+        var lastScene=Line("lastScene"); lastScene.nextScenePath="Assets/Scenes/ProgressOther.unity";
+        route.ReplaceAll(new List<DialogueLine>{entry,firstScene,laterChoice,lastScene});
+        controller=Create(route,"sceneBeforeChoice"); yield return null;
+        controller.SkipToNextScenario(); yield return null;
+        Check(Id(controller)=="firstScene" && !(bool)Get(controller,"isTyping") && SceneManager.GetActiveScene().name=="NovelScene",
+            "a later choice or scene took precedence over the first scene boundary");
+
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        route=ScriptableObject.CreateInstance<DialogueScenarioSO>(); route.name="MultipleChoices";
+        entry=Line("intro"); entry.nextLineId="firstChoice";
+        var firstChoice=Line("firstChoice"); firstChoice.choices.Add(new DialogueChoice { text="Next", nextLineId="between" });
+        var between=Line("between"); between.nextLineId="secondChoice";
+        var secondChoice=Line("secondChoice"); secondChoice.choices.Add(new DialogueChoice { text="End", nextLineId="finalScene" });
+        var finalScene=Line("finalScene"); finalScene.nextScenePath="Assets/Scenes/ProgressOther.unity";
+        route.ReplaceAll(new List<DialogueLine>{entry,firstChoice,between,secondChoice,finalScene});
+        controller=Create(route,"multipleChoices"); yield return null;
+        controller.SkipToNextScenario(); yield return null;
+        Check(Id(controller)=="firstChoice" && (bool)Get(controller,"isChoiceSelectionOpen"), "first choice bypassed");
+        Call(controller,"SelectChoice",firstChoice.choices[0]); yield return null;
+        controller.SkipToNextScenario(); yield return null;
+        Check(Id(controller)=="secondChoice" && (bool)Get(controller,"isChoiceSelectionOpen"), "next choice bypassed after selection");
+        Debug.Log("PASS: skip stops at the earliest choice/scene row within its asset, displays scene-boundary text without loading, advances one asset when no boundary exists, and follows selected routes.");
+    }
+
+    private IEnumerator CheckTitleContinuation()
+    {
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        GameProgress.ResetAll();
+        var source = Create(main); yield return null;
+        Body(source).maxVisibleCharacters = 3;
+        Set(source, "autoPlayEnabled", true);
+        var background = (Image)Get(source, "backgroundImage");
+        background.sprite = sprite; background.enabled = true;
+        background.color = new Color(0.6f, 0.7f, 0.8f, 0.9f);
+        background.rectTransform.anchoredPosition = new Vector2(17f, 23f);
+        TimingGameResults.Save("kayo", true); TimingGameResults.Save("moteru", false);
+        Check(GameSaveService.Save(0, out string message), "manual baseline failed: " + message);
+        string manualSlot = PlayerPrefs.GetString("GameSave.Slot.v1.0");
+        var menu = ArchiveManager.Instance.GetComponent<ArchiveMenuUI>();
+        ArchiveManager.Instance.OpenArchive();
+        var returnButton = Array.Find(menu.GetComponentsInChildren<Button>(true), b => b.name == "ReturnToTitle");
+        Check(returnButton != null, "return-to-title menu item missing");
+        returnButton.onClick.Invoke();
+        var confirmation = (GameObject)Get(menu, "returnToTitleConfirmation");
+        Check(confirmation.activeSelf, "return-to-title warning missing");
+        Array.Find(confirmation.GetComponentsInChildren<Button>(), b => b.name == "Cancel").onClick.Invoke();
+        Check(!confirmation.activeSelf && SceneManager.GetActiveScene().name == "NovelScene", "cancel changed scenes");
+        Check(GameSaveService.ReadContinue(out _) == null, "cancel created a continuation");
+        Check(GameSaveService.ReturnToTitle(out message), "save/return failed: " + message);
+        yield return null;
+        Check(SceneManager.GetActiveScene().name == "Title", "did not return to Title");
+        Check(PlayerPrefs.GetString("GameSave.Slot.v1.0") == manualSlot, "continue overwrote manual slot");
+        var saved = GameSaveService.ReadContinue(out message);
+        Check(saved != null && saved.lineId == "a1" && saved.visibleCharacters == 3, "partial text not captured");
+        Check(saved.autoPlayEnabled && saved.presentation[0].color == new Color(0.6f, 0.7f, 0.8f, 0.9f), "UI state not captured");
+        var canvas = new GameObject("TitleCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+        foreach (string name in new[] { "StartButton", "QuitButton" })
+        {
+            var button = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            button.transform.SetParent(canvas.transform, false);
+            var label = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            label.transform.SetParent(button.transform, false);
+            label.GetComponent<TextMeshProUGUI>().font = TMP_Settings.defaultFontAsset;
+        }
+        var titleObject = new GameObject("TitleMenu"); titleObject.SetActive(false);
+        var title = titleObject.AddComponent<TitleMenu>();
+        Set(title, "fadePanel", new GameObject("FadePanel", typeof(RectTransform), typeof(CanvasGroup)).GetComponent<CanvasGroup>());
+        Set(title, "bgmSource", titleObject.AddComponent<AudioSource>()); Set(title, "fadeDuration", 0f);
+        titleObject.SetActive(true); yield return null;
+        float[] centers = { 0.34f, 0.26f, 0.18f, 0.10f };
+        Vector2[] sizes = { new Vector2(430f,72f), new Vector2(430f,72f), new Vector2(350f,60f), new Vector2(350f,56f) };
+        string[] names = { "StartButton", "ContinueButton", "LoadButton", "QuitButton" };
+        for (int i = 0; i < names.Length; i++)
+        {
+            var button = Array.Find(canvas.GetComponentsInChildren<Button>(), b => b.name == names[i]);
+            var rect = button.GetComponent<RectTransform>();
+            Check(rect.sizeDelta == sizes[i] && Mathf.Approximately(rect.anchorMin.y, centers[i]), "title size/order/spacing incorrect");
+        }
+        Check(Array.Find(canvas.GetComponentsInChildren<Button>(), b => b.name == "ContinueButton").interactable, "valid continue disabled");
+        GameProgress.ResetAll(); TimingGameResults.Save("yowashi", true);
+        Check(GameSaveService.Continue(out message), "continue load failed: " + message);
+        yield return null;
+        var resumed = Create(main); yield return null;
+        Check(Id(resumed) == "a1" && Body(resumed).maxVisibleCharacters >= 3, "continue cursor/partial text not restored");
+        Check(resumed.IsAutoPlayEnabled, "AUTO not restored");
+        background = (Image)Get(resumed, "backgroundImage");
+        Check(background.sprite == sprite && background.rectTransform.anchoredPosition == new Vector2(17f,23f), "continue background not restored");
+        Check(TimingGameResults.Get("kayo").Latest == TimingGameResults.Outcome.Success &&
+            TimingGameResults.Get("moteru").Latest == TimingGameResults.Outcome.Failure &&
+            TimingGameResults.Get("yowashi").Latest == TimingGameResults.Outcome.NotPlayed, "character results leaked across continuation");
+        SceneManager.LoadScene(B); yield return null;
+        Check(!GameSaveService.ReturnToTitle(out _), "unsupported scene returned without saving");
+        Check(GameSaveService.ReadContinue(out _) != null, "failed return destroyed previous continuation");
+        Debug.Log("PASS: title confirmation/cancel, independent continuation, partial text/art/AUTO/results restore, title layout and unsupported-scene protection.");
+    }
+
     private static string Id(NovelDialogueController c) => ((DialogueLine)Get(c,"currentLine"))?.lineId;
     private static TMP_Text Body(NovelDialogueController c) => (TMP_Text)Get(c,"bodyText");
     private static void Complete(NovelDialogueController c) => Call(c,"CompleteTyping");

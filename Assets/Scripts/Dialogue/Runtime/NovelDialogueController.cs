@@ -337,6 +337,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             : gameObject.scene.name == "NovelScene_Yowashi" ? "ヨワシとの会話" : "会話";
         data.text = GetDialogueDisplayText(currentLine, omitOuterDialogueQuotes);
         data.images = new[] { CaptureImage(backgroundImage), CaptureImage(leftPortraitImage), CaptureImage(rightPortraitImage) };
+        data.hasPresentationState = true;
+        data.visibleCharacters = bodyText != null ? Math.Max(0, bodyText.maxVisibleCharacters) : 0;
+        data.autoPlayEnabled = autoPlayEnabled;
+        data.appliedLineIds = new List<string>(progressAppliedLineIds).ToArray();
+        data.presentation = new[] { CaptureProgressImage(backgroundImage), CaptureProgressImage(leftPortraitImage), CaptureProgressImage(rightPortraitImage) };
         return true;
     }
 
@@ -381,6 +386,8 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             currentScenarioIndex = i;
             stopAfterLineId = data.stopLineId;
             BeginProgressSession(!playOnStart);
+            if (data.hasPresentationState && data.appliedLineIds != null)
+                progressAppliedLineIds.UnionWith(data.appliedLineIds);
             progressAppliedLineIds.Add(candidate.name + "|" + line.lineId);
             shownConsultationLineIds.Clear();
             if (data.consultationLines != null) shownConsultationLineIds.UnionWith(data.consultationLines);
@@ -399,6 +406,16 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             RestoreImage(leftPortraitImage, data.images[1]);
             RestoreImage(rightPortraitImage, data.images[2]);
             if (data.textFullyDisplayed) CompleteTyping();
+            if (data.hasPresentationState)
+            {
+                if (data.presentation != null && data.presentation.Length == 3 &&
+                    Array.TrueForAll(data.presentation, image => image != null)) RestoreProgressImages(data.presentation);
+                if (!data.textFullyDisplayed && bodyText != null)
+                    bodyText.maxVisibleCharacters = Math.Max(0, data.visibleCharacters);
+                autoPlayEnabled = data.autoPlayEnabled;
+                UpdateAutoPlayButton();
+                if (autoPlayEnabled && !isTyping) ScheduleAutoAdvance();
+            }
             return true;
         }
         Debug.LogError("セーブした会話の位置が見つかりません。", this);
@@ -406,6 +423,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     }
 
     public string CurrentSpeakerId => currentLine?.speakerId;
+    internal void SaveProgressForContinuation() => SaveSceneProgress();
     // Opt-in for an embedded scene whose owner fades out the last dialogue frame.
     public bool KeepPresentationOnCompletion { get; set; }
     public bool CanAdvanceCurrentPage => isActiveAndEnabled && isPlaying &&
@@ -455,7 +473,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             text.raycastTarget = false;
             if (text.gameObject.name == "ConfirmationMessage")
             {
-                text.text = "現在の章をスキップします、\n本当によろしいですか？";
+                text.text = "次の選択肢・シーン遷移前、または次の章まで\nスキップしますか？";
                 text.fontSize = 32f;
                 text.enableAutoSizing = false;
                 text.alignment = TextAlignmentOptions.Center;
@@ -801,9 +819,14 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         ShowLine(nextLine);
     }
 
-    private bool TryResolveNextLine(
-        out DialogueLine nextLine,
-        out bool reachedScenarioEnd)
+    private bool TryResolveNextLine(out DialogueLine nextLine, out bool reachedScenarioEnd)
+    {
+        return TryResolveLineSuccessor(currentLine, true, out nextLine, out reachedScenarioEnd);
+    }
+
+    // Skipping inspects the active route without applying effects from undisplayed rows.
+    private bool TryResolveLineSuccessor(DialogueLine source, bool applyBranchEffects,
+        out DialogueLine nextLine, out bool reachedScenarioEnd)
     {
         nextLine = null;
         reachedScenarioEnd = false;
@@ -811,18 +834,18 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         AffectionManager affection = ResolveAffectionManager();
 
         // 1. 好感度に応じた分岐（先頭から順に評価）
-        if (currentLine.branches != null &&
-            currentLine.branches.Count > 0)
+        if (source.branches != null &&
+            source.branches.Count > 0)
         {
             if (affection == null)
             {
                 Debug.LogWarning(
-                    $"セリフ「{currentLine.lineId}」に分岐がありますが、" +
+                    $"セリフ「{source.lineId}」に分岐がありますが、" +
                     "AffectionManagerが見つかりません。分岐をスキップします。");
             }
             else
             {
-                foreach (DialogueBranch branch in currentLine.branches)
+                foreach (DialogueBranch branch in source.branches)
                 {
                     if (branch == null)
                     {
@@ -849,21 +872,21 @@ public sealed partial class NovelDialogueController : MonoBehaviour
                         return false;
                     }
 
-                    affection.ApplyDeltas(branch.affectionChanges);
+                    if (applyBranchEffects) affection.ApplyDeltas(branch.affectionChanges);
                     return true;
                 }
             }
         }
 
         // 2. nextLineIdが設定されていればそこへ移動
-        if (!string.IsNullOrWhiteSpace(currentLine.nextLineId))
+        if (!string.IsNullOrWhiteSpace(source.nextLineId))
         {
             if (!currentScenario.TryGetLine(
-                    currentLine.nextLineId,
+                    source.nextLineId,
                     out nextLine))
             {
                 Debug.LogError(
-                    $"次のセリフ「{currentLine.nextLineId}」が" +
+                    $"次のセリフ「{source.nextLineId}」が" +
                     "存在しません。");
                 return false;
             }
@@ -873,7 +896,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
         // 3. nextLineIdが空ならCSV上の次の行へ進む
         if (currentScenario.TryGetNextLine(
-                currentLine.lineId,
+                source.lineId,
                 out nextLine))
         {
             return true;
@@ -992,7 +1015,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
         autoAdvanceAt = -1f;
 
-        if (TryLoadUpcomingSceneTransition())
+        if (TrySkipWithinCurrentScenario())
         {
             return;
         }
@@ -3474,43 +3497,40 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         speakerNameText.color = character.nameColor;
     }
 
-    private bool TryLoadUpcomingSceneTransition()
+    private bool TrySkipWithinCurrentScenario()
     {
-        if (currentScenario != null &&
-            currentLine != null &&
-            currentScenario.TryGetSceneTransitionAtOrAfter(
-                currentLine.lineId,
-                out DialogueLine currentTransition))
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        DialogueLine cursor = currentLine;
+        while (cursor != null && visited.Add(cursor.lineId))
         {
-            LoadDialogueScene(
-                currentTransition.nextScenePath,
-                currentTransition);
-            return true;
-        }
-
-        int scenarioCount = 1 +
-            (followingScenarios?.Count ?? 0);
-
-        for (int nextIndex = currentScenarioIndex + 1;
-             nextIndex < scenarioCount;
-             nextIndex++)
-        {
-            DialogueScenarioSO nextScenario =
-                followingScenarios[nextIndex - 1];
-
-            if (nextScenario == null ||
-                !nextScenario.TryGetFirstSceneTransition(
-                    out DialogueLine nextTransition))
+            // Stop on the first decision or scene boundary in the active asset/route.
+            if (cursor.HasChoices || cursor.HasSceneTransition)
             {
-                continue;
+                if (cursor != currentLine)
+                {
+                    StopTypingAndRevealText();
+                    HideChoices();
+                    PrepareLine(cursor);
+                    StartTyping(GetDialogueDisplayText(cursor, omitOuterDialogueQuotes));
+                }
+                if (isTyping) CompleteTyping();
+                if (cursor.HasChoices && !isChoiceSelectionOpen) ShowChoices(cursor.choices);
+                // Scene boundaries are displayed, not executed, by Skip.
+                // Normal Advance performs the transition on the next input.
+                return true;
             }
-
-            LoadDialogueScene(
-                nextTransition.nextScenePath,
-                nextTransition);
+            if (!string.IsNullOrWhiteSpace(stopAfterLineId) && cursor.lineId == stopAfterLineId)
+                return false;
+            if (!TryResolveLineSuccessor(cursor, false, out DialogueLine next, out bool reachedEnd))
+                return !reachedEnd; // Invalid routes stay here instead of jumping to another asset.
+            cursor = next;
+        }
+        // A route loop without a choice/transition must not skip into unrelated content.
+        if (cursor != null)
+        {
+            Debug.LogWarning("Skip stopped because the dialogue route contains a loop.", this);
             return true;
         }
-
         return false;
     }
 

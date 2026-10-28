@@ -35,6 +35,9 @@ foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/Puzz
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Assets/Resources/StoryMusic/MusicPlan.json'), '{"dialogueScenes":[],"sceneCues":[],"scenarios":[]}', $utf8)
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Resources/DialogueSceneProgressSettings.json') -Destination (Join-Path $testProject 'Assets/Resources') -Force
+foreach ($suffix in @('.png','.png.meta')) {
+    Copy-Item -LiteralPath (Join-Path $root ('Assets/Resources/TitleLogo'+$suffix)) -Destination (Join-Path $testProject 'Assets/Resources') -Force
+}
 # Reused isolated projects may still contain the removed menu partial from a previous run.
 $removedMenuScript = Join-Path $testProject 'Assets/Scripts/Archive/ArchiveMenuUI.Progress.cs'
 if (Test-Path -LiteralPath $removedMenuScript) { Remove-Item -LiteralPath $removedMenuScript }
@@ -57,7 +60,7 @@ public static class DialogueSceneProgressBootstrap {
   PlayerSettings.companyName="DialogueProgressChecks"; PlayerSettings.productName=System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(Application.dataPath));
   DialogueScriptBindingChecks.Run();
   var scenes=new System.Collections.Generic.List<EditorBuildSettingsScene>();
-  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene"}) {
+  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene","Title"}) {
    var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
    string path="Assets/Scenes/"+name+".unity"; EditorSceneManager.SaveScene(scene,path); scenes.Add(new EditorBuildSettingsScene(path,true));
   }

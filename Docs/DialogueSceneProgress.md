@@ -102,7 +102,7 @@ Inspectorの `NovelDialogueController > Scene Progress > Progress Id` は保存�
 ### 相手選択・タイトル・共通メニュー
 
 - [SelectionPart](../Assets/Scenes/GameMap/SelectionPart.unity) の `SelectionPartController` は選択先を読み込みます。移動先の会話シーンが自分の履歴を復元するため、選択側で会話行を指定する必要はありません。相手選択画面自身は `NovelDialogueController` を持たず、会話履歴の保存対象ではありません。
-- [Title](../Assets/Scenes/GameMap/Title.unity) の `TitleMenu.StartGame()` と、Escメニューの「最初から」は `GameProgress.ResetAll()` を通して会話履歴・開始位置を消去します。タイトルからの手動ロードとの関係は [SaveLoad.md](SaveLoad.md) を参照してください。
+- [Title](../Assets/Scenes/GameMap/Title.unity) の `TitleMenu.StartGame()` は `GameProgress.ResetAll()` を通して会話履歴・開始位置を消去します。Escメニューの「タイトルに戻る」は履歴を保持して専用の続きデータを保存します。「つづきから」・手動ロードとの関係は [SaveLoad.md](SaveLoad.md) を参照してください。
 - ON/OFFは `Assets/Resources/DialogueSceneProgressSettings.json` で事前指定します。`[Archive System]` 上の `ArchiveMenuUI` に切り替えボタンはありません。各シーンに設定用コンポーネントを配置する必要もありません。
 - 現在のゲージ結果はカヨ会話内の `KayoGaugeOutcomeController` が扱い、今回のプログレスはその結果を保存します。独立したゲージゲーム盤面や、別途追加したシーンへ自動的に戻り経路を配線する機能ではありません。
 
