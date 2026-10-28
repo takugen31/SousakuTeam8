@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed partial class DialogueSceneProgressChecks : MonoBehaviour
+public sealed class DialogueSceneProgressChecks : MonoBehaviour
 {
     private const string A = "NovelScene_Moteru";
     private const string B = "ProgressOther";
@@ -32,7 +32,6 @@ public sealed partial class DialogueSceneProgressChecks : MonoBehaviour
     private IEnumerator Start()
     {
         DontDestroyOnLoad(gameObject);
-        GameAutoSaveSettings.Enabled = false;
         Check(Resources.Load<TextAsset>("DialogueSceneProgressSettings") != null, "production progress settings JSON was not bundled");
         PlayerPrefs.SetInt("Dialogue.SceneProgress.Enabled.v1", 0);
         Check(DialogueProgressSettings.IsEnabled(A), "obsolete player preference overrode the JSON setting");
@@ -47,7 +46,15 @@ public sealed partial class DialogueSceneProgressChecks : MonoBehaviour
         UseConfiguration(null);
         var menu = ArchiveManager.Instance.GetComponent<ArchiveMenuUI>();
         foreach (var button in menu.GetComponentsInChildren<Button>(true))
+        {
             Check(button.name != "ProgressSave", "Esc menu still exposes the progress toggle");
+            Check(button.name != "AutoSaveSetting" && button.name != "AutoLoad" && button.name != "ManualLoad",
+                "Removed automatic save UI is still present");
+        }
+        Call(menu, "ShowSaveLoad", true);
+        Check(((GameObject)Get(menu, "saveLoadRoot")).activeSelf, "Manual load screen did not open directly");
+        Check(((Button[])Get(menu, "saveSlotButtons")).Length == 6, "Manual load slots changed");
+        Call(menu, "HideSaveLoad");
         Debug.Log("PASS: bundled JSON is authoritative, global OFF overrides scene settings, legacy preferences are ignored, and the Esc toggle is absent.");
         GameProgress.ResetAll();
         affection = new GameObject("Affection").AddComponent<AffectionManager>();
@@ -258,7 +265,6 @@ public sealed partial class DialogueSceneProgressChecks : MonoBehaviour
         a = Create(main); yield return null;
         Check(Id(a) == "a1", "corrupt history prevented normal start");
         Debug.Log("PASS: corrupt progress falls back to normal start.");
-        yield return RunAutoSaveChecks();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
     }

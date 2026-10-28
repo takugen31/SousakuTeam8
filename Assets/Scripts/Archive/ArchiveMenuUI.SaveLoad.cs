@@ -12,10 +12,6 @@ public sealed partial class ArchiveMenuUI
     private TMP_Text saveLoadMessage;
     private TMP_Text saveLoadWarning;
     private TMP_Text saveLoadBackLabel;
-    private GameObject manualSlotsRoot;
-    private GameObject loadSourceRoot;
-    private Button autoLoadButton;
-    private TMP_Text autoLoadLabel;
     private bool loadOpenedFromTitle;
     private readonly Button[] saveSlotButtons = new Button[GameSaveService.SlotCount];
     private readonly TMP_Text[] saveSlotLabels = new TMP_Text[GameSaveService.SlotCount];
@@ -55,15 +51,12 @@ public sealed partial class ArchiveMenuUI
         saveLoadRoot.AddComponent<DialogueWindowFeather>();
         saveLoadTitle = CreateText("Title", saveLoadRoot.transform, "セーブ", 46f, Color.white, FontStyles.Bold);
         SetAnchors(saveLoadTitle.gameObject, new Vector2(0.07f, 0.84f), new Vector2(0.9f, 0.95f), Vector2.zero, Vector2.zero);
-        manualSlotsRoot = new GameObject("ManualSlots", typeof(RectTransform));
-        manualSlotsRoot.transform.SetParent(saveLoadRoot.transform, false);
-        Stretch(manualSlotsRoot.GetComponent<RectTransform>());
         for (int i = 0; i < saveSlotButtons.Length; i++)
         {
             int slot = i;
             float x = i % 2 == 0 ? 0.06f : 0.52f;
             float y = 0.61f - (i / 2) * 0.23f;
-            Button button = CreateButton("Slot" + (i + 1), manualSlotsRoot.transform, "", 23f, new Color(0.08f, 0.08f, 0.08f, 0.95f));
+            Button button = CreateButton("Slot" + (i + 1), saveLoadRoot.transform, "", 23f, new Color(0.08f, 0.08f, 0.08f, 0.95f));
             SetAnchors(button.gameObject, new Vector2(x, y), new Vector2(x + 0.42f, y + 0.20f), Vector2.zero, Vector2.zero);
             TMP_Text label = button.GetComponentInChildren<TMP_Text>();
             label.alignment = TextAlignmentOptions.MidlineLeft;
@@ -74,7 +67,6 @@ public sealed partial class ArchiveMenuUI
             saveSlotButtons[i] = button;
             saveSlotLabels[i] = label;
         }
-        BuildLoadSourceUI();
         saveLoadMessage = CreateText("Status", saveLoadRoot.transform, "", 21f, MutedTextColor);
         SetAnchors(saveLoadMessage.gameObject, new Vector2(0.07f, 0.025f), new Vector2(0.68f, 0.12f), Vector2.zero, Vector2.zero);
         Button back = CreateButton("BackToMenu", saveLoadRoot.transform, "← メニュー", 22f, AccentSoftColor);
@@ -87,8 +79,7 @@ public sealed partial class ArchiveMenuUI
         backLabel.textWrappingMode = TextWrappingModes.NoWrap;
         back.onClick.AddListener(() =>
         {
-            if (loadingSlots && manualSlotsRoot.activeSelf) ShowLoadSources();
-            else if (loadOpenedFromTitle) manager.CloseArchive();
+            if (loadOpenedFromTitle) manager.CloseArchive();
             else ShowMenu();
         });
         saveLoadRoot.SetActive(false);
@@ -122,74 +113,7 @@ public sealed partial class ArchiveMenuUI
         windowRoot.GetComponent<Image>().color = BackdropColor;
         saveLoadTitle.text = load ? "ロード" : "セーブ";
         saveLoadMessage.text = string.Empty;
-        if (load) ShowLoadSources();
-        else
-        {
-            loadSourceRoot.SetActive(false);
-            manualSlotsRoot.SetActive(true);
-            RefreshSaveSlots();
-        }
-    }
-
-    private void BuildLoadSourceUI()
-    {
-        loadSourceRoot = new GameObject("LoadSources", typeof(RectTransform));
-        loadSourceRoot.transform.SetParent(saveLoadRoot.transform, false);
-        Stretch(loadSourceRoot.GetComponent<RectTransform>());
-        autoLoadButton = CreateButton("AutoLoad", loadSourceRoot.transform, "", 28f, new Color(0.08f, 0.08f, 0.08f, 0.95f));
-        SetAnchors(autoLoadButton.gameObject, new Vector2(0.12f, 0.48f), new Vector2(0.88f, 0.76f), Vector2.zero, Vector2.zero);
-        autoLoadLabel = autoLoadButton.GetComponentInChildren<TMP_Text>();
-        autoLoadLabel.richText = false;
-        autoLoadLabel.textWrappingMode = TextWrappingModes.Normal;
-        autoLoadLabel.overflowMode = TextOverflowModes.Ellipsis;
-        autoLoadButton.onClick.AddListener(SelectAutoLoad);
-        var manual = CreateButton("ManualLoad", loadSourceRoot.transform, "手動セーブからロード", 30f, new Color(0.08f, 0.08f, 0.08f, 0.95f));
-        SetAnchors(manual.gameObject, new Vector2(0.12f, 0.21f), new Vector2(0.88f, 0.41f), Vector2.zero, Vector2.zero);
-        manual.onClick.AddListener(() =>
-        {
-            loadSourceRoot.SetActive(false);
-            manualSlotsRoot.SetActive(true);
-            saveLoadTitle.text = "手動セーブからロード";
-            saveLoadBackLabel.text = "← 戻る";
-            saveLoadMessage.text = string.Empty;
-            RefreshSaveSlots();
-        });
-    }
-
-    private void ShowLoadSources()
-    {
-        manualSlotsRoot.SetActive(false);
-        loadSourceRoot.SetActive(true);
-        saveLoadTitle.text = "ロード";
-        saveLoadBackLabel.text = loadOpenedFromTitle ? "← タイトル" : "← メニュー";
-        saveLoadMessage.text = string.Empty;
-        var data = GameSaveService.ReadAuto(out string error);
-        autoLoadLabel.text = "オートセーブからロード\n" + (data != null
-            ? data.timestamp + "  " + data.label + "\n" + (data.text ?? "").Replace("\n", " ")
-            : error ?? "データなし");
-        autoLoadButton.interactable = data != null;
-        autoLoadLabel.color = autoLoadButton.interactable ? Color.white : LockedTextColor;
-    }
-
-    private void SelectAutoLoad()
-    {
-        if (GameSaveService.ReadAuto(out string error) == null)
-        {
-            saveLoadMessage.text = error ?? "オートセーブのデータがありません。";
-            return;
-        }
-        ConfirmLoad(() =>
-        {
-            if (!GameSaveService.LoadAuto(out string message)) saveLoadMessage.text = message;
-        });
-    }
-
-    private void ConfirmLoad(Action action)
-    {
-        saveLoadWarning.text = "このデータをロードします。\n現在の未保存の進行は失われます。\nよろしいですか？";
-        confirmedSaveLoad = action;
-        saveLoadConfirmation.SetActive(true);
-        saveLoadConfirmation.transform.SetAsLastSibling();
+        RefreshSaveSlots();
     }
 
     private void RefreshSaveSlots()

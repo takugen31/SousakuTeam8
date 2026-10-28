@@ -1204,7 +1204,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         ResetBackgroundForScenario();
         ResetPortraitsForScenario();
         ShowLine(firstLine);
-        GameAutoSaveController.RequestCheckpoint();
     }
 
     private IEnumerator FadeChapterTransition(
@@ -3545,7 +3544,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
         // The source scene owns its cursor; unrelated dialogue scenes never consume it.
         SaveSceneDeparture(transitionLine);
-        GameAutoSaveController.SaveBeforeSceneChange();
         isSceneLoading = true;
         isPlaying = false;
         autoAdvanceAt = -1f;

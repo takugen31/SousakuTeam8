@@ -1,11 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $saveSource = Get-Content (Join-Path $root 'Assets/Scripts/GameSaveService.cs') -Raw
-$autoSaveSource = Get-Content (Join-Path $root 'Assets/Scripts/GameSaveService.AutoSave.cs') -Raw
-$autoSettingsSource = Get-Content (Join-Path $root 'Assets/Scripts/GameAutoSaveSettings.cs') -Raw
 $progressSource = Get-Content (Join-Path $root 'Assets/Scripts/GameProgress.cs') -Raw
 $saveSource = [regex]::Replace($saveSource, '(?m)^using .*;\r?\n', '')
-$autoSettingsSource = [regex]::Replace($autoSettingsSource, '(?m)^using .*;\r?\n', '')
 $progressSource = [regex]::Replace($progressSource, '(?m)^using .*;\r?\n', '')
 # Compile production storage/validation/restore code against isolated in-memory Unity doubles.
 # This never reads or modifies the real game's PlayerPrefs.
@@ -36,8 +33,6 @@ namespace UnityEngine {
   public static bool HasKey(string k) => Values.ContainsKey(k);
   public static string GetString(string k,string fallback="") => Values.TryGetValue(k,out string v) ? v : fallback;
   public static void SetString(string k,string v) { Values[k]=v; }
-  public static int GetInt(string k,int fallback=0) => Values.TryGetValue(k,out string v) ? int.Parse(v) : fallback;
-  public static void SetInt(string k,int v) { Values[k]=v.ToString(); }
   public static void DeleteKey(string k) { Values.Remove(k); }
   public static void Save() { if(FailSave) throw new Exception("simulated storage failure"); }
  }
@@ -66,8 +61,8 @@ public class NovelDialogueController {
  public static string[] CaptureRevealedNames() => Names;
  public static void RestoreRevealedNames(string[] n) { Names=n; }
 }
-public class Chapter1SearchController { public bool CaptureCheckpoint(GameSaveData d,bool sceneDeparture=false) { d.kind="search"; d.searchMode="modal"; d.itemId="door"; d.room=1; return true; } }
-public class SearchSceneController { public bool CaptureCheckpoint(GameSaveData d,bool sceneDeparture=false) { d.kind="search"; d.searchMode="room"; d.room=0; d.paperVisible=true; d.restartScene=sceneDeparture; return true; } }
+public class Chapter1SearchController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="modal"; d.itemId="door"; d.room=1; return true; } }
+public class SearchSceneController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="search"; d.searchMode="room"; d.room=0; d.paperVisible=true; return true; } }
 public class SelectionPartController { public bool CaptureCheckpoint(GameSaveData d) { d.kind="selection"; d.introDismissed=true; return true; } }
 public class KayoGaugeOutcomeController { public bool CurrentResult=true; }
 public static class DialogueProgressStore {
@@ -77,11 +72,8 @@ public static class DialogueProgressStore {
  public static void Clear() {}
 }
 public static class PuzzleGameFlowController { public static void ResetPendingRequest() {} }
-public static class GameAutoSaveController {
- public static void CancelPending() {}
- public static void PrepareForLoad() {}
- public static void CancelLoadSuppression() {}
-}
+public static class TimingMeterGameFlowController { public static void ResetPendingRequest() {} }
+public static class TimingGameResults { public static void ResetAll() {} }
 public class AffectionEntry { public string characterId; public int value; }
 public class AffectionManager {
  public static AffectionManager Instance=new AffectionManager(); public int Value=25;
@@ -98,7 +90,7 @@ public class ArchiveManager {
  public void OpenArchive() {}
 }
 '@
-Add-Type -TypeDefinition ($stubs + "`n" + $saveSource + "`n" + $autoSaveSource + "`n" + $autoSettingsSource + "`n" + $progressSource) -CompilerOptions '/define:UNITY_EDITOR' -WarningAction SilentlyContinue
+Add-Type -TypeDefinition ($stubs + "`n" + $saveSource + "`n" + $progressSource) -CompilerOptions '/define:UNITY_EDITOR' -WarningAction SilentlyContinue
 function Assert($condition, $message) { if (-not $condition) { throw $message } }
 $objects = [UnityEngine.Object]::Objects
 $dialogue = [NovelDialogueController]::new()
@@ -118,18 +110,6 @@ Assert ([GameSaveService]::Save(4,[ref]$message)) 'Failure outcome save failed'
 Assert (-not [GameSaveService]::Read(4,[ref]$message).kayoGaugeSucceeded) 'Failure outcome became success'
 $objects[[KayoGaugeOutcomeController]].CurrentResult=$true
 Assert (-not [GameSaveService]::Save(6,[ref]$message)) 'Invalid slot accepted'
-$manualBeforeAuto = [UnityEngine.PlayerPrefs]::GetString('GameSave.Slot.v1.0')
-Assert ([GameSaveService]::SaveAuto([ref]$message,$false)) 'Automatic save failed'
-$automaticBeforeFailure = [UnityEngine.PlayerPrefs]::GetString('GameSave.Auto.v1')
-Assert ([UnityEngine.PlayerPrefs]::GetString('GameSave.Slot.v1.0') -eq $manualBeforeAuto) 'Automatic save changed a manual slot'
-[GameAutoSaveSettings]::Enabled=$false
-Assert (-not [GameSaveService]::SaveAuto([ref]$message,$false)) 'OFF still saved automatically'
-Assert ([GameSaveService]::LoadAuto([ref]$message)) 'OFF blocked automatic loading'
-[GameAutoSaveSettings]::Enabled=$true
-[UnityEngine.PlayerPrefs]::FailSave=$true
-Assert (-not [GameSaveService]::SaveAuto([ref]$message,$false)) 'Failed automatic storage reported success'
-[UnityEngine.PlayerPrefs]::FailSave=$false
-Assert ([UnityEngine.PlayerPrefs]::GetString('GameSave.Auto.v1') -eq $automaticBeforeFailure) 'Failed auto overwrite destroyed the previous checkpoint'
 $old = [UnityEngine.PlayerPrefs]::GetString('GameSave.Slot.v1.0')
 [UnityEngine.PlayerPrefs]::FailSave = $true
 Assert (-not [GameSaveService]::Save(0,[ref]$message)) 'Failed storage reported success'
@@ -146,7 +126,9 @@ Assert ($null -eq [GameSaveService]::Consume('NovelScene','dialogue')) 'Checkpoi
 [GameProgress]::ResetAll()
 Assert ($null -ne [GameSaveService]::Read(0,[ref]$message)) 'New game deleted manual slot'
 [UnityEngine.SceneManagement.SceneManager]::Current='NovelScene_Moteru'
-Assert ([GameSaveService]::Save(0,[ref]$message)) 'Moteru dialogue is missing from checkpoint scenes'
+[NovelDialogueController]::RestoreRevealedNames(@('doute','moteru'))
+Assert ([GameSaveService]::Save(4,[ref]$message)) 'Moteru manual save failed'
+Assert ([GameSaveService]::Read(4,[ref]$message).scene -eq 'NovelScene_Moteru') 'Moteru scene lost'
 foreach ($scene in @('falling_verKayo','falling_verYowashi','PuzzleGame')) {
     [UnityEngine.SceneManagement.SceneManager]::Current=$scene
     Assert (-not [GameSaveService]::Save(0,[ref]$message)) "Unsupported scene saved: $scene"

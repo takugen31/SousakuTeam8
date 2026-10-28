@@ -1,10 +1,10 @@
 # シーンごとの会話プログレス
 
-最終確認: 2026-10-23。現在のシーンファイル・会話CSV・スクリプトの接続に基づきます。手動セーブ枠の仕様は [SaveLoad.md](SaveLoad.md) を参照してください。
+最終確認: 2026-10-28。現在のシーンファイル・会話CSV・スクリプトの接続に基づきます。手動セーブ枠の仕様は [SaveLoad.md](SaveLoad.md) を参照してください。
 
 ## 動作
 
-会話シーンAから別シーンBへ移動したとき、Aの会話位置を自動保存します。その後Aへ戻ると、保存した位置と表示状態から再開します。手動セーブの6枠・オートセーブ1枠とは別の保存先・処理です。任意にロードするオートセーブの仕様は [SaveLoad.md](SaveLoad.md) を参照してください。
+会話シーンAから別シーンBへ移動したとき、Aの会話位置を自動保存します。その後Aへ戻ると、保存した位置と表示状態から再開します。手動セーブの6枠とは別の保存先・処理です。
 
 `NovelDialogueController` を使うすべてのシーンが対象で、保存・復元の有効状態を事前のJSONで指定します。探索画面などの埋め込み会話も、同じコントローラーの会話再生APIを通して記録し、所属シーンの設定に従います。探索画面自体やミニゲーム盤面の復元は、会話プログレスの対象外です。
 
@@ -110,7 +110,7 @@ Inspectorの `NovelDialogueController > Scene Progress > Progress Id` は保存�
 
 | タイミング | 呼び出しと役割 |
 | --- | --- |
-| 本編会話シーンへの入場 | `NovelDialogueController.Start()` → `StartDialogue()` → `StartSceneWithProgress()`。手動・オートセーブのロードデータがあれば `RestoreCheckpoint()` が先に実行される |
+| 本編会話シーンへの入場 | `NovelDialogueController.Start()` → `StartDialogue()` → `StartSceneWithProgress()`。手動ロードのデータがあれば `RestoreCheckpoint()` が先に実行される |
 | 探索中の範囲会話の開始 | `PlayDialogueRange()` → `BeginProgressSession(true)` → `TryRestoreSceneProgress()` |
 | カヨのゲーム内イベント会話の開始 | `StartEmbeddedDialogue()` → `BeginProgressSession(true)` → `TryRestoreSceneProgress()` |
 | 会話再生中 | `LateUpdate()`、文字送り開始・全文表示時に `RefreshProgressState()` でメモリ上の状態を更新。毎フレームPlayerPrefsへ書き込む処理ではない |
@@ -155,7 +155,7 @@ Inspectorでは本編の `DialogueController` にある `Scenario`、`Following 
 
 製品実行時はONのシーンの履歴が終了後にも残ります。OFFのシーンの履歴・開始位置は起動時に破棄します。新規開始時は既存の進行データと一緒に初期化します。Unity Editorでは、好感度・探索などの既存の開発用初期化に合わせ、Play Modeに入るたび全会話履歴を削除します。ON/OFFは毎回JSONから読み込みます。
 
-手動・オートセーブのロードは、プログレスがOFFでも保存枠の内容を復元します。ロード成功時は古いシーン履歴を持ち越さず、ロードした時点から新しい履歴を作ります。ロード処理がシーン読み込み前に失敗した場合は、元の履歴に戻します。新規開始・ロードでは世代番号を更新し、離脱中の旧コントローラーから未来の履歴が再保存されることを防ぎます。
+手動ロードは、プログレスがOFFでも保存枠の内容を復元します。ロード成功時は古いシーン履歴を持ち越さず、ロードした時点から新しい履歴を作ります。ロード処理がシーン読み込み前に失敗した場合は、元の履歴に戻します。新規開始・手動ロードでは世代番号を更新し、離脱中の旧コントローラーから未来の履歴が再保存されることを防ぎます。
 
 ## 責務の分割
 
@@ -169,11 +169,11 @@ Inspectorでは本編の `DialogueController` にある `Scenario`、`Following 
 | [NovelDialogueController.Progress.cs](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.Progress.cs) | 会話状態と履歴の変換、再開位置の解決、表示復元 |
 | [NovelDialogueController.cs](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs) | 通常の会話再生。開始・終了・遷移時にプログレス側を呼び出す |
 
-この会話プログレス自体は `GameSaveService` の枠へ保存せず、専用のデータ形式と保存キーを使います。別機能の `GameAutoSaveController` がシーン入場・会話アセット切り替え・離脱前に自動枠を保存します。Escの「オートセーブ：ON/OFF」は自動枠への書き込みだけを制御し、この資料の会話プログレスのJSON設定は変更しません。`GameProgress.ResetAll()` と手動・自動枠のロードには、会話履歴の初期化を接続しています。
+`GameSaveService` の枠へ自動保存する処理はありません。プログレス専用のデータ形式と保存キーを使います。`GameProgress.ResetAll()` と手動ロードには、履歴の初期化を接続しています。
 
 ## 開始位置と復元の優先順位
 
-1. 手動・オートセーブ枠のロード
+1. 手動セーブ枠のロード
 2. ON時のみ、プログレス内に記録された対象シーンの開始位置
 3. ON時のみ、その会話の保存履歴
 4. 通常の開始位置

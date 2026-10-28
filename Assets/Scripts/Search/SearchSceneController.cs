@@ -164,18 +164,8 @@ public sealed class SearchSceneController : MonoBehaviour
         }
     }
 
-    public bool CaptureCheckpoint(GameSaveData data, bool sceneDeparture = false)
+    public bool CaptureCheckpoint(GameSaveData data)
     {
-        if (sceneDeparture && isCompleting)
-        {
-            data.kind = "search";
-            data.label = searchProfile != null ? searchProfile.saveLabel : "カヨ編の探索";
-            data.text = "探索完了後の場面へ進む";
-            data.room = (int)currentRoom;
-            data.searchMode = "room";
-            data.restartScene = true;
-            return true;
-        }
         if (isFadingIn || isCompleting) return false;
         if (isDialogueOpen)
         {
@@ -1098,7 +1088,6 @@ public sealed class SearchSceneController : MonoBehaviour
             completionSceneName,
             completionResumeLineId,
             diaryPuzzleImage);
-        GameAutoSaveController.SaveBeforeSceneChange();
         SceneManager.LoadScene(puzzleSceneName, LoadSceneMode.Single);
     }
 
