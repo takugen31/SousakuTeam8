@@ -27,7 +27,7 @@ foreach ($module in @('audio','imageconversion','physics','physics2d','jsonseria
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Packages/manifest.json'), (@{dependencies=$dependencies} | ConvertTo-Json), $utf8)
 Copy-Item -LiteralPath (Join-Path $root 'ProjectSettings/ProjectVersion.txt') -Destination (Join-Path $testProject 'ProjectSettings')
-foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/MeterGame/Scripts','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data')) {
+foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/MeterGame/Scripts','Assets/MeterGame/Art/Fonts','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data')) {
     $destination = Join-Path $testProject $folder
     New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force | Out-Null
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
@@ -42,8 +42,13 @@ foreach ($suffix in @('.png','.png.meta')) {
 $removedMenuScript = Join-Path $testProject 'Assets/Scripts/Archive/ArchiveMenuUI.Progress.cs'
 if (Test-Path -LiteralPath $removedMenuScript) { Remove-Item -LiteralPath $removedMenuScript }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueSceneProgressChecks.cs') -Destination (Join-Path $testProject 'Assets')
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'TimingStartGateChecks.cs') -Destination (Join-Path $testProject 'Assets')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DialogueScriptBindingChecks.cs') -Destination (Join-Path $testProject 'Assets/Editor')
 New-Item -ItemType Directory -Path (Join-Path $testProject 'Assets/Scenes/GameMap') -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $testProject 'Assets/MeterGame/Scenes') -Force | Out-Null
+foreach ($suffix in @('.unity','.unity.meta')) {
+    Copy-Item -LiteralPath (Join-Path $root ('Assets/MeterGame/Scenes/TimingMeterGame'+$suffix)) -Destination (Join-Path $testProject 'Assets/MeterGame/Scenes') -Force
+}
 foreach ($scene in @('NovelScene','NovelScene_Kayo','NovelScene_Moteru','NovelScene_Yowashi')) {
     foreach ($suffix in @('.unity','.unity.meta')) {
         Copy-Item -LiteralPath (Join-Path $root ('Assets/Scenes/GameMap/'+$scene+$suffix)) -Destination (Join-Path $testProject 'Assets/Scenes/GameMap')
@@ -64,6 +69,7 @@ public static class DialogueSceneProgressBootstrap {
    var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
    string path="Assets/Scenes/"+name+".unity"; EditorSceneManager.SaveScene(scene,path); scenes.Add(new EditorBuildSettingsScene(path,true));
   }
+  scenes.Add(new EditorBuildSettingsScene("Assets/MeterGame/Scenes/TimingMeterGame.unity",true));
   EditorBuildSettings.scenes=scenes.ToArray();
   SessionState.SetBool("DialogueSceneProgressChecks",true);
   EditorApplication.delayCall += () => EditorApplication.EnterPlaymode();

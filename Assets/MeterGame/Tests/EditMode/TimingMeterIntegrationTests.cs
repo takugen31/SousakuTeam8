@@ -30,6 +30,13 @@ namespace SousakuTeam8.MeterGame.Tests
             Configure(controller, true);
             controller.RestartGame();
             yield return null;
+            Assert.That(controller.Phase, Is.EqualTo(TimingMeterPhase.AwaitingStart));
+            Advance(controller, 10f);
+            Assert.That(controller.Session.Round.ElapsedSeconds, Is.Zero);
+            controller.BeginGame();
+            controller.SubmitPress();
+            Assert.That(controller.Session.Results.Count, Is.Zero, "Start input must not judge the first set.");
+            yield return null;
             Assert.That(controller.Session, Is.Not.Null);
             int setSuccess = 0, setFailure = 0, gameSuccess = 0, gameFailure = 0;
             Event(controller, "onSetSuccess").AddListener(() => setSuccess++);
@@ -74,6 +81,8 @@ namespace SousakuTeam8.MeterGame.Tests
             controller.RestartGame();
             Assert.That(controller.Session.Round.Gauge, Is.Zero);
             Assert.That(controller.Session.Results.Count, Is.Zero);
+            controller.BeginGame();
+            yield return null;
             for (int i = 0; i < 3; i++)
             {
                 PressOutsideRange(controller);

@@ -1066,46 +1066,32 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             return false;
         }
 
+        BeginChapterTransition(() => StartScenario(nextScenario, firstLine, nextScenarioIndex));
+        return true;
+    }
+
+    private void BeginChapterTransition(Action prepareDestination)
+    {
         StopTypingAndRevealText();
         HideChoices();
         autoAdvanceAt = -1f;
-
         if (!useChapterTransitionFade)
         {
-            StartScenario(
-                nextScenario,
-                firstLine,
-                nextScenarioIndex);
-            return true;
+            prepareDestination();
+            return;
         }
-
         Image overlay = EnsureChapterTransitionOverlay();
-
         if (overlay == null)
         {
-            Debug.LogWarning(
-                "チャプター切替用のCanvasが見つからないため、" +
-                "フェードせずに次のチャプターを開始します。");
-
-            StartScenario(
-                nextScenario,
-                firstLine,
-                nextScenarioIndex);
-            return true;
+            Debug.LogWarning("Dialogue transition Canvas is missing; showing the destination without a fade.", this);
+            prepareDestination();
+            return;
         }
-
         isChapterTransitioning = true;
         overlay.transform.SetAsLastSibling();
         overlay.gameObject.SetActive(true);
         SetChapterTransitionAlpha(0f);
-
-        chapterTransitionCoroutine = StartCoroutine(
-            TransitionToScenario(
-                nextScenario,
-                firstLine,
-                nextScenarioIndex));
-
-        return true;
+        chapterTransitionCoroutine = StartCoroutine(PlayChapterTransition(prepareDestination));
     }
 
     private bool TryFindNextScenario(
@@ -1153,20 +1139,10 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         return false;
     }
 
-    private IEnumerator TransitionToScenario(
-        DialogueScenarioSO nextScenario,
-        DialogueLine firstLine,
-        int nextScenarioIndex)
+    private IEnumerator PlayChapterTransition(Action prepareDestination)
     {
-        yield return FadeChapterTransition(
-            0f,
-            1f,
-            chapterFadeOutDuration);
-
-        StartScenario(
-            nextScenario,
-            firstLine,
-            nextScenarioIndex);
+        yield return FadeChapterTransition(0f, 1f, chapterFadeOutDuration);
+        prepareDestination();
 
         if (chapterFadeHoldDuration > 0f)
         {
@@ -3506,17 +3482,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             // Stop on the first decision or scene boundary in the active asset/route.
             if (cursor.HasChoices || cursor.HasSceneTransition)
             {
-                if (cursor != currentLine)
-                {
-                    StopTypingAndRevealText();
-                    HideChoices();
-                    PrepareLine(cursor);
-                    StartTyping(GetDialogueDisplayText(cursor, omitOuterDialogueQuotes));
-                }
-                if (isTyping) CompleteTyping();
-                if (cursor.HasChoices && !isChoiceSelectionOpen) ShowChoices(cursor.choices);
-                // Scene boundaries are displayed, not executed, by Skip.
-                // Normal Advance performs the transition on the next input.
+                BeginChapterTransition(() => ShowSkipDestination(cursor));
                 return true;
             }
             if (!string.IsNullOrWhiteSpace(stopAfterLineId) && cursor.lineId == stopAfterLineId)
@@ -3532,6 +3498,18 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    private void ShowSkipDestination(DialogueLine line)
+    {
+        if (line != currentLine)
+        {
+            PrepareLine(line);
+            StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
+        }
+        if (isTyping) CompleteTyping();
+        if (line.HasChoices && !isChoiceSelectionOpen) ShowChoices(line.choices);
+        // Scene boundaries are displayed by Skip; Advance loads them after the fade.
     }
 
     private void LoadDialogueScene(
@@ -3744,7 +3722,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void SelectChoice(DialogueChoice choice)
     {
-        if (!isChoiceSelectionOpen ||
+        if (!isChoiceSelectionOpen || isChapterTransitioning ||
             choice == null ||
             currentScenario == null)
         {

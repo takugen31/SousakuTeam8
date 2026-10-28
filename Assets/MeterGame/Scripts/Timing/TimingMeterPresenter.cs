@@ -30,7 +30,7 @@ namespace SousakuTeam8.MeterGame.Timing
                 string message = judging
                     ? $"範囲内でSpace！  {score}"
                     : $"{(session.Round.Result == TimingRoundResult.Success ? "成功！" : "失敗…")}  {score}";
-                if (prompt != null) prompt.SetPresentation(true, message);
+                if (prompt != null) prompt.SetPresentation(phase != TimingMeterPhase.AwaitingStart, message);
             }
             if (timerLabel != null) timerLabel.text = $"経過 {session.Round.ElapsedSeconds:F1} 秒";
             if (bar != null)

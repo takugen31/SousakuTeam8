@@ -387,6 +387,8 @@ AUTOの状態は章が切り替わっても維持されます。
 
 探索範囲は現在の会話asset内だけです。`nextLineId`と現在の好感度条件に従い、通らない分岐先や後続assetの`nextScenePath`は拾いません。選択肢とシーン遷移行が複数ある場合は、現在位置から先に到達する行で止まります。同じ行に両方ある場合は選択肢を表示します。未選択の分岐を自動決定せず、経路の確認だけで好感度変化を適用することもありません。シーン遷移行ではスキップしただけでロードせず、通常の次へ入力で遷移します。Prologue1からのスキップはPrologue2の先頭へ進み、Prologue2全体を飛び越してChapter1の探索シーンへ移動することはありません。
 
+同一asset内の選択肢・シーン遷移行へスキップする場合も、asset間移動と共通のフェードを再生します。既存の`useChapterTransitionFade`、`chapterFadeOutDuration`、`chapterFadeHoldDuration`、`chapterFadeInDuration`、`chapterFadeColor`を共用し、本編シーンの現在値は暗転1秒・待機1.7秒・明転1秒です。完全に暗転した時点でスキップ先を全文表示し、待機・明転後に入力を再開します。フェード中は会話送り・再スキップ・選択肢決定を受け付けません。フェード設定がOFF、またはCanvasがない場合は即時に切り替えます。
+
 ### Text Animation
 
 | Inspector項目 | 説明 |

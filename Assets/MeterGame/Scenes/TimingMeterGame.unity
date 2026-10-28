@@ -250,6 +250,8 @@ MonoBehaviour:
   presenter: {fileID: 100007}
   feedback: {fileID: 100008}
   transition: {fileID: 100009}
+  requireStartInput: 1
+  startPromptFont: {fileID: 12800000, guid: e8f1b5328c8f419a92875512a2693094, type: 3}
   onSetSuccess:
     m_PersistentCalls:
       m_Calls: []

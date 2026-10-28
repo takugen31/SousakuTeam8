@@ -2,7 +2,7 @@
 
 ## 起動
 
-`Assets/MeterGame/Scenes/TimingMeterGame.unity` を開き、Playで開始する。Gameビューを選択してSpaceキーで操作する。
+`Assets/MeterGame/Scenes/TimingMeterGame.unity` を開いてPlayすると、半透明の黒いオーバーレイと白い「クリックorSpaceキーで開始してください」を表示する。会話から遷移した場合も同様に開始待ちとなり、左クリックまたはSpaceでゲームを開始する。待機中はゲージ・経過時間・判定を進めず、開始に使った入力は最初のセットの判定には使わない。開始後のゲージ判定は従来どおりSpaceで操作する。
 既存のゲージ維持型は `Assets/MeterGame/Scenes/TensionManagementMinigame.unity`。
 専用のコード・素材・テストはすべて `Assets/MeterGame/` 配下に配置する。
 

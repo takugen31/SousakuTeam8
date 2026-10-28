@@ -266,6 +266,8 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         Check(Id(a) == "a1", "corrupt history prevented normal start");
         Debug.Log("PASS: corrupt progress falls back to normal start.");
         yield return CheckSkipBoundaries();
+        yield return CheckSkipFade();
+        yield return TimingStartGateChecks.Run();
         yield return CheckTitleContinuation();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
@@ -401,6 +403,59 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         controller.SkipToNextScenario(); yield return null;
         Check(Id(controller)=="secondChoice" && (bool)Get(controller,"isChoiceSelectionOpen"), "next choice bypassed after selection");
         Debug.Log("PASS: skip stops at the earliest choice/scene row within its asset, displays scene-boundary text without loading, advances one asset when no boundary exists, and follows selected routes.");
+    }
+
+    private IEnumerator CheckSkipFade()
+    {
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        var scenario = ScriptableObject.CreateInstance<DialogueScenarioSO>(); scenario.name="SkipFade";
+        var intro=Line("fadeIntro"); intro.text="Before the fade."; intro.nextLineId="fadeChoice";
+        var choice=Line("fadeChoice"); choice.text="Choose after the fade.";
+        choice.choices.Add(new DialogueChoice { text="Continue", nextLineId="fadeScene" });
+        var scene=Line("fadeScene"); scene.text="Stop before loading."; scene.nextScenePath="Assets/Scenes/ProgressOther.unity";
+        scenario.ReplaceAll(new List<DialogueLine>{intro,choice,scene});
+        var controller=Create(scenario,"skipFade"); yield return null;
+        Set(controller,"useChapterTransitionFade",true);
+        Set(controller,"chapterFadeOutDuration",0.12f);
+        Set(controller,"chapterFadeHoldDuration",0.12f);
+        Set(controller,"chapterFadeInDuration",0.12f);
+        controller.SkipToNextScenario();
+        Check((bool)Get(controller,"isChapterTransitioning"),"same-asset skip did not start the chapter fade");
+        controller.Advance(); controller.SkipToNextScenario();
+        Check(Id(controller)=="fadeIntro","input advanced dialogue during fade-out");
+        float deadline=Time.realtimeSinceStartup+3f;
+        while(Id(controller)!="fadeChoice" && Time.realtimeSinceStartup<deadline) yield return null;
+        Check(Id(controller)=="fadeChoice","skip fade never prepared the choice");
+        var overlay=(Image)Get(controller,"chapterTransitionOverlay");
+        Check(Mathf.Approximately(overlay.color.a,1f) && overlay.gameObject.activeSelf,"destination changed outside the black hold");
+        float holdBegan=Time.realtimeSinceStartup;
+        Check(!(bool)Get(controller,"isTyping") && (bool)Get(controller,"isChoiceSelectionOpen"),"choice destination was not fully displayed");
+        Call(controller,"SelectChoice",choice.choices[0]);
+        Check(Id(controller)=="fadeChoice","choice was accepted during the fade");
+        while((bool)Get(controller,"isChapterTransitioning") && Time.realtimeSinceStartup<deadline) yield return null;
+        Check(!(bool)Get(controller,"isChapterTransitioning") && !overlay.gameObject.activeSelf && overlay.color.a==0f,"skip fade did not finish transparently");
+        Check(Time.realtimeSinceStartup-holdBegan>=0.10f,"skip did not preserve the configured black hold interval");
+        Call(controller,"SelectChoice",choice.choices[0]); yield return null;
+        controller.SkipToNextScenario();
+        Check((bool)Get(controller,"isChapterTransitioning"),"scene-boundary skip did not fade");
+        deadline=Time.realtimeSinceStartup+3f;
+        while((bool)Get(controller,"isChapterTransitioning") && Time.realtimeSinceStartup<deadline) yield return null;
+        Check(Id(controller)=="fadeScene" && SceneManager.GetActiveScene().name=="NovelScene", "scene-boundary fade loaded instead of displaying the row");
+
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        var next=ScriptableObject.CreateInstance<DialogueScenarioSO>();next.name="NextFadeAsset";
+        next.ReplaceAll(new List<DialogueLine>{Line("nextFadeFirst")});
+        var plain=ScriptableObject.CreateInstance<DialogueScenarioSO>();plain.name="PlainFadeAsset";
+        plain.ReplaceAll(new List<DialogueLine>{Line("plainFirst")});
+        controller=Create(plain,"assetFade");Set(controller,"followingScenarios",new List<DialogueScenarioSO>{next});yield return null;
+        Set(controller,"useChapterTransitionFade",true);
+        Set(controller,"chapterFadeOutDuration",0.12f);Set(controller,"chapterFadeHoldDuration",0.12f);Set(controller,"chapterFadeInDuration",0.12f);
+        controller.SkipToNextScenario();
+        Check((bool)Get(controller,"isChapterTransitioning"),"next-asset skip lost its existing fade");
+        deadline=Time.realtimeSinceStartup+3f;
+        while((bool)Get(controller,"isChapterTransitioning") && Time.realtimeSinceStartup<deadline)yield return null;
+        Check(Id(controller)=="nextFadeFirst" && !(bool)Get(controller,"isChapterTransitioning"),"next-asset fade did not finish at the first line");
+        Debug.Log("PASS: skip shares chapter fade-out/hold/fade-in, swaps under black, locks input, shows choices/scene boundaries and preserves next-asset fades.");
     }
 
     private IEnumerator CheckTitleContinuation()
