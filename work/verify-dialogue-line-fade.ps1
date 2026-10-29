@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $runtime = Join-Path $root 'Assets/Scripts/Dialogue/Runtime'
-$controller = Get-Content (Join-Path $runtime 'NovelDialogueControllerSO.cs') -Raw -Encoding UTF8
+$controller = Get-Content (Join-Path $runtime 'NovelDialogueController.cs') -Raw -Encoding UTF8
 $start = $controller.IndexOf('    private bool TryStartLineFade(')
 $end = $controller.IndexOf('    private void ShowLineImmediately(', $start)
 $methods = $controller.Substring($start, $end - $start)

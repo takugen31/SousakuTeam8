@@ -21,6 +21,10 @@ MonoBehaviour:
     background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_002
     choices: []
@@ -34,6 +38,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_003
     choices: []
@@ -47,6 +55,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_004
     choices: []
@@ -60,6 +72,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 1
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_005
     choices: []
@@ -73,6 +89,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_006
     choices: []
@@ -86,6 +106,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_007
     choices: []
@@ -99,6 +123,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_008
     choices: []
@@ -112,6 +140,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_009
     choices: []
@@ -125,6 +157,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_010
     choices: []
@@ -138,6 +174,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_011
     choices: []
@@ -151,6 +191,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_012
     choices: []
@@ -164,6 +208,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_013
     choices: []
@@ -177,6 +225,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_014
     choices: []
@@ -190,6 +242,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_015
     choices: []
@@ -203,6 +259,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_016
     choices: []
@@ -216,6 +276,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_017
     choices: []
@@ -229,6 +293,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_018
     choices: []
@@ -242,6 +310,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_019
     choices: []
@@ -255,6 +327,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_020
     choices: []
@@ -268,6 +344,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_021
     choices: []
@@ -281,6 +361,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_022
     choices: []
@@ -294,6 +378,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_023
     choices: []
@@ -307,6 +395,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_024
     choices: []
@@ -320,6 +412,10 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
     nextScenePath: 
     nextLineId: chapter_kayo_5_025
     choices: []
@@ -329,67 +425,15 @@ MonoBehaviour:
   - lineId: chapter_kayo_5_025
     speakerId: doute
     expressionId: normal
-    text: "（さて……2人を助けなきゃ！）"
+    text: "\uFF08\u3055\u3066\u2026\u20262\u4EBA\u3092\u52A9\u3051\u306A\u304D\u3083\uFF01\uFF09"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
-    nextScenePath: 
-    nextLineId: 
-    choices:
-    - text: 成功
-      nextLineId: chapter_kayo_5_success_001
-    - text: 失敗
-      nextLineId: chapter_kayo_5_failure_001
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_kayo_5_success_001
-    speakerId: doute
-    expressionId: normal
-    text: "よし、壊すことが出来たぞ……！ってあれ？今、なにか落ちてきたような……"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle: 
-    nextScenePath: 
-    nextLineId: chapter_kayo_5_success_002
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_kayo_5_success_002
-    speakerId: doute
-    expressionId: normal
-    text: "なんだ、これ……紙？って、そんな場合じゃないっ！"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle: 
-    nextScenePath: 
-    nextLineId: chapter_kayo_5_result_exit
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_kayo_5_failure_001
-    speakerId: doute
-    expressionId: normal
-    text: "時間はかかっちゃったけど、なんとか壊すことが出来たぞ……！"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle: 
-    nextScenePath: 
-    nextLineId: chapter_kayo_5_result_exit
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: chapter_kayo_5_result_exit
-    speakerId: doute
-    expressionId: normal
-    text: "カヨちゃん！今のうちにこっちへ！"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle: 
-    nextScenePath: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: Assets/MeterGame/Scenes/TimingMeterGame.unity
     nextLineId: 
     choices: []
     affectionChanges: []

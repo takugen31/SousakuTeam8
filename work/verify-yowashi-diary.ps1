@@ -45,7 +45,7 @@ Assert-True ($scene.Contains('guid: d6f53c2278014a839a4d38961e7f4372')) 'Diary m
 Assert-True (-not $scene.Contains('guid: cf8d3c86502709540a8bcadb9944ddf1')) 'Prologue replay remains'
 $archive = Get-Content (Join-Path $projectRoot 'Assets/Resources/Archive/ArchiveDatabase.asset') -Raw
 foreach ($row in $all | Where-Object archiveUnlockIds) { Assert-True ($archive.Contains('  - id: '+$row.archiveUnlockIds)) 'Missing archive item' }
-$controller = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$controller = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 Assert-True ($controller.Contains('SceneTransitionStarting?.Invoke(transitionLine);')) 'Transition event missing'
 $bridgeCode = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Search/DialoguePuzzleEntryController.cs') -Raw
 $harness = @'

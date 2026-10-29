@@ -16,44 +16,33 @@ public class TitleMenu : MonoBehaviour
 
     private bool isTransitioning = false;
     private TMP_Text bgmLabel;
+    private TMP_Text continueStatus;
 
     private void Awake()
     {
-        // Match the existing title buttons without changing either title scene asset.
-        Button start = null;
-        Button quit = null;
+        Button start = null, quit = null, load = null, resume = null;
         foreach (Button button in FindObjectsByType<Button>(FindObjectsSortMode.None))
         {
             if (button.gameObject.scene != gameObject.scene) continue;
-            if (button.name == "LoadButton") return;
             if (button.name == "StartButton") start = button;
             if (button.name == "QuitButton") quit = button;
+            if (button.name == "LoadButton") load = button;
+            if (button.name == "ContinueButton") resume = button;
         }
         if (start == null) return;
-        Button load = Instantiate(start, start.transform.parent);
+        if (load == null) load = Instantiate(start, start.transform.parent);
         load.name = "LoadButton";
-        // Replace the event itself: RemoveAllListeners would retain StartGame's serialized callback.
         load.onClick = new Button.ButtonClickedEvent();
         load.onClick.AddListener(OpenLoad);
-        RectTransform rect = load.GetComponent<RectTransform>();
-        Vector2 startPosition = start.GetComponent<RectTransform>().anchoredPosition;
-        rect.anchoredPosition = quit != null
-            ? (startPosition + quit.GetComponent<RectTransform>().anchoredPosition) * 0.5f
-            : startPosition + Vector2.down * (rect.rect.height + 20f);
-        if (quit != null)
-        {
-            // Three equally sized buttons with breathing room between their existing centers.
-            float height = Mathf.Min(rect.rect.height, Mathf.Abs(startPosition.y - rect.anchoredPosition.y) * 0.8f);
-            foreach (Button button in new[] { start, load, quit })
-                button.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-        }
-        TMP_Text label = load.GetComponentInChildren<TMP_Text>();
-        if (label != null) { label.text = "ロード"; label.alignment = TextAlignmentOptions.Center; }
-        load.transform.SetSiblingIndex(start.transform.GetSiblingIndex() + 1);
-        ConfigureTitleLayout(start, load, quit);
+        if (resume == null) resume = Instantiate(start, start.transform.parent);
+        resume.name = "ContinueButton";
+        resume.onClick = new Button.ButtonClickedEvent();
+        resume.onClick.AddListener(ContinueGame);
+        resume.interactable = GameSaveService.ReadContinue(out _) != null;
+        ConfigureTitleLayout(start, resume, load, quit);
     }
 
-    private void ConfigureTitleLayout(Button start, Button load, Button quit)
+    private void ConfigureTitleLayout(Button start, Button resume, Button load, Button quit)
     {
         Canvas canvas = start.GetComponentInParent<Canvas>();
         if (canvas == null) return;
@@ -71,9 +60,16 @@ public class TitleMenu : MonoBehaviour
         shade.rectTransform.anchorMax = Vector2.one;
         shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
         shade.gameObject.AddComponent<TitleBottomShade>();
-        ConfigureTitleButton(start, canvas.transform, 0.28f, 32f, new Vector2(430f, 72f));
-        ConfigureTitleButton(load, canvas.transform, 0.19f, 30f, new Vector2(350f, 60f));
-        if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.105f, 30f, new Vector2(350f, 56f));
+        ConfigureTitleButton(start, canvas.transform, 0.34f, 32f, new Vector2(430f, 72f));
+        ConfigureTitleButton(resume, canvas.transform, 0.26f, 32f, new Vector2(430f, 72f));
+        ConfigureTitleButton(load, canvas.transform, 0.18f, 30f, new Vector2(350f, 60f));
+        if (quit != null) ConfigureTitleButton(quit, canvas.transform, 0.10f, 30f, new Vector2(350f, 56f));
+        resume.colors = start.colors;
+        var resumeLabel = resume.GetComponentInChildren<TMP_Text>();
+        if (resumeLabel != null) resumeLabel.text = "\u3064\u3065\u304d\u304b\u3089";
+        var loadLabel = load.GetComponentInChildren<TMP_Text>();
+        if (loadLabel != null) loadLabel.text = "\u30ed\u30fc\u30c9";
+
 
         foreach (TMP_Text text in canvas.GetComponentsInChildren<TMP_Text>(true))
         {
@@ -100,6 +96,16 @@ public class TitleMenu : MonoBehaviour
         }
 
         ConfigureTitleLogo(canvas);
+        var statusObject = new GameObject("ContinueStatus", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+        statusObject.transform.SetParent(canvas.transform, false);
+        continueStatus = statusObject.GetComponent<TextMeshProUGUI>();
+        continueStatus.font = font;
+        continueStatus.fontSize = 22f;
+        continueStatus.color = Color.white;
+        continueStatus.alignment = TextAlignmentOptions.Center;
+        continueStatus.raycastTarget = false;
+        PlaceTitleRect(continueStatus.rectTransform, new Vector2(0.5f, 0.40f), new Vector2(1100f, 48f));
+
 
         foreach (Toggle toggle in canvas.GetComponentsInChildren<Toggle>(true))
             if (toggle.name == "BGMToggle") toggle.gameObject.SetActive(false);
@@ -139,7 +145,7 @@ public class TitleMenu : MonoBehaviour
         Rect artwork = new Rect(346f, 475f, 2380f, 1537f);
         logo.uvRect = new Rect(artwork.x / 3508f, artwork.y / 2480f, artwork.width / 3508f, artwork.height / 2480f);
         float scale = Mathf.Min(880f / artwork.width, 520f / artwork.height);
-        PlaceTitleRect(logo.rectTransform, new Vector2(0.5f, 0.595f), new Vector2(artwork.width, artwork.height) * scale);
+        PlaceTitleRect(logo.rectTransform, new Vector2(0.5f, 0.65f), new Vector2(artwork.width, artwork.height) * scale);
     }
 
     private static Image CreateTitlePanel(string name, Transform parent, Color color)
@@ -206,6 +212,17 @@ public class TitleMenu : MonoBehaviour
         label.alignment = TextAlignmentOptions.Center;
         label.textWrappingMode = TextWrappingModes.NoWrap;
         label.raycastTarget = false;
+    }
+
+    public void ContinueGame()
+    {
+        if (isTransitioning || ArchiveManager.IsOpen) return;
+        if (GameSaveService.ReadContinue(out string message) == null)
+        {
+            if (continueStatus != null) continueStatus.text = message;
+            return;
+        }
+        StartCoroutine(FadeOutAndLoadScene(true));
     }
 
     public void OpenLoad()
@@ -276,7 +293,7 @@ public class TitleMenu : MonoBehaviour
         isTransitioning = false;
     }
 
-    private IEnumerator FadeOutAndLoadScene()
+    private IEnumerator FadeOutAndLoadScene(bool continuing = false)
     {
         isTransitioning = true;
 
@@ -285,11 +302,11 @@ public class TitleMenu : MonoBehaviour
         float startVolume = bgmSource.volume;
         float elapsedTime = 0f;
 
-        while (elapsedTime < fadeDuration)
+        while (elapsedTime < TitleDialogueTransition.FadeOutDuration)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
 
-            float t = Mathf.Clamp01(elapsedTime / fadeDuration);
+            float t = Mathf.Clamp01(elapsedTime / TitleDialogueTransition.FadeOutDuration);
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
             fadePanel.alpha = smoothT;
@@ -304,7 +321,83 @@ public class TitleMenu : MonoBehaviour
         bgmSource.volume = 0f;
         bgmSource.Stop();
 
-        SceneManager.LoadSceneAsync("NovelScene");
+        // A separate persistent canvas covers the destination before its first frame.
+        TitleDialogueTransition transition = TitleDialogueTransition.Create();
+        if (continuing)
+        {
+            if (!GameSaveService.Continue(out string message))
+            {
+                transition.Cancel();
+                if (continueStatus != null) continueStatus.text = message;
+                bgmSource.Play();
+                yield return FadeIn();
+                yield break;
+            }
+        }
+        else
+        {
+            SceneManager.LoadSceneAsync("NovelScene");
+        }
+    }
+}
+
+// Kept across scene loading so neither the new scene nor its dialogue flashes early.
+public sealed class TitleDialogueTransition : MonoBehaviour
+{
+    public const float FadeOutDuration = 1f;
+    public const float HoldDuration = 1.7f;
+    public const float FadeInDuration = 1f;
+    public static bool IsActive { get; private set; }
+    private CanvasGroup cover;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetState() => IsActive = false;
+
+    public static TitleDialogueTransition Create()
+    {
+        var root = new GameObject("TitleDialogueTransition", typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
+        DontDestroyOnLoad(root);
+        Canvas canvas = root.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = short.MaxValue;
+        var panel = new GameObject("Black", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        panel.transform.SetParent(root.transform, false);
+        Image image = panel.GetComponent<Image>();
+        image.color = Color.black;
+        image.rectTransform.anchorMin = Vector2.zero;
+        image.rectTransform.anchorMax = Vector2.one;
+        image.rectTransform.offsetMin = image.rectTransform.offsetMax = Vector2.zero;
+        var transition = root.AddComponent<TitleDialogueTransition>();
+        transition.cover = root.GetComponent<CanvasGroup>();
+        SceneManager.sceneLoaded += transition.OnDestinationLoaded;
+        IsActive = true;
+        return transition;
+    }
+
+    private void OnDestinationLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnDestinationLoaded;
+        StartCoroutine(Reveal());
+    }
+
+    private IEnumerator Reveal()
+    {
+        yield return new WaitForSecondsRealtime(HoldDuration);
+        float elapsed = 0f;
+        while (elapsed < FadeInDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            cover.alpha = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / FadeInDuration));
+            yield return null;
+        }
+        Cancel();
+    }
+
+    public void Cancel()
+    {
+        SceneManager.sceneLoaded -= OnDestinationLoaded;
+        IsActive = false;
+        Destroy(gameObject);
     }
 }
 

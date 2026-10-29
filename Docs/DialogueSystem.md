@@ -1,6 +1,8 @@
 # Dialogueシステム仕様・運用ガイド
 
-最終更新: 2026-08-26
+シーンをまたぐ会話の保存・復元とミニゲームからの戻りは、[DialogueSceneProgress.md](DialogueSceneProgress.md) を参照してください。手動スロットは [SaveLoad.md](SaveLoad.md) に記載しています。
+
+最終更新: 2026-10-23（会話プログレスとの接続・データ参照を更新）
 
 ## 概要
 
@@ -28,9 +30,9 @@ Chapter 2
 | --- | --- |
 | [`CharacterDatabaseSO.cs`](../Assets/Scripts/Dialogue/Runtime/CharacterDatabaseSO.cs) | キャラクター名、名前色、表情、立ち絵を保持する |
 | [`DialogueScenarioSO.cs`](../Assets/Scripts/Dialogue/Runtime/DialogueScenarioSO.cs) | 1つのシナリオに含まれるセリフと遷移情報を保持する |
-| [`NovelDialogueControllerSO.cs`](../Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs) | 会話の開始、文字送り、章送り、終了、UI更新を制御する |
+| [`NovelDialogueController.cs`](../Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs) | 会話の開始、文字送り、章送り、終了、UI更新を制御する |
 
-`NovelDialogueControllerSO.cs`というファイル名ですが、定義されている`NovelDialogueController`はScriptableObjectではなく`MonoBehaviour`です。
+`NovelDialogueController` は `MonoBehaviour` です。Unityがシーン内のコンポーネントを解決できるよう、主ファイル名をクラス名と同じ `NovelDialogueController.cs` にしています。`partial` の補助ファイルだけを主ファイルの代わりにアタッチしないでください。
 
 ### Editor
 
@@ -44,11 +46,11 @@ Chapter 2
 | ファイル | 内容 |
 | --- | --- |
 | [`Characters.csv`](../Assets/Dialogue/CSV/Characters.csv) | キャラクターと表情の入力データ |
-| [`prologue_station.csv`](../Assets/Dialogue/CSV/Prologue/prologue_station.csv) | 現在のプロローグ本文 |
+| [`prologue1.csv`](../Assets/Dialogue/CSV/Prologue/prologue1.csv) | プロローグ前半の本文 |
 | [`CharacterDatabase.asset`](../Assets/Dialogue/Data/CharacterDatabase.asset) | インポート済みキャラクターデータ |
-| [`Prologue.asset`](../Assets/Dialogue/Data/Prologue.asset) | インポート済みプロローグ |
+| [`Prologue1.asset`](../Assets/Dialogue/Data/Prologue/Prologue1.asset) | インポート済みプロローグ前半 |
 
-現時点ではChapter 1とChapter 2のCSVおよび`DialogueScenarioSO`はまだ作成されていません。
+Chapter 1以降と各キャラクターの会話データも、`Assets/Dialogue/CSV` と `Assets/Dialogue/Data` に配置されています。
 
 ## データの流れ
 
@@ -374,16 +376,18 @@ AUTOの状態は章が切り替わっても維持されます。
 
 #### SKIP
 
-`SKIP`を押すと、画面中央に「現在の章をスキップします、本当によろしいですか？」という確認画面が表示されます。同時に画面全体へ半透明の黒いオーバーレイを表示し、`Time.timeScale`を`0`にしてゲームを一時停止します。
+`SKIP`を押すと、画面中央に「次の選択肢・シーン遷移前、または次の章までスキップしますか？」という確認画面が表示されます。同時に画面全体へ半透明の黒いオーバーレイを表示し、`Time.timeScale`を`0`にしてゲームを一時停止します。
 
-- `はい`: 確認画面と一時停止を解除し、現在の章に残っているセリフをすべて飛ばして次章へ移動する
+- `はい`: 確認画面と一時停止を解除し、現在の章の到達可能な経路をたどる。最初の選択肢または`nextScenePath`のある行を全文表示して停止する。選択肢なら選択UIも開く。どちらもないまま章末へ到達した場合だけ次章の先頭へ移動する
 - `いいえ`: 確認画面と一時停止を解除し、現在の章をそのまま継続する
 
 確認中は通常の会話送り、タイプライター表示、AUTOの待機時間も停止します。`いいえ`を選んだ場合、AUTOの待機時間は確認画面を開く直前の残り時間から再開します。確認前からゲームが停止または減速されていた場合も、閉じる際に元の`Time.timeScale`へ戻します。
 
 次章が未設定または空の場合は従来の章送りと同様にスキップし、それ以降の有効な章を探します。次の章が存在しなければDialogue全体を終了します。
 
-現在位置以降、または`Following Scenarios`の後続チャプター内に`nextScenePath`を持つセリフがある場合、SKIPの`はい`では通常の次章移動よりScene遷移を優先します。対象セリフ自体は表示せず、再生順で最初に見つかったUnity Sceneを読み込みます。すでに通過したScene遷移行は検索対象になりません。
+探索範囲は現在の会話asset内だけです。`nextLineId`と現在の好感度条件に従い、通らない分岐先や後続assetの`nextScenePath`は拾いません。選択肢とシーン遷移行が複数ある場合は、現在位置から先に到達する行で止まります。同じ行に両方ある場合は選択肢を表示します。未選択の分岐を自動決定せず、経路の確認だけで好感度変化を適用することもありません。シーン遷移行ではスキップしただけでロードせず、通常の次へ入力で遷移します。Prologue1からのスキップはPrologue2の先頭へ進み、Prologue2全体を飛び越してChapter1の探索シーンへ移動することはありません。
+
+同一asset内の選択肢・シーン遷移行へスキップする場合も、asset間移動と共通のフェードを再生します。既存の`useChapterTransitionFade`、`chapterFadeOutDuration`、`chapterFadeHoldDuration`、`chapterFadeInDuration`、`chapterFadeColor`を共用し、本編シーンの現在値は暗転1秒・待機1.7秒・明転1秒です。完全に暗転した時点でスキップ先を全文表示し、待機・明転後に入力を再開します。フェード中は会話送り・再スキップ・選択肢決定を受け付けません。フェード設定がOFF、またはCanvasがない場合は即時に切り替えます。
 
 ### Text Animation
 
@@ -462,7 +466,7 @@ flowchart TD
 
 ### `StartDialogue()`
 
-最初に設定された`Scenario`から会話全体を開始します。`Start Line Id`が設定されていれば、そのIDから開始します。
+会話プログレスがONなら、シーン別開始位置と保存履歴から開始します。復元対象がない場合、またはOFFの場合は、最初の`Scenario`の`Start Line Id`、未設定なら先頭行から開始します。
 
 ### `StartDialogueAt(string lineId)`
 
@@ -482,11 +486,11 @@ AUTO再生のON/OFFを切り替え、ボタンの表示と次回自動送り時�
 
 ### `ConfirmSkip()` / `CancelSkip()`
 
-`ConfirmSkip()`は確認画面を閉じて次章へ移動します。`CancelSkip()`は確認画面を閉じ、現在の章とAUTO待機を再開します。どちらも確認前の`Time.timeScale`を復元します。
+`ConfirmSkip()`は確認画面を閉じ、現在の章で最初に到達する選択肢・シーン遷移行を表示します。該当行がない場合は次章の先頭へ移動します。`CancelSkip()`は確認画面を閉じ、現在の章とAUTO待機を再開します。どちらも確認前の`Time.timeScale`を復元します。
 
 ### `SkipToNextScenario()`
 
-現在の章の残りを飛ばし、次に再生可能なシナリオへ移動します。次章がなければDialogueを終了します。
+現在の章の経路上にある最初の選択肢またはシーン遷移行を全文表示して止まります。いずれもなければ次に再生可能なシナリオの先頭へ移動します。次章がなければDialogueを終了します。経路が循環している・遷移先行が不正な場合は別assetへ飛ばずに現在の場面へ留まります。
 
 ## インポート時の主な検証
 
@@ -529,7 +533,6 @@ line_a → line_b → line_a
 ### 現在未対応の機能
 
 - ゲーム状態を使った条件分岐
-- セーブデータからの章・行の復元
 - 章開始／章終了ごとのイベント
 - 会話履歴
 - ボイス再生

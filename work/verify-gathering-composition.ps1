@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root=Split-Path $PSScriptRoot -Parent
-$source=Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$source=Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 function Assert-Gather($condition,$message) { if (-not $condition) { throw $message } }
 $start=$source.IndexOf('private void StartGatheringComposition')
 $end=$source.IndexOf('private void StartSearchPortraitSlide',$start)

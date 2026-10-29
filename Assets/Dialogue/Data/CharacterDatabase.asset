@@ -59,3 +59,10 @@ MonoBehaviour:
     expressions:
     - expressionId: normal
       portrait: {fileID: 0}
+  - characterId: heroine
+    displayName: "\u30D2\u30ED\u30A4\u30F3"
+    nameColor: {r: 0.78039217, g: 0.08235294, b: 0.52156866, a: 1}
+    nameKnownInitially: 0
+    expressions:
+    - expressionId: normal
+      portrait: {fileID: 0}

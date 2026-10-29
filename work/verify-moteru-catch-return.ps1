@@ -51,10 +51,11 @@ namespace Sousakusai8.MiniGame {
 [IO.File]::WriteAllText((Join-Path $testProject 'Assets/CatchMiniGameController.cs'), $gameDouble, $encoding)
 $boundaryDoubles = @'
 using System;
-public static class NovelDialogueController {
+public static class DialogueProgressTransitions {
  public static string ResumeLine; public static bool FadeIn;
- public static void QueueResumeLine(string line) { QueueResumeLine(line,false); }
- public static void QueueResumeLine(string line,bool fadeIn) { ResumeLine=line;FadeIn=fadeIn; }
+ public static bool ReturnToScene(string scene,string line,bool fadeIn=true) {
+  ResumeLine=line; FadeIn=fadeIn; UnityEngine.SceneManagement.SceneManager.LoadScene(scene,UnityEngine.SceneManagement.LoadSceneMode.Single); return true;
+ }
 }
 public static class ArchiveManager { public static bool Closed; public static void Close() { Closed=true; } }
 [Serializable] public sealed class AffectionDelta {}

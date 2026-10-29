@@ -9,13 +9,11 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public sealed class NovelDialogueController : MonoBehaviour
+public sealed partial class NovelDialogueController : MonoBehaviour
 {
     private GameObject endingCard;
     private Coroutine endingCardCoroutine;
     private ProloguePresentation prologuePresentation;
-    private static string pendingResumeLineId;
-    private static bool pendingSceneFadeIn;
     private static readonly HashSet<string> revealedCharacterIds =
         new HashSet<string>(System.StringComparer.Ordinal);
 
@@ -24,46 +22,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     public event Action<DialogueLine> SceneTransitionStarting;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetPendingResumeLine()
+    private static void ResetRevealedCharacterNames()
     {
-        pendingResumeLineId = null;
-        pendingSceneFadeIn = false;
         revealedCharacterIds.Clear();
-    }
-
-    public static void QueueResumeLine(string lineId)
-    {
-        QueueResumeLine(lineId, false);
-    }
-
-    public static void ResetStoryState()
-    {
-        ResetPendingResumeLine();
-    }
-
-    public static void QueueResumeLine(
-        string lineId,
-        bool fadeInAfterSceneLoad)
-    {
-        pendingResumeLineId =
-            string.IsNullOrWhiteSpace(lineId)
-                ? null
-                : lineId.Trim();
-        pendingSceneFadeIn = fadeInAfterSceneLoad;
-    }
-
-    public static void QueueResumeLineIfEmpty(
-        string fallbackLineId,
-        bool fadeInAfterSceneLoad)
-    {
-        if (string.IsNullOrWhiteSpace(pendingResumeLineId))
-        {
-            pendingResumeLineId = string.IsNullOrWhiteSpace(fallbackLineId)
-                ? null
-                : fallbackLineId.Trim();
-        }
-
-        pendingSceneFadeIn = fadeInAfterSceneLoad;
     }
 
     [Header("Dialogue Data")]
@@ -82,7 +43,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     private CharacterDatabaseSO characterDatabase;
 
     [SerializeField]
-    [Tooltip("画面左側へ常時表示する主人公のcharacterIdです。")]
+    [Tooltip("初めて話すセリフの表示開始時から、画面左側へ表示する主人公のcharacterIdです。")]
     private string protagonistCharacterId = "doute";
 
     [SerializeField]
@@ -108,17 +69,17 @@ public sealed class NovelDialogueController : MonoBehaviour
     [SerializeField]
     [Min(0f)]
     [Tooltip("暗転するまでの秒数です。")]
-    private float chapterFadeOutDuration = 1f;
+    private float chapterFadeOutDuration = TitleDialogueTransition.FadeOutDuration;
 
     [SerializeField]
     [Min(0f)]
     [Tooltip("暗転したまま待機する秒数です。")]
-    private float chapterFadeHoldDuration = 1.7f;
+    private float chapterFadeHoldDuration = TitleDialogueTransition.HoldDuration;
 
     [SerializeField]
     [Min(0f)]
     [Tooltip("暗転から画面を表示するまでの秒数です。")]
-    private float chapterFadeInDuration = 1f;
+    private float chapterFadeInDuration = TitleDialogueTransition.FadeInDuration;
 
     [SerializeField]
     [Tooltip("チャプター切替時に画面を覆う色です。")]
@@ -193,6 +154,11 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     [SerializeField]
     private Image rightPortraitImage;
+
+    private bool prologuePcLayoutApplied;
+    private RectTransform prologuePcPanel, prologuePcName;
+    private Vector2 prologuePcPanelPosition, prologuePcNamePosition;
+    private Vector3 prologuePcPanelScale, prologuePcNameScale;
 
     [Header("Playback Controls")]
     [SerializeField]
@@ -384,6 +350,11 @@ public sealed class NovelDialogueController : MonoBehaviour
             : gameObject.scene.name == "NovelScene_Yowashi" ? "ヨワシとの会話" : "会話";
         data.text = GetDialogueDisplayText(currentLine, omitOuterDialogueQuotes);
         data.images = new[] { CaptureImage(backgroundImage), CaptureImage(leftPortraitImage), CaptureImage(rightPortraitImage) };
+        data.hasPresentationState = true;
+        data.visibleCharacters = bodyText != null ? Math.Max(0, bodyText.maxVisibleCharacters) : 0;
+        data.autoPlayEnabled = autoPlayEnabled;
+        data.appliedLineIds = new List<string>(progressAppliedLineIds).ToArray();
+        data.presentation = new[] { CaptureProgressImage(backgroundImage), CaptureProgressImage(leftPortraitImage), CaptureProgressImage(rightPortraitImage) };
         return true;
     }
 
@@ -427,6 +398,10 @@ public sealed class NovelDialogueController : MonoBehaviour
             currentScenario = candidate;
             currentScenarioIndex = i;
             stopAfterLineId = data.stopLineId;
+            BeginProgressSession(!playOnStart);
+            if (data.hasPresentationState && data.appliedLineIds != null)
+                progressAppliedLineIds.UnionWith(data.appliedLineIds);
+            progressAppliedLineIds.Add(candidate.name + "|" + line.lineId);
             shownConsultationLineIds.Clear();
             if (data.consultationLines != null) shownConsultationLineIds.UnionWith(data.consultationLines);
             ResetKnownCharacterNames();
@@ -446,8 +421,19 @@ public sealed class NovelDialogueController : MonoBehaviour
             // Old saves can contain portrait geometry from before the layout adjustment.
             if (CanApplyStandardDoutePortraitLayout())
                 ApplyProtagonistFacing();
-            ApplyProloguePresentation(line);
             if (data.textFullyDisplayed) CompleteTyping();
+            if (data.hasPresentationState)
+            {
+                if (data.presentation != null && data.presentation.Length == 3 &&
+                    Array.TrueForAll(data.presentation, image => image != null)) RestoreProgressImages(data.presentation);
+                if (!data.textFullyDisplayed && bodyText != null)
+                    bodyText.maxVisibleCharacters = Math.Max(0, data.visibleCharacters);
+                autoPlayEnabled = data.autoPlayEnabled;
+                UpdateAutoPlayButton();
+                if (autoPlayEnabled && !isTyping) ScheduleAutoAdvance();
+            }
+            RefreshStandardDoutePortraitLayout();
+            ApplyProloguePresentation(line);
             return true;
         }
         Debug.LogError("セーブした会話の位置が見つかりません。", this);
@@ -455,6 +441,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     }
 
     public string CurrentSpeakerId => currentLine?.speakerId;
+    internal void SaveProgressForContinuation() => SaveSceneProgress();
     // Opt-in for an embedded scene whose owner fades out the last dialogue frame.
     public bool KeepPresentationOnCompletion { get; set; }
     public bool CanAdvanceCurrentPage => isActiveAndEnabled && isPlaying &&
@@ -504,7 +491,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             text.raycastTarget = false;
             if (text.gameObject.name == "ConfirmationMessage")
             {
-                text.text = "現在の章をスキップします、\n本当によろしいですか？";
+                text.text = "次の選択肢・シーン遷移前、または次の章まで\nスキップしますか？";
                 text.fontSize = 32f;
                 text.enableAutoSizing = false;
                 text.alignment = TextAlignmentOptions.Center;
@@ -582,7 +569,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         UpdateKayoFall();
         UpdateSearchPortraitSlide();
         UpdateWindowShake();
-        if (isRoomLookPlaying || ArchiveManager.IsOpen ||
+        if (TitleDialogueTransition.IsActive || isRoomLookPlaying || ArchiveManager.IsOpen ||
             isChapterTransitioning ||
             isSceneLoading ||
             isSkipConfirmationOpen ||
@@ -604,7 +591,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    private void RefreshStandardDoutePortraitLayout()
     {
         if (!normalizeBustPortraitSizes || !CanApplyStandardDoutePortraitLayout() || isRoomLookPlaying) return;
         RectTransform parent = leftPortraitImage.rectTransform.parent as RectTransform;
@@ -612,114 +599,34 @@ public sealed class NovelDialogueController : MonoBehaviour
             ApplyProtagonistFacing();
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        CanvasGroup entryPresentation = null;
+        float originalAlpha = 1f;
+        if (TitleDialogueTransition.IsActive && dialogueRoot != null)
+        {
+            entryPresentation = dialogueRoot.GetComponent<CanvasGroup>();
+            if (entryPresentation == null) entryPresentation = dialogueRoot.AddComponent<CanvasGroup>();
+            originalAlpha = entryPresentation.alpha;
+            entryPresentation.alpha = 0f;
+        }
         if (playOnStart)
         {
             GameSaveData checkpoint = GameSaveService.Consume(gameObject.scene.name, "dialogue");
             if (checkpoint != null)
             {
                 RestoreCheckpoint(checkpoint);
-                return;
             }
-            StartDialogue();
+            else StartDialogue();
         }
+        while (TitleDialogueTransition.IsActive) yield return null;
+        if (entryPresentation != null) entryPresentation.alpha = originalAlpha;
     }
 
     public void StartDialogue()
     {
         stopAfterLineId = null;
-        bool shouldFadeIn = pendingSceneFadeIn;
-        pendingSceneFadeIn = false;
-
-        if (!TryStartPendingResumeLine())
-        {
-            StartDialogueInternal();
-        }
-
-        if (shouldFadeIn && isPlaying)
-        {
-            BeginSceneEntryFadeIn();
-        }
-    }
-
-    // Read-only preview for sceneLoaded: resolve resume music before Start or intro animation.
-    public bool TryGetSceneEntryMusic(out DialogueScenarioSO entryScenario, out DialogueLine entryLine)
-    {
-        entryScenario = null;
-        entryLine = null;
-        if (!playOnStart || !isActiveAndEnabled || scenario == null) return false;
-        if (!string.IsNullOrWhiteSpace(pendingResumeLineId))
-        {
-            int count = 1 + (followingScenarios?.Count ?? 0);
-            for (int i = 0; i < count; i++)
-            {
-                DialogueScenarioSO candidate = i == 0 ? scenario : followingScenarios[i - 1];
-                if (candidate != null && candidate.TryGetLine(pendingResumeLineId, out entryLine))
-                {
-                    entryScenario = candidate;
-                    return true;
-                }
-            }
-        }
-        entryScenario = scenario;
-        if (!string.IsNullOrWhiteSpace(startLineId) && scenario.TryGetLine(startLineId, out entryLine)) return true;
-        return scenario.TryGetFirstLine(out entryLine);
-    }
-
-    private bool TryStartPendingResumeLine()
-    {
-        string resumeLineId = pendingResumeLineId;
-        pendingResumeLineId = null;
-
-        if (string.IsNullOrWhiteSpace(resumeLineId))
-        {
-            return false;
-        }
-
-        if (characterDatabase == null)
-        {
-            Debug.LogError("CharacterDatabaseが設定されていません。");
-            return false;
-        }
-
-        int scenarioCount = 1 + (followingScenarios?.Count ?? 0);
-
-        for (int index = 0; index < scenarioCount; index++)
-        {
-            DialogueScenarioSO candidate =
-                index == 0 ? scenario : followingScenarios[index - 1];
-
-            if (candidate == null ||
-                !candidate.TryGetLine(resumeLineId, out DialogueLine resumeLine))
-            {
-                continue;
-            }
-
-            CancelChapterTransition();
-            HideChoices();
-            ResetKnownCharacterNames();
-            shownConsultationLineIds.Clear();
-            currentScenario = candidate;
-            currentScenarioIndex = index;
-            isPlaying = true;
-
-            if (dialogueRoot != null)
-            {
-                dialogueRoot.SetActive(true);
-            }
-
-            ResetBackgroundForScenario();
-            ResetPortraitsForScenario();
-            ShowLine(resumeLine);
-            return true;
-        }
-
-        Debug.LogWarning(
-            $"再開セリフ「{resumeLineId}」が登録シナリオ内に存在しません。" +
-            "通常の開始位置から再生します。",
-            this);
-        return false;
+        StartSceneWithProgress();
     }
 
     private void StartDialogueInternal()
@@ -792,6 +699,7 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         startLineId = lineId;
         stopAfterLineId = null;
+        BeginProgressSession();
         StartDialogueInternal();
     }
 
@@ -875,8 +783,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     public void StartEmbeddedDialogue()
     {
+        startLineId = null;
         stopAfterLineId = null;
-        StartDialogueInternal();
+        BeginProgressSession(true);
+        if (!TryRestoreSceneProgress()) StartDialogueInternal();
     }
 
     public void PlayDialogueRange(
@@ -888,7 +798,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         followingScenarios.Clear();
         startLineId = firstLineId;
         stopAfterLineId = lastLineId;
-        StartDialogueInternal();
+        BeginProgressSession(true);
+        if (!TryRestoreSceneProgress()) StartDialogueInternal();
     }
 
     public void Advance()
@@ -944,9 +855,14 @@ public sealed class NovelDialogueController : MonoBehaviour
         ShowLine(nextLine);
     }
 
-    private bool TryResolveNextLine(
-        out DialogueLine nextLine,
-        out bool reachedScenarioEnd)
+    private bool TryResolveNextLine(out DialogueLine nextLine, out bool reachedScenarioEnd)
+    {
+        return TryResolveLineSuccessor(currentLine, true, out nextLine, out reachedScenarioEnd);
+    }
+
+    // Skipping inspects the active route without applying effects from undisplayed rows.
+    private bool TryResolveLineSuccessor(DialogueLine source, bool applyBranchEffects,
+        out DialogueLine nextLine, out bool reachedScenarioEnd)
     {
         nextLine = null;
         reachedScenarioEnd = false;
@@ -954,18 +870,18 @@ public sealed class NovelDialogueController : MonoBehaviour
         AffectionManager affection = ResolveAffectionManager();
 
         // 1. 好感度に応じた分岐（先頭から順に評価）
-        if (currentLine.branches != null &&
-            currentLine.branches.Count > 0)
+        if (source.branches != null &&
+            source.branches.Count > 0)
         {
             if (affection == null)
             {
                 Debug.LogWarning(
-                    $"セリフ「{currentLine.lineId}」に分岐がありますが、" +
+                    $"セリフ「{source.lineId}」に分岐がありますが、" +
                     "AffectionManagerが見つかりません。分岐をスキップします。");
             }
             else
             {
-                foreach (DialogueBranch branch in currentLine.branches)
+                foreach (DialogueBranch branch in source.branches)
                 {
                     if (branch == null)
                     {
@@ -992,21 +908,21 @@ public sealed class NovelDialogueController : MonoBehaviour
                         return false;
                     }
 
-                    affection.ApplyDeltas(branch.affectionChanges);
+                    if (applyBranchEffects) affection.ApplyDeltas(branch.affectionChanges);
                     return true;
                 }
             }
         }
 
         // 2. nextLineIdが設定されていればそこへ移動
-        if (!string.IsNullOrWhiteSpace(currentLine.nextLineId))
+        if (!string.IsNullOrWhiteSpace(source.nextLineId))
         {
             if (!currentScenario.TryGetLine(
-                    currentLine.nextLineId,
+                    source.nextLineId,
                     out nextLine))
             {
                 Debug.LogError(
-                    $"次のセリフ「{currentLine.nextLineId}」が" +
+                    $"次のセリフ「{source.nextLineId}」が" +
                     "存在しません。");
                 return false;
             }
@@ -1016,7 +932,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         // 3. nextLineIdが空ならCSV上の次の行へ進む
         if (currentScenario.TryGetNextLine(
-                currentLine.lineId,
+                source.lineId,
                 out nextLine))
         {
             return true;
@@ -1135,7 +1051,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
         autoAdvanceAt = -1f;
 
-        if (TryLoadUpcomingSceneTransition())
+        if (TrySkipWithinCurrentScenario())
         {
             return;
         }
@@ -1186,46 +1102,32 @@ public sealed class NovelDialogueController : MonoBehaviour
             return false;
         }
 
+        BeginChapterTransition(() => StartScenario(nextScenario, firstLine, nextScenarioIndex));
+        return true;
+    }
+
+    private void BeginChapterTransition(Action prepareDestination)
+    {
         StopTypingAndRevealText();
         HideChoices();
         autoAdvanceAt = -1f;
-
         if (!useChapterTransitionFade)
         {
-            StartScenario(
-                nextScenario,
-                firstLine,
-                nextScenarioIndex);
-            return true;
+            prepareDestination();
+            return;
         }
-
         Image overlay = EnsureChapterTransitionOverlay();
-
         if (overlay == null)
         {
-            Debug.LogWarning(
-                "チャプター切替用のCanvasが見つからないため、" +
-                "フェードせずに次のチャプターを開始します。");
-
-            StartScenario(
-                nextScenario,
-                firstLine,
-                nextScenarioIndex);
-            return true;
+            Debug.LogWarning("Dialogue transition Canvas is missing; showing the destination without a fade.", this);
+            prepareDestination();
+            return;
         }
-
         isChapterTransitioning = true;
         overlay.transform.SetAsLastSibling();
         overlay.gameObject.SetActive(true);
         SetChapterTransitionAlpha(0f);
-
-        chapterTransitionCoroutine = StartCoroutine(
-            TransitionToScenario(
-                nextScenario,
-                firstLine,
-                nextScenarioIndex));
-
-        return true;
+        chapterTransitionCoroutine = StartCoroutine(PlayChapterTransition(prepareDestination));
     }
 
     private bool TryFindNextScenario(
@@ -1273,20 +1175,10 @@ public sealed class NovelDialogueController : MonoBehaviour
         return false;
     }
 
-    private IEnumerator TransitionToScenario(
-        DialogueScenarioSO nextScenario,
-        DialogueLine firstLine,
-        int nextScenarioIndex)
+    private IEnumerator PlayChapterTransition(Action prepareDestination)
     {
-        yield return FadeChapterTransition(
-            0f,
-            1f,
-            chapterFadeOutDuration);
-
-        StartScenario(
-            nextScenario,
-            firstLine,
-            nextScenarioIndex);
+        yield return FadeChapterTransition(0f, 1f, chapterFadeOutDuration);
+        prepareDestination();
 
         if (chapterFadeHoldDuration > 0f)
         {
@@ -1808,6 +1700,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        SaveSceneProgress();
         prologuePresentation?.Hide();
         StopKayoPushback();
         StopEndingCard();
@@ -1976,6 +1869,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         HideChoices();
 
         currentLine = line;
+        ApplyProloguePcLayout();
         if (!IsApproachRevealLine(line?.lineId)) moteruApproachElapsed = 0f;
         if (!IsKayoEggLine(line?.lineId) || line.lineId == "chapter2_kayo_012") kayoEggSlideElapsed = 0f;
         autoAdvanceAt = -1f;
@@ -1983,7 +1877,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
 
         ApplyBackground(line);
-        if (!restoringCheckpointLine)
+        if (!restoringCheckpointLine && ShouldApplyProgressLine(line))
         {
             ApplyAffectionChanges(line);
             // Kayo's entrance look runs before her introduction text is displayed.
@@ -3029,6 +2923,54 @@ public sealed class NovelDialogueController : MonoBehaviour
         StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
+    private void ApplyProloguePcLayout()
+    {
+        bool usePcLayout = currentScenario != null && currentScenario.name == "Prologue_Game";
+        if (usePcLayout == prologuePcLayoutApplied) return;
+
+        if (usePcLayout)
+        {
+            prologuePcPanel = bodyText != null ? bodyText.transform.parent as RectTransform : null;
+            prologuePcName = namePlate != null ? namePlate.transform as RectTransform : null;
+            if (prologuePcPanel == null || prologuePcPanel == dialogueRoot?.transform) return;
+            prologuePcPanelPosition = prologuePcPanel.anchoredPosition;
+            prologuePcPanelScale = prologuePcPanel.localScale;
+            ScaleIntoPcScreen(prologuePcPanel);
+            if (prologuePcName != null && !prologuePcName.IsChildOf(prologuePcPanel))
+            {
+                prologuePcNamePosition = prologuePcName.anchoredPosition;
+                prologuePcNameScale = prologuePcName.localScale;
+                ScaleIntoPcScreen(prologuePcName);
+            }
+        }
+        else
+        {
+            if (prologuePcPanel != null)
+            {
+                prologuePcPanel.anchoredPosition = prologuePcPanelPosition;
+                prologuePcPanel.localScale = prologuePcPanelScale;
+            }
+            if (prologuePcName != null && !prologuePcName.IsChildOf(prologuePcPanel))
+            {
+                prologuePcName.anchoredPosition = prologuePcNamePosition;
+                prologuePcName.localScale = prologuePcNameScale;
+            }
+        }
+        prologuePcLayoutApplied = usePcLayout;
+    }
+
+    private static void ScaleIntoPcScreen(RectTransform rect)
+    {
+        if (!(rect.parent is RectTransform parent)) return;
+        // Scale both sibling panels around the same dialogue-window center, keeping
+        // the name plate attached to the window and its lettering scaled equally.
+        const float scale = 0.9f;
+        Vector2 origin = parent.rect.min + Vector2.Scale(parent.rect.size, new Vector2(0.5f, 0.145375f));
+        Vector2 position = rect.localPosition;
+        rect.anchoredPosition += (origin - position) * (1f - scale) + Vector2.up * (parent.rect.height * 0.07f);
+        rect.localScale *= scale;
+    }
+
     private void ResetBackgroundForScenario()
     {
         SetBackground(
@@ -3039,8 +2981,6 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ApplyBackground(DialogueLine line)
     {
-        // This background belongs to the game on Doute's screen, not his room.
-        if (ProloguePresentation.IsGameLine(line?.lineId)) return;
         if (line == null || line.background == null)
         {
             return;
@@ -3111,18 +3051,6 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ApplyCharacter(DialogueLine line)
     {
-        if (ProloguePresentation.IsGameLine(line?.lineId))
-        {
-            if (namePlate != null) namePlate.SetActive(true);
-            if (speakerNameText != null)
-            {
-                speakerNameText.text = line.speakerId == "doute" ? "主人公" : "ヒロイン";
-                speakerNameText.color = Color.white;
-            }
-            SetPortrait(leftPortraitImage, null);
-            SetPortrait(rightPortraitImage, null);
-            return;
-        }
         // speakerIdが空なら地の文
         if (string.IsNullOrWhiteSpace(line.speakerId))
         {
@@ -3166,15 +3094,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         Sprite portrait =
             character.GetPortrait(line.expressionId);
 
-        if (string.Equals(
+        // The protagonist is applied at text start, after any entrance animation or fade.
+        if (!string.Equals(
                 line.speakerId,
                 protagonistCharacterId,
                 System.StringComparison.Ordinal))
-        {
-            SetPortrait(leftPortraitImage, portrait);
-            ApplyProtagonistFacing();
-        }
-        else
         {
             SetPortrait(rightPortraitImage, portrait);
             ApplyBustPortraitSize(line.speakerId);
@@ -3183,25 +3107,13 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ApplyProloguePresentation(DialogueLine line)
     {
-        bool game = ProloguePresentation.IsGameLine(line?.lineId);
-        bool profile = line?.lineId == ProloguePresentation.ProfileLineId;
-        if ((!game && !profile) || dialogueRoot == null || bodyText == null || characterDatabase == null) return;
+        if (line?.lineId != ProloguePresentation.ProfileLineId || dialogueRoot == null ||
+            bodyText == null || characterDatabase == null) return;
         prologuePresentation ??= new ProloguePresentation(dialogueRoot.GetComponent<RectTransform>(), bodyText);
-        if (game)
-        {
-            characterDatabase.TryGetCharacter("kayo", out CharacterData heroine);
-            Sprite stage = currentScenario != null && currentScenario.Lines.Count > 0 ? currentScenario.Lines[0].background : null;
-            prologuePresentation.ShowGame(stage, heroine?.GetPortrait("normal"));
-            SetPortrait(leftPortraitImage, null);
-            SetPortrait(rightPortraitImage, null);
-        }
-        else
-        {
-            characterDatabase.TryGetCharacter("doute", out CharacterData doute);
-            prologuePresentation.ShowProfile(line.text, doute?.GetPortrait("normal"));
-            SetPortrait(leftPortraitImage, null);
-            SetPortrait(rightPortraitImage, null);
-        }
+        characterDatabase.TryGetCharacter("doute", out CharacterData doute);
+        prologuePresentation.ShowProfile(line.text, doute?.GetPortrait("normal"));
+        SetPortrait(leftPortraitImage, null);
+        SetPortrait(rightPortraitImage, null);
     }
 
     private void ApplyBustPortraitSize(string characterId)
@@ -3272,29 +3184,21 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         SetPortrait(rightPortraitImage, null);
         ApplyBustPortraitSize(null);
+        SetPortrait(leftPortraitImage, null);
+    }
 
-        if (string.IsNullOrWhiteSpace(protagonistCharacterId))
-        {
-            Debug.LogWarning(
-                "主人公のcharacterIdが設定されていません。");
-            SetPortrait(leftPortraitImage, null);
-            return;
-        }
+    private void ApplyProtagonistAtTextStart()
+    {
+        if (currentLine == null || string.IsNullOrWhiteSpace(protagonistCharacterId) ||
+            !string.Equals(currentLine.speakerId, protagonistCharacterId, StringComparison.Ordinal) ||
+            !characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist)) return;
 
-        if (!characterDatabase.TryGetCharacter(
-                protagonistCharacterId,
-                out CharacterData protagonist))
-        {
-            Debug.LogWarning(
-                $"主人公「{protagonistCharacterId}」が存在しません。");
-            SetPortrait(leftPortraitImage, null);
-            return;
-        }
-
-        SetPortrait(
-            leftPortraitImage,
-            protagonist.GetPortrait(null));
+        SetPortrait(leftPortraitImage, protagonist.GetPortrait(currentLine.expressionId));
         ApplyProtagonistFacing();
+        // These compositions deliberately replace the regular left portrait.
+        if (leftPortraitImage != null && (douteMonologueView != null || isKayoEggViewActive ||
+            isMoteruRevealViewActive || isYowashiBandageViewActive || isKayoExaminationViewActive))
+            leftPortraitImage.enabled = false;
     }
 
     private static void SetPortrait(
@@ -3368,6 +3272,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             candidate => bodyText.GetPreferredValues(candidate, float.PositiveInfinity, float.PositiveInfinity).x));
         bodyText.maxVisibleCharacters = 0;
 
+        ApplyProtagonistAtTextStart();
         typingCoroutine = StartCoroutine(TypeText());
         // There is no cough line in this scene; stand up on the existing recovery reply.
         if (currentLine?.lineId == "chapter1_kayo_017" && kayoScreamTriggered)
@@ -3375,6 +3280,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (currentLine != null && currentLine.lineId == "chapter1_003" && currentLine.speakerId == "moteru")
             StartWindowShake();
         StartKayoPushback(currentLine);
+        RefreshProgressState();
     }
 
     private void ShowChoiceOnlyWindow()
@@ -3556,6 +3462,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         isTyping = true;
 
+        // This also delays completion of empty lines until title entry has finished.
+        while (TitleDialogueTransition.IsActive) yield return null;
+
         // TMPの文字情報が更新されるのを待つ
         yield return null;
 
@@ -3564,11 +3473,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         int totalCharacters =
             bodyText.textInfo.characterCount;
 
-        float visibleCharacters = 0f;
+        float visibleCharacters = Mathf.Clamp(bodyText.maxVisibleCharacters, 0, totalCharacters);
 
         while (bodyText.maxVisibleCharacters < totalCharacters)
         {
-            if (isChapterTransitioning || isSkipConfirmationOpen || ArchiveManager.IsOpen)
+            if (TitleDialogueTransition.IsActive || isChapterTransitioning || isSkipConfirmationOpen || ArchiveManager.IsOpen)
             {
                 yield return null;
                 continue;
@@ -3612,9 +3521,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void HandleLineFullyDisplayed()
     {
+        RefreshProgressState();
         if (currentLine?.lineId == "chapter1_kayo_014") TriggerKayoFall();
         RevealCurrentSpeakerName();
-        if (currentLine?.lineId == "chapter2_kayo_001") ApplyArchiveUnlocks(currentLine);
+        if (!restoringCheckpointLine && currentLine?.lineId == "chapter2_kayo_001") ApplyArchiveUnlocks(currentLine);
 
         if (currentLine != null && currentLine.HasSceneTransition)
         {
@@ -3727,44 +3637,43 @@ public sealed class NovelDialogueController : MonoBehaviour
         speakerNameText.color = character.nameColor;
     }
 
-    private bool TryLoadUpcomingSceneTransition()
+    private bool TrySkipWithinCurrentScenario()
     {
-        if (currentScenario != null &&
-            currentLine != null &&
-            currentScenario.TryGetSceneTransitionAtOrAfter(
-                currentLine.lineId,
-                out DialogueLine currentTransition))
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        DialogueLine cursor = currentLine;
+        while (cursor != null && visited.Add(cursor.lineId))
         {
-            LoadDialogueScene(
-                currentTransition.nextScenePath,
-                currentTransition);
-            return true;
-        }
-
-        int scenarioCount = 1 +
-            (followingScenarios?.Count ?? 0);
-
-        for (int nextIndex = currentScenarioIndex + 1;
-             nextIndex < scenarioCount;
-             nextIndex++)
-        {
-            DialogueScenarioSO nextScenario =
-                followingScenarios[nextIndex - 1];
-
-            if (nextScenario == null ||
-                !nextScenario.TryGetFirstSceneTransition(
-                    out DialogueLine nextTransition))
+            // Stop on the first decision or scene boundary in the active asset/route.
+            if (cursor.HasChoices || cursor.HasSceneTransition)
             {
-                continue;
+                BeginChapterTransition(() => ShowSkipDestination(cursor));
+                return true;
             }
-
-            LoadDialogueScene(
-                nextTransition.nextScenePath,
-                nextTransition);
+            if (!string.IsNullOrWhiteSpace(stopAfterLineId) && cursor.lineId == stopAfterLineId)
+                return false;
+            if (!TryResolveLineSuccessor(cursor, false, out DialogueLine next, out bool reachedEnd))
+                return !reachedEnd; // Invalid routes stay here instead of jumping to another asset.
+            cursor = next;
+        }
+        // A route loop without a choice/transition must not skip into unrelated content.
+        if (cursor != null)
+        {
+            Debug.LogWarning("Skip stopped because the dialogue route contains a loop.", this);
             return true;
         }
-
         return false;
+    }
+
+    private void ShowSkipDestination(DialogueLine line)
+    {
+        if (line != currentLine)
+        {
+            PrepareLine(line);
+            StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
+        }
+        if (isTyping) CompleteTyping();
+        if (line.HasChoices && !isChoiceSelectionOpen) ShowChoices(line.choices);
+        // Scene boundaries are displayed by Skip; Advance loads them after the fade.
     }
 
     private void LoadDialogueScene(
@@ -3774,18 +3683,6 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (isSceneLoading || string.IsNullOrWhiteSpace(scenePath))
         {
             return;
-        }
-
-        string resumeLineId = transitionLine?.nextLineId;
-
-        if (string.IsNullOrWhiteSpace(resumeLineId) &&
-            transitionLine != null &&
-            currentScenario != null &&
-            currentScenario.TryGetNextLine(
-                transitionLine.lineId,
-                out DialogueLine nextLine))
-        {
-            resumeLineId = nextLine.lineId;
         }
 
         string runtimeSceneName;
@@ -3807,9 +3704,8 @@ public sealed class NovelDialogueController : MonoBehaviour
             return;
         }
 
-        // A route picker must not carry a row from the branch the player declined.
-        if (runtimeSceneName == "SelectionPart") resumeLineId = null;
-        QueueResumeLine(resumeLineId);
+        // The source scene owns its cursor; unrelated dialogue scenes never consume it.
+        SaveSceneDeparture(transitionLine);
         isSceneLoading = true;
         isPlaying = false;
         autoAdvanceAt = -1f;
@@ -3860,9 +3756,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         string scenePath,
         System.Exception exception)
     {
-        QueueResumeLine(null);
         isSceneLoading = false;
         isPlaying = true;
+        progressDeparted = false;
+        progressResumeLineId = null;
+        SaveSceneProgress();
 
         if (chapterTransitionOverlay != null)
         {
@@ -3988,7 +3886,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void SelectChoice(DialogueChoice choice)
     {
-        if (!isChoiceSelectionOpen ||
+        if (!isChoiceSelectionOpen || isChapterTransitioning ||
             choice == null ||
             currentScenario == null)
         {
@@ -4200,6 +4098,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void EndDialogueImmediately()
     {
+        SaveSceneCompletion();
         // Embedded event owners fade the final frame before unloading the scene.
         CancelChapterTransition(KeepPresentationOnCompletion);
         StopTypingAndRevealText();

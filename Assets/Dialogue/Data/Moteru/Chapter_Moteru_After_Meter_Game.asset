@@ -1301,6 +1301,346 @@ MonoBehaviour:
     lineFadeHoldDuration: -1
     lineFadeInDuration: -1
     nextScenePath: 
+    nextLineId: chapter_moteru_5_076_insert_01
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_01
+    speakerId: moteru
+    expressionId: normal
+    text: "隠さなくていいよ。ドウテくんは僕のことが、嫌いなんでしょ……？"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_02
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_02
+    speakerId:
+    expressionId:
+    text: "▷▶︎▷『ドウテの思い』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_02_description
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_02_description
+    speakerId:
+    expressionId:
+    text: "日記にはある少女？との出会いが綴られていた、今ならわかるがその少女はどうやら少年だったらしい。俺は間違いなくモテルのことが好きだ。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_03
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_03
+    speakerId: doute
+    expressionId: normal
+    text: "嫌いなわけないだろ！ 俺はずっと……昔出会ったお前のことが好きだったんだ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_04
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_04
+    speakerId: moteru
+    expressionId: normal
+    text: "それに、僕のことまったく覚えてないみたいだし……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_05
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_05
+    speakerId:
+    expressionId:
+    text: "▷▶︎▷『ドウテの過去』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_05_description
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_05_description
+    speakerId:
+    expressionId:
+    text: "日記を見て思い出した、少女？ではなく少年への初恋の記憶。今まで恋人ができなかったのはこれのせいだと思いたい……。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_06
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_06
+    speakerId: doute
+    expressionId: normal
+    text: "覚えてないんじゃない！ 少女だと思い込んでたから繋がらなかっただけだ！ 俺の初恋はお前なんだよ！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_07
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_07
+    speakerId: moteru
+    expressionId: normal
+    text: "……っ！で、でも1番は——"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_08
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_08
+    speakerId: moteru
+    expressionId: normal
+    text: "ドウテくんには、彼女がいるでしょっ？！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_09
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_09
+    speakerId: kayo
+    expressionId: normal
+    text: "……え"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_10
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_10
+    speakerId: yowashi
+    expressionId: normal
+    text: "……ええ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_11
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_11
+    speakerId: doute
+    expressionId: normal
+    text: "えええっ？！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_12
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_12
+    speakerId:
+    expressionId:
+    text: "▷▶︎▷『蓮愛ドウテ』"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_12_description
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_12_description
+    speakerId:
+    expressionId:
+    text: "彼女いない歴=年齢のオタク。つまるところ、恋愛童帝である。"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_13
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_13
+    speakerId: doute
+    expressionId: normal
+    text: "わざわざ悲しいこと言わせるなよっ？！いないんだってっ！何を勘違いしたんだ……？！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_14
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_14
+    speakerId: moteru
+    expressionId: normal
+    text: "い、いないの……？！だ、だってドウテくん今日はあの子とデートする、とかプレゼントを買う、とかそういう話をしてたから……"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_15
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_15
+    speakerId: doute
+    expressionId: normal
+    text: "……あ"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_16
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_16
+    speakerId: yowashi
+    expressionId: normal
+    text: "………………（なんとも言えない顔をしている）"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
+    nextLineId: chapter_moteru_5_076_insert_17
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_moteru_5_076_insert_17
+    speakerId: doute
+    expressionId: normal
+    text: "そんな目で見ないでくれぇ……っ！！"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
     nextLineId: chapter_moteru_5_077
     choices: []
     affectionChanges: []

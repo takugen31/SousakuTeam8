@@ -191,7 +191,10 @@ public sealed class SearchSceneController : MonoBehaviour
         isFadingIn = false;
         completionFadeOverlay.color = Color.clear;
         completionFadeOverlay.raycastTarget = false;
-        currentRoom1Sprite = data.paperVisible && room1PaperBackground != null ? room1PaperBackground : room1Background;
+        // Profile items place their own paper sprite; older checkpoints may still
+        // contain the legacy Kayo paper-background flag.
+        currentRoom1Sprite = searchProfile == null && data.paperVisible && room1PaperBackground != null
+            ? room1PaperBackground : room1Background;
         ShowRoom((RoomView)data.room);
         if (data.searchMode == "room") return;
         ItemDefinition item = data.itemId == CompletionDialogueId
@@ -383,7 +386,7 @@ public sealed class SearchSceneController : MonoBehaviour
     private void BuildUI()
     {
         GameObject canvasObject = new GameObject(
-            searchProfile != null ? "MoteruSearchCanvas" : "KayoSearchCanvas",
+            gameObject.scene.name + "Canvas",
             typeof(RectTransform),
             typeof(Canvas),
             typeof(CanvasScaler),
@@ -836,10 +839,12 @@ public sealed class SearchSceneController : MonoBehaviour
                 string busyItemId = isModalOpen ? inspectedItem?.Id : isDialogueOpen ? currentDialogueItem?.Id : null;
                 bool prerequisiteConversationFinished = string.IsNullOrEmpty(settings.requiresItemId) ||
                     busyItemId != settings.requiresItemId;
-                // Remove collected paper/people only after their acquisition conversation.
+                // Paper can remain through its conversation; profile entries may
+                // instead remove background people immediately on acquisition.
                 placedImages[settings.id].SetActive(settings.room == (int)currentRoom &&
                     IsPrerequisiteMet(item) && prerequisiteConversationFinished &&
-                    (!settings.hideImageWhenAcquired || !acquiredItemIds.Contains(settings.id) || busyItemId == settings.id));
+                    (!settings.hideImageWhenAcquired || !acquiredItemIds.Contains(settings.id) ||
+                        (busyItemId == settings.id && !settings.hideImageDuringAcquisitionDialogue)));
             }
         }
         foreach (SearchSceneHotspot hotspot in hotspots)

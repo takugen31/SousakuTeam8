@@ -62,6 +62,7 @@ MonoBehaviour:
     secondarySprite: {fileID: 1223118908298377405, guid: ab77056009af31a44b33dde5dab2de7d, type: 3}
     uvRect: {serializedVersion: 2, x: 0, y: 0, width: 1, height: 1}
     firstLineId: search_moteru_people_001
-    lastLineId: search_moteru_people_017
+    lastLineId: search_moteru_people_018
     requiresItemId: 
     hideImageWhenAcquired: 1
+    hideImageDuringAcquisitionDialogue: 1

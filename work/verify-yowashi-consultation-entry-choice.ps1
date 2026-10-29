@@ -10,7 +10,7 @@ Check (($rows | Where-Object lineId -eq $entry.choice1NextLineId).speakerId -eq 
 $asset = Get-Content (Join-Path $root 'Assets/Dialogue/Data/Chapter_Yowashi_Consultation.asset') -Raw
 $block = [regex]::Match($asset, '(?s)  - lineId: chapter_yowashi_consultation_001\r?\n.*?(?=\r?\n  - lineId:|\z)').Value
 Check ($block.Contains('- text: "一回状況を整理しよう"') -and $block.Contains('nextLineId: chapter_yowashi_consultation_002')) 'Runtime choice differs'
-$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 Check ($source.Contains('currentLine.HasChoices && string.IsNullOrWhiteSpace(text)') -and $source.Contains('ShowChoiceOnlyWindow();')) 'Choice-only entry not immediate'
 Check ($source.Contains('choiceOnlyWindowGroup.alpha = 0f') -and $source.Contains('choiceOnlyWindowGroup.blocksRaycasts = false') -and $source.Contains('namePlate.SetActive(false)')) 'Text panel/name still visible'
 Check ($source.Contains('panel != dialogueRoot?.transform') -and $source.Contains('!choiceOptionsRoot.IsChildOf(panel)')) 'Choice/portraits may be hidden with dialogue'

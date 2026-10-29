@@ -25,7 +25,7 @@
 | `Assets/Scripts/Affection/AffectionCondition.cs` | 好感度の分岐条件（キャラ・比較演算子・閾値） |
 | `Assets/Scripts/Affection/AffectionDelta.cs` | 好感度の増減量（キャラ・値） |
 | `Assets/Scripts/Dialogue/Runtime/DialogueScenarioSO.cs` | `DialogueLine` / `DialogueBranch` の定義 |
-| `Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs` | ダイアログ再生と分岐解決 |
+| `Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs` | ダイアログ再生と分岐解決 |
 | `Assets/Scripts/Dialogue/Editor/CsvParser.cs` | CSV パーサ（`TryGet` 追加） |
 | `Assets/Scripts/Dialogue/Editor/DialogueCsvImporterWindow.cs` | CSV から ScriptableObject を生成するインポーター |
 

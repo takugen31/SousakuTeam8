@@ -80,60 +80,6 @@ public sealed class DialogueScenarioSO : ScriptableObject
         return true;
     }
 
-    public bool TryGetSceneTransitionAtOrAfter(
-        string currentLineId,
-        out DialogueLine transitionLine)
-    {
-        EnsureCache();
-
-        if (!indexByLineId.TryGetValue(
-                currentLineId,
-                out int startIndex))
-        {
-            transitionLine = null;
-            return false;
-        }
-
-        return TryGetSceneTransitionFromIndex(
-            startIndex,
-            out transitionLine);
-    }
-
-    public bool TryGetFirstSceneTransition(
-        out DialogueLine transitionLine)
-    {
-        return TryGetSceneTransitionFromIndex(
-            0,
-            out transitionLine);
-    }
-
-    private bool TryGetSceneTransitionFromIndex(
-        int startIndex,
-        out DialogueLine transitionLine)
-    {
-        if (lines == null)
-        {
-            transitionLine = null;
-            return false;
-        }
-
-        for (int index = Mathf.Max(0, startIndex);
-             index < lines.Count;
-             index++)
-        {
-            DialogueLine line = lines[index];
-
-            if (line != null && line.HasSceneTransition)
-            {
-                transitionLine = line;
-                return true;
-            }
-        }
-
-        transitionLine = null;
-        return false;
-    }
-
     private void OnEnable()
     {
         RebuildCache();
