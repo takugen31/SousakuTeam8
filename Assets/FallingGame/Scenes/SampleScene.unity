@@ -664,13 +664,13 @@ MonoBehaviour:
   sweepUnlockMessage: '"一掃"を獲得!'
   scoreMessageTiers:
   - minimumScore: -1000000
-    message: まだまだ!
+    message: "小物を集めよう"
   - minimumScore: 1000
-    message: こっから！
+    message: "いい調子！"
   - minimumScore: 2000
-    message: やるじゃん？
+    message: "その調子！"
   - minimumScore: 3000
-    message: ええええ（ドン引き）
+    message: "ナイスキャッチ！"
   startPromptMessage: 大変！かよがピンチ！
   countdownStepDuration: 1
   resultDialogue: 助かったよ！ありがとう！
@@ -9282,7 +9282,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1976000001
 RectTransform:
   m_ObjectHideFlags: 0

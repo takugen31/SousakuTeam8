@@ -664,13 +664,13 @@ MonoBehaviour:
   sweepUnlockMessage: "\"\u4E00\u6383\"\u3092\u7372\u5F97!"
   scoreMessageTiers:
   - minimumScore: -1000000
-    message: "\u307E\u3060\u307E\u3060!"
+    message: "小物を集めよう"
   - minimumScore: 1000
-    message: "\u3053\u3063\u304B\u3089\uFF01"
+    message: "いい調子！"
   - minimumScore: 2000
-    message: "\u3084\u308B\u3058\u3083\u3093\uFF1F"
+    message: "その調子！"
   - minimumScore: 3000
-    message: "\u3048\u3048\u3048\u3048\uFF08\u30C9\u30F3\u5F15\u304D\uFF09"
+    message: "ナイスキャッチ！"
   startPromptMessage: "じゃあ早速始めよう！！"
   countdownStepDuration: 1
   resultDialogue: ""
@@ -9295,7 +9295,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1976000001
 RectTransform:
   m_ObjectHideFlags: 0

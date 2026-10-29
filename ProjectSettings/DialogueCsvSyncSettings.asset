@@ -190,8 +190,8 @@ MonoBehaviour:
     databaseGuid: d92603f43a2d34e41befd61fe218478e
     lastCsvName: prologue1
     lastScenarioName: Prologue1
-    lastContentHash: Qnwz5vyeRTDYFa3EauCaWm5/5N1cpmUThx0H7wUhJfA=
-    lastScenarioHash: hifadldZCT0asFuVZzeKA9gmuMnJ3RDIKYbhHzp6iaE=
+    lastContentHash: Y27IsxMv+Pw9Xi+VrYBpcuP+6R6CaDsbJyFffhvleHE=
+    lastScenarioHash: VVLvxABNT0xLzI1otKl6sKIJxQrP1i9bkfyEcAk/upc=
     enabled: 1
   - csvGuid: 8ac19e52d6f44b70a3e1c9f825bd6047
     scenarioGuid: 32de4174b15050344a870acf28ebf99a
@@ -289,8 +289,8 @@ MonoBehaviour:
     databaseGuid: d92603f43a2d34e41befd61fe218478e
     lastCsvName: prologue_game
     lastScenarioName: Prologue_Game
-    lastContentHash: hy+S3ENwxA0Znnk44H1MsbkEKk+mO9E7J2ly2Zvsl74=
-    lastScenarioHash: dAOwrhgeJtKnicR/9ropFVyPxIzaiHmtyoDg9KKFHIc=
+    lastContentHash: CKG8SPrF4XoCqdsXrMnCUnbof+ER3+auzWU5kA1nKHQ=
+    lastScenarioHash: yMzDijnYxatHFsY0nec+eB0KH5JKeHAZJhb5e7YaGx8=
     enabled: 1
   - csvGuid: 050f7084ff875a84b84b1c965a42e4c8
     scenarioGuid: a41c6e59be1b4aa1a0e87a0b2c9135f7

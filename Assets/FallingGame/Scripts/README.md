@@ -35,8 +35,8 @@
 見た目は `Item Pool` 内の `Good Item Visual 01～03` と `Bad Item Visual 01～03` を編集してください。
 同名プレフィックスのテンプレートを複製してControllerの配列へ追加すると、種類をさらに増やせます。
 スコア・残り時間・加減点・スコア帯メッセージ・ジャンプ獲得通知・開始表示は `Catch Mini Game UI` の子としてHierarchyから編集できます。
-プレイ中のUIは `CatchGameHud` が既存のテキストをまとめて整えます。Noto Sans JPと半透明の黒いパネルを使用し、上部にスコア・分秒表示と残り時間ゲージ、下部に移動操作・能力の解放条件と一掃の再使用待ちを表示します。開始前は加点／減点ルールを案内し、結果表示へ進むとHUD全体を隠します。
+プレイ中のUIは `CatchGameHud` が既存のテキストをまとめて整えます。Noto Sans JPと半透明の黒いパネルを使用し、上端12％を表示専用領域にし、スコア・残り時間・加減点通知を小さくまとめます。操作案内とゲーム名の見出しは表示しません。開始前はひと言と加点／減点ルールだけを表示し、結果表示ではゲーム用カメラを画面全体へ戻してHUDを隠します。
 終了画面は `Catch Mini Game UI/Game Over UI` 以下から編集でき、アップ立ち絵は `Game Over Portrait` のSpriteを差し替えて変更できます。
 リザルトは会話・メニューと共通のNoto Sans JPと半透明の黒いパネルを使用します。左に立ち絵、右の `Result Panel` にスコア・取得数・台詞をまとめ、表示中はゲーム中のHUDを隠します。
-ミニゲーム中は最高品質レベル、Render Scale 2.0、4xアンチエイリアスを使用します。UIも `Main Camera` を通して描画するため、Render ScaleとSMAAの対象になります。値は `Catch Mini Game` の `Rendering Quality` から変更できます。
+ミニゲーム中は最高品質レベル、Render Scale 2.0、4xアンチエイリアスを使用します。UIは画面全体のOverlay Canvasに描画し、キャラクターと落下物はHUDを除いた領域に描画します。値は `Catch Mini Game` の `Rendering Quality` から変更できます。
 EditorのGame Viewは `GameViewQualityGuard` が低解像度プレビューを解除し、拡大時のフィルタをBilinearへ補正します。必要ならUnityメニューの `yoogen > 画質 > Game View の低解像度表示を解除` から手動でも再適用できます。

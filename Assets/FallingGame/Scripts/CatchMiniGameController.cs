@@ -90,10 +90,10 @@ namespace Sousakusai8.MiniGame
         [Header("Score Messages")]
         [SerializeField] private ScoreMessageTier[] scoreMessageTiers =
         {
-            new() { minimumScore = -1000000, message = "まだまだ!" },
-            new() { minimumScore = 1000, message = "こっから！" },
-            new() { minimumScore = 2000, message = "やるじゃん？" },
-            new() { minimumScore = 3000, message = "ええええ（ドン引き）" }
+            new() { minimumScore = -1000000, message = "小物を集めよう" },
+            new() { minimumScore = 1000, message = "いい調子！" },
+            new() { minimumScore = 2000, message = "その調子！" },
+            new() { minimumScore = 3000, message = "ナイスキャッチ！" }
         };
 
         [Header("Start Sequence")]
@@ -213,7 +213,7 @@ namespace Sousakusai8.MiniGame
 
             ResolveHudReferences();
             hudPresentation = CatchGameHud.Create(scoreText, timeText, scoreMessageText, startPromptText,
-                feedbackText, jumpUnlockText, sweepUnlockText, resultScoreText != null ? resultScoreText.font : null);
+                feedbackText, jumpUnlockText, sweepUnlockText, resultScoreText != null ? resultScoreText.font : null, gameCamera);
 
             if (gameCamera == null || catcher == null)
             {

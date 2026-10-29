@@ -3199,6 +3199,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         {
             characterDatabase.TryGetCharacter("doute", out CharacterData doute);
             prologuePresentation.ShowProfile(line.text, doute?.GetPortrait("normal"));
+            SetPortrait(leftPortraitImage, null);
+            SetPortrait(rightPortraitImage, null);
         }
     }
 
