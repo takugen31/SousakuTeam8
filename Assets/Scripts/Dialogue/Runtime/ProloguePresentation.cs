@@ -2,15 +2,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>The game Doute is playing and his introductory profile, using the existing dialogue input.</summary>
+/// <summary>Doute's introductory profile, using the existing dialogue input.</summary>
 public sealed class ProloguePresentation
 {
     public const string ProfileLineId = "prologue1_profile";
     private readonly RectTransform parent;
     private readonly TMP_FontAsset font;
     private readonly TMP_Text dialogueText;
-    private GameObject gameView, profileView;
-    private Image gameBackground, heroine, profilePortrait;
+    private GameObject profileView;
+    private Image profilePortrait;
     private TMP_Text profileBody;
     private CanvasGroup dialogueGroup;
     private float originalDialogueAlpha;
@@ -20,38 +20,6 @@ public sealed class ProloguePresentation
         this.parent = parent;
         this.dialogueText = dialogueText;
         font = dialogueText.font;
-    }
-
-    public static bool IsGameLine(string lineId)
-    {
-        return lineId == "prologue_001" || lineId == "prologue_002" || lineId == "prologue_003" ||
-            lineId == "prologue_004" || lineId == "prologue_005";
-    }
-
-    public void ShowGame(Sprite background, Sprite heroineSprite)
-    {
-        Hide();
-        if (gameView == null)
-        {
-            Image shade = ImageAt("Prologue Game Screen", parent, new Color(0f, 0f, 0f, 0.38f));
-            gameView = shade.gameObject;
-            Region(shade.rectTransform, Vector2.zero, Vector2.one);
-            shade.transform.SetAsFirstSibling();
-            Image border = ImageAt("Screen Frame", shade.transform, new Color(0.03f, 0.03f, 0.03f, 1f));
-            Region(border.rectTransform, new Vector2(0.055f, 0.045f), new Vector2(0.945f, 0.935f));
-            border.gameObject.AddComponent<RectMask2D>();
-            gameBackground = ImageAt("Game Background", border.transform, Color.white);
-            Region(gameBackground.rectTransform, new Vector2(0.005f, 0.008f), new Vector2(0.995f, 0.992f));
-            heroine = ImageAt("Game Heroine", border.transform, Color.white);
-            heroine.preserveAspect = true;
-            Region(heroine.rectTransform, new Vector2(0.51f, -0.64f), new Vector2(1.01f, 0.98f));
-            TextAt("Game Heading", shade.transform, "恋愛ゲーム", 20f,
-                new Vector2(0.065f, 0.94f), new Vector2(0.7f, 0.99f), TextAlignmentOptions.MidlineLeft);
-        }
-        gameBackground.sprite = background;
-        heroine.sprite = heroineSprite;
-        heroine.enabled = heroineSprite != null;
-        gameView.SetActive(true);
     }
 
     public void ShowProfile(string body, Sprite portrait)
@@ -94,7 +62,6 @@ public sealed class ProloguePresentation
 
     public void Hide()
     {
-        if (gameView != null) gameView.SetActive(false);
         if (profileView != null) profileView.SetActive(false);
         if (dialogueGroup != null) dialogueGroup.alpha = originalDialogueAlpha;
     }
