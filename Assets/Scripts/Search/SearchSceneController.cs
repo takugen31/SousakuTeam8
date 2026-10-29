@@ -839,10 +839,12 @@ public sealed class SearchSceneController : MonoBehaviour
                 string busyItemId = isModalOpen ? inspectedItem?.Id : isDialogueOpen ? currentDialogueItem?.Id : null;
                 bool prerequisiteConversationFinished = string.IsNullOrEmpty(settings.requiresItemId) ||
                     busyItemId != settings.requiresItemId;
-                // Remove collected paper/people only after their acquisition conversation.
+                // Paper can remain through its conversation; profile entries may
+                // instead remove background people immediately on acquisition.
                 placedImages[settings.id].SetActive(settings.room == (int)currentRoom &&
                     IsPrerequisiteMet(item) && prerequisiteConversationFinished &&
-                    (!settings.hideImageWhenAcquired || !acquiredItemIds.Contains(settings.id) || busyItemId == settings.id));
+                    (!settings.hideImageWhenAcquired || !acquiredItemIds.Contains(settings.id) ||
+                        (busyItemId == settings.id && !settings.hideImageDuringAcquisitionDialogue)));
             }
         }
         foreach (SearchSceneHotspot hotspot in hotspots)

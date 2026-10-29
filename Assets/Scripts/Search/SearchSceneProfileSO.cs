@@ -37,4 +37,6 @@ public sealed class SearchItemSettings
     public string lastLineId;
     public string requiresItemId;
     public bool hideImageWhenAcquired;
+    [Tooltip("取得後の調査画面・会話中も、背景側の配置画像を非表示にします。")]
+    public bool hideImageDuringAcquisitionDialogue;
 }
