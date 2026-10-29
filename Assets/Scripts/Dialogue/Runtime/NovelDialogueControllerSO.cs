@@ -2158,7 +2158,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         Image topPortrait = CreateRoomLookImage(top, "DouteFace");
         topPortrait.sprite = douteSprite;
         // Upper face centered inside the top half, with both eyes and chin visible.
-        SetDouteFacePortrait(topPortrait, viewport, 0.27f, 2.6f, 0.25f);
+        SetDouteFacePortrait(topPortrait, viewport, 0.27f, 2.4f, 0.25f);
         Image bottomRoom = CreateRoomLookImage(bottom, "BottomZoomedRoom");
         SetRoomLookPose(bottomRoom, viewport, new Vector2(0.56f, 0.38f), 1.6f);
         moteruRevealBackground = bottomRoom;
@@ -2170,7 +2170,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (line.lineId == "chapter2_moteru_009" || line.lineId == "chapter2_moteru_010" ||
             line.lineId == "kayo_catch_success_before_006")
             moteruApproachElapsed = 0f;
-        ApplyMoteruApproach();
+        RefreshMoteruRevealLayout();
         var dividerObject = new GameObject("RevealCenterDivider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         RectTransform divider = dividerObject.GetComponent<RectTransform>();
         divider.SetParent(frame, false);
@@ -2214,11 +2214,35 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void UpdateMoteruApproach()
     {
+        // Reframe an existing view as well as a newly created one (including window resizes).
+        RefreshMoteruRevealLayout();
         // Start only after advancing the lips-to-ear page (010 -> 011).
         if (!isMoteruRevealViewActive || moteruRevealPortrait == null ||
             currentLine?.lineId == "chapter2_moteru_009" || currentLine?.lineId == "chapter2_moteru_010" ||
             ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
         moteruApproachElapsed = Mathf.Min(2.4f, moteruApproachElapsed + Time.unscaledDeltaTime);
+        ApplyMoteruApproach();
+    }
+
+    private void RefreshMoteruRevealLayout()
+    {
+        if (!isMoteruRevealViewActive || moteruRevealView == null || moteruRevealPortrait == null) return;
+        RectTransform frame = moteruRevealView.GetComponent<RectTransform>();
+        Vector2 viewport = frame.rect.size;
+        if (viewport.y <= 0f) return;
+        moteruRevealViewport = viewport;
+        Transform top = frame.Find("DouteTopHalf");
+        if (top != null)
+        {
+            top.GetComponent<RectMask2D>().padding = new Vector4(0f, viewport.y * 0.5f, 0f, 0f);
+            Image portrait = top.Find("DouteFace").GetComponent<Image>();
+            // Leave room for the hair above and the chin above the feathered divider.
+            SetDouteFacePortrait(portrait, viewport, 0.27f, 2.4f, 0.25f);
+            SetRoomLookPose(top.Find("TopZoomedRoom").GetComponent<Image>(), viewport,
+                new Vector2(0.44f, 0.62f), 1.6f);
+        }
+        moteruRevealPortrait.transform.parent.GetComponent<RectMask2D>().padding =
+            new Vector4(0f, 0f, 0f, viewport.y * 0.5f);
         ApplyMoteruApproach();
     }
 
