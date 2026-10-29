@@ -42,7 +42,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private CharacterDatabaseSO characterDatabase;
 
     [SerializeField]
-    [Tooltip("画面左側へ常時表示する主人公のcharacterIdです。")]
+    [Tooltip("初めて話すセリフの表示開始時から、画面左側へ表示する主人公のcharacterIdです。")]
     private string protagonistCharacterId = "doute";
 
     [SerializeField]
@@ -688,7 +688,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         bodyText = dialogueText;
         omitOuterDialogueQuotes = true;
         normalizeBustPortraitSizes = true;
-        mirrorDoutePortrait = true;
+        mirrorDoutePortrait = false;
         leftPortraitImage = leftPortrait;
         rightPortraitImage = rightPortrait;
         playbackControlsRoot = null;
@@ -2968,15 +2968,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         Sprite portrait =
             character.GetPortrait(line.expressionId);
 
-        if (string.Equals(
+        // The protagonist is applied at text start, after any entrance animation or fade.
+        if (!string.Equals(
                 line.speakerId,
                 protagonistCharacterId,
                 System.StringComparison.Ordinal))
-        {
-            SetPortrait(leftPortraitImage, portrait);
-            ApplyProtagonistFacing();
-        }
-        else
         {
             SetPortrait(rightPortraitImage, portrait);
             ApplyBustPortraitSize(line.speakerId);
@@ -3016,9 +3012,9 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void ApplyProtagonistFacing()
     {
-        if (!mirrorDoutePortrait || protagonistCharacterId != "doute" || leftPortraitImage == null) return;
+        if (protagonistCharacterId != "doute" || leftPortraitImage == null) return;
         Vector3 scale = leftPortraitImage.rectTransform.localScale;
-        scale.x = -Mathf.Abs(scale.x);
+        scale.x = Mathf.Abs(scale.x) * (mirrorDoutePortrait ? -1f : 1f);
         leftPortraitImage.rectTransform.localScale = scale;
     }
 
@@ -3026,29 +3022,21 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     {
         SetPortrait(rightPortraitImage, null);
         ApplyBustPortraitSize(null);
+        SetPortrait(leftPortraitImage, null);
+    }
 
-        if (string.IsNullOrWhiteSpace(protagonistCharacterId))
-        {
-            Debug.LogWarning(
-                "主人公のcharacterIdが設定されていません。");
-            SetPortrait(leftPortraitImage, null);
-            return;
-        }
+    private void ApplyProtagonistAtTextStart()
+    {
+        if (currentLine == null || string.IsNullOrWhiteSpace(protagonistCharacterId) ||
+            !string.Equals(currentLine.speakerId, protagonistCharacterId, StringComparison.Ordinal) ||
+            !characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist)) return;
 
-        if (!characterDatabase.TryGetCharacter(
-                protagonistCharacterId,
-                out CharacterData protagonist))
-        {
-            Debug.LogWarning(
-                $"主人公「{protagonistCharacterId}」が存在しません。");
-            SetPortrait(leftPortraitImage, null);
-            return;
-        }
-
-        SetPortrait(
-            leftPortraitImage,
-            protagonist.GetPortrait(null));
+        SetPortrait(leftPortraitImage, protagonist.GetPortrait(currentLine.expressionId));
         ApplyProtagonistFacing();
+        // These compositions deliberately replace the regular left portrait.
+        if (leftPortraitImage != null && (douteMonologueView != null || isKayoEggViewActive ||
+            isMoteruRevealViewActive || isYowashiBandageViewActive || isKayoExaminationViewActive))
+            leftPortraitImage.enabled = false;
     }
 
     private static void SetPortrait(
@@ -3112,6 +3100,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             candidate => bodyText.GetPreferredValues(candidate, float.PositiveInfinity, float.PositiveInfinity).x));
         bodyText.maxVisibleCharacters = 0;
 
+        ApplyProtagonistAtTextStart();
         typingCoroutine = StartCoroutine(TypeText());
         // There is no cough line in this scene; stand up on the existing recovery reply.
         if (currentLine?.lineId == "chapter1_kayo_017" && kayoScreamTriggered)

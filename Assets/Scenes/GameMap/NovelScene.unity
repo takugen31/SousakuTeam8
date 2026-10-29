@@ -767,7 +767,7 @@ MonoBehaviour:
   bodyText: {fileID: 1664412072}
   omitOuterDialogueQuotes: 1
   normalizeBustPortraitSizes: 1
-  mirrorDoutePortrait: 1
+  mirrorDoutePortrait: 0
   kayoPortraitScale: 1
   kayoPortraitUpwardOffset: 0.09
   leftPortraitImage: {fileID: 814104666}
