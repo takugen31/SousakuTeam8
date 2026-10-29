@@ -21,7 +21,7 @@ foreach ($id in @($null, '', 'chapter2_kayo_001', 'chapter_yowashi_rescue_037', 
     [int]$number=0; [string]$title=''
     if ([EndingCatalog]::TryGetEnding($id, [ref]$number, [ref]$title)) { throw "Premature ending: $id" }
 }
-$controller = Get-Content "$root/Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs" -Raw
+$controller = Get-Content "$root/Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs" -Raw
 $advanceStart = $controller.IndexOf('public void Advance()')
 $advanceEnd = $controller.IndexOf('private bool TryResolveNextLine(', $advanceStart)
 $advance = $controller.Substring($advanceStart, $advanceEnd - $advanceStart)

@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$controller = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$controller = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 $start = $controller.IndexOf('public static string GetInformationNoticeTitle(')
 $end = $controller.IndexOf('public static string WrapDialogueAtMeaningfulBreaks(', $start)
 $method = $controller.Substring($start, $end-$start)

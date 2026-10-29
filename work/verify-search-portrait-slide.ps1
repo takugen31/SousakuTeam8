@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 $search = Get-Content (Join-Path $root 'Assets/Scripts/Search/Chapter1SearchController.cs') -Raw
 function Assert-Slide($condition, $message) { if (-not $condition) { throw $message } }
 Assert-Slide ($search.Contains('itemDialogueController.ConfigureSearchPortraitSlide(backgroundImage)')) 'Exploration does not enable the effect with its room background'

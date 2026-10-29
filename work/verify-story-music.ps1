@@ -132,11 +132,12 @@ foreach ($cue in $plan.sceneCues) {
 $resumeTrack = [StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $scenarios['Chapter1'], 'chapter1_006')
 if ($resumeTrack -ne 'Pop') { throw 'Search return keeps old music until advancing first conversation' }
 if (-not $source.Contains('SceneManager.sceneLoaded += OnSceneLoaded') -or -not $source.Contains('dialogue.TryGetSceneEntryMusic(out DialogueScenarioSO scenario, out DialogueLine line)')) { throw 'Scene-load music resolution missing' }
-$dialogueSource = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
-$previewStart = $dialogueSource.IndexOf('public bool TryGetSceneEntryMusic')
-$previewEnd = $dialogueSource.IndexOf('private bool TryStartPendingResumeLine', $previewStart)
-$preview = $dialogueSource.Substring($previewStart,$previewEnd-$previewStart)
-if ($preview.Contains('pendingResumeLineId =') -or -not $preview.Contains('candidate.TryGetLine(pendingResumeLineId') -or -not $preview.Contains('scenario.TryGetFirstLine(out entryLine)')) { throw 'Scene cue preview consumes resume or misses fallback' }
+$dialogueSource = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
+$progressSource = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.Progress.cs') -Raw
+$previewStart = $progressSource.IndexOf('public bool TryGetSceneEntryMusic')
+$previewEnd = $progressSource.IndexOf('private bool TryRestoreSceneProgress', $previewStart)
+$preview = $progressSource.Substring($previewStart,$previewEnd-$previewStart)
+if ($preview.Contains('RemoveSceneEntry') -or $preview.Contains('BeginProgressSession') -or -not $preview.Contains('TryGetSceneEntry') -or -not $preview.Contains('scenario.TryGetFirstLine(out entryLine)')) { throw 'Scene cue preview consumes progress or misses fallback' }
 $showStart = $dialogueSource.IndexOf('private void ShowLineImmediately')
 $showEnd = $dialogueSource.IndexOf('private IEnumerator FadeToDialogueComposition', $showStart)
 $show = $dialogueSource.Substring($showStart,$showEnd-$showStart)

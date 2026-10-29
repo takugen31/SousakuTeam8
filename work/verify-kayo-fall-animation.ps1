@@ -1,6 +1,6 @@
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
-$source=Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$source=Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 function Assert-Fall($condition,$message) { if(-not $condition){throw $message} }
 Assert-Fall ($source.Contains('displayText.IndexOf("きゃ", StringComparison.Ordinal)') -and $source.Contains('bodyText.maxVisibleCharacters >= screamAt + 2')) 'Drop starts before scream is visible'
 Assert-Fall ($source.Contains('currentLine?.lineId == "chapter1_kayo_014"') -and $source.Contains('BeginKayoFallMotion(1f, 0.28f)')) 'Fast scream-only drop missing'

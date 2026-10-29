@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $database = Get-Content "$root/Assets/Resources/Archive/ArchiveDatabase.asset" -Raw
-$controller = Get-Content "$root/Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs" -Raw
+$controller = Get-Content "$root/Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs" -Raw
 $rows = @{}
 Get-ChildItem "$root/Assets/Dialogue/CSV" -Recurse -Filter *.csv | ForEach-Object {
     Import-Csv $_.FullName | ForEach-Object { if ($_.lineId) { $rows[$_.lineId] = $_ } }

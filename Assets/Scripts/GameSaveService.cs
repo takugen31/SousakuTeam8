@@ -26,6 +26,13 @@ public sealed class GameSaveData
     public bool paperVisible;
     public bool introDismissed;
     public bool kayoGaugeSucceeded;
+    public bool hasPresentationState;
+    public int visibleCharacters;
+    public bool autoPlayEnabled;
+    public string[] appliedLineIds;
+    public DialogueProgressImage[] presentation;
+    public string dialogueProgressJson;
+    public TimingGameResults.Snapshot[] timingResults;
 }
 
 [Serializable]
@@ -48,13 +55,13 @@ public sealed class GameSaveImage
 }
 
 /// <summary>Six manual checkpoints. New game resets progress, never these slots.</summary>
-public static class GameSaveService
+public static partial class GameSaveService
 {
     public const int SlotCount = 6;
     private const string Prefix = "GameSave.Slot.v1.";
     private static GameSaveData pending;
     private static readonly string[] scenes = {
-        "NovelScene", "NovelScene_Kayo", "NovelScene_Yowashi",
+        "NovelScene", "NovelScene_Kayo", "NovelScene_Moteru", "NovelScene_Yowashi",
         "Chapter1_SearchScene", "Chapter_Kayo_SearchScene", "Chapter_Moteru_SearchScene", "SelectionPart"
     };
 
@@ -67,6 +74,7 @@ public static class GameSaveService
     {
         pending = null;
         for (int i = 0; i < SlotCount; i++) PlayerPrefs.DeleteKey(Prefix + i);
+        PlayerPrefs.DeleteKey(ContinueKey);
         PlayerPrefs.Save();
     }
 #endif
@@ -114,8 +122,12 @@ public static class GameSaveService
     {
         if (slot < 0 || slot >= SlotCount) { message = "保存先が無効です。"; return false; }
         if (!TryCapture(out GameSaveData data, out message)) return false;
+        return WriteCheckpoint(Prefix + slot, data, out message);
+    }
+
+    private static bool WriteCheckpoint(string key, GameSaveData data, out string message)
+    {
         data.timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-        string key = Prefix + slot;
         bool existed = PlayerPrefs.HasKey(key);
         string previous = PlayerPrefs.GetString(key, "");
         try
@@ -141,10 +153,16 @@ public static class GameSaveService
     {
         message = null;
         if (slot < 0 || slot >= SlotCount) { message = "保存先が無効です。"; return null; }
-        if (!PlayerPrefs.HasKey(Prefix + slot)) return null;
+        return ReadCheckpoint(Prefix + slot, out message);
+    }
+
+    private static GameSaveData ReadCheckpoint(string key, out string message)
+    {
+        message = null;
+        if (!PlayerPrefs.HasKey(key)) return null;
         try
         {
-            GameSaveData data = JsonUtility.FromJson<GameSaveData>(PlayerPrefs.GetString(Prefix + slot));
+            GameSaveData data = JsonUtility.FromJson<GameSaveData>(PlayerPrefs.GetString(key));
             if (!IsValid(data)) { message = "このセーブデータは読み込めません。"; return null; }
             return data;
         }
@@ -171,6 +189,11 @@ public static class GameSaveService
     {
         GameSaveData data = Read(slot, out message);
         if (data == null) { message ??= "この枠にはセーブデータがありません。"; return false; }
+        return LoadCheckpoint(data, out message);
+    }
+
+    private static bool LoadCheckpoint(GameSaveData data, out string message, bool continuing = false)
+    {
         if (!Application.CanStreamedLevelBeLoaded(data.scene)) { message = "保存した場面が見つかりません。"; return false; }
         GameSavePreference[] previousProgress;
         try { previousProgress = GameProgress.CaptureCheckpoint(); }
@@ -181,10 +204,22 @@ public static class GameSaveService
             return false;
         }
         string[] previousNames = NovelDialogueController.CaptureRevealedNames();
+        DialogueProgressStore.Timeline previousTimeline = DialogueProgressStore.CaptureTimeline();
+        var previousResults = TimingGameResults.Capture();
         ArchiveManager.Close();
         try
         {
-            NovelDialogueController.ResetStoryState();
+            // A manual load starts a new timeline. Outgoing scene callbacks cannot re-save the future.
+            DialogueProgressStore.Clear();
+            if (continuing)
+            {
+                DialogueProgressStore.RestoreTimeline(new DialogueProgressStore.Timeline
+                {
+                    json = data.dialogueProgressJson,
+                    generation = DialogueProgressStore.Generation
+                });
+                TimingGameResults.Restore(data.timingResults);
+            }
             NovelDialogueController.RestoreRevealedNames(data.revealedNames);
             GameProgress.RestoreCheckpoint(data.progress);
             pending = data;
@@ -196,6 +231,9 @@ public static class GameSaveService
         catch (Exception exception)
         {
             pending = null;
+            TimingGameResults.Restore(previousResults);
+            try { DialogueProgressStore.RestoreTimeline(previousTimeline); }
+            catch (Exception rollbackException) { Debug.LogException(rollbackException); }
             try { GameProgress.RestoreCheckpoint(previousProgress); }
             catch (Exception rollbackException) { Debug.LogException(rollbackException); }
             NovelDialogueController.RestoreRevealedNames(previousNames);

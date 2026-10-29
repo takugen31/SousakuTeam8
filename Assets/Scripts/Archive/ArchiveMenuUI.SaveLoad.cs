@@ -108,7 +108,7 @@ public sealed partial class ArchiveMenuUI
         loadingSlots = load;
         menuRoot.SetActive(false);
         archiveFrame.SetActive(false);
-        restartConfirmation.SetActive(false);
+        returnToTitleConfirmation.SetActive(false);
         saveLoadRoot.SetActive(true);
         windowRoot.GetComponent<Image>().color = BackdropColor;
         saveLoadTitle.text = load ? "ロード" : "セーブ";

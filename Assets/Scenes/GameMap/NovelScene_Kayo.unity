@@ -691,6 +691,7 @@ GameObject:
   - component: {fileID: 1633669556}
   - component: {fileID: 1633669557}
   - component: {fileID: 1633669558}
+  - component: {fileID: 1633669559}
   m_Layer: 5
   m_Name: DialogueController
   m_TagString: Untagged
@@ -712,9 +713,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KayoGaugeOutcomeController
   dialogueController: {fileID: 1633669557}
   rescueAftermath: {fileID: 11400000, guid: e14a15a7cd9633d4086f60f632e145a5, type: 2}
-  successLineId: chapter_kayo_5_success_001
-  failureLineId: chapter_kayo_5_failure_001
+  successLineId: chapter_kayo_meter_success_001
+  failureLineId: chapter_kayo_meter_failure_001
   lastCommonLineId: chapter_kayo_6_056
+--- !u!114 &1633669559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633669555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2a3f4e5d6c7b8a99092b3c4d5e6f708, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TimingMeterGameEntryController
+  dialogueController: {fileID: 1633669557}
+  meterSceneName: TimingMeterGame
+  meterEntryLineId: chapter_kayo_5_025
+  characterId: kayo
+  successResumeLineId: chapter_kayo_meter_success_001
+  failureResumeLineId: chapter_kayo_meter_failure_001
 --- !u!224 &1633669556
 RectTransform:
   m_ObjectHideFlags: 0
@@ -753,6 +772,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6553fee95283e8b4a9d7e6289eb039fd, type: 2}
   - {fileID: 11400000, guid: a14c3fc58069428438b3211cb7b4bbb7, type: 2}
   - {fileID: 11400000, guid: ba42d8c2717aec344b00dfe090c1fdf6, type: 2}
+  - {fileID: 11400000, guid: 7efb22d6d4af49a2b6e1cf87cc6e8fd0, type: 2}
+  - {fileID: 11400000, guid: a21b90e56daa48f7a968282cbf4f65b6, type: 2}
   - {fileID: 11400000, guid: e14a15a7cd9633d4086f60f632e145a5, type: 2}
   - {fileID: 11400000, guid: fc58f33b8057e83448d53b7c43fd1169, type: 2}
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}

@@ -153,7 +153,7 @@ MonoBehaviour:
   - lineId: chapter_yowashi_tennis_009
     speakerId: yowashi
     expressionId: normal
-    text: "\u3046\u3093\u3001\u30C6\u30CB\u30B9\u306E\u5973\u738B\u69D8\u3063\u3066\u6F2B\u753B\u9762\u767D\u3044\u3058\u3083\u3093\uFF1F\u524D\u304B\u3089\u3084\u3063\u3066\u307F\u305F\u304F\u3066\u3055\u301C"
+    text: "うん、『テニスの女王様』って漫画面白いじゃん？前からやってみたくてさ〜"
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
@@ -383,6 +383,23 @@ MonoBehaviour:
     lineFadeHoldDuration: -1
     lineFadeInDuration: -1
     nextScenePath: 
+    nextLineId: chapter_yowashi_tennis_021_time
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
+  - lineId: chapter_yowashi_tennis_021_time
+    speakerId:
+    expressionId:
+    text: "(10分後)"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle:
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath:
     nextLineId: chapter_yowashi_tennis_022
     choices: []
     affectionChanges: []

@@ -246,13 +246,9 @@ MonoBehaviour:
     lineFadeOutDuration: -1
     lineFadeHoldDuration: -1
     lineFadeInDuration: -1
-    nextScenePath: 
+    nextScenePath: Assets/MeterGame/Scenes/TimingMeterGame.unity
     nextLineId: 
-    choices:
-    - text: "\u6210\u529F"
-      nextLineId: chapter_yowashi_rescue_015
-    - text: "\u5931\u6557"
-      nextLineId: chapter_yowashi_rescue_039
+    choices: []
     affectionChanges: []
     archiveUnlockIds: []
     branches: []

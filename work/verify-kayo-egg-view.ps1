@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 $start = $source.IndexOf('public static bool IsKayoEggLine(')
 $end = $source.IndexOf('private void StartKayoEggView', $start)
 $method = $source.Substring($start, $end - $start)

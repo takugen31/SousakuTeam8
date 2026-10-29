@@ -1,0 +1,6 @@
+{
+  "name": "SousakuTeam8.MeterGame",
+  "rootNamespace": "SousakuTeam8.MeterGame",
+  "references": ["Unity.InputSystem", "Unity.ugui"],
+  "autoReferenced": true
+}
