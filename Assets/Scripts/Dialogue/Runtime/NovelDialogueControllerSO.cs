@@ -173,10 +173,10 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     [SerializeField] private bool normalizeBustPortraitSizes;
     [SerializeField] private bool mirrorDoutePortrait;
-    [SerializeField, Min(0.01f)] private float doutePortraitScale = 0.68f;
-    private bool leftPortraitBaseCaptured;
-    private Vector2 leftPortraitBasePosition;
-    private Vector3 leftPortraitBaseScale;
+    // All ordinary Doute portraits share screen-relative geometry, including embedded dialogue.
+    private const float DoutePortraitHeight = 0.99f;
+    private static readonly Vector2 DoutePortraitAnchor = new Vector2(0.23f, 0.92f);
+    private Vector2 doutePortraitViewport;
     [SerializeField, Min(0.01f)] private float kayoPortraitScale = 1.0f;
     [SerializeField] private float kayoPortraitUpwardOffset = 0.09f;
     private bool rightPortraitBaseCaptured;
@@ -439,6 +439,9 @@ public sealed class NovelDialogueController : MonoBehaviour
             RestoreImage(backgroundImage, data.images[0]);
             RestoreImage(leftPortraitImage, data.images[1]);
             RestoreImage(rightPortraitImage, data.images[2]);
+            // Old saves can contain portrait geometry from before the layout adjustment.
+            if (CanApplyStandardDoutePortraitLayout())
+                ApplyProtagonistFacing();
             if (data.textFullyDisplayed) CompleteTyping();
             return true;
         }
@@ -594,6 +597,14 @@ public sealed class NovelDialogueController : MonoBehaviour
         {
             Advance();
         }
+    }
+
+    private void LateUpdate()
+    {
+        if (!normalizeBustPortraitSizes || !CanApplyStandardDoutePortraitLayout() || isRoomLookPlaying) return;
+        RectTransform parent = leftPortraitImage.rectTransform.parent as RectTransform;
+        if (parent != null && parent.rect.size != doutePortraitViewport)
+            ApplyProtagonistFacing();
     }
 
     private void Start()
@@ -3145,19 +3156,33 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         if (protagonistCharacterId != "doute" || leftPortraitImage == null) return;
         RectTransform rect = leftPortraitImage.rectTransform;
-        if (!leftPortraitBaseCaptured)
+        if (!normalizeBustPortraitSizes)
         {
-            leftPortraitBasePosition = rect.anchoredPosition;
-            leftPortraitBaseScale = rect.localScale;
-            leftPortraitBaseCaptured = true;
+            Vector3 scale = rect.localScale;
+            scale.x = Mathf.Abs(scale.x) * (mirrorDoutePortrait ? -1f : 1f);
+            rect.localScale = scale;
+            return;
         }
-        float factor = normalizeBustPortraitSizes ? doutePortraitScale : 1f;
-        Vector3 scale = leftPortraitBaseScale * factor;
-        scale.x = Mathf.Abs(scale.x) * (mirrorDoutePortrait ? -1f : 1f);
-        rect.localScale = scale;
-        // Keep the head at the same height while matching the other portraits' scale.
-        rect.anchoredPosition = leftPortraitBasePosition + Vector2.up *
-            (rect.rect.height * (1f - rect.pivot.y) * leftPortraitBaseScale.y * (1f - factor));
+        if (leftPortraitImage.sprite == null) return;
+        // Resolve startup layout before measuring the common full-screen dialogue parent.
+        Canvas.ForceUpdateCanvases();
+        RectTransform parent = rect.parent as RectTransform;
+        if (parent == null || parent.rect.height <= 0f) return;
+        doutePortraitViewport = parent.rect.size;
+        float height = doutePortraitViewport.y * DoutePortraitHeight;
+        Rect spriteRect = leftPortraitImage.sprite.rect;
+        rect.anchorMin = rect.anchorMax = DoutePortraitAnchor;
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.sizeDelta = new Vector2(height * spriteRect.width / spriteRect.height, height);
+        rect.anchoredPosition = Vector2.zero;
+        rect.localScale = new Vector3(mirrorDoutePortrait ? -1f : 1f, 1f, 1f);
+        rect.localRotation = Quaternion.identity;
+    }
+
+    private bool CanApplyStandardDoutePortraitLayout()
+    {
+        return protagonistCharacterId == "doute" && leftPortraitImage != null && leftPortraitImage.enabled &&
+            !isGatheringCompositionActive && !isSearchPortraitSliding && pushedDouteRect == null;
     }
 
     private void ResetPortraitsForScenario()

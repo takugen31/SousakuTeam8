@@ -746,7 +746,6 @@ MonoBehaviour:
   omitOuterDialogueQuotes: 1
   normalizeBustPortraitSizes: 1
   mirrorDoutePortrait: 0
-  doutePortraitScale: 0.68
   startLineId: 
   affectionManager: {fileID: 0}
   backgroundImage: {fileID: 2000001002}

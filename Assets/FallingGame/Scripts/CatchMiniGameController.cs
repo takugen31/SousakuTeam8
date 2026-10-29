@@ -144,6 +144,7 @@ namespace Sousakusai8.MiniGame
         private RenderPipelineAsset miniGameOriginalRenderPipeline;
         private UniversalRenderPipelineAsset runtimeRenderPipeline;
         private bool renderingQualityApplied;
+        private CatchGameHud hudPresentation;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -211,6 +212,8 @@ namespace Sousakusai8.MiniGame
             }
 
             ResolveHudReferences();
+            hudPresentation = CatchGameHud.Create(scoreText, timeText, scoreMessageText, startPromptText,
+                feedbackText, jumpUnlockText, sweepUnlockText, resultScoreText != null ? resultScoreText.font : null);
 
             if (gameCamera == null || catcher == null)
             {
@@ -256,6 +259,7 @@ namespace Sousakusai8.MiniGame
             }
 
             PrepareForStart();
+            UpdateHudPresentation();
         }
 
         private void Update()
@@ -301,6 +305,16 @@ namespace Sousakusai8.MiniGame
             {
                 sweepUnlockText.gameObject.SetActive(false);
             }
+            UpdateHudPresentation();
+        }
+
+        private void UpdateHudPresentation()
+        {
+            if (hudPresentation == null) return;
+            hudPresentation.Present(phase == GamePhase.AwaitingInput, phase == GamePhase.Countdown,
+                phase == GamePhase.GameOver, score, remainingTime, gameDuration, jumpUnlocked, sweepUnlocked,
+                nextSweepAvailableTime - Time.unscaledTime, jumpUnlockScore, sweepUnlockScore,
+                sweepScoreCost, goodItemScore, badItemPenalty, feedbackVisibleUntil);
         }
 
         private bool TryInstantClearForTesting()
@@ -815,6 +829,7 @@ namespace Sousakusai8.MiniGame
                 if (label != null) label.gameObject.SetActive(false);
             }
             ShowGameOverPresentation();
+            hudPresentation?.Hide();
             RoundEnded?.Invoke(score);
         }
 
