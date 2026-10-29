@@ -13,6 +13,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 {
     private GameObject endingCard;
     private Coroutine endingCardCoroutine;
+    private ProloguePresentation prologuePresentation;
     private static readonly HashSet<string> revealedCharacterIds =
         new HashSet<string>(System.StringComparer.Ordinal);
 
@@ -134,6 +135,13 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     [SerializeField] private bool normalizeBustPortraitSizes;
     [SerializeField] private bool mirrorDoutePortrait;
+    // All ordinary Doute portraits share screen-relative geometry, including embedded dialogue.
+    private const float DoutePortraitHeight = 0.99f;
+    private static readonly Vector2 DoutePortraitAnchor = new Vector2(0.23f, 0.92f);
+    // Match the previous illustration's face size; the replacement has a much larger head.
+    private const float DouteCloseUpScale = 0.55f;
+    private const float DouteFaceCenter = 0.84f;
+    private Vector2 doutePortraitViewport;
     [SerializeField, Min(0.01f)] private float kayoPortraitScale = 1.0f;
     [SerializeField] private float kayoPortraitUpwardOffset = 0.09f;
     private bool rightPortraitBaseCaptured;
@@ -410,6 +418,9 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             RestoreImage(backgroundImage, data.images[0]);
             RestoreImage(leftPortraitImage, data.images[1]);
             RestoreImage(rightPortraitImage, data.images[2]);
+            // Old saves can contain portrait geometry from before the layout adjustment.
+            if (CanApplyStandardDoutePortraitLayout())
+                ApplyProtagonistFacing();
             if (data.textFullyDisplayed) CompleteTyping();
             if (data.hasPresentationState)
             {
@@ -421,6 +432,8 @@ public sealed partial class NovelDialogueController : MonoBehaviour
                 UpdateAutoPlayButton();
                 if (autoPlayEnabled && !isTyping) ScheduleAutoAdvance();
             }
+            RefreshStandardDoutePortraitLayout();
+            ApplyProloguePresentation(line);
             return true;
         }
         Debug.LogError("セーブした会話の位置が見つかりません。", this);
@@ -576,6 +589,14 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         {
             Advance();
         }
+    }
+
+    private void RefreshStandardDoutePortraitLayout()
+    {
+        if (!normalizeBustPortraitSizes || !CanApplyStandardDoutePortraitLayout() || isRoomLookPlaying) return;
+        RectTransform parent = leftPortraitImage.rectTransform.parent as RectTransform;
+        if (parent != null && parent.rect.size != doutePortraitViewport)
+            ApplyProtagonistFacing();
     }
 
     private IEnumerator Start()
@@ -1308,6 +1329,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition(bool preservePushback = false)
     {
+        prologuePresentation?.Hide();
         if (!preservePushback) StopKayoPushback();
         StopEndingCard();
         moteruApproachElapsed = 0f;
@@ -1679,6 +1701,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private void OnDisable()
     {
         SaveSceneProgress();
+        prologuePresentation?.Hide();
         StopKayoPushback();
         StopEndingCard();
         StopKayoEggView();
@@ -1831,6 +1854,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        prologuePresentation?.Hide();
         completedDepartureLineId = null;
         if (!IsKayoPushbackLine(line?.lineId)) StopKayoPushback();
         StopKayoEggView();
@@ -1861,6 +1885,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         }
         RestoreNamesIntroducedBefore(line);
         ApplyCharacter(line);
+        ApplyProloguePresentation(line);
         StartGatheringComposition(line);
         StartSearchPortraitSlide(line);
         StartYowashiBandageView(line);
@@ -2033,8 +2058,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         Image topPortrait = CreateRoomLookImage(top, "DouteFace");
         topPortrait.sprite = douteSprite;
         // Upper face centered inside the top half, with both eyes and chin visible.
-        SetGatheringPortrait(topPortrait, viewport, 0.27f, 2.6f, 0.25f - (0.90f - 0.5f) * 2.6f,
-            mirrorDoutePortrait ? -1f : 1f);
+        SetDouteFacePortrait(topPortrait, viewport, 0.27f, 2.4f, 0.25f);
         Image bottomRoom = CreateRoomLookImage(bottom, "BottomZoomedRoom");
         SetRoomLookPose(bottomRoom, viewport, new Vector2(0.56f, 0.38f), 1.6f);
         moteruRevealBackground = bottomRoom;
@@ -2046,7 +2070,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (line.lineId == "chapter2_moteru_009" || line.lineId == "chapter2_moteru_010" ||
             line.lineId == "kayo_catch_success_before_006")
             moteruApproachElapsed = 0f;
-        ApplyMoteruApproach();
+        RefreshMoteruRevealLayout();
         var dividerObject = new GameObject("RevealCenterDivider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         RectTransform divider = dividerObject.GetComponent<RectTransform>();
         divider.SetParent(frame, false);
@@ -2090,11 +2114,35 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void UpdateMoteruApproach()
     {
+        // Reframe an existing view as well as a newly created one (including window resizes).
+        RefreshMoteruRevealLayout();
         // Start only after advancing the lips-to-ear page (010 -> 011).
         if (!isMoteruRevealViewActive || moteruRevealPortrait == null ||
             currentLine?.lineId == "chapter2_moteru_009" || currentLine?.lineId == "chapter2_moteru_010" ||
             ArchiveManager.IsOpen || isChapterTransitioning || isSkipConfirmationOpen || isRoomLookPlaying) return;
         moteruApproachElapsed = Mathf.Min(2.4f, moteruApproachElapsed + Time.unscaledDeltaTime);
+        ApplyMoteruApproach();
+    }
+
+    private void RefreshMoteruRevealLayout()
+    {
+        if (!isMoteruRevealViewActive || moteruRevealView == null || moteruRevealPortrait == null) return;
+        RectTransform frame = moteruRevealView.GetComponent<RectTransform>();
+        Vector2 viewport = frame.rect.size;
+        if (viewport.y <= 0f) return;
+        moteruRevealViewport = viewport;
+        Transform top = frame.Find("DouteTopHalf");
+        if (top != null)
+        {
+            top.GetComponent<RectMask2D>().padding = new Vector4(0f, viewport.y * 0.5f, 0f, 0f);
+            Image portrait = top.Find("DouteFace").GetComponent<Image>();
+            // Leave room for the hair above and the chin above the feathered divider.
+            SetDouteFacePortrait(portrait, viewport, 0.27f, 2.4f, 0.25f);
+            SetRoomLookPose(top.Find("TopZoomedRoom").GetComponent<Image>(), viewport,
+                new Vector2(0.44f, 0.62f), 1.6f);
+        }
+        moteruRevealPortrait.transform.parent.GetComponent<RectMask2D>().padding =
+            new Vector4(0f, 0f, 0f, viewport.y * 0.5f);
         ApplyMoteruApproach();
     }
 
@@ -2255,8 +2303,9 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     {
         const float abdomenZoom = 3.7f;
         const float kayoZoom = 3.2f;
-        SetGatheringPortrait(examinationAbdomen, examinationViewport, 0.265f, abdomenZoom,
-            -(0.66f - 0.5f) * abdomenZoom, mirrorDoutePortrait ? -1f : 1f);
+        float douteZoom = abdomenZoom * DouteCloseUpScale;
+        SetGatheringPortrait(examinationAbdomen, examinationViewport, 0.265f, douteZoom,
+            -(0.44f - 0.5f) * douteZoom, mirrorDoutePortrait ? -1f : 1f);
         SetGatheringPortrait(examinationKayo, examinationViewport, 0.735f, kayoZoom,
             -(0.79f - 0.5f) * kayoZoom, 1f);
     }
@@ -2389,8 +2438,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         Image portrait = CreateRoomLookImage(frame, centeredCharacterId + "Bust");
         portrait.sprite = sprite;
         float bustCenter = isYowashiDiary ? 0.84f : isKayoDiary ? 0.79f : 0.80f;
-        SetGatheringPortrait(portrait, frame.rect.size, 0.5f, 2.3f,
-            -(bustCenter - 0.5f) * 2.3f, centeredCharacterId == "doute" && mirrorDoutePortrait ? -1f : 1f);
+        if (centeredCharacterId == "doute")
+            SetDouteFacePortrait(portrait, frame.rect.size, 0.5f, 2.3f, (0.90f - bustCenter) * 2.3f);
+        else
+            SetGatheringPortrait(portrait, frame.rect.size, 0.5f, 2.3f,
+                -(bustCenter - 0.5f) * 2.3f, 1f);
         Image shade = CreateRoomLookImage(frame, "MonologueShade");
         shade.sprite = null;
         shade.color = new Color(0f, 0f, 0f, 0.35f);
@@ -2603,10 +2655,13 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void ApplyGatheringDouteSlide(Vector2 viewport)
     {
+        if (leftPortraitImage == null || leftPortraitImage.sprite == null || viewport.x <= 0f) return;
         float progress = Mathf.SmoothStep(0f, 1f, gatheringDouteSlideElapsed / 5.5f);
-        float startY = 0.5f - (0.90f - 0.5f) * 2.7f;
-        SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, Mathf.Lerp(startY, -0.91f, progress),
-            mirrorDoutePortrait ? -1f : 1f);
+        // Retain the original downward reveal, using the new face's proportions.
+        float portraitWidth = viewport.y * 2.7f * DouteCloseUpScale *
+            leftPortraitImage.sprite.rect.width / leftPortraitImage.sprite.rect.height;
+        float x = Mathf.Min(0.23f, 0.48f - portraitWidth * 0.5f / viewport.x);
+        SetDouteFacePortrait(leftPortraitImage, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress));
         if (gatheringLeftBackground != null)
             SetRoomLookPose(gatheringLeftBackground, viewport,
                 new Vector2(0.5f, Mathf.Lerp(0.48f, 0.53f, progress)), 1.35f);
@@ -2638,6 +2693,13 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         rect.anchorMin = pose.anchorMin; rect.anchorMax = pose.anchorMax; rect.pivot = pose.pivot;
         rect.sizeDelta = pose.size; rect.anchoredPosition = pose.position;
         rect.localScale = pose.scale; rect.localRotation = pose.rotation;
+    }
+
+    private void SetDouteFacePortrait(Image image, Vector2 viewport, float x, float referenceHeight, float faceY)
+    {
+        float height = referenceHeight * DouteCloseUpScale;
+        SetGatheringPortrait(image, viewport, x, height,
+            faceY - (DouteFaceCenter - 0.5f) * height, mirrorDoutePortrait ? -1f : 1f);
     }
 
     private static void SetGatheringPortrait(Image image, Vector2 viewport, float x, float heightFactor, float y, float facing)
@@ -3043,6 +3105,17 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         }
     }
 
+    private void ApplyProloguePresentation(DialogueLine line)
+    {
+        if (line?.lineId != ProloguePresentation.ProfileLineId || dialogueRoot == null ||
+            bodyText == null || characterDatabase == null) return;
+        prologuePresentation ??= new ProloguePresentation(dialogueRoot.GetComponent<RectTransform>(), bodyText);
+        characterDatabase.TryGetCharacter("doute", out CharacterData doute);
+        prologuePresentation.ShowProfile(line.text, doute?.GetPortrait("normal"));
+        SetPortrait(leftPortraitImage, null);
+        SetPortrait(rightPortraitImage, null);
+    }
+
     private void ApplyBustPortraitSize(string characterId)
     {
         if (!normalizeBustPortraitSizes || rightPortraitImage == null) return;
@@ -3077,9 +3150,34 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private void ApplyProtagonistFacing()
     {
         if (protagonistCharacterId != "doute" || leftPortraitImage == null) return;
-        Vector3 scale = leftPortraitImage.rectTransform.localScale;
-        scale.x = Mathf.Abs(scale.x) * (mirrorDoutePortrait ? -1f : 1f);
-        leftPortraitImage.rectTransform.localScale = scale;
+        RectTransform rect = leftPortraitImage.rectTransform;
+        if (!normalizeBustPortraitSizes)
+        {
+            Vector3 scale = rect.localScale;
+            scale.x = Mathf.Abs(scale.x) * (mirrorDoutePortrait ? -1f : 1f);
+            rect.localScale = scale;
+            return;
+        }
+        if (leftPortraitImage.sprite == null) return;
+        // Resolve startup layout before measuring the common full-screen dialogue parent.
+        Canvas.ForceUpdateCanvases();
+        RectTransform parent = rect.parent as RectTransform;
+        if (parent == null || parent.rect.height <= 0f) return;
+        doutePortraitViewport = parent.rect.size;
+        float height = doutePortraitViewport.y * DoutePortraitHeight;
+        Rect spriteRect = leftPortraitImage.sprite.rect;
+        rect.anchorMin = rect.anchorMax = DoutePortraitAnchor;
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.sizeDelta = new Vector2(height * spriteRect.width / spriteRect.height, height);
+        rect.anchoredPosition = Vector2.zero;
+        rect.localScale = new Vector3(mirrorDoutePortrait ? -1f : 1f, 1f, 1f);
+        rect.localRotation = Quaternion.identity;
+    }
+
+    private bool CanApplyStandardDoutePortraitLayout()
+    {
+        return protagonistCharacterId == "doute" && leftPortraitImage != null && leftPortraitImage.enabled &&
+            !isGatheringCompositionActive && !isSearchPortraitSliding && pushedDouteRect == null;
     }
 
     private void ResetPortraitsForScenario()
@@ -3131,6 +3229,16 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
+        }
+
+        if (currentLine?.lineId == ProloguePresentation.ProfileLineId)
+        {
+            typingCoroutine = null;
+            bodyText.text = text;
+            bodyText.maxVisibleCharacters = int.MaxValue;
+            isTyping = false;
+            HandleLineFullyDisplayed();
+            return;
         }
 
         if (currentLine.HasChoices && string.IsNullOrWhiteSpace(text))
@@ -3873,7 +3981,8 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         autoAdvanceAt = autoPlayEnabled &&
             currentLine != null &&
             !currentLine.HasSceneTransition
-            ? Time.unscaledTime + autoAdvanceDelaySeconds
+            ? Time.unscaledTime + (currentLine.lineId == ProloguePresentation.ProfileLineId
+                ? Mathf.Max(6f, autoAdvanceDelaySeconds) : autoAdvanceDelaySeconds)
             : -1f;
     }
 

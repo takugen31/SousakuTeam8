@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$database = Get-Content (Join-Path $root 'Assets/Dialogue/Data/CharacterDatabaseatPrologue.asset') -Raw
+$database = Get-Content (Join-Path $root 'Assets/Dialogue/Data/CharacterDatabase.asset') -Raw
 $characters = @{ 'falling_verKayo' = 'kayo'; 'SampleScene' = 'kayo'; 'falling_verMoteru' = 'moteru'; 'falling_verYowashi' = 'yowashi' }
 foreach ($scene in $characters.Keys) {
     $id = $characters[$scene]

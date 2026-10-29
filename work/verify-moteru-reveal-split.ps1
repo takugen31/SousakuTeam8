@@ -38,14 +38,18 @@ Assert-Reveal ($effect.Contains('new Vector4(0f, height * 0.5f, 0f, 0f)') -and $
 Assert-Reveal ($effect.Contains('new Vector2(0f, 0.475f)') -and $effect.Contains('new Vector2(1f, 0.525f)') -and $effect.Contains('ConfigureFeather(new Vector2(0f, viewport.y * 0.02f))')) 'Feathered horizontal separator missing'
 Assert-Reveal ($source.Contains('IsApproachRevealLine(line?.lineId) != isMoteruRevealViewActive') -and $source.Contains('StartCoroutine(FadeToDialogueComposition(line))')) 'Entry/return fade missing'
 Assert-Reveal ($effect.Contains('rightPortraitImage.transform.GetSiblingIndex() + 1') -and -not $effect.Contains('HideLookPresentation')) 'Dialogue hidden/covered'
-foreach($face in @(0.85,0.90,0.94)) {
-    $y=0.25-(0.90-0.5)*2.6+($face-0.5)*2.6
-    Assert-Reveal ($y -gt 0.025 -and $y -lt 0.5) 'Doute face clipped by top frame or divider'
+foreach($face in @(0.69,0.74,0.80,1.0)) {
+    $y=0.25+($face-0.84)*(2.4*0.55)
+    Assert-Reveal ($y -gt 0.04 -and $y -lt 0.48) 'Doute hair/eyes/mouth/chin clipped by top frame or divider'
 }
 $eyes=(0.88-0.85)*2.7;$mouth=(0.835-0.85)*2.7
 Assert-Reveal ($eyes -gt 0 -and $mouth -lt -0.025 -and $mouth -gt -0.5) 'Moteru eyes are visible or mouth is hidden'
 Assert-Reveal ($effect.Contains('leftPortraitImage.enabled = revealLeftWasEnabled') -and $effect.Contains('rightPortraitImage.enabled = revealRightWasEnabled')) 'Original portrait visibility not restored'
-Assert-Reveal ($effect.Contains('viewport, 0.27f, 2.6f') -and $effect.Contains('Mathf.Lerp(0.82f, 0.52f, t)')) 'Initial separation and left approach missing'
+Assert-Reveal ($effect.Contains('SetDouteFacePortrait(topPortrait, viewport, 0.27f, 2.4f, 0.25f)') -and $effect.Contains('Mathf.Lerp(0.82f, 0.52f, t)')) 'Initial separation and left approach missing'
+$refreshStart=$effect.IndexOf('private void UpdateMoteruApproach()')
+$refreshEnd=$effect.IndexOf('private void RefreshMoteruRevealLayout()', $refreshStart)
+$update=$effect.Substring($refreshStart,$refreshEnd-$refreshStart)
+Assert-Reveal ($update.IndexOf('RefreshMoteruRevealLayout();') -lt $update.IndexOf('currentLine?.lineId == "chapter2_moteru_009"') -and $effect.Contains('moteruRevealViewport = viewport;')) 'Existing split views are not reframed on the held approach page or resize'
 Assert-Reveal ($effect.Contains('currentLine?.lineId == "chapter2_moteru_010"') -and $effect.Contains('ArchiveManager.IsOpen') -and $source.Contains('UpdateMoteruApproach();')) 'Page advance trigger or menu pause missing'
 Assert-Reveal ($source.Contains('if (!IsApproachRevealLine(line?.lineId)) moteruApproachElapsed = 0f;')) 'Progress does not persist across split pages or reset outside them'
 Assert-Reveal ($effect.Contains('TryGetCharacter(isKayo ? "kayo" : "moteru"') -and $effect.Contains('"KayoApproachSplitView"') -and $effect.Contains('line.lineId == "kayo_catch_success_before_006"') -and $effect.Contains('IsKayoApproachLine(currentLine?.lineId) ? 0.94f : 0.85f')) 'Kayo sprite, entry reset or full-face framing missing'

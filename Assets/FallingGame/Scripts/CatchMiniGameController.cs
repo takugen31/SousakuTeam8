@@ -37,8 +37,8 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Transform itemPoolRoot;
         [SerializeField] private SpriteRenderer[] goodItemVisuals;
         [SerializeField] private SpriteRenderer[] badItemVisuals;
-        private static readonly Vector2 VaseFallingSize = new(0.84f, 0.84f);
-        private static readonly Vector2 BrokenVaseSize = new(1.288f, 0.784f);
+        private static readonly Vector2 PlateFallingSize = new(0.84f, 0.84f);
+        private static readonly Vector2 BrokenPlateSize = new(1.288f, 0.784f);
 
         [Header("Falling Item Visual Size")]
         [SerializeField] private Vector2 fallingItemSize = new(0.62f, 0.62f);
@@ -90,10 +90,10 @@ namespace Sousakusai8.MiniGame
         [Header("Score Messages")]
         [SerializeField] private ScoreMessageTier[] scoreMessageTiers =
         {
-            new() { minimumScore = -1000000, message = "まだまだ!" },
-            new() { minimumScore = 1000, message = "こっから！" },
-            new() { minimumScore = 2000, message = "やるじゃん？" },
-            new() { minimumScore = 3000, message = "ええええ（ドン引き）" }
+            new() { minimumScore = -1000000, message = "小物を集めよう" },
+            new() { minimumScore = 1000, message = "いい調子！" },
+            new() { minimumScore = 2000, message = "その調子！" },
+            new() { minimumScore = 3000, message = "ナイスキャッチ！" }
         };
 
         [Header("Start Sequence")]
@@ -144,6 +144,7 @@ namespace Sousakusai8.MiniGame
         private RenderPipelineAsset miniGameOriginalRenderPipeline;
         private UniversalRenderPipelineAsset runtimeRenderPipeline;
         private bool renderingQualityApplied;
+        private CatchGameHud hudPresentation;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -211,6 +212,8 @@ namespace Sousakusai8.MiniGame
             }
 
             ResolveHudReferences();
+            hudPresentation = CatchGameHud.Create(scoreText, timeText, scoreMessageText, startPromptText,
+                feedbackText, jumpUnlockText, sweepUnlockText, resultScoreText != null ? resultScoreText.font : null, gameCamera);
 
             if (gameCamera == null || catcher == null)
             {
@@ -256,6 +259,7 @@ namespace Sousakusai8.MiniGame
             }
 
             PrepareForStart();
+            UpdateHudPresentation();
         }
 
         private void Update()
@@ -301,6 +305,16 @@ namespace Sousakusai8.MiniGame
             {
                 sweepUnlockText.gameObject.SetActive(false);
             }
+            UpdateHudPresentation();
+        }
+
+        private void UpdateHudPresentation()
+        {
+            if (hudPresentation == null) return;
+            hudPresentation.Present(phase == GamePhase.AwaitingInput, phase == GamePhase.Countdown,
+                phase == GamePhase.GameOver, score, remainingTime, gameDuration, jumpUnlocked, sweepUnlocked,
+                nextSweepAvailableTime - Time.unscaledTime, jumpUnlockScore, sweepUnlockScore,
+                sweepScoreCost, goodItemScore, badItemPenalty, feedbackVisibleUntil);
         }
 
         private bool TryInstantClearForTesting()
@@ -433,8 +447,8 @@ namespace Sousakusai8.MiniGame
             SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
             int visualIndex = Random.Range(0, candidates.Length);
             SpriteRenderer sourceVisual = candidates[visualIndex];
-            Vector2 badFallingSize = isBad ? VaseFallingSize : fallingItemSize;
-            Vector2 badStackedSize = isBad ? BrokenVaseSize : stackedBadItemSize;
+            Vector2 badFallingSize = isBad ? PlateFallingSize : fallingItemSize;
+            Vector2 badStackedSize = isBad ? BrokenPlateSize : stackedBadItemSize;
             Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
 
             FallingItem item = GetPooledItem();
@@ -687,11 +701,12 @@ namespace Sousakusai8.MiniGame
             Transform resultRoot = hud.Find("Game Over UI");
             if (resultRoot != null)
             {
+                Transform resultContent = resultRoot.Find("Result Panel") ?? resultRoot;
                 gameOverPanel ??= resultRoot.gameObject;
                 resultPortrait ??= resultRoot.Find("Game Over Portrait")?.GetComponent<Image>();
-                resultScoreText ??= resultRoot.Find("Final Score Text")?.GetComponent<Text>();
-                resultDialogueText ??= resultRoot.Find("Final Dialogue Text")?.GetComponent<Text>();
-                resultCountsText ??= resultRoot.Find("Final Counts Text")?.GetComponent<Text>();
+                resultScoreText ??= resultContent.Find("Final Score Text")?.GetComponent<Text>();
+                resultDialogueText ??= resultContent.Find("Final Dialogue Text")?.GetComponent<Text>();
+                resultCountsText ??= resultContent.Find("Final Counts Text")?.GetComponent<Text>();
             }
         }
 
@@ -807,7 +822,14 @@ namespace Sousakusai8.MiniGame
             }
 
             UpdateTimeText();
+            // Keep gameplay labels behind the translucent result overlay from showing through.
+            foreach (Text label in new[] { scoreText, timeText, scoreMessageText,
+                startPromptText, jumpUnlockText, sweepUnlockText })
+            {
+                if (label != null) label.gameObject.SetActive(false);
+            }
             ShowGameOverPresentation();
+            hudPresentation?.Hide();
             RoundEnded?.Invoke(score);
         }
 
@@ -828,18 +850,20 @@ namespace Sousakusai8.MiniGame
 
             if (resultScoreText != null)
             {
-                resultScoreText.text = $"あなたのスコア\n{score}";
+                resultScoreText.text = $"<size=16>スコア</size>\n<size=56>{score:N0}</size> <size=18>点</size>";
             }
 
             if (resultDialogueText != null)
             {
                 resultDialogueText.text = resultDialogue;
+                resultDialogueText.gameObject.SetActive(!string.IsNullOrWhiteSpace(resultDialogue));
             }
 
             if (resultCountsText != null)
             {
                 resultCountsText.text =
-                    $"取得した黄色  {collectedGoodItemCount}個\n取得した赤     {collectedBadItemCount}個";
+                    $"キャッチした小物　<size=24>{collectedGoodItemCount}</size> 個\n" +
+                    $"当たった皿　　　　<size=24>{collectedBadItemCount}</size> 個";
             }
 
             gameOverPanel.SetActive(true);
@@ -928,7 +952,7 @@ namespace Sousakusai8.MiniGame
             int clearedCount = ClearStackedBadItems();
             if (clearedCount == 0)
             {
-                ShowStatusFeedback("地面の赤オブジェクトなし");
+                ShowStatusFeedback("地面の割れた皿なし");
                 return;
             }
 

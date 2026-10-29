@@ -269,8 +269,43 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckSkipFade();
         yield return TimingStartGateChecks.Run();
         yield return CheckTitleContinuation();
+        yield return CheckPrologueProfile();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckPrologueProfile()
+    {
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        GameProgress.ResetAll();
+        var scenario = ScriptableObject.CreateInstance<DialogueScenarioSO>();
+        scenario.name = "ProfileCheck";
+        scenario.hideFlags = HideFlags.DontUnloadUnusedAsset;
+        scenario.ReplaceAll(new List<DialogueLine> {
+            Line("beforeProfile"), new DialogueLine { lineId=ProloguePresentation.ProfileLineId, text="Doute profile" }, Line("afterProfile") });
+        var controller = Create(scenario, "profile"); yield return null;
+        Complete(controller); controller.Advance(); yield return null;
+        var root = (GameObject)Get(controller, "dialogueRoot");
+        Check(Id(controller)==ProloguePresentation.ProfileLineId && !(bool)Get(controller,"isTyping") &&
+            root.transform.Find("Doute Profile").gameObject.activeSelf, "profile did not appear fully displayed");
+        Check(Body(controller).GetComponent<CanvasGroup>().alpha==0f, "profile duplicates the dialogue body");
+        var saved = new GameSaveData();
+        Check(controller.CaptureCheckpoint(saved), "profile checkpoint failed");
+        controller.Advance(); yield return null;
+        Check(Id(controller)=="afterProfile" && !root.transform.Find("Doute Profile").gameObject.activeSelf &&
+            Body(controller).GetComponent<CanvasGroup>().alpha==1f, "profile did not clean up on advance");
+        Check(controller.RestoreCheckpoint(saved), "profile checkpoint restore failed");
+        Check(root.transform.Find("Doute Profile").gameObject.activeSelf, "checkpoint did not restore profile");
+        SceneManager.LoadScene(B); yield return null;
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        controller = Create(scenario, "profile"); yield return null;
+        root = (GameObject)Get(controller,"dialogueRoot");
+        Check(Id(controller)==ProloguePresentation.ProfileLineId && root.transform.Find("Doute Profile").gameObject.activeSelf,
+            "scene progress did not restore profile");
+        controller.Advance(); yield return null;
+        Check(Id(controller)=="afterProfile" && Body(controller).GetComponent<CanvasGroup>().alpha==1f,
+            "restored profile did not return to normal dialogue");
+        Debug.Log("PASS: profile display, cleanup, manual checkpoint and scene-progress restore.");
     }
 
     private static DialogueLine Line(string id, int delta=0) => new DialogueLine

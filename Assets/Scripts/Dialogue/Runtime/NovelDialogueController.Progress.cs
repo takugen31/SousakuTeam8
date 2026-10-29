@@ -178,6 +178,8 @@ public sealed partial class NovelDialogueController
                     PrepareLine(line);
                     StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
                     RestoreProgressImages(state.images);
+                    RefreshStandardDoutePortraitLayout();
+                    ApplyProloguePresentation(line);
                     if (state.textFullyDisplayed || completed) CompleteTyping();
                     else if (bodyText != null) bodyText.maxVisibleCharacters = state.visibleCharacters;
                 }
@@ -225,6 +227,7 @@ public sealed partial class NovelDialogueController
     // Embedded conversations inherit the setting of their owning scene.
     private void LateUpdate()
     {
+        RefreshStandardDoutePortraitLayout();
         if (!IsSceneProgressEnabled || progressDeparted || progressCompleted || restoringSceneProgress) return;
         RefreshProgressState();
     }
