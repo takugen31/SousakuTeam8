@@ -807,6 +807,12 @@ namespace Sousakusai8.MiniGame
             }
 
             UpdateTimeText();
+            // Keep gameplay labels behind the translucent result overlay from showing through.
+            foreach (Text label in new[] { scoreText, timeText, scoreMessageText,
+                startPromptText, jumpUnlockText, sweepUnlockText })
+            {
+                if (label != null) label.gameObject.SetActive(false);
+            }
             ShowGameOverPresentation();
             RoundEnded?.Invoke(score);
         }
@@ -828,18 +834,20 @@ namespace Sousakusai8.MiniGame
 
             if (resultScoreText != null)
             {
-                resultScoreText.text = $"あなたのスコア\n{score}";
+                resultScoreText.text = $"<size=16>スコア</size>\n<size=56>{score:N0}</size> <size=18>点</size>";
             }
 
             if (resultDialogueText != null)
             {
                 resultDialogueText.text = resultDialogue;
+                resultDialogueText.gameObject.SetActive(!string.IsNullOrWhiteSpace(resultDialogue));
             }
 
             if (resultCountsText != null)
             {
                 resultCountsText.text =
-                    $"キャッチした小物  {collectedGoodItemCount}個\n当たった花瓶      {collectedBadItemCount}個";
+                    $"キャッチした小物　<size=24>{collectedGoodItemCount}</size> 個\n" +
+                    $"当たった花瓶　　　<size=24>{collectedBadItemCount}</size> 個";
             }
 
             gameOverPanel.SetActive(true);
