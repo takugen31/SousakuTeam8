@@ -22,6 +22,35 @@ public static class TimingGameResults
 
     private static readonly Dictionary<string, Record> records = new();
 
+    [System.Serializable]
+    public sealed class Snapshot
+    {
+        public string characterId;
+        public Outcome latest;
+        public int successCount;
+        public int failureCount;
+    }
+
+    public static Snapshot[] Capture()
+    {
+        var snapshots = new List<Snapshot>();
+        foreach (var entry in records)
+            snapshots.Add(new Snapshot { characterId = entry.Key, latest = entry.Value.Latest,
+                successCount = entry.Value.SuccessCount, failureCount = entry.Value.FailureCount });
+        return snapshots.ToArray();
+    }
+
+    public static void Restore(Snapshot[] snapshots)
+    {
+        records.Clear();
+        if (snapshots == null) return;
+        foreach (var entry in snapshots)
+            if (entry != null && !string.IsNullOrWhiteSpace(entry.characterId) &&
+                entry.latest >= Outcome.NotPlayed && entry.latest <= Outcome.Failure &&
+                entry.successCount >= 0 && entry.failureCount >= 0)
+                records[Normalize(entry.characterId)] = new Record(entry.latest, entry.successCount, entry.failureCount);
+    }
+
     public static Record Get(string characterId)
     {
         return records.TryGetValue(Normalize(characterId), out Record record) ? record : default;

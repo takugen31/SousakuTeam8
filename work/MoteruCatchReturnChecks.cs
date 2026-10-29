@@ -42,7 +42,7 @@ public sealed class MoteruCatchReturnChecks : MonoBehaviour
             Check(overlay != null && !overlay.gameObject.activeSelf, "overlay blocks gameplay");
             Canvas canvas = overlay.GetComponentInParent<Canvas>();
             Check(canvas.sortingOrder == 500 && canvas.renderMode == RenderMode.ScreenSpaceOverlay, "overlay differs from Kayo canvas");
-            NovelDialogueController.QueueResumeLine("stale_game_entry", false);
+            DialogueProgressTransitions.ResumeLine = "stale_game_entry";
             ArchiveManager.Closed = false;
             Time.timeScale = 0f;
             float startedAt = Time.realtimeSinceStartup;
@@ -70,7 +70,7 @@ public sealed class MoteruCatchReturnChecks : MonoBehaviour
             }
             Check(sawFade && Time.realtimeSinceStartup - startedAt >= 2.75f, "result/fade timing was skipped");
             Check(SceneManager.GetActiveScene().name == "NovelScene_Moteru", "wrong return scene");
-            Check(NovelDialogueController.ResumeLine == "chapter_moteru_2_001" && NovelDialogueController.FadeIn, "wrong resume line or missing arrival fade");
+            Check(DialogueProgressTransitions.ResumeLine == "chapter_moteru_2_001" && DialogueProgressTransitions.FadeIn, "wrong resume line or missing arrival fade");
             Check(ArchiveManager.Closed, "archive not closed before transition");
             Time.timeScale = 1f;
             Debug.Log($"PASS: Moteru return score={score}: 2s result, 0.8s black fade, destination, Chapter_Moteru_2 first line, stale queue override, duplicate guard, unscaled timing.");

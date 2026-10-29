@@ -38,8 +38,7 @@ public sealed class MoteruDiaryChecks : MonoBehaviour
         {
             if (selected == 1)
             {
-                NovelDialogueController.QueueResumeLine("chapter_moteru_diary_001", true);
-                SceneManager.LoadScene("NovelScene_Moteru");
+                DialogueProgressTransitions.ReturnToScene("NovelScene_Moteru", "chapter_moteru_diary_001");
                 yield return null;
             }
             NovelDialogueController dialogue = FindFirstObjectByType<NovelDialogueController>();
@@ -79,7 +78,7 @@ public sealed class MoteruDiaryChecks : MonoBehaviour
             if (selected == 0)
             {
                 yield return WaitForScene("SelectionPart");
-                Check(typeof(NovelDialogueController).GetField("pendingResumeLineId", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null) == null,
+                Check(!DialogueProgressStore.TryGetSceneEntry("SelectionPart", out _),
                     "upper choice carried the declined Moteru branch into another route");
                 Debug.Log("PASS: diary upper choice fades to SelectionPart without an extra empty page.");
             }

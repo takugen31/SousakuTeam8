@@ -77,7 +77,7 @@ CSV の列名と `DialogueLine` のフィールド名は同じ。
 - `Assets/Scripts/Dialogue/Runtime/DialogueScenarioSO.cs`: 行ごとの有効フラグと 3 種類の時間設定を追加。
 - `Assets/Scripts/Dialogue/Runtime/DialogueRuntimeCsv.cs`: 4 列の読み込みと値の検証を追加。
 - `Assets/Scripts/Dialogue/Editor/DialogueCsvImporterWindow.cs`: 実行時 CSV と同じ設定解析を共有し、保存済みアセットにも反映。
-- `Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs`: 指定行の直前のフェード、暗転中の行準備、復帰後の本文表示、既存フェードとの重複防止、無効化時の中断処理。
+- `Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs`: 指定行の直前のフェード、暗転中の行準備、復帰後の本文表示、既存フェードとの重複防止、無効化時の中断処理。
 - `work/verify-dialogue-line-fade.ps1`: 本番の CSV 読み込みコード・行データ・演出コルーチンを模擬環境で実行する回帰検証。
 
 ## 検証

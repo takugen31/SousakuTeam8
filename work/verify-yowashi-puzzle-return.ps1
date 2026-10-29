@@ -45,5 +45,5 @@ Check ($standalone.returns -eq 0) 'Standalone puzzle unexpectedly leaves scene'
 $scene = Get-Content (Join-Path $root 'Assets/Scenes/GameMap/NovelScene_Yowashi.unity') -Raw
 Check ($scene.Contains('puzzleEntryLineId: chapter_yowashi_1_035') -and $scene.Contains('diaryResumeLineId: chapter_yowashi_diary_001')) 'Yowashi route endpoints invalid'
 Check ($flow.Contains('[SerializeField] private Request activeRequest') -and $flow.Contains('PlayerPrefs.SetString(PendingReturnKey') -and $flow.Contains('JsonUtility.FromJson<Request>')) 'Return context cannot recover after reload'
-Check ($flow.IndexOf('NovelDialogueController.QueueResumeLine(activeRequest.ResumeLineId, true)') -lt $flow.IndexOf('SceneManager.LoadScene(activeRequest.ReturnSceneName')) 'Diary resume queued after scene loading'
+Check ($flow.Contains('DialogueProgressTransitions.ReturnToScene(activeRequest.ReturnSceneName, activeRequest.ResumeLineId)')) 'Diary return bypasses the progress transition service'
 'PASS: actual completion/reconnection logic handles normal completion, completion while disconnected, duplicate connections and standalone puzzle; Yowashi return/resume endpoints and reload-safe context verified.'

@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$source = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 function Assert-Room($condition, $message) { if (-not $condition) { throw $message } }
 Assert-Room ($source.Contains('line.lineId == "prologue2_001"')) 'Waking cue is not restricted to the opening scene'
 Assert-Room ($source.Contains('roomLookPresentation.alpha = 0f') -and $source.Contains('roomLookPresentation.blocksRaycasts = false')) 'Presentation is not hidden and input-disabled'

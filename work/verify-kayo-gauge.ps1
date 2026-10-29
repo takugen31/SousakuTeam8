@@ -44,7 +44,7 @@ Assert-True ($chapter6[55].lineId -ceq 'chapter_kayo_6_056' -and $chapter6[56].l
 # Unity lifecycle harness. This checks routing, cloning and cache behavior, not Unity UI.
 $scenarioCode = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/DialogueScenarioSO.cs') -Raw
 $bridgeCode = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Search/KayoGaugeOutcomeController.cs') -Raw
-$controllerCode = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs') -Raw
+$controllerCode = Get-Content (Join-Path $projectRoot 'Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs') -Raw
 $methodStart = $controllerCode.IndexOf('    public bool ReplaceFollowingScenario(')
 $methodEnd = $controllerCode.IndexOf('    public void StartEmbeddedDialogue()', $methodStart)
 $replaceMethod = $controllerCode.Substring($methodStart, $methodEnd - $methodStart)

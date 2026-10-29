@@ -219,7 +219,7 @@ CSVには終了会話3行を保存・同期済みです。`001` の `nextLineId`
 注意点は以下です。
 
 - インポーターは共通処理 `Assets/Scripts/Dialogue/Editor/DialogueCsvImportService.cs` の `scenario.ReplaceAll(...)` により、出力先アセットの会話データを全置換します。
-- チャプター間はCSVの `nextLineId` ではなく、`Assets/Scripts/Dialogue/Runtime/NovelDialogueControllerSO.cs` の `Following Scenarios` で接続します。両CSVの最終行は正しく空欄になっています。
+- チャプター間はCSVの `nextLineId` ではなく、`Assets/Scripts/Dialogue/Runtime/NovelDialogueController.cs` の `Following Scenarios` で接続します。両CSVの最終行は正しく空欄になっています。
 - 選択肢行では通常の `nextLineId` を設定できません。現在の `prologue2.csv` はこの制約を満たしています。
 - `CharacterDatabase.asset` もインポートごとに `Characters.csv` の内容で全置換されます。キャラクター設定はCSVを正として管理してください。
 - 現在の `Assets/Dialogue/CSV/Characters.csv` では、`doute` の表示名が「ユウ」です。ゲーム内で「ドウテ」や「蓮愛ドウテ」と表示したい場合は、インポート前に `displayName` を変更してください。

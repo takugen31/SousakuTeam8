@@ -9,6 +9,8 @@ namespace SousakuTeam8.MeterGame
         [SerializeField] private MeterGameController controller;
         [SerializeField] private Text label;
         [SerializeField] private Shadow glow;
+        [SerializeField] private bool animateEmphasis = true;
+        [SerializeField] private bool animateShadow = true;
         [SerializeField] private string pressMessage = "Spaceキー : 増加、範囲内にゲージを留めよう！";
         [SerializeField] private string holdMessage = "Spaceキー : 増加、範囲内にゲージを留めよう！";
         [SerializeField, Min(0.1f), Tooltip("強調を繰り返す間隔（秒）")]
@@ -51,6 +53,12 @@ namespace SousakuTeam8.MeterGame
 
             label.text = externalPresentation ? externalMessage :
                 controller != null && controller.InputMode == MeterInputMode.Hold ? holdMessage : pressMessage;
+            if (!animateEmphasis)
+            {
+                transform.localScale = baseScale;
+                label.color = normalColor;
+                return;
+            }
             // Externally supplied instructions/results animate once per message.
             elapsed = externalPresentation
                 ? Mathf.Min(elapsed + Time.unscaledDeltaTime, emphasisDuration)
@@ -60,7 +68,7 @@ namespace SousakuTeam8.MeterGame
             pulse *= pulse;
             transform.localScale = baseScale * Mathf.Lerp(1f, maximumScale, pulse);
             label.color = Color.Lerp(normalColor, emphasisColor, pulse);
-            if (glow != null)
+            if (glow != null && animateShadow)
             {
                 glow.effectColor = Color.Lerp(new Color(0.16f, 0.04f, 0.1f, 0.8f),
                     new Color(1f, 0.3f, 0.55f, 0.8f), pulse);

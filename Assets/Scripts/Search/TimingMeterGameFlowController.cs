@@ -136,9 +136,8 @@ public sealed class TimingMeterGameFlowController : MonoBehaviour
         string resumeLineId = success
             ? activeRequest.SuccessResumeLineId
             : activeRequest.FailureResumeLineId;
-        NovelDialogueController.QueueResumeLine(resumeLineId, true);
-        PlayerPrefs.DeleteKey(PendingReturnKey);
-        SceneManager.LoadScene(activeRequest.ReturnSceneName, LoadSceneMode.Single);
+        if (DialogueProgressTransitions.ReturnToScene(activeRequest.ReturnSceneName, resumeLineId))
+            PlayerPrefs.DeleteKey(PendingReturnKey);
     }
 
     private Image BuildFadeOverlay()

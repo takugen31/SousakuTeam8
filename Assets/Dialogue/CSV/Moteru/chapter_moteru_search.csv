@@ -14,8 +14,9 @@ search_moteru_people_012,yowashi,normal,,むむっ！おふたりさんは息が
 search_moteru_people_013,yowashi,normal,,ほらほらカヨちゃんも、ドウテくんとイチャついてないで！GOだよ！ツーショ撮ろっ！,search_moteru_people_014,false,-1,-1,-1
 search_moteru_people_014,kayo,normal,,あっこら……！ツーショットは撮るけどせめて着替えて……！,search_moteru_people_015,false,-1,-1,-1
 search_moteru_people_015,doute,normal,,行ってしまったぞ……,search_moteru_people_016,false,-1,-1,-1
-search_moteru_people_016,doute,normal,,（どうやら2人はケッコウ仲良くなったみたいだ、むしろ仲良しすぎるけど。——そういえば、無意識に男女で考えていたけどこの時代だし必ずしも男女って訳じゃないよな……モテル……いやいや！さすがにっ！性別以外壁はないけどもっ！）,search_moteru_people_017,false,-1,-1,-1
-search_moteru_people_017,doute,normal,,……適当に部屋を見て回るか,,false,-1,-1,-1
+search_moteru_people_016,doute,normal,,（どうやら2人はケッコウ仲良くなったみたいだ、むしろ仲良しすぎるけど。）,search_moteru_people_017,false,-1,-1,-1
+search_moteru_people_017,doute,normal,,（——そういえば、無意識に男女で考えていたけどこの時代だし必ずしも男女って訳じゃないよな……モテル……いやいや！さすがにっ！性別以外壁はないけどもっ！）,search_moteru_people_018,false,-1,-1,-1
+search_moteru_people_018,doute,normal,,……適当に部屋を見て回るか,,false,-1,-1,-1
 search_moteru_bookshelf_001,doute,normal,,おぉ……！相変わらずこの本棚は豪華だ……！どんなのがあるのかなぁっと,search_moteru_bookshelf_002,false,-1,-1,-1
 search_moteru_bookshelf_002,doute,normal,,わあぁ……！『音都このこは男の娘』だ！もう絶版になっちゃった伝説の漫画……！触れる日が来るなんて……！,search_moteru_bookshelf_003,false,-1,-1,-1
 search_moteru_bookshelf_003,doute,normal,,うわっ！興奮してぶつかっちゃった……,search_moteru_bookshelf_004,false,-1,-1,-1
