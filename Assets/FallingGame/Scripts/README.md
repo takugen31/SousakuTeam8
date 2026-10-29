@@ -36,5 +36,6 @@
 同名プレフィックスのテンプレートを複製してControllerの配列へ追加すると、種類をさらに増やせます。
 スコア・残り時間・加減点・スコア帯メッセージ・ジャンプ獲得通知・開始表示は `Catch Mini Game UI` の子としてHierarchyから編集できます。
 終了画面は `Catch Mini Game UI/Game Over UI` 以下から編集でき、アップ立ち絵は `Game Over Portrait` のSpriteを差し替えて変更できます。
+リザルトは会話・メニューと共通のNoto Sans JPと半透明の黒いパネルを使用します。左に立ち絵、右の `Result Panel` にスコア・取得数・台詞をまとめ、表示中はゲーム中のHUDを隠します。
 ミニゲーム中は最高品質レベル、Render Scale 2.0、4xアンチエイリアスを使用します。UIも `Main Camera` を通して描画するため、Render ScaleとSMAAの対象になります。値は `Catch Mini Game` の `Rendering Quality` から変更できます。
 EditorのGame Viewは `GameViewQualityGuard` が低解像度プレビューを解除し、拡大時のフィルタをBilinearへ補正します。必要ならUnityメニューの `yoogen > 画質 > Game View の低解像度表示を解除` から手動でも再適用できます。

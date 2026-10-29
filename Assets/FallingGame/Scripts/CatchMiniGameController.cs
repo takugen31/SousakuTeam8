@@ -687,11 +687,12 @@ namespace Sousakusai8.MiniGame
             Transform resultRoot = hud.Find("Game Over UI");
             if (resultRoot != null)
             {
+                Transform resultContent = resultRoot.Find("Result Panel") ?? resultRoot;
                 gameOverPanel ??= resultRoot.gameObject;
                 resultPortrait ??= resultRoot.Find("Game Over Portrait")?.GetComponent<Image>();
-                resultScoreText ??= resultRoot.Find("Final Score Text")?.GetComponent<Text>();
-                resultDialogueText ??= resultRoot.Find("Final Dialogue Text")?.GetComponent<Text>();
-                resultCountsText ??= resultRoot.Find("Final Counts Text")?.GetComponent<Text>();
+                resultScoreText ??= resultContent.Find("Final Score Text")?.GetComponent<Text>();
+                resultDialogueText ??= resultContent.Find("Final Dialogue Text")?.GetComponent<Text>();
+                resultCountsText ??= resultContent.Find("Final Counts Text")?.GetComponent<Text>();
             }
         }
 
