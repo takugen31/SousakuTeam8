@@ -839,7 +839,7 @@ namespace Sousakusai8.MiniGame
             if (resultCountsText != null)
             {
                 resultCountsText.text =
-                    $"取得した黄色  {collectedGoodItemCount}個\n取得した赤     {collectedBadItemCount}個";
+                    $"キャッチした小物  {collectedGoodItemCount}個\n当たった花瓶      {collectedBadItemCount}個";
             }
 
             gameOverPanel.SetActive(true);
@@ -928,7 +928,7 @@ namespace Sousakusai8.MiniGame
             int clearedCount = ClearStackedBadItems();
             if (clearedCount == 0)
             {
-                ShowStatusFeedback("地面の赤オブジェクトなし");
+                ShowStatusFeedback("地面の花瓶なし");
                 return;
             }
 
