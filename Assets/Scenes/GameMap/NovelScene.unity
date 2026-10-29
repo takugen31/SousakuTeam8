@@ -728,8 +728,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e628b47772e4bed449c9e78833eb4135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NovelDialogueController
-  scenario: {fileID: 11400000, guid: cf8d3c86502709540a8bcadb9944ddf1, type: 2}
+  scenario: {fileID: 11400000, guid: 762f4ea685b390048845318249e7376d, type: 2}
   followingScenarios:
+  - {fileID: 11400000, guid: cf8d3c86502709540a8bcadb9944ddf1, type: 2}
   - {fileID: 11400000, guid: 32de4174b15050344a870acf28ebf99a, type: 2}
   - {fileID: 11400000, guid: a41c6e59be1b4aa1a0e87a0b2c9135f7, type: 2}
   - {fileID: 11400000, guid: e3aecef09cbefec4d93c19e29a0340bb, type: 2}
@@ -743,9 +744,6 @@ MonoBehaviour:
   characterDatabase: {fileID: 11400000, guid: d92603f43a2d34e41befd61fe218478e, type: 2}
   protagonistCharacterId: doute
   unknownSpeakerName: ???
-  omitOuterDialogueQuotes: 1
-  normalizeBustPortraitSizes: 1
-  mirrorDoutePortrait: 1
   startLineId: 
   affectionManager: {fileID: 0}
   backgroundImage: {fileID: 2000001002}
@@ -756,15 +754,22 @@ MonoBehaviour:
   chapterFadeColor: {r: 0, g: 0, b: 0, a: 1}
   useConsultationTransition: 1
   consultationFadeOutDuration: 0.55
-  consultationTitleHoldDuration: 1.25
   consultationFadeInDuration: 0.55
   useSceneTransitionFade: 1
   sceneFadeOutDuration: 1
   sceneFadeHoldDuration: 0.15
+  endingFadeOutDuration: 3.5
+  endingBlackHoldDuration: 0.6
+  endingTitleFadeInDuration: 2.5
   dialogueRoot: {fileID: 1164511896}
   namePlate: {fileID: 2100000100}
   speakerNameText: {fileID: 2096725564}
   bodyText: {fileID: 1664412072}
+  omitOuterDialogueQuotes: 1
+  normalizeBustPortraitSizes: 1
+  mirrorDoutePortrait: 0
+  kayoPortraitScale: 1
+  kayoPortraitUpwardOffset: 0.09
   leftPortraitImage: {fileID: 814104666}
   rightPortraitImage: {fileID: 1900000003}
   playbackControlsRoot: {fileID: 1900000011}
@@ -2413,20 +2418,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1900000215
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1900000210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b510a11c49f74e5b9e44e378dc2b7059, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ChoiceButtonHoverScale
-  hoverScale: 1.05
-  transitionDuration: 0.12
 --- !u!224 &1900000211
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2529,6 +2520,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1900000215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b510a11c49f74e5b9e44e378dc2b7059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceButtonHoverScale
+  hoverScale: 1.05
+  transitionDuration: 0.12
 --- !u!1 &1900000220
 GameObject:
   m_ObjectHideFlags: 0
@@ -2897,66 +2902,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &2100000200
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2100000201}
-  - component: {fileID: 2100000202}
-  - component: {fileID: 2100000203}
-  m_Layer: 5
-  m_Name: DialogueAdvanceIndicator
-  m_TagString: Untagged
-  m_IsActive: 1
---- !u!224 &2100000201
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100000200}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 2100000001}
-  m_AnchorMin: {x: 0.88, y: 0.38}
-  m_AnchorMax: {x: 0.88, y: 0.38}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 56.16, y: 56.16}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &2100000202
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100000200}
-  m_CullTransparentMesh: 1
---- !u!114 &2100000203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2100000200}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24f2e8a9624147d29ee986a13d3ad489, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_Maskable: 1
-  dialogueController: {fileID: 1633669557}
-  kayoMark: {fileID: -3340895152570392092, guid: e035f7301bbad7c4e8f00898dff70e7b, type: 3}
-  moteruMark: {fileID: -1701044484411470299, guid: 5abaf35f412e3ca4099b5d1ccaf51fe3, type: 3}
-  yowashiMark: {fileID: -7030727773173699788, guid: f1b4c9f048c99ac4fa412de3909a4448, type: 3}
 --- !u!224 &2100000001
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3030,6 +2975,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueWindowFeather
   featherWidth: {x: 64, y: 24}
   featherSteps: 8
+  separateVerticalEdges: 0
+  topFeatherWidth: 8
+  topEdgeOpacity: 0.8
+  blendIntoImage: {fileID: 0}
+  keepRightEdgeOpaque: 0
 --- !u!1 &2100000100
 GameObject:
   m_ObjectHideFlags: 0
@@ -3125,6 +3075,78 @@ MonoBehaviour:
   topFeatherWidth: 8
   topEdgeOpacity: 0.8
   blendIntoImage: {fileID: 2100000003}
+  keepRightEdgeOpaque: 0
+--- !u!1 &2100000200
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2100000201}
+  - component: {fileID: 2100000202}
+  - component: {fileID: 2100000203}
+  m_Layer: 5
+  m_Name: DialogueAdvanceIndicator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2100000201
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000200}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2100000001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.88, y: 0.38}
+  m_AnchorMax: {x: 0.88, y: 0.38}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 56.16, y: 56.16}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2100000202
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000200}
+  m_CullTransparentMesh: 1
+--- !u!114 &2100000203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24f2e8a9624147d29ee986a13d3ad489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  dialogueController: {fileID: 1633669557}
+  kayoMark: {fileID: -3340895152570392092, guid: e035f7301bbad7c4e8f00898dff70e7b, type: 3}
+  moteruMark: {fileID: -1701044484411470299, guid: 5abaf35f412e3ca4099b5d1ccaf51fe3, type: 3}
+  yowashiMark: {fileID: -7030727773173699788, guid: f1b4c9f048c99ac4fa412de3909a4448, type: 3}
+  bobAmplitude: 2
+  bobPeriod: 1.8
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

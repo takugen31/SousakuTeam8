@@ -12,31 +12,90 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
   m_Name: Prologue_Game
   m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
-  defaultBackground: {fileID: 257605313618584720, guid: 72c11297ec0ace6428fa61e8e1b3a6df, type: 3}
+  defaultBackground: {fileID: 3989788655452147208, guid: 201a498c397d5fb4e91ece50b149d198, type: 3}
   lines:
   - lineId: prologue_001
-    speakerId: kayo
+    speakerId: heroine
     expressionId: normal
     text: "\u300C\u4ECA\u65E5\u306F\u3042\u308A\u304C\u3068\u3046\u3001\u30C7\u30FC\u30C8\u697D\u3057\u304B\u3063\u305F\u308F\u300D"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
     nextLineId: prologue_002
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
   - lineId: prologue_002
-    speakerId: kayo
+    speakerId: heroine
     expressionId: normal
     text: "\u300C\u3067\u3082\u3001\u98DF\u3079\u3059\u304E\u3066\u3061\u3087\u3063\u3068\u592A\u3063\u305F\u304B\u3082\u300D"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
     nextLineId: prologue_003
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
   - lineId: prologue_003
-    speakerId: doute
-    expressionId: normal
+    speakerId: 
+    expressionId: 
     text: "\u300C\u4ECA\u4F55kg\u306A\u306E\uFF1F\u300D"
-    background: {fileID: 5200507253851056871, guid: 15f1d0bba0218d44aaea51f98ac0d62c, type: 3}
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
     nextLineId: prologue_004
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
   - lineId: prologue_004
-    speakerId: kayo
+    speakerId: heroine
     expressionId: normal
     text: "\u300C\u3055\u3093\u3058\u3085......\u3063\u3066\u8A00\u3046\u308F\u3051\u306A\u3044\u3058\u3083\u306A\u3044\u3070\u304B\u3063\uFF01\u300D"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
     nextLineId: prologue_005
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []
   - lineId: prologue_005
-    speakerId: kayo
+    speakerId: heroine
     expressionId: normal
     text: "\u300C\u307E\u3063\u305F\u304F......\u305D\u3053\u305D\u3053\u697D\u3057\u304B\u3063\u305F\u308F\u3001\u307E\u305F\u306D\u300D"
+    background: {fileID: 0}
+    revealSpeakerName: 0
+    consultationTitle: 
+    fadeBeforeLine: 0
+    lineFadeOutDuration: -1
+    lineFadeHoldDuration: -1
+    lineFadeInDuration: -1
+    nextScenePath: 
     nextLineId: 
+    choices: []
+    affectionChanges: []
+    archiveUnlockIds: []
+    branches: []

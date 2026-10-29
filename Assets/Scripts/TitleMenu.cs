@@ -217,8 +217,12 @@ public class TitleMenu : MonoBehaviour
     public void ContinueGame()
     {
         if (isTransitioning || ArchiveManager.IsOpen) return;
-        if (!GameSaveService.Continue(out string message) && continueStatus != null)
-            continueStatus.text = message;
+        if (GameSaveService.ReadContinue(out string message) == null)
+        {
+            if (continueStatus != null) continueStatus.text = message;
+            return;
+        }
+        StartCoroutine(FadeOutAndLoadScene(true));
     }
 
     public void OpenLoad()
@@ -289,7 +293,7 @@ public class TitleMenu : MonoBehaviour
         isTransitioning = false;
     }
 
-    private IEnumerator FadeOutAndLoadScene()
+    private IEnumerator FadeOutAndLoadScene(bool continuing = false)
     {
         isTransitioning = true;
 
@@ -298,11 +302,11 @@ public class TitleMenu : MonoBehaviour
         float startVolume = bgmSource.volume;
         float elapsedTime = 0f;
 
-        while (elapsedTime < fadeDuration)
+        while (elapsedTime < TitleDialogueTransition.FadeOutDuration)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
 
-            float t = Mathf.Clamp01(elapsedTime / fadeDuration);
+            float t = Mathf.Clamp01(elapsedTime / TitleDialogueTransition.FadeOutDuration);
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
             fadePanel.alpha = smoothT;
@@ -317,7 +321,83 @@ public class TitleMenu : MonoBehaviour
         bgmSource.volume = 0f;
         bgmSource.Stop();
 
-        SceneManager.LoadSceneAsync("NovelScene");
+        // A separate persistent canvas covers the destination before its first frame.
+        TitleDialogueTransition transition = TitleDialogueTransition.Create();
+        if (continuing)
+        {
+            if (!GameSaveService.Continue(out string message))
+            {
+                transition.Cancel();
+                if (continueStatus != null) continueStatus.text = message;
+                bgmSource.Play();
+                yield return FadeIn();
+                yield break;
+            }
+        }
+        else
+        {
+            SceneManager.LoadSceneAsync("NovelScene");
+        }
+    }
+}
+
+// Kept across scene loading so neither the new scene nor its dialogue flashes early.
+public sealed class TitleDialogueTransition : MonoBehaviour
+{
+    public const float FadeOutDuration = 1f;
+    public const float HoldDuration = 1.7f;
+    public const float FadeInDuration = 1f;
+    public static bool IsActive { get; private set; }
+    private CanvasGroup cover;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetState() => IsActive = false;
+
+    public static TitleDialogueTransition Create()
+    {
+        var root = new GameObject("TitleDialogueTransition", typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
+        DontDestroyOnLoad(root);
+        Canvas canvas = root.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = short.MaxValue;
+        var panel = new GameObject("Black", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        panel.transform.SetParent(root.transform, false);
+        Image image = panel.GetComponent<Image>();
+        image.color = Color.black;
+        image.rectTransform.anchorMin = Vector2.zero;
+        image.rectTransform.anchorMax = Vector2.one;
+        image.rectTransform.offsetMin = image.rectTransform.offsetMax = Vector2.zero;
+        var transition = root.AddComponent<TitleDialogueTransition>();
+        transition.cover = root.GetComponent<CanvasGroup>();
+        SceneManager.sceneLoaded += transition.OnDestinationLoaded;
+        IsActive = true;
+        return transition;
+    }
+
+    private void OnDestinationLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnDestinationLoaded;
+        StartCoroutine(Reveal());
+    }
+
+    private IEnumerator Reveal()
+    {
+        yield return new WaitForSecondsRealtime(HoldDuration);
+        float elapsed = 0f;
+        while (elapsed < FadeInDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            cover.alpha = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / FadeInDuration));
+            yield return null;
+        }
+        Cancel();
+    }
+
+    public void Cancel()
+    {
+        SceneManager.sceneLoaded -= OnDestinationLoaded;
+        IsActive = false;
+        Destroy(gameObject);
     }
 }
 

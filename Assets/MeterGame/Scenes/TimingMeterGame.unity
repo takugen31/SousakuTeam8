@@ -347,7 +347,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimingMeterGameFlowController
   resultDisplayDuration: 2
-  fadeDuration: 0.8
   game: {fileID: 100004}
   kayoChibi: {fileID: 100090}
   moteruChibi: {fileID: 100110}
@@ -989,7 +988,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1994475091400824995, guid: 9762b3b84ffdc764f8c33d7b59cab0f4, type: 3}
+  m_Sprite: {fileID: 332237453386125379, guid: 9762b3b84ffdc764f8c33d7b59cab0f4, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1082,7 +1081,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -3780420661769275322, guid: 45a41bfe09d00c744a59f34ab50feb87, type: 3}
+  m_Sprite: {fileID: -8852557913288376437, guid: 13e6589fd7a9e5f42a7b76af9ac7dc8c, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1105,7 +1104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 100004}
-  alternateSprite: {fileID: 1329511778369362037, guid: 22b8d43a586edbe4a9948d6198e56569, type: 3}
+  alternateSprite: {fileID: 956515367126753536, guid: 22b8d43a586edbe4a9948d6198e56569, type: 3}
   swayAngle: 7
   swayPeriod: 1.8
   settleSeconds: 0.6
@@ -1175,7 +1174,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -558627388596714684, guid: 611bb06414028ca44b78323dcd92541d, type: 3}
+  m_Sprite: {fileID: 9014527255884353067, guid: 4904ae5f97cd2df49888398ed25af85b, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1198,7 +1197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 100004}
-  alternateSprite: {fileID: -1727860902237467440, guid: 985d014331105e64abec3185e9db82dc, type: 3}
+  alternateSprite: {fileID: -2640264722701953333, guid: 985d014331105e64abec3185e9db82dc, type: 3}
   swayAngle: 7
   swayPeriod: 1.8
   settleSeconds: 0.6
