@@ -65,6 +65,7 @@ namespace Sousakusai8.MiniGame
             }
 
             ApplyCurrentTargetSize();
+            if (stackedAtBottom) AlignWithGround();
 
             if (spriteRenderer.bounds.Intersects(catcher.CatchBounds))
             {
@@ -89,7 +90,7 @@ namespace Sousakusai8.MiniGame
             transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
 
             if (kind == FallingItemKind.Bad &&
-                spriteRenderer.bounds.min.y <= catcher.GroundY)
+                spriteRenderer.bounds.min.y <= catcher.GroundSurfaceY)
             {
                 StackAtBottom();
                 return;
@@ -109,10 +110,13 @@ namespace Sousakusai8.MiniGame
             gameObject.name = "Stacked Bad Item";
             transform.rotation = Quaternion.identity;
             ApplyStackedVisual();
-            transform.position = new Vector3(
-                transform.position.x,
-                catcher.GroundY,
-                transform.position.z);
+            AlignWithGround();
+        }
+
+        private void AlignWithGround()
+        {
+            // Different sprite heights and pivots must not make grounded plates float.
+            transform.position += Vector3.up * (catcher.GroundSurfaceY - spriteRenderer.bounds.min.y);
         }
 
         private void ApplyStackedVisual()

@@ -17,6 +17,7 @@ namespace Sousakusai8.MiniGame
         private Camera gameCamera;
         private SpriteRenderer spriteRenderer;
         private float groundY;
+        private float groundSurfaceY;
         private float verticalVelocity;
         private Vector2 previousMousePosition;
         private bool mousePositionInitialized;
@@ -24,6 +25,7 @@ namespace Sousakusai8.MiniGame
 
         public Bounds CatchBounds => spriteRenderer.bounds;
         public float GroundY => groundY;
+        public float GroundSurfaceY => groundSurfaceY;
 
         public void Initialize(CatchMiniGameController controller, Camera targetCamera)
         {
@@ -31,6 +33,8 @@ namespace Sousakusai8.MiniGame
             gameCamera = targetCamera;
             spriteRenderer = GetComponent<SpriteRenderer>();
             groundY = transform.position.y;
+            // Movement uses the sprite's center; grounded items share its visible bottom edge.
+            groundSurfaceY = spriteRenderer.bounds.min.y;
             verticalVelocity = 0f;
         }
 

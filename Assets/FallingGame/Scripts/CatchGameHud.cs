@@ -128,7 +128,6 @@ namespace Sousakusai8.MiniGame
                 lastScore = value;
             }
             scorePanel.sizeDelta = new Vector2(Mathf.Clamp((score.preferredWidth + 4f) / 0.84f, 80f, 160f), 46f);
-            if (feedbackRect != null) feedbackRect.anchoredPosition = new Vector2(scorePanel.sizeDelta.x + 22f, -11f);
             int second = Mathf.CeilToInt(remaining);
             if (lastSecond != second || time.text.StartsWith("残り"))
             {
@@ -139,18 +138,23 @@ namespace Sousakusai8.MiniGame
             time.color = timerColor;
             timeFill.color = timerColor;
             timeFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(remaining / Mathf.Max(duration, 1f)), 1f);
+            bool statusFeedback = feedback != null && feedback.gameObject.activeSelf &&
+                !feedback.text.StartsWith("+") && !feedback.text.StartsWith("-");
             if (feedbackPanel != null)
             {
                 feedbackPanel.SetActive(feedback.gameObject.activeSelf);
                 feedbackRect.sizeDelta = new Vector2(Mathf.Clamp(feedback.preferredWidth + 24f, 60f, 210f), 30f);
+                feedbackRect.anchorMin = feedbackRect.anchorMax = statusFeedback ? new Vector2(0.5f, 1f) : Vector2.up;
+                feedbackRect.pivot = statusFeedback ? new Vector2(0.5f, 1f) : Vector2.up;
+                feedbackRect.anchoredPosition = statusFeedback ? new Vector2(0f, -11f) : new Vector2(scorePanel.sizeDelta.x + 22f, -11f);
                 feedback.color = feedback.text.StartsWith("+") ? Positive : feedback.text.StartsWith("-") ? Warning : Main;
                 feedbackGroup.alpha = Mathf.Clamp01((feedbackUntil - Time.unscaledTime) / 0.18f);
             }
-            bool showSweep = sweepNotice != null && sweepNotice.gameObject.activeSelf && !waiting && !countdown;
-            bool showJump = jumpNotice != null && jumpNotice.gameObject.activeSelf && !showSweep && !waiting && !countdown;
+            bool showSweep = sweepNotice != null && sweepNotice.gameObject.activeSelf && !waiting && !countdown && !statusFeedback;
+            bool showJump = jumpNotice != null && jumpNotice.gameObject.activeSelf && !showSweep && !waiting && !countdown && !statusFeedback;
             if (jumpPanel != null) { jumpPanel.SetActive(showJump); jumpNotice.color = Positive; }
             if (sweepPanel != null) { sweepPanel.SetActive(showSweep); sweepNotice.color = Positive; }
-            if (message != null) message.gameObject.SetActive(!waiting && !countdown && !showJump && !showSweep);
+            if (message != null) message.gameObject.SetActive(!waiting && !countdown && !showJump && !showSweep && !statusFeedback);
             startOverlay.SetActive(waiting || countdown);
             if (waiting || countdown)
             {
