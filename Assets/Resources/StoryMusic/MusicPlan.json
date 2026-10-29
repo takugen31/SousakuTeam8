@@ -12,6 +12,7 @@
     {"scene": "falling_verMoteru", "track": "Pop"}
   ],
   "scenarios": [
+    {"scenario": "Prologue_Game", "cues": [{"track": "Nostalgic"}]},
     {"scenario": "Prologue", "cues": [{"track": "Pop"}]},
     {"scenario": "Prologue1", "cues": [{"track": "Pop"}, {"startLineId": "prologue1_005", "track": "stop"}]},
     {"scenario": "Prologue2", "cues": [{"track": "Quiet"}]},

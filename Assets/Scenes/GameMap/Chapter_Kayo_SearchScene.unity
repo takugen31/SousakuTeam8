@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SearchSceneController
   room1Background: {fileID: -807315467421928614, guid: a0d5e8ce798948c98423e645ed6e234f, type: 3}
-  room2Background: {fileID: -604532108765432109, guid: d2e3f405060708192a3b4c5d6e7f8192, type: 3}
+  room2Background: {fileID: -7109438137221456522, guid: dd32480873026894c9f3ff59e641a91c, type: 3}
   room1PaperBackground: {fileID: -705421109876543210, guid: c1d2e3f405060708192a3b4c5d6e7f81, type: 3}
   uiFont: {fileID: 11400000, guid: 605d5d10cb9d13f45b4c5b4e27b115b4, type: 2}
   itemDialogueScenario: {fileID: 11400000, guid: 6d1b5e4f708192a3b4c5d6e7f8091a2b, type: 2}
@@ -241,6 +241,7 @@ MonoBehaviour:
   completionResumeLineId: chapter_kayo_diary_001
   puzzleSceneName: PuzzleGame
   diaryPuzzleImage: {fileID: 2800000, guid: b6717b4532cddc840ad6adb460ae08e6, type: 3}
+  searchProfile: {fileID: 11400000, guid: 9db8403cf1da4a668e62c5b20c8473af, type: 2}
 --- !u!114 &1950354246
 MonoBehaviour:
   m_ObjectHideFlags: 0
