@@ -176,6 +176,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     // All ordinary Doute portraits share screen-relative geometry, including embedded dialogue.
     private const float DoutePortraitHeight = 0.99f;
     private static readonly Vector2 DoutePortraitAnchor = new Vector2(0.23f, 0.92f);
+    // Match the previous illustration's face size; the replacement has a much larger head.
+    private const float DouteCloseUpScale = 0.55f;
+    private const float DouteFaceCenter = 0.84f;
     private Vector2 doutePortraitViewport;
     [SerializeField, Min(0.01f)] private float kayoPortraitScale = 1.0f;
     [SerializeField] private float kayoPortraitUpwardOffset = 0.09f;
@@ -2155,8 +2158,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         Image topPortrait = CreateRoomLookImage(top, "DouteFace");
         topPortrait.sprite = douteSprite;
         // Upper face centered inside the top half, with both eyes and chin visible.
-        SetGatheringPortrait(topPortrait, viewport, 0.27f, 2.6f, 0.25f - (0.90f - 0.5f) * 2.6f,
-            mirrorDoutePortrait ? -1f : 1f);
+        SetDouteFacePortrait(topPortrait, viewport, 0.27f, 2.6f, 0.25f);
         Image bottomRoom = CreateRoomLookImage(bottom, "BottomZoomedRoom");
         SetRoomLookPose(bottomRoom, viewport, new Vector2(0.56f, 0.38f), 1.6f);
         moteruRevealBackground = bottomRoom;
@@ -2377,8 +2379,9 @@ public sealed class NovelDialogueController : MonoBehaviour
     {
         const float abdomenZoom = 3.7f;
         const float kayoZoom = 3.2f;
-        SetGatheringPortrait(examinationAbdomen, examinationViewport, 0.265f, abdomenZoom,
-            -(0.66f - 0.5f) * abdomenZoom, mirrorDoutePortrait ? -1f : 1f);
+        float douteZoom = abdomenZoom * DouteCloseUpScale;
+        SetGatheringPortrait(examinationAbdomen, examinationViewport, 0.265f, douteZoom,
+            -(0.44f - 0.5f) * douteZoom, mirrorDoutePortrait ? -1f : 1f);
         SetGatheringPortrait(examinationKayo, examinationViewport, 0.735f, kayoZoom,
             -(0.79f - 0.5f) * kayoZoom, 1f);
     }
@@ -2511,8 +2514,11 @@ public sealed class NovelDialogueController : MonoBehaviour
         Image portrait = CreateRoomLookImage(frame, centeredCharacterId + "Bust");
         portrait.sprite = sprite;
         float bustCenter = isYowashiDiary ? 0.84f : isKayoDiary ? 0.79f : 0.80f;
-        SetGatheringPortrait(portrait, frame.rect.size, 0.5f, 2.3f,
-            -(bustCenter - 0.5f) * 2.3f, centeredCharacterId == "doute" && mirrorDoutePortrait ? -1f : 1f);
+        if (centeredCharacterId == "doute")
+            SetDouteFacePortrait(portrait, frame.rect.size, 0.5f, 2.3f, (0.90f - bustCenter) * 2.3f);
+        else
+            SetGatheringPortrait(portrait, frame.rect.size, 0.5f, 2.3f,
+                -(bustCenter - 0.5f) * 2.3f, 1f);
         Image shade = CreateRoomLookImage(frame, "MonologueShade");
         shade.sprite = null;
         shade.color = new Color(0f, 0f, 0f, 0.35f);
@@ -2725,10 +2731,13 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ApplyGatheringDouteSlide(Vector2 viewport)
     {
+        if (leftPortraitImage == null || leftPortraitImage.sprite == null || viewport.x <= 0f) return;
         float progress = Mathf.SmoothStep(0f, 1f, gatheringDouteSlideElapsed / 5.5f);
-        float startY = 0.5f - (0.90f - 0.5f) * 2.7f;
-        SetGatheringPortrait(leftPortraitImage, viewport, 0.23f, 2.7f, Mathf.Lerp(startY, -0.91f, progress),
-            mirrorDoutePortrait ? -1f : 1f);
+        // Retain the original downward reveal, using the new face's proportions.
+        float portraitWidth = viewport.y * 2.7f * DouteCloseUpScale *
+            leftPortraitImage.sprite.rect.width / leftPortraitImage.sprite.rect.height;
+        float x = Mathf.Min(0.23f, 0.48f - portraitWidth * 0.5f / viewport.x);
+        SetDouteFacePortrait(leftPortraitImage, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress));
         if (gatheringLeftBackground != null)
             SetRoomLookPose(gatheringLeftBackground, viewport,
                 new Vector2(0.5f, Mathf.Lerp(0.48f, 0.53f, progress)), 1.35f);
@@ -2760,6 +2769,13 @@ public sealed class NovelDialogueController : MonoBehaviour
         rect.anchorMin = pose.anchorMin; rect.anchorMax = pose.anchorMax; rect.pivot = pose.pivot;
         rect.sizeDelta = pose.size; rect.anchoredPosition = pose.position;
         rect.localScale = pose.scale; rect.localRotation = pose.rotation;
+    }
+
+    private void SetDouteFacePortrait(Image image, Vector2 viewport, float x, float referenceHeight, float faceY)
+    {
+        float height = referenceHeight * DouteCloseUpScale;
+        SetGatheringPortrait(image, viewport, x, height,
+            faceY - (DouteFaceCenter - 0.5f) * height, mirrorDoutePortrait ? -1f : 1f);
     }
 
     private static void SetGatheringPortrait(Image image, Vector2 viewport, float x, float heightFactor, float y, float facing)
