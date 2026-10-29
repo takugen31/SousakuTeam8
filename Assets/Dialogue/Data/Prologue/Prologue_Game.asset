@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
   m_Name: Prologue_Game
   m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
-  defaultBackground: {fileID: 257605313618584720, guid: 72c11297ec0ace6428fa61e8e1b3a6df, type: 3}
+  defaultBackground: {fileID: 3989788655452147208, guid: 201a498c397d5fb4e91ece50b149d198, type: 3}
   lines:
   - lineId: prologue_001
     speakerId: heroine

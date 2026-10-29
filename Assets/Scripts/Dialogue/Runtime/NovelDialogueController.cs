@@ -68,17 +68,17 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     [SerializeField]
     [Min(0f)]
     [Tooltip("暗転するまでの秒数です。")]
-    private float chapterFadeOutDuration = 1f;
+    private float chapterFadeOutDuration = TitleDialogueTransition.FadeOutDuration;
 
     [SerializeField]
     [Min(0f)]
     [Tooltip("暗転したまま待機する秒数です。")]
-    private float chapterFadeHoldDuration = 1.7f;
+    private float chapterFadeHoldDuration = TitleDialogueTransition.HoldDuration;
 
     [SerializeField]
     [Min(0f)]
     [Tooltip("暗転から画面を表示するまでの秒数です。")]
-    private float chapterFadeInDuration = 1f;
+    private float chapterFadeInDuration = TitleDialogueTransition.FadeInDuration;
 
     [SerializeField]
     [Tooltip("チャプター切替時に画面を覆う色です。")]
@@ -146,6 +146,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     [SerializeField]
     private Image rightPortraitImage;
+
+    private bool prologuePcLayoutApplied;
+    private RectTransform prologuePcPanel, prologuePcName;
+    private Vector2 prologuePcPanelPosition, prologuePcNamePosition;
+    private Vector3 prologuePcPanelScale, prologuePcNameScale;
 
     [Header("Playback Controls")]
     [SerializeField]
@@ -551,7 +556,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         UpdateKayoFall();
         UpdateSearchPortraitSlide();
         UpdateWindowShake();
-        if (isRoomLookPlaying || ArchiveManager.IsOpen ||
+        if (TitleDialogueTransition.IsActive || isRoomLookPlaying || ArchiveManager.IsOpen ||
             isChapterTransitioning ||
             isSceneLoading ||
             isSkipConfirmationOpen ||
@@ -573,18 +578,28 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         }
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        CanvasGroup entryPresentation = null;
+        float originalAlpha = 1f;
+        if (TitleDialogueTransition.IsActive && dialogueRoot != null)
+        {
+            entryPresentation = dialogueRoot.GetComponent<CanvasGroup>();
+            if (entryPresentation == null) entryPresentation = dialogueRoot.AddComponent<CanvasGroup>();
+            originalAlpha = entryPresentation.alpha;
+            entryPresentation.alpha = 0f;
+        }
         if (playOnStart)
         {
             GameSaveData checkpoint = GameSaveService.Consume(gameObject.scene.name, "dialogue");
             if (checkpoint != null)
             {
                 RestoreCheckpoint(checkpoint);
-                return;
             }
-            StartDialogue();
+            else StartDialogue();
         }
+        while (TitleDialogueTransition.IsActive) yield return null;
+        if (entryPresentation != null) entryPresentation.alpha = originalAlpha;
     }
 
     public void StartDialogue()
@@ -1830,6 +1845,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         HideChoices();
 
         currentLine = line;
+        ApplyProloguePcLayout();
         if (!IsApproachRevealLine(line?.lineId)) moteruApproachElapsed = 0f;
         if (!IsKayoEggLine(line?.lineId) || line.lineId == "chapter2_kayo_012") kayoEggSlideElapsed = 0f;
         autoAdvanceAt = -1f;
@@ -2845,6 +2861,54 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
     }
 
+    private void ApplyProloguePcLayout()
+    {
+        bool usePcLayout = currentScenario != null && currentScenario.name == "Prologue_Game";
+        if (usePcLayout == prologuePcLayoutApplied) return;
+
+        if (usePcLayout)
+        {
+            prologuePcPanel = bodyText != null ? bodyText.transform.parent as RectTransform : null;
+            prologuePcName = namePlate != null ? namePlate.transform as RectTransform : null;
+            if (prologuePcPanel == null || prologuePcPanel == dialogueRoot?.transform) return;
+            prologuePcPanelPosition = prologuePcPanel.anchoredPosition;
+            prologuePcPanelScale = prologuePcPanel.localScale;
+            ScaleIntoPcScreen(prologuePcPanel);
+            if (prologuePcName != null && !prologuePcName.IsChildOf(prologuePcPanel))
+            {
+                prologuePcNamePosition = prologuePcName.anchoredPosition;
+                prologuePcNameScale = prologuePcName.localScale;
+                ScaleIntoPcScreen(prologuePcName);
+            }
+        }
+        else
+        {
+            if (prologuePcPanel != null)
+            {
+                prologuePcPanel.anchoredPosition = prologuePcPanelPosition;
+                prologuePcPanel.localScale = prologuePcPanelScale;
+            }
+            if (prologuePcName != null && !prologuePcName.IsChildOf(prologuePcPanel))
+            {
+                prologuePcName.anchoredPosition = prologuePcNamePosition;
+                prologuePcName.localScale = prologuePcNameScale;
+            }
+        }
+        prologuePcLayoutApplied = usePcLayout;
+    }
+
+    private static void ScaleIntoPcScreen(RectTransform rect)
+    {
+        if (!(rect.parent is RectTransform parent)) return;
+        // Scale both sibling panels around the same dialogue-window center, keeping
+        // the name plate attached to the window and its lettering scaled equally.
+        const float scale = 0.9f;
+        Vector2 origin = parent.rect.min + Vector2.Scale(parent.rect.size, new Vector2(0.5f, 0.145375f));
+        Vector2 position = rect.localPosition;
+        rect.anchoredPosition += (origin - position) * (1f - scale) + Vector2.up * (parent.rect.height * 0.07f);
+        rect.localScale *= scale;
+    }
+
     private void ResetBackgroundForScenario()
     {
         SetBackground(
@@ -3290,6 +3354,9 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     {
         isTyping = true;
 
+        // This also delays completion of empty lines until title entry has finished.
+        while (TitleDialogueTransition.IsActive) yield return null;
+
         // TMPの文字情報が更新されるのを待つ
         yield return null;
 
@@ -3302,7 +3369,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
         while (bodyText.maxVisibleCharacters < totalCharacters)
         {
-            if (isChapterTransitioning || isSkipConfirmationOpen || ArchiveManager.IsOpen)
+            if (TitleDialogueTransition.IsActive || isChapterTransitioning || isSkipConfirmationOpen || ArchiveManager.IsOpen)
             {
                 yield return null;
                 continue;
