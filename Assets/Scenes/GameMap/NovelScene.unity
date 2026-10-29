@@ -728,8 +728,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e628b47772e4bed449c9e78833eb4135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NovelDialogueController
-  scenario: {fileID: 11400000, guid: cf8d3c86502709540a8bcadb9944ddf1, type: 2}
+  scenario: {fileID: 11400000, guid: 762f4ea685b390048845318249e7376d, type: 2}
   followingScenarios:
+  - {fileID: 11400000, guid: cf8d3c86502709540a8bcadb9944ddf1, type: 2}
   - {fileID: 11400000, guid: 32de4174b15050344a870acf28ebf99a, type: 2}
   - {fileID: 11400000, guid: a41c6e59be1b4aa1a0e87a0b2c9135f7, type: 2}
   - {fileID: 11400000, guid: e3aecef09cbefec4d93c19e29a0340bb, type: 2}

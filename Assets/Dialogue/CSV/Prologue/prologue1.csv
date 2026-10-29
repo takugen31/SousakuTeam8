@@ -1,5 +1,9 @@
-lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath
-prologue1_001,doute,normal,Assets/Art/Backgrounds/normal_room_night.png,少しくらいぽっちゃりでも女の子は可愛いと思うけどなぁ、30代がどんくらいかはわからないけど健康的だよね！,prologue1_002,,
+lineId,speakerId,expressionId,backgroundPath,text,nextLineId,affectionChanges,branches,revealSpeakerName,nextScenePath,archiveUnlockIds
+prologue1_001,doute,normal,Assets/Art/Backgrounds/normal_room_night.png,少しくらいぽっちゃりでも女の子は可愛いと思うけどなぁ、30代がどんくらいかはわからないけど健康的だよね！,prologue1_profile,,
+prologue1_profile,,,,"蓮愛ドウテ
+趣味：ゲーム
+血液型：A型
+誕生日：1月21日",prologue1_002,,,,,character.doute.name;character.doute.introduction
 prologue1_002,doute,normal,,さてゲームの続きを……ってもうこんな時間！？,prologue1_003,,
 prologue1_003,doute,normal,,明日は休みとはいえ、うっかり2時まで起きちゃった,prologue1_004,,
 prologue1_004,doute,normal,,ゲームをセーブしてっと……ヨシ！ヒロインはまた明日攻略しよう,prologue1_005,,

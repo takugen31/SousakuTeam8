@@ -13,6 +13,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 {
     private GameObject endingCard;
     private Coroutine endingCardCoroutine;
+    private ProloguePresentation prologuePresentation;
     private static string pendingResumeLineId;
     private static bool pendingSceneFadeIn;
     private static readonly HashSet<string> revealedCharacterIds =
@@ -445,6 +446,7 @@ public sealed class NovelDialogueController : MonoBehaviour
             // Old saves can contain portrait geometry from before the layout adjustment.
             if (CanApplyStandardDoutePortraitLayout())
                 ApplyProtagonistFacing();
+            ApplyProloguePresentation(line);
             if (data.textFullyDisplayed) CompleteTyping();
             return true;
         }
@@ -1435,6 +1437,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void CancelChapterTransition(bool preservePushback = false)
     {
+        prologuePresentation?.Hide();
         if (!preservePushback) StopKayoPushback();
         StopEndingCard();
         moteruApproachElapsed = 0f;
@@ -1805,6 +1808,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void OnDisable()
     {
+        prologuePresentation?.Hide();
         StopKayoPushback();
         StopEndingCard();
         StopKayoEggView();
@@ -1957,6 +1961,7 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void PrepareLine(DialogueLine line)
     {
+        prologuePresentation?.Hide();
         completedDepartureLineId = null;
         if (!IsKayoPushbackLine(line?.lineId)) StopKayoPushback();
         StopKayoEggView();
@@ -1986,6 +1991,7 @@ public sealed class NovelDialogueController : MonoBehaviour
         }
         RestoreNamesIntroducedBefore(line);
         ApplyCharacter(line);
+        ApplyProloguePresentation(line);
         StartGatheringComposition(line);
         StartSearchPortraitSlide(line);
         StartYowashiBandageView(line);
@@ -3033,6 +3039,8 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ApplyBackground(DialogueLine line)
     {
+        // This background belongs to the game on Doute's screen, not his room.
+        if (ProloguePresentation.IsGameLine(line?.lineId)) return;
         if (line == null || line.background == null)
         {
             return;
@@ -3103,6 +3111,18 @@ public sealed class NovelDialogueController : MonoBehaviour
 
     private void ApplyCharacter(DialogueLine line)
     {
+        if (ProloguePresentation.IsGameLine(line?.lineId))
+        {
+            if (namePlate != null) namePlate.SetActive(true);
+            if (speakerNameText != null)
+            {
+                speakerNameText.text = line.speakerId == "doute" ? "主人公" : "ヒロイン";
+                speakerNameText.color = Color.white;
+            }
+            SetPortrait(leftPortraitImage, null);
+            SetPortrait(rightPortraitImage, null);
+            return;
+        }
         // speakerIdが空なら地の文
         if (string.IsNullOrWhiteSpace(line.speakerId))
         {
@@ -3158,6 +3178,27 @@ public sealed class NovelDialogueController : MonoBehaviour
         {
             SetPortrait(rightPortraitImage, portrait);
             ApplyBustPortraitSize(line.speakerId);
+        }
+    }
+
+    private void ApplyProloguePresentation(DialogueLine line)
+    {
+        bool game = ProloguePresentation.IsGameLine(line?.lineId);
+        bool profile = line?.lineId == ProloguePresentation.ProfileLineId;
+        if ((!game && !profile) || dialogueRoot == null || bodyText == null || characterDatabase == null) return;
+        prologuePresentation ??= new ProloguePresentation(dialogueRoot.GetComponent<RectTransform>(), bodyText);
+        if (game)
+        {
+            characterDatabase.TryGetCharacter("kayo", out CharacterData heroine);
+            Sprite stage = currentScenario != null && currentScenario.Lines.Count > 0 ? currentScenario.Lines[0].background : null;
+            prologuePresentation.ShowGame(stage, heroine?.GetPortrait("normal"));
+            SetPortrait(leftPortraitImage, null);
+            SetPortrait(rightPortraitImage, null);
+        }
+        else
+        {
+            characterDatabase.TryGetCharacter("doute", out CharacterData doute);
+            prologuePresentation.ShowProfile(line.text, doute?.GetPortrait("normal"));
         }
     }
 
@@ -3282,6 +3323,16 @@ public sealed class NovelDialogueController : MonoBehaviour
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
+        }
+
+        if (currentLine?.lineId == ProloguePresentation.ProfileLineId)
+        {
+            typingCoroutine = null;
+            bodyText.text = text;
+            bodyText.maxVisibleCharacters = int.MaxValue;
+            isTyping = false;
+            HandleLineFullyDisplayed();
+            return;
         }
 
         if (currentLine.HasChoices && string.IsNullOrWhiteSpace(text))
@@ -4030,7 +4081,8 @@ public sealed class NovelDialogueController : MonoBehaviour
         autoAdvanceAt = autoPlayEnabled &&
             currentLine != null &&
             !currentLine.HasSceneTransition
-            ? Time.unscaledTime + autoAdvanceDelaySeconds
+            ? Time.unscaledTime + (currentLine.lineId == ProloguePresentation.ProfileLineId
+                ? Mathf.Max(6f, autoAdvanceDelaySeconds) : autoAdvanceDelaySeconds)
             : -1f;
     }
 
