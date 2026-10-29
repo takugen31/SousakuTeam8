@@ -629,11 +629,11 @@ MonoBehaviour:
   - {fileID: 1850000002}
   - {fileID: 1860000002}
   fallingItemSize: {x: 0.62, y: 0.62}
-  stackedBadItemSprite: {fileID: 21300000, guid: d0af47f53b17fce4cbfbbfe6f78b7269, type: 3}
+  stackedBadItemSprite: {fileID: 7400144533266576724, guid: 37b89796fbe24cf99b229a142e865111, type: 3}
   stackedBadItemSprites:
-  - {fileID: 21300000, guid: 94154bcd4904b3047ac49c7b4e8d00a9, type: 3}
-  - {fileID: 21300000, guid: 1174d427191e537459049e22bb2b7019, type: 3}
-  - {fileID: 21300000, guid: f6341e19e3a37f340bb056ec733c85d1, type: 3}
+  - {fileID: 7400144533266576724, guid: 37b89796fbe24cf99b229a142e865111, type: 3}
+  - {fileID: 7400144533266576724, guid: 37b89796fbe24cf99b229a142e865111, type: 3}
+  - {fileID: 7400144533266576724, guid: 37b89796fbe24cf99b229a142e865111, type: 3}
   stackedBadItemSize: {x: 1.4, y: 0.85}
   forceHighestQualityLevel: 1
   renderScale: 2
@@ -926,7 +926,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.04745763, y: 0.04745763, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1800000001}
@@ -980,12 +980,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: a979ec9090fce3d4081b88a3a3c4e995, type: 3}
+  m_Sprite: {fileID: 7400144533266576723, guid: c18285f06ce2441b9f2e4a9a687b9981, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.62, y: 0.62}
+  m_Size: {x: 17.7, y: 7.84}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1199,7 +1199,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.04745763, y: 0.04745763, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1800000001}
@@ -1253,12 +1253,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: c0d3fdb23393ec74ebadde5524cef271, type: 3}
+  m_Sprite: {fileID: 7400144533266576723, guid: c18285f06ce2441b9f2e4a9a687b9981, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.62, y: 0.62}
+  m_Size: {x: 17.7, y: 7.84}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1290,7 +1290,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.04745763, y: 0.04745763, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1800000001}
@@ -1344,12 +1344,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: e60d6c20bdbb9904bbc6c425f52ac12f, type: 3}
+  m_Sprite: {fileID: 7400144533266576723, guid: c18285f06ce2441b9f2e4a9a687b9981, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.62, y: 0.62}
+  m_Size: {x: 17.7, y: 7.84}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -2405,7 +2405,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.1
-  m_Text: "キャッチした小物　<size=24>0</size> 個\n当たった花瓶　　　<size=24>0</size> 個"
+  m_Text: "キャッチした小物　<size=24>0</size> 個\n当たった皿　　　　<size=24>0</size> 個"
 --- !u!1 &1980000000
 GameObject:
   m_ObjectHideFlags: 0

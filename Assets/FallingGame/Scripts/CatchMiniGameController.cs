@@ -37,8 +37,8 @@ namespace Sousakusai8.MiniGame
         [SerializeField] private Transform itemPoolRoot;
         [SerializeField] private SpriteRenderer[] goodItemVisuals;
         [SerializeField] private SpriteRenderer[] badItemVisuals;
-        private static readonly Vector2 VaseFallingSize = new(0.84f, 0.84f);
-        private static readonly Vector2 BrokenVaseSize = new(1.288f, 0.784f);
+        private static readonly Vector2 PlateFallingSize = new(0.84f, 0.84f);
+        private static readonly Vector2 BrokenPlateSize = new(1.288f, 0.784f);
 
         [Header("Falling Item Visual Size")]
         [SerializeField] private Vector2 fallingItemSize = new(0.62f, 0.62f);
@@ -433,8 +433,8 @@ namespace Sousakusai8.MiniGame
             SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
             int visualIndex = Random.Range(0, candidates.Length);
             SpriteRenderer sourceVisual = candidates[visualIndex];
-            Vector2 badFallingSize = isBad ? VaseFallingSize : fallingItemSize;
-            Vector2 badStackedSize = isBad ? BrokenVaseSize : stackedBadItemSize;
+            Vector2 badFallingSize = isBad ? PlateFallingSize : fallingItemSize;
+            Vector2 badStackedSize = isBad ? BrokenPlateSize : stackedBadItemSize;
             Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
 
             FallingItem item = GetPooledItem();
@@ -848,7 +848,7 @@ namespace Sousakusai8.MiniGame
             {
                 resultCountsText.text =
                     $"キャッチした小物　<size=24>{collectedGoodItemCount}</size> 個\n" +
-                    $"当たった花瓶　　　<size=24>{collectedBadItemCount}</size> 個";
+                    $"当たった皿　　　　<size=24>{collectedBadItemCount}</size> 個";
             }
 
             gameOverPanel.SetActive(true);
@@ -937,7 +937,7 @@ namespace Sousakusai8.MiniGame
             int clearedCount = ClearStackedBadItems();
             if (clearedCount == 0)
             {
-                ShowStatusFeedback("地面の花瓶なし");
+                ShowStatusFeedback("地面の割れた皿なし");
                 return;
             }
 
