@@ -272,8 +272,44 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckPrologueProfile();
         yield return CheckGatheringPresentation();
         yield return CheckEggPortraitVisibility();
+        yield return CheckWallInspectionPresentation();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckWallInspectionPresentation()
+    {
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        var canvas=new GameObject("InspectionCanvas",typeof(RectTransform),typeof(Canvas));
+        canvas.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
+        var owner=new GameObject("InspectionOwner"); owner.SetActive(false);
+        var search=owner.AddComponent<Chapter1SearchController>();
+        Set(search,"whiteRoom1",sprite); Set(search,"whiteRoom2",sprite);
+        Call(search,"BuildModal",canvas.transform);
+        var root=(GameObject)Get(search,"modalRoot");
+        var still=(RawImage)Get(search,"modalStill");
+        Check(!root.activeSelf && !still.enabled,"unprepared inspection can render a white image");
+        Set(search,"leftArrow",new GameObject("LeftArrow",typeof(RectTransform),typeof(Button)).GetComponent<Button>());
+        Set(search,"rightArrow",new GameObject("RightArrow",typeof(RectTransform),typeof(Button)).GetComponent<Button>());
+        Call(search,"BuildItemDefinitions");
+        object wall=null;
+        foreach(object item in (System.Collections.IEnumerable)Get(search,"items"))
+            if((string)item.GetType().GetProperty("Id").GetValue(item)=="facing_wall") wall=item;
+        Check(wall!=null,"production wall inspection definition missing");
+        for(int attempt=0;attempt<2;attempt++)
+        {
+            Call(search,"ShowInspection",wall);
+            Check(still.enabled && still.texture==sprite.texture && root.GetComponent<CanvasGroup>().alpha==1f,
+                "wall appears before its texture is ready");
+            Rect first=still.rectTransform.rect;
+            Check(first.width>0 && first.height>0,"inspection layout is empty on activation");
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            Check(Vector2.Distance(first.size,still.rectTransform.rect.size)<0.1f,"wall inspection changes size after its first frame");
+            root.SetActive(false);
+        }
+        Destroy(owner); Destroy(canvas);
+        Debug.Log("PASS: wall inspection is hidden until prepared and retains its first-frame layout when reopened.");
     }
 
     private IEnumerator CheckEggPortraitVisibility()
@@ -480,12 +516,20 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         prologue.SkipToNextScenario(); yield return null;
         Check(SceneManager.GetActiveScene().name == "NovelScene" && Get(prologue,"currentScenario") == second &&
             Id(prologue) == second.Lines[0].lineId, "Prologue1 skip jumped past Prologue2 to a later scene");
+        Call(prologue,"ShowLine",second.Lines[2]);
+        Complete(prologue);
+        Check(Id(prologue)=="prologue2_003" && (bool)Get(prologue,"isChoiceSelectionOpen"), "production first choice did not open");
         prologue.SkipToNextScenario(); yield return null;
-        Check((bool)Get(prologue,"isChoiceSelectionOpen") && ((DialogueLine)Get(prologue,"currentLine")).HasChoices,
-            "Prologue2 skip bypassed the player decision");
-        string choiceId = Id(prologue);
+        Check(Get(prologue,"currentScenario")==main && Id(prologue)=="a1" &&
+            !(bool)Get(prologue,"isChoiceSelectionOpen"), "skip at the first prologue choice did not reach the next chapter");
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        GameProgress.ResetAll();
+        prologue=Create(second,"skipPrologueBeforeChoice");
+        Set(prologue,"followingScenarios",new List<DialogueScenarioSO>{main}); yield return null;
         prologue.SkipToNextScenario(); yield return null;
-        Check(Id(prologue) == choiceId && (bool)Get(prologue,"isChoiceSelectionOpen"), "skip chose an unanswered decision");
+        Check(Get(prologue,"currentScenario")==main && Id(prologue)=="a1",
+            "skip before the first prologue choice stopped at a choice instead of the next chapter");
+        Debug.Log("PASS: production prologue skip bypasses its choices and reaches the next chapter, both before and during the first choice.");
 
         SceneManager.LoadScene("NovelScene"); yield return null;
         var route = ScriptableObject.CreateInstance<DialogueScenarioSO>();

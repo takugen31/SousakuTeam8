@@ -493,7 +493,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             text.raycastTarget = false;
             if (text.gameObject.name == "ConfirmationMessage")
             {
-                text.text = "次の選択肢・シーン遷移前、または次の章まで\nスキップしますか？";
+                text.text = "この章の会話・選択肢を次の章までスキップしますか？\n章内のシーン遷移、または次章がない場合は手前で止まります。";
                 text.fontSize = 32f;
                 text.enableAutoSizing = false;
                 text.alignment = TextAlignmentOptions.Center;
@@ -3690,7 +3690,10 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         DialogueLine cursor = currentLine;
         while (cursor != null && visited.Add(cursor.lineId))
         {
-            // Stop on the first decision or scene boundary in the active asset/route.
+            // Choices can be skipped as a chapter when a following chapter is available.
+            // Do not choose a branch or apply its affection/archive effects.
+            if (cursor.HasChoices && TryStartNextScenario()) return true;
+            // A final chapter still needs its route decision or scene transition.
             if (cursor.HasChoices || cursor.HasSceneTransition)
             {
                 BeginChapterTransition(() => ShowSkipDestination(cursor));

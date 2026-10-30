@@ -72,6 +72,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
     private TMP_Text roomIndicator;
     private GameObject modalRoot;
     private RawImage modalStill;
+    private CanvasGroup modalPresentation;
     private AspectRatioFitter modalStillAspect;
     private TMP_Text modalTitle;
     private TMP_Text savedMessage;
@@ -478,6 +479,9 @@ public sealed class Chapter1SearchController : MonoBehaviour
             parent,
             new Color(0.008f, 0.012f, 0.02f, 0.77f),
             true);
+        modalRoot.SetActive(false);
+        modalPresentation = modalRoot.AddComponent<CanvasGroup>();
+        modalPresentation.alpha = 0f;
         Stretch(modalRoot.GetComponent<RectTransform>());
 
         GameObject stillBounds = new GameObject("StillBounds", typeof(RectTransform));
@@ -505,6 +509,7 @@ public sealed class Chapter1SearchController : MonoBehaviour
         stillObject.transform.SetParent(stillFrame.transform, false);
         modalStill = stillObject.GetComponent<RawImage>();
         modalStill.color = Color.white;
+        modalStill.enabled = false;
         modalStill.raycastTarget = false;
         Stretch(modalStill.rectTransform);
         AddBorder(stillFrame.transform, 4f, Gold);
@@ -763,7 +768,13 @@ public sealed class Chapter1SearchController : MonoBehaviour
         modalStillAspect.aspectRatio =
             (item.StillUv.width * item.SourceSprite.texture.width) /
             (item.StillUv.height * item.SourceSprite.texture.height);
+        // Activate under zero alpha so the fitter and RawImage finish their first rebuild unseen.
+        modalPresentation.alpha = 0f;
+        modalStill.enabled = modalStill.texture != null;
         modalRoot.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(modalRoot.GetComponent<RectTransform>());
+        Canvas.ForceUpdateCanvases();
+        modalPresentation.alpha = 1f;
         leftArrow.gameObject.SetActive(false);
         rightArrow.gameObject.SetActive(false);
         RefreshHotspots();
