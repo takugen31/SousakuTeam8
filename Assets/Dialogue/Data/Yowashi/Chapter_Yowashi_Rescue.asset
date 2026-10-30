@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
   m_Name: Chapter_Yowashi_Rescue
   m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
-  defaultBackground: {fileID: 0}
+  defaultBackground: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
   lines:
   - lineId: chapter_yowashi_rescue_001
     speakerId: moteru
@@ -256,7 +256,7 @@ MonoBehaviour:
     speakerId: doute
     expressionId: normal
     text: "\u30E8\u30EF\u30B7\u3061\u3083\u3093\u805E\u3053\u3048\u308B\uFF1F\u5927\u4E08\u592B\uFF1F"
-    background: {fileID: 0}
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
     consultationTitle: 
     fadeBeforeLine: 0
@@ -664,7 +664,7 @@ MonoBehaviour:
     speakerId: doute
     expressionId: normal
     text: "\u30E8\u30EF\u30B7\u3061\u3083\u3093\uFF01\u30E8\u30EF\u30B7\u3061\u3083\u3093\uFF01\uFF01"
-    background: {fileID: 0}
+    background: {fileID: -990163987816521801, guid: 2f638f3b99bcade49888e208c0066080, type: 3}
     revealSpeakerName: 0
     consultationTitle: 
     fadeBeforeLine: 0
