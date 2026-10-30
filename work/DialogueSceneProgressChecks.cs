@@ -309,6 +309,29 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         Set(game,"goodItemVisuals",new[]{visual}); Set(game,"badItemVisuals",new[]{visual});
         Set(game,"stackedBadItemSprite",sprite); Set(game,"forceHighestQualityLevel",false); Set(game,"initialPoolSize",1);
         owner.SetActive(true);
+        Check((int)Get(game,"goodItemScore")==50 && (int)Get(game,"badItemPenalty")==200 &&
+            (int)Get(game,"jumpUnlockScore")==1000 && (int)Get(game,"sweepUnlockScore")==3000,
+            "catch balance defaults or ability thresholds differ");
+        foreach(string scene in new[]{"SampleScene","falling_verKayo","falling_verMoteru","falling_verYowashi"})
+        {
+            string path=System.IO.Path.GetFullPath(Application.dataPath+"/../../../Assets/FallingGame/Scenes/"+scene+".unity");
+            string yaml=System.IO.File.ReadAllText(path).Replace("\r\n","\n");
+            foreach(string setting in new[]{"goodItemScore: 50","badItemPenalty: 200","jumpUnlockScore: 1000","sweepUnlockScore: 3000"})
+                Check(yaml.Contains("  "+setting+"\n"),scene+": outdated catch balance "+setting);
+        }
+        Call(game,"PrepareForStart");
+        for(int i=0;i<19;i++) game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
+        Check(game.CurrentScore==950 && !game.CanPlayerJump,"jump unlocked too early after scoring adjustment");
+        game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
+        Check(game.CurrentScore==1000 && game.CanPlayerJump,"jump no longer unlocks on the twentieth small item");
+        for(int i=0;i<40;i++) game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
+        Check(game.CurrentScore==3000 && (bool)Get(game,"sweepUnlocked"),"sweep threshold drifted");
+        Check(!Sousakusai8.MiniGame.YowashiCatchGameFlowController.IsSuccess(game.CurrentScore,3000),"3000 incorrectly clears the strict threshold");
+        game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
+        Check(Sousakusai8.MiniGame.YowashiCatchGameFlowController.IsSuccess(game.CurrentScore,3000),"61 clean catches do not clear");
+        game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Bad);
+        Check(game.CurrentScore==2850,"plate penalty is not 200 points");
+        Call(game,"PrepareForStart");
         Check(Vector2.Distance((Vector2)playerVisual.bounds.size,(Vector2)beforePlayer.size*1.4f)<0.0001f &&
             Vector2.Distance((Vector2)dropperVisual.bounds.size,(Vector2)beforeDropper.size*1.4f)<0.0001f,"catch actors are not exactly 1.4x: player="+playerVisual.bounds.size+" before="+beforePlayer.size+" dropper="+dropperVisual.bounds.size+" before="+beforeDropper.size);
         Check(Mathf.Abs(playerVisual.bounds.min.y-beforePlayer.min.y)<0.0001f &&
@@ -335,10 +358,43 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
             item.transform.position=new Vector3(contactX+0.01f,catcher.CatchBounds.center.y,0);
             Call(item,"Update"); Check(game.CurrentScore==score,"item caught outside enlarged bounds");
             item.transform.position=new Vector3(contactX-0.01f,catcher.CatchBounds.center.y,0);
-            Call(item,"Update"); Check(game.CurrentScore==score+(kind==Sousakusai8.MiniGame.FallingItemKind.Good?100:-150),
+            Call(item,"Update"); Check(game.CurrentScore==score+(kind==Sousakusai8.MiniGame.FallingItemKind.Good?50:-200),
                 "item touching enlarged catcher did not score");
         }
         Debug.Log("PASS: catch actors/items are 1.4x; enlarged hit edges score correctly, spawn stays onscreen, pooled/broken plates retain scale and ground alignment.");
+        var canvas=new GameObject("CounterCanvas",typeof(RectTransform),typeof(Canvas)).GetComponent<Canvas>();
+        canvas.renderMode=RenderMode.ScreenSpaceOverlay;
+        var labels=new List<Text>();
+        foreach(string name in new[]{"Score","Time","Prompt","Feedback"})
+        {
+            var text=new GameObject(name,typeof(RectTransform),typeof(CanvasRenderer),typeof(Text)).GetComponent<Text>();
+            text.transform.SetParent(canvas.transform,false); labels.Add(text);
+        }
+        var hud=Sousakusai8.MiniGame.CatchGameHud.Create(labels[0],labels[1],null,labels[2],labels[3],null,null,null,camera);
+        Set(game,"hudPresentation",hud); Set(game,"scoreText",labels[0]); Set(game,"timeText",labels[1]); Set(game,"feedbackText",labels[3]);
+        Call(game,"UpdateHudPresentation"); Canvas.ForceUpdateCanvases();
+        RectTransform panel=labels[0].transform.parent as RectTransform;
+        Vector2 panelSize=panel.sizeDelta, counterPosition=labels[0].rectTransform.anchoredPosition;
+        foreach(int value in new[]{950,9950,-100,99950})
+        {
+            Set(game,"score",value);
+            // A catch can run after the controller's Update, immediately before rendering.
+            game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
+            string expected=(value+50).ToString("N0");
+            Check(labels[0].text==expected,"catch briefly wrote the legacy score label before the next frame");
+            Call(game,"UpdateTimeText");
+            Check(labels[1].text.Contains(":"),"timer briefly changed format");
+            Canvas.ForceUpdateCanvases();
+            Check(panel.sizeDelta==panelSize && labels[0].rectTransform.anchoredPosition==counterPosition,
+                "score counter shifted when its digit count changed");
+            Vector2 shownFeedback=((RectTransform)labels[3].transform.parent).anchoredPosition;
+            yield return null; Canvas.ForceUpdateCanvases();
+            Check(labels[0].text==expected && panel.sizeDelta==panelSize &&
+                labels[0].rectTransform.anchoredPosition==counterPosition &&
+                ((RectTransform)labels[3].transform.parent).anchoredPosition==shownFeedback,
+                "counter or feedback shifted on the frame after a catch");
+        }
+        Debug.Log("PASS: score changes across digit/sign boundaries keep fixed geometry and formatted text even when a catch happens after the HUD update.");
     }
 
     private IEnumerator CheckStoryStills()

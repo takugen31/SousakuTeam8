@@ -72,17 +72,17 @@ namespace Sousakusai8.MiniGame
         [SerializeField, Min(1)] private int initialPoolSize = 64;
 
         [Header("Score")]
-        [SerializeField] private int goodItemScore = 100;
-        [SerializeField] private int badItemPenalty = 150;
+        [SerializeField] private int goodItemScore = 50;
+        [SerializeField] private int badItemPenalty = 200;
         [SerializeField, Range(0f, 1f)] private float badItemChance = 0.25f;
 
         [Header("Jump Unlock")]
-        [SerializeField] private int jumpUnlockScore = 2000;
+        [SerializeField] private int jumpUnlockScore = 1000;
         [SerializeField, Min(0f)] private float jumpUnlockMessageDuration = 3f;
         [SerializeField] private string jumpUnlockMessage = "\"ジャンプ\"を獲得!";
 
         [Header("Sweep Unlock")]
-        [SerializeField] private int sweepUnlockScore = 6000;
+        [SerializeField] private int sweepUnlockScore = 3000;
         [SerializeField, Min(0)] private int sweepScoreCost = 200;
         [SerializeField, Min(0f)] private float sweepCooldown = 10f;
         [SerializeField, Min(0f)] private float sweepUnlockMessageDuration = 3f;
@@ -694,14 +694,14 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
-            scoreText.text = $"スコア  {score}";
+            if (hudPresentation == null) scoreText.text = $"スコア  {score}";
             UpdateTimeText();
             UpdateScoreMessage();
         }
 
         private void ShowFeedback()
         {
-            if (scoreText != null)
+            if (scoreText != null && hudPresentation == null)
             {
                 scoreText.text = $"スコア  {score}";
             }
@@ -711,6 +711,7 @@ namespace Sousakusai8.MiniGame
                 feedbackText.text = catchFeedback;
                 feedbackText.gameObject.SetActive(true);
             }
+            UpdateHudPresentation();
         }
 
         private void ResolveHudReferences()
@@ -917,7 +918,7 @@ namespace Sousakusai8.MiniGame
 
         private void UpdateTimeText()
         {
-            if (timeText != null)
+            if (timeText != null && hudPresentation == null)
             {
                 timeText.text = $"残り  {Mathf.CeilToInt(remainingTime)}";
             }
