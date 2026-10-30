@@ -275,6 +275,7 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckWallInspectionPresentation();
         yield return CheckYowashiMiniGameSkip();
         yield return CheckMoteruEnding();
+        yield return CheckEndingStills();
         yield return CheckRemainingPresentationRisks();
         yield return CheckKayoGaugeOutcomeContract();
         yield return CheckStoryStills();
@@ -583,6 +584,50 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         Check(manualRestored && progressRestored,"old blank saves override the repaired background");
         Check(guarded && stable,"generic inspection exposes an unprepared image/layout");
         Debug.Log("PASS: old blank manual/progress backgrounds recover; generic inspection is prepared before display.");
+    }
+
+    private IEnumerator CheckEndingStills()
+    {
+        foreach(var entry in new[] {
+            new { Id="chapter_kayo_end_004", Art="KayoPrologue" },
+            new { Id="chapter_yowashi_rescue_038", Art="YowashiPrologue" },
+            new { Id="chapter_moteru_end_002", Art="MoteruPrologue" },
+            new { Id="chapter_kayo_3_032", Art="" },
+            new { Id="chapter_yowashi_catchfailure_009", Art="" },
+            new { Id="chapter_yowashi_rescue_042", Art="" } })
+        {
+            SceneManager.LoadScene(A); yield return null; GameProgress.ResetAll();
+            var scenario=ScriptableObject.CreateInstance<DialogueScenarioSO>(); scenario.name="EndingStill_"+entry.Id;
+            var line=Line(entry.Id); line.nextScenePath="Assets/Scenes/Title.unity";
+            scenario.ReplaceAll(new List<DialogueLine>{line}); scenario.SetDefaultBackground(sprite);
+            var controller=Create(scenario,"endingStill",false);
+            Set(controller,"endingFadeOutDuration",0f); Set(controller,"endingBlackHoldDuration",0f);
+            Set(controller,"endingTitleFadeInDuration",0f);
+            controller.StartDialogue(); Complete(controller); controller.Advance();
+            var card=(GameObject)Get(controller,"endingCard");
+            Check(card!=null,"ending confirmation is missing: "+entry.Id);
+            var still=card.transform.Find("EndingStill");
+            Check((still!=null)==(entry.Art!=""),"incorrect ending background selection: "+entry.Id);
+            var caption=card.transform.Find("EndingTitle").GetComponent<TMP_Text>();
+            Check(!caption.text.Contains("仮"),"ending still has a provisional title");
+            var button=card.transform.Find("ReturnToTitle").GetComponent<Button>();
+            float deadline=Time.realtimeSinceStartup+2f;
+            while(!button.interactable && Time.realtimeSinceStartup<deadline) yield return null;
+            Check(button.interactable,"ending button did not become usable");
+            if(still!=null)
+            {
+                Check(still.GetComponent<CanvasGroup>().alpha==1f,"ending still never became visible");
+                var art=still.Find("Artwork").GetComponent<RawImage>();
+                Check(art.texture==Resources.Load<Texture2D>("StoryStills/"+entry.Art),"ending uses the wrong character still");
+                Check(still.Find("LeftEdgeFill")!=null && still.Find("RightEdgeFill")!=null,"ending reintroduced black side bars");
+                Check(still.GetSiblingIndex()<caption.transform.GetSiblingIndex() && still.GetSiblingIndex()<button.transform.GetSiblingIndex(),
+                    "ending artwork covers the caption or button");
+                Check(!still.GetComponent<CanvasGroup>().blocksRaycasts,"ending artwork intercepts the title button");
+            }
+            else Check(card.GetComponent<Image>().color==Color.black,"failure ending no longer has its black background");
+            Call(controller,"StopEndingCard"); Check(Get(controller,"endingCard")==null,"ending cleanup failed");
+        }
+        Debug.Log("PASS: three successful endings fade in their character still beneath the title/button, failures stay black, titles omit provisional labels and cards clean up.");
     }
 
     private IEnumerator CheckMoteruEnding()

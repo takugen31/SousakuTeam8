@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Fixed end numbers; replace the provisional titles when finalized.</summary>
+/// <summary>Fixed end numbers and display titles.</summary>
 public static class EndingCatalog
 {
     public static bool TryGetEnding(string lineId, out int number, out string title)

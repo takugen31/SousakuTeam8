@@ -1755,6 +1755,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         shade.color = new Color(0f, 0f, 0f, 0f);
         shade.raycastTarget = true;
 
+        CanvasGroup still = CreateEndingStill(rect, line.lineId);
         TextMeshProUGUI caption = CreateEndingText(rect, "EndingTitle", 42f);
         caption.text = $"END No.{number:00}\n\n{title}";
         caption.rectTransform.anchorMin = new Vector2(.1f, .4f);
@@ -1797,11 +1798,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             // Removing it here would expose the final dialogue frame.
             LoadDialogueScene(line.nextScenePath, line);
         });
-        endingCardCoroutine = StartCoroutine(PlayEndingCard(shade, captionGroup, buttonGroup, button));
+        endingCardCoroutine = StartCoroutine(PlayEndingCard(shade, still, captionGroup, buttonGroup, button));
         return true;
     }
 
-    private IEnumerator PlayEndingCard(Image shade, CanvasGroup caption, CanvasGroup buttonGroup, Button button)
+    private IEnumerator PlayEndingCard(Image shade, CanvasGroup still, CanvasGroup caption, CanvasGroup buttonGroup, Button button)
     {
         // Finish the blackout before revealing any ending text.
         float elapsed = 0f;
@@ -1817,6 +1818,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (endingBlackHoldDuration > 0f)
             yield return new WaitForSecondsRealtime(endingBlackHoldDuration);
 
+        if (still != null) yield return FadeEndingContent(still, 0.6f);
         yield return FadeEndingContent(caption, endingTitleFadeInDuration);
         yield return FadeEndingContent(buttonGroup, 0.6f);
         buttonGroup.interactable = true;

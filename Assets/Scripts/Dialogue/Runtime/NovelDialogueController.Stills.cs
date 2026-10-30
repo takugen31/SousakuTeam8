@@ -63,6 +63,14 @@ public sealed partial class NovelDialogueController
         matte.color = Color.black;
         matte.raycastTarget = false;
 
+        CreateStoryStillArtwork(frame, texture);
+        activeStoryStillResource = resource;
+        storyStillView.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(frame);
+    }
+
+    private static void CreateStoryStillArtwork(RectTransform frame, Texture2D texture)
+    {
         // Stretch each outermost pixel column behind the fitted artwork. Sampling
         // at the texel center avoids wrapping or pulling in the opposite edge.
         CreateStoryStillEdge(frame, texture, true);
@@ -75,9 +83,40 @@ public sealed partial class NovelDialogueController
         var fitter = artwork.GetComponent<AspectRatioFitter>();
         fitter.aspectRatio = (float)texture.width / texture.height;
         fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-        activeStoryStillResource = resource;
-        storyStillView.SetActive(true);
+    }
+
+    private static CanvasGroup CreateEndingStill(RectTransform parent, string lineId)
+    {
+        string resource = lineId switch
+        {
+            "chapter_kayo_end_004" => "StoryStills/KayoPrologue",
+            "chapter_yowashi_rescue_038" => "StoryStills/YowashiPrologue",
+            "chapter_moteru_end_002" => "StoryStills/MoteruPrologue",
+            _ => null
+        };
+        if (resource == null) return null;
+        Texture2D texture = Resources.Load<Texture2D>(resource);
+        if (texture == null) return null;
+        var background = new GameObject("EndingStill", typeof(RectTransform), typeof(CanvasGroup));
+        background.SetActive(false);
+        var frame = background.GetComponent<RectTransform>();
+        frame.SetParent(parent, false);
+        frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
+        frame.offsetMin = frame.offsetMax = Vector2.zero;
+        CanvasGroup group = background.GetComponent<CanvasGroup>();
+        group.alpha = 0f;
+        group.interactable = group.blocksRaycasts = false;
+        CreateStoryStillArtwork(frame, texture);
+        var shade = new GameObject("TextShade", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        var shadeRect = shade.GetComponent<RectTransform>();
+        shadeRect.SetParent(frame, false);
+        shadeRect.anchorMin = Vector2.zero; shadeRect.anchorMax = Vector2.one;
+        shadeRect.offsetMin = shadeRect.offsetMax = Vector2.zero;
+        shade.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.3f);
+        shade.GetComponent<Image>().raycastTarget = false;
+        background.SetActive(true);
         LayoutRebuilder.ForceRebuildLayoutImmediate(frame);
+        return group;
     }
 
     private static void CreateStoryStillEdge(RectTransform parent, Texture2D texture, bool left)
