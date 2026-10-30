@@ -26,29 +26,10 @@ MonoBehaviour:
     lineFadeHoldDuration: -1
     lineFadeInDuration: -1
     nextScenePath:
-    nextLineId: prologue1_profile
-    choices: []
-    affectionChanges: []
-    archiveUnlockIds: []
-    branches: []
-  - lineId: prologue1_profile
-    speakerId:
-    expressionId:
-    text: "\u84EE\u611B\u30C9\u30A6\u30C6\n\u8DA3\u5473\uFF1A\u30B2\u30FC\u30E0\n\u8840\u6DB2\u578B\uFF1AA\u578B\n\u8A95\u751F\u65E5\uFF1A1\u670821\u65E5"
-    background: {fileID: 0}
-    revealSpeakerName: 0
-    consultationTitle:
-    fadeBeforeLine: 0
-    lineFadeOutDuration: -1
-    lineFadeHoldDuration: -1
-    lineFadeInDuration: -1
-    nextScenePath:
     nextLineId: prologue1_002
     choices: []
     affectionChanges: []
-    archiveUnlockIds:
-    - character.doute.name
-    - character.doute.introduction
+    archiveUnlockIds: []
     branches: []
   - lineId: prologue1_002
     speakerId: doute

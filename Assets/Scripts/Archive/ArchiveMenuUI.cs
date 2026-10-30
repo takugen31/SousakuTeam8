@@ -203,7 +203,9 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
             returnToTitleConfirmation.transform.SetAsLastSibling();
         });
         contextHelp = CreateText("ContextOperationHelp", menuRoot.transform, string.Empty, 21f, new Color(0.95f, 0.95f, 0.95f, 1f));
-        SetAnchors(contextHelp.gameObject, new Vector2(0.20f, 0.015f), new Vector2(0.20f, 0.09f), Vector2.zero, Vector2.zero);
+        // Keep the measured help block centered on the menu buttons (0.20 .. 0.91).
+        SetAnchors(contextHelp.gameObject, new Vector2(0.555f, 0.055f), new Vector2(0.555f, 0.13f), Vector2.zero, Vector2.zero);
+        contextHelp.rectTransform.pivot = new Vector2(0.5f, 0.5f);
         contextHelp.alignment = TextAlignmentOptions.MidlineLeft;
         contextHelp.textWrappingMode = TextWrappingModes.NoWrap;
         contextHelp.richText = true;
