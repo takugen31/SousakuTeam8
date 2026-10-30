@@ -44,4 +44,4 @@ EditorのGame Viewは `GameViewQualityGuard` が低解像度プレビューを�
 
 ### オブジェクトの表示倍率
 
-小物・皿・地面に残る破片・キャラは、シーンの基準サイズの1.4倍で表示します。共通倍率は `CatchMiniGameController.GameplayObjectScale`。当たり判定と移動範囲は拡大後の `SpriteRenderer.bounds` を使用し、出現位置も実際の幅で画面内に収めます。下のキャラの接地位置と上のキャラの上端は維持します。
+小物・皿・地面に残る破片・上のキャラは、シーンの基準サイズの1.4倍で表示します。自機ドウテはそこから0.8倍（シーン基準の1.12倍）。自機の当たり判定は画像の中心を保って縦横75%とし、外側にかすっただけでは接触扱いにしません。倍率は `PlayerCatcherController` の `Catch Bounds Scale` で調整できます。移動範囲・接地位置は見た目の `SpriteRenderer.bounds` を使用し、出現位置も実際の幅で画面内に収めます。

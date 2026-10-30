@@ -59,7 +59,7 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
-            if (resolved || game == null || catcher == null)
+            if (resolved || game == null || catcher == null || game.IsPaused)
             {
                 return;
             }

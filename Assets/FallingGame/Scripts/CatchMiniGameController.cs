@@ -146,6 +146,7 @@ namespace Sousakusai8.MiniGame
         private UniversalRenderPipelineAsset runtimeRenderPipeline;
         private bool renderingQualityApplied;
         private CatchGameHud hudPresentation;
+        private bool inputWasPaused;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -162,6 +163,7 @@ namespace Sousakusai8.MiniGame
         public Sprite StackedBadItemSprite => stackedBadItemSprite;
         public Vector2 StackedBadItemSize => stackedBadItemSize * GameplayObjectScale;
         public bool IsGameRunning => phase == GamePhase.Playing;
+        public bool IsPaused => Time.timeScale <= 0f || ArchiveManager.IsOpen;
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
         public int CurrentScore => score;
@@ -225,7 +227,7 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
-            ResizeGameplayActor(catcher.GetComponent<SpriteRenderer>(), false);
+            ResizeGameplayActor(catcher.GetComponent<SpriteRenderer>(), false, GameplayObjectScale * 0.8f);
             if (dropper != null) ResizeGameplayActor(dropper.GetComponent<SpriteRenderer>(), true);
             catcher.Initialize(this, gameCamera);
 
@@ -267,6 +269,9 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
+            if (IsPaused) { inputWasPaused = true; return; }
+            // Do not treat a menu-closing click as start/sweep input.
+            if (inputWasPaused) { inputWasPaused = false; return; }
             if (TryInstantClearForTesting()) return;
             if (phase == GamePhase.AwaitingInput && WasAnyStartButtonPressed())
             {
@@ -502,13 +507,13 @@ namespace Sousakusai8.MiniGame
             itemObject.transform.position = spawnPosition;
         }
 
-        private void ResizeGameplayActor(SpriteRenderer visual, bool anchorTop)
+        private void ResizeGameplayActor(SpriteRenderer visual, bool anchorTop, float multiplier = GameplayObjectScale)
         {
             if (visual == null) return;
             Bounds original = visual.bounds;
             Vector3 scale = visual.transform.localScale;
             visual.transform.localScale = new Vector3(
-                scale.x * GameplayObjectScale, scale.y * GameplayObjectScale, scale.z);
+                scale.x * multiplier, scale.y * multiplier, scale.z);
             Bounds resized = visual.bounds;
             float anchorOffset = anchorTop ? original.max.y - resized.max.y : original.min.y - resized.min.y;
             Vector3 position = visual.transform.position + Vector3.up * anchorOffset;

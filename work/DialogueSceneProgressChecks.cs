@@ -333,12 +333,14 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Bad);
         Check(game.CurrentScore==2850,"plate penalty is not 200 points");
         Call(game,"PrepareForStart");
-        Check(Vector2.Distance((Vector2)playerVisual.bounds.size,(Vector2)beforePlayer.size*1.4f)<0.0001f &&
-            Vector2.Distance((Vector2)dropperVisual.bounds.size,(Vector2)beforeDropper.size*1.4f)<0.0001f,"catch actors are not exactly 1.4x: player="+playerVisual.bounds.size+" before="+beforePlayer.size+" dropper="+dropperVisual.bounds.size+" before="+beforeDropper.size);
+        Check(Vector2.Distance((Vector2)playerVisual.bounds.size,(Vector2)beforePlayer.size*(1.4f*0.8f))<0.0001f &&
+            Vector2.Distance((Vector2)dropperVisual.bounds.size,(Vector2)beforeDropper.size*1.4f)<0.0001f,"catch actor size multipliers are incorrect: player="+playerVisual.bounds.size+" before="+beforePlayer.size+" dropper="+dropperVisual.bounds.size+" before="+beforeDropper.size);
         Check(Mathf.Abs(playerVisual.bounds.min.y-beforePlayer.min.y)<0.0001f &&
             Mathf.Abs(dropperVisual.bounds.max.y-beforeDropper.max.y)<0.0001f,"resizing moved the floor or top anchor");
         var catcher=player.GetComponent<Sousakusai8.MiniGame.PlayerCatcherController>();
-        Check(catcher.CatchBounds==playerVisual.bounds,"catcher hit bounds do not follow enlarged art");
+        Check(catcher.CatchBounds.center==playerVisual.bounds.center &&
+            Vector2.Distance((Vector2)catcher.CatchBounds.size,(Vector2)playerVisual.bounds.size*0.75f)<0.0001f,
+            "catcher hit bounds are not centered at 75% of its visual size");
         foreach(var kind in new[]{Sousakusai8.MiniGame.FallingItemKind.Good,Sousakusai8.MiniGame.FallingItemKind.Bad})
         {
             Call(game,"SpawnItem",new Vector3(100,4,0),kind);
@@ -355,14 +357,18 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
                     Mathf.Abs(image.bounds.min.y-catcher.GroundSurfaceY)<0.0001f,"broken plate scale or grounding is incorrect");
             }
             int score=game.CurrentScore;
+            Set(item,"fallSpeed",0f); Set(item,"rotationSpeed",0f);
             float contactX=catcher.CatchBounds.max.x+image.bounds.extents.x;
-            item.transform.position=new Vector3(contactX+0.01f,catcher.CatchBounds.center.y,0);
-            Call(item,"Update"); Check(game.CurrentScore==score,"item caught outside enlarged bounds");
+            float visualOnlyMargin=(playerVisual.bounds.max.x-catcher.CatchBounds.max.x)*0.5f;
+            item.transform.position=new Vector3(contactX+visualOnlyMargin,catcher.CatchBounds.center.y,0);
+            Check(image.bounds.Intersects(playerVisual.bounds) && !image.bounds.Intersects(catcher.CatchBounds),
+                "test did not place the item in the visual-only margin");
+            Call(item,"Update"); Check(game.CurrentScore==score,"item touching only the outside of the artwork was caught");
             item.transform.position=new Vector3(contactX-0.01f,catcher.CatchBounds.center.y,0);
             Call(item,"Update"); Check(game.CurrentScore==score+(kind==Sousakusai8.MiniGame.FallingItemKind.Good?50:-200),
-                "item touching enlarged catcher did not score");
+                "item touching the smaller catch area did not score");
         }
-        Debug.Log("PASS: catch actors/items are 1.4x; enlarged hit edges score correctly, spawn stays onscreen, pooled/broken plates retain scale and ground alignment.");
+        Debug.Log("PASS: catcher is 0.8x its previous visual size with centered 75% hit bounds; visual-only grazes miss, inner contact scores, items/dropper retain size and floor/spawn alignment.");
         var canvas=new GameObject("CounterCanvas",typeof(RectTransform),typeof(Canvas)).GetComponent<Canvas>();
         canvas.renderMode=RenderMode.ScreenSpaceOverlay;
         var labels=new List<Text>();

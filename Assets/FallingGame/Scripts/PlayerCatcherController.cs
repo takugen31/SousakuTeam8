@@ -13,6 +13,9 @@ namespace Sousakusai8.MiniGame
         [SerializeField, Min(0f)] private float jumpSpeed = 7f;
         [SerializeField, Min(0f)] private float gravity = 18f;
 
+        [Header("Catch Area")]
+        [SerializeField, Range(0.1f, 1f)] private float catchBoundsScale = 0.75f;
+
         private CatchMiniGameController game;
         private Camera gameCamera;
         private SpriteRenderer spriteRenderer;
@@ -22,8 +25,18 @@ namespace Sousakusai8.MiniGame
         private Vector2 previousMousePosition;
         private bool mousePositionInitialized;
         private bool usingKeyboard;
+        private bool inputWasPaused;
+        private bool waitForMouseMovementAfterPause;
 
-        public Bounds CatchBounds => spriteRenderer.bounds;
+        public Bounds CatchBounds
+        {
+            get
+            {
+                Bounds bounds = spriteRenderer.bounds;
+                bounds.size = Vector3.Scale(bounds.size, new Vector3(catchBoundsScale, catchBoundsScale, 1f));
+                return bounds;
+            }
+        }
         public float GroundY => groundY;
         public float GroundSurfaceY => groundSurfaceY;
 
@@ -45,6 +58,16 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
+            if (game.IsPaused) { inputWasPaused = true; return; }
+            if (inputWasPaused)
+            {
+                inputWasPaused = false;
+                waitForMouseMovementAfterPause = true;
+                mousePositionInitialized = Mouse.current != null;
+                if (Mouse.current != null) previousMousePosition = Mouse.current.position.ReadValue();
+                return;
+            }
+
             float halfWidth = spriteRenderer.bounds.extents.x;
             float leftEdge = game.GetLeftEdge(halfWidth);
             float rightEdge = game.GetRightEdge(halfWidth);
@@ -57,6 +80,7 @@ namespace Sousakusai8.MiniGame
             }
 
             bool mouseMoved = DidMouseMove(out Vector2 screenPosition);
+            if (mouseMoved) waitForMouseMovementAfterPause = false;
             if (canPlayerMove && mouseMoved && Mathf.Approximately(keyboardDirection, 0f))
             {
                 usingKeyboard = false;
@@ -67,7 +91,7 @@ namespace Sousakusai8.MiniGame
             {
                 targetX += keyboardDirection * keyboardMoveSpeed * Time.deltaTime;
             }
-            else if (canPlayerMove && Mouse.current != null)
+            else if (canPlayerMove && Mouse.current != null && !waitForMouseMovementAfterPause)
             {
                 float distanceToGamePlane = Mathf.Abs(gameCamera.transform.position.z - transform.position.z);
                 Vector3 worldPosition = gameCamera.ScreenToWorldPoint(
