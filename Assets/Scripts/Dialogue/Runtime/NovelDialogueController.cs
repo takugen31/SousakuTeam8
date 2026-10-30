@@ -273,6 +273,8 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private bool isGatheringCompositionActive;
     private SearchPortraitPose gatheringLeftPose, gatheringRightPose;
     private Image gatheringLeftBackground, gatheringRightBackground;
+    private Image gatheringDoutePortrait;
+    private bool gatheringLeftWasEnabled;
     private Image gatheringDivider;
     private RectTransform gatheringLeftFrame, gatheringRightFrame;
     private Transform gatheringLeftParent, gatheringRightParent;
@@ -593,6 +595,12 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void RefreshStandardDoutePortraitLayout()
     {
+        if (isGatheringCompositionActive)
+        {
+            // Old checkpoints may restore the ordinary portrait's enabled state.
+            if (leftPortraitImage != null) leftPortraitImage.enabled = false;
+            return;
+        }
         if (!normalizeBustPortraitSizes || !CanApplyStandardDoutePortraitLayout() || isRoomLookPlaying) return;
         RectTransform parent = leftPortraitImage.rectTransform.parent as RectTransform;
         if (parent != null && parent.rect.size != doutePortraitViewport)
@@ -2563,10 +2571,13 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             ApplyKayoFallPose();
             return;
         }
-        // Both portraits must be ready before the first frame, even when Doute is not speaking.
-        if (characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist))
-            SetPortrait(leftPortraitImage, protagonist.GetPortrait("normal"));
+        // The close-up owns its image; normal dialogue must not dirty its mesh on page advances.
+        if (!characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist)) return;
+        Sprite doutePortrait = protagonist.GetPortrait(line.speakerId == protagonistCharacterId ? line.expressionId : "normal");
+        if (doutePortrait == null) return;
         SetPortrait(rightPortraitImage, portrait);
+        SetPortrait(leftPortraitImage, doutePortrait);
+        gatheringLeftWasEnabled = leftPortraitImage.enabled;
         gatheringLeftPose = CapturePortraitPose(leftPortraitImage.rectTransform);
         gatheringRightPose = CapturePortraitPose(rightPortraitImage.rectTransform);
         gatheringLeftParent = leftPortraitImage.transform.parent;
@@ -2581,7 +2592,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
         gatheringLeftFrame = CreateGatheringHalfFrame(parent, "GatheringLeftHalf", viewport.x, true);
         gatheringLeftFrame.SetSiblingIndex(leftPortraitImage.transform.GetSiblingIndex());
-        leftPortraitImage.transform.SetParent(gatheringLeftFrame, false);
+        gatheringDoutePortrait = CreateRoomLookImage(gatheringLeftFrame, "GatheringDoutePortrait");
+        gatheringDoutePortrait.sprite = doutePortrait;
+        gatheringDoutePortrait.color = leftPortraitImage.color;
+        gatheringDoutePortrait.preserveAspect = true;
+        leftPortraitImage.enabled = false;
         gatheringRightFrame = CreateGatheringHalfFrame(parent, "GatheringRightHalf", viewport.x, false);
         gatheringRightFrame.SetSiblingIndex(rightPortraitImage.transform.GetSiblingIndex());
         rightPortraitImage.transform.SetParent(gatheringRightFrame, false);
@@ -2675,13 +2690,13 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void ApplyGatheringDouteSlide(Vector2 viewport)
     {
-        if (leftPortraitImage == null || leftPortraitImage.sprite == null || viewport.x <= 0f) return;
+        if (gatheringDoutePortrait == null || gatheringDoutePortrait.sprite == null || viewport.x <= 0f) return;
         float progress = Mathf.SmoothStep(0f, 1f, gatheringDouteSlideElapsed / 5.5f);
         // Retain the original downward reveal, using the new face's proportions.
         float portraitWidth = viewport.y * 2.7f * DouteCloseUpScale *
-            leftPortraitImage.sprite.rect.width / leftPortraitImage.sprite.rect.height;
+            gatheringDoutePortrait.sprite.rect.width / gatheringDoutePortrait.sprite.rect.height;
         float x = Mathf.Min(0.23f, 0.48f - portraitWidth * 0.5f / viewport.x);
-        SetDouteFacePortrait(leftPortraitImage, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress));
+        SetDouteFacePortrait(gatheringDoutePortrait, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress));
         if (gatheringLeftBackground != null)
             SetRoomLookPose(gatheringLeftBackground, viewport,
                 new Vector2(0.5f, Mathf.Lerp(0.48f, 0.53f, progress)), 1.35f);
@@ -2741,20 +2756,21 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         {
             leftPortraitImage.transform.SetParent(gatheringLeftParent, false);
             RestorePortraitPose(leftPortraitImage.rectTransform, gatheringLeftPose);
+            leftPortraitImage.enabled = gatheringLeftWasEnabled;
         }
         if (rightPortraitImage != null)
         {
             rightPortraitImage.transform.SetParent(gatheringRightParent, false);
             RestorePortraitPose(rightPortraitImage.rectTransform, gatheringRightPose);
         }
-        foreach (Image image in new[] { gatheringLeftBackground, gatheringRightBackground, gatheringDivider })
+        foreach (Image image in new[] { gatheringLeftBackground, gatheringRightBackground, gatheringDivider, gatheringDoutePortrait })
         {
             if (image == null) continue;
             image.gameObject.SetActive(false);
             image.transform.SetParent(null, false);
             Destroy(image.gameObject);
         }
-        gatheringLeftBackground = gatheringRightBackground = gatheringDivider = null;
+        gatheringLeftBackground = gatheringRightBackground = gatheringDivider = gatheringDoutePortrait = null;
         foreach (RectTransform frame in new[] { gatheringLeftFrame, gatheringRightFrame })
         {
             if (frame == null) continue;
@@ -3213,11 +3229,19 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             !string.Equals(currentLine.speakerId, protagonistCharacterId, StringComparison.Ordinal) ||
             !characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist)) return;
 
-        SetPortrait(leftPortraitImage, protagonist.GetPortrait(currentLine.expressionId));
         if (isGatheringCompositionActive)
-            ApplyGatheringDouteSlide(dialogueRoot.GetComponent<RectTransform>().rect.size);
-        else
-            ApplyProtagonistFacing();
+        {
+            // Keep the regular portrait hidden; the retained close-up is already on screen.
+            Sprite portrait = protagonist.GetPortrait(currentLine.expressionId);
+            if (gatheringDoutePortrait != null && gatheringDoutePortrait.sprite != portrait)
+            {
+                gatheringDoutePortrait.sprite = portrait;
+                ApplyGatheringDouteSlide(dialogueRoot.GetComponent<RectTransform>().rect.size);
+            }
+            return;
+        }
+        SetPortrait(leftPortraitImage, protagonist.GetPortrait(currentLine.expressionId));
+        ApplyProtagonistFacing();
         // These compositions deliberately replace the regular left portrait.
         if (leftPortraitImage != null && (douteMonologueView != null || isKayoEggViewActive ||
             isMoteruRevealViewActive || isYowashiBandageViewActive || isKayoExaminationViewActive))

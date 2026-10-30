@@ -302,9 +302,10 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
             Set(controller,"leftPortraitImage",left); Set(controller,"rightPortraitImage",right);
             Set(controller,"normalizeBustPortraitSizes",true);
             controller.StartDialogue();
-            RectTransform rect=left.rectTransform;
+            Image closeUp=(Image)Get(controller,"gatheringDoutePortrait");
+            RectTransform rect=closeUp.rectTransform;
             float expectedHeight=root.GetComponent<RectTransform>().rect.height*2.7f*0.55f;
-            Check(left.enabled && Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f,
+            Check(closeUp.enabled && !left.enabled && Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f,
                 target+": first greeting renders the small ordinary portrait instead of the close-up");
             Vector2 firstPosition=rect.anchoredPosition;
             yield return null;
@@ -312,25 +313,40 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
             Set(controller,"gatheringDouteSlideElapsed",2.75f);
             Call(controller,"UpdateGatheringDouteSlide");
             Check(rect.anchoredPosition.y<firstPosition.y, target+": portrait did not slide downward");
-            Transform frame=left.transform.parent;
+            Transform frame=closeUp.transform.parent;
             Transform rightFrame=right.transform.parent;
             for(int page=0;page<2;page++)
             {
                 Vector2 position=rect.anchoredPosition;
                 float elapsed=(float)Get(controller,"gatheringDouteSlideElapsed");
                 Complete(controller); controller.Advance();
-                Check(left.transform.parent==frame && right.transform.parent==rightFrame,
+                Canvas.ForceUpdateCanvases();
+                Check(closeUp.enabled && closeUp.gameObject.activeInHierarchy && !closeUp.canvasRenderer.cull &&
+                    !left.enabled && ReferenceEquals(closeUp,Get(controller,"gatheringDoutePortrait")),
+                    target+": page advance hid or replaced the visible close-up");
+                Check(closeUp.transform.parent==frame && right.transform.parent==rightFrame,
                     target+": advancing rebuilt the split view");
                 Check(Vector2.Distance(rect.anchoredPosition,position)<0.1f && Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f &&
                     Mathf.Approximately((float)Get(controller,"gatheringDouteSlideElapsed"),elapsed),
                     target+": advancing flashed the normal portrait or restarted the slide");
                 yield return null;
+                Canvas.ForceUpdateCanvases();
+                Check(closeUp.enabled && !closeUp.canvasRenderer.cull && !left.enabled,
+                    target+": close-up disappeared on the rendered page");
                 Check(Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f, target+": rendered page flashed the normal size");
             }
+            var checkpoint=new GameSaveData();
+            Check(controller.CaptureCheckpoint(checkpoint), target+": gathering checkpoint failed");
+            // A checkpoint from before the dedicated close-up may include the ordinary portrait.
+            checkpoint.images[1].enabled=true;
+            if(checkpoint.presentation!=null) checkpoint.presentation[1].enabled=true;
+            Check(controller.RestoreCheckpoint(checkpoint), target+": gathering checkpoint restore failed");
+            closeUp=(Image)Get(controller,"gatheringDoutePortrait");
+            Check(closeUp!=null && closeUp.enabled && !left.enabled, target+": restored ordinary portrait overlaps the close-up");
             Complete(controller); controller.Advance();
             Check(!(bool)Get(controller,"isGatheringCompositionActive") && left.transform.parent==root.transform,
                 target+": leaving the sequence did not restore the normal hierarchy");
-            Check(Mathf.Abs(rect.sizeDelta.y-root.GetComponent<RectTransform>().rect.height*0.99f)<0.1f,
+            Check(Mathf.Abs(left.rectTransform.sizeDelta.y-root.GetComponent<RectTransform>().rect.height*0.99f)<0.1f,
                 target+": normal dialogue did not regain ordinary portrait sizing");
             yield return null;
             Check(root.transform.Find("GatheringLeftHalf")==null && root.transform.Find("GatheringRightHalf")==null,
