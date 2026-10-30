@@ -434,6 +434,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
                 UpdateAutoPlayButton();
                 if (autoPlayEnabled && !isTyping) ScheduleAutoAdvance();
             }
+            RecoverMissingBackground();
             RefreshStandardDoutePortraitLayout();
             ApplyProloguePresentation(line);
             return true;
@@ -3005,6 +3006,14 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         Vector2 position = rect.localPosition;
         rect.anchoredPosition += (origin - position) * (1f - scale) + Vector2.up * (parent.rect.height * 0.07f);
         rect.localScale *= scale;
+    }
+
+    private void RecoverMissingBackground()
+    {
+        // Keep valid saved art/tints/geometry; repair only an absent background from an old save.
+        if (backgroundImage == null || (backgroundImage.enabled && backgroundImage.sprite != null)) return;
+        Sprite fallback = currentLine?.background != null ? currentLine.background : currentScenario?.DefaultBackground;
+        if (fallback != null) SetBackground(fallback);
     }
 
     private void ResetBackgroundForScenario()

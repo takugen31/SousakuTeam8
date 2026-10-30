@@ -275,8 +275,94 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckWallInspectionPresentation();
         yield return CheckYowashiMiniGameSkip();
         yield return CheckMoteruEnding();
+        yield return CheckRemainingPresentationRisks();
+        yield return CheckKayoGaugeOutcomeContract();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckKayoGaugeOutcomeContract()
+    {
+        SceneManager.LoadScene(A); yield return null;
+        GameProgress.ResetAll();
+        var original=AssetDatabase.LoadAssetAtPath<DialogueScenarioSO>("Assets/Dialogue/Data/Kayo/Chapter_Kayo_6.asset");
+        Check(original!=null && original.TryGetLine("chapter_kayo_6_057",out _),"production success-only rescue line missing");
+        int count=original.Lines.Count;
+        var controller=Create(main,"gaugeOutcome",false);
+        Set(controller,"followingScenarios",new List<DialogueScenarioSO>{original});
+        var go=new GameObject("GaugeOutcome"); go.SetActive(false);
+        var bridge=go.AddComponent<KayoGaugeOutcomeController>();
+        Set(bridge,"dialogueController",controller); Set(bridge,"rescueAftermath",original);
+        go.SetActive(true);
+        bridge.SetResult(false);
+        var failure=((List<DialogueScenarioSO>)Get(controller,"followingScenarios"))[0];
+        Check(failure!=original && !failure.TryGetLine("chapter_kayo_6_057",out _) &&
+            failure.Lines[failure.Lines.Count-1].lineId=="chapter_kayo_6_056","failure exposes success-only dialogue");
+        Check(original.Lines.Count==count && original.TryGetLine("chapter_kayo_6_057",out _),"gauge mutated the source scenario");
+        bridge.SetResult(true);
+        Check(((List<DialogueScenarioSO>)Get(controller,"followingScenarios"))[0]==original,"success failed to restore the full aftermath");
+        Destroy(go);
+        Debug.Log("PASS: production Kayo gauge failure excludes success-only lines, preserves the source asset, and success restores it.");
+    }
+
+    private IEnumerator CheckRemainingPresentationRisks()
+    {
+        SceneManager.LoadScene(A); yield return null;
+        GameProgress.ResetAll();
+        var scenario=ScriptableObject.CreateInstance<DialogueScenarioSO>(); scenario.name="LegacyBackground";
+        scenario.SetDefaultBackground(sprite); scenario.ReplaceAll(new List<DialogueLine>{Line("restoredRow")});
+        var dialogue=Create(scenario,"legacyBackground"); yield return null;
+        var data=new GameSaveData(); Check(dialogue.CaptureCheckpoint(data),"legacy background checkpoint creation failed");
+        data.images[0].sprite=null; data.images[0].enabled=false;
+        data.presentation[0].sprite=null; data.presentation[0].enabled=false;
+        Check(dialogue.RestoreCheckpoint(data),"legacy checkpoint restore failed");
+        var background=(Image)Get(dialogue,"backgroundImage");
+        bool manualRestored=background.enabled && background.sprite==sprite;
+        Debug.Log("AUDIT: legacy blank manual background recovered="+manualRestored);
+        Call(dialogue,"RefreshProgressState");
+        var state=(DialogueProgressState)Get(dialogue,"lastProgressState");
+        state.images[0].sprite=null; state.images[0].enabled=false;
+        DialogueProgressStore.Save(state,DialogueProgressStore.Generation);
+        Call(dialogue,"TryRestoreSceneProgress");
+        bool progressRestored=background.enabled && background.sprite==sprite;
+        Debug.Log("AUDIT: legacy blank scene-progress background recovered="+progressRestored);
+
+        var canvas=new GameObject("GenericInspectionCanvas",typeof(RectTransform),typeof(Canvas));
+        canvas.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
+        var go=new GameObject("GenericInspectionOwner"); go.SetActive(false);
+        var search=go.AddComponent<SearchSceneController>();
+        var profile=ScriptableObject.CreateInstance<SearchSceneProfileSO>();
+        profile.items.Add(new SearchItemSettings {id="audit",title="Audit image",sprite=sprite});
+        Set(search,"searchProfile",profile);
+        Call(search,"BuildModal",canvas.transform);
+        var root=(GameObject)Get(search,"modalRoot"); var still=(RawImage)Get(search,"modalStill");
+        bool guarded=!root.activeSelf && !still.enabled;
+        Debug.Log("AUDIT: untextured generic inspection guarded="+guarded);
+        Set(search,"leftArrow",new GameObject("LeftArrow",typeof(RectTransform),typeof(Button)).GetComponent<Button>());
+        Set(search,"rightArrow",new GameObject("RightArrow",typeof(RectTransform),typeof(Button)).GetComponent<Button>());
+        Call(search,"BuildItemDefinitions");
+        object item=((System.Collections.IList)Get(search,"items"))[0];
+        ((System.Collections.IDictionary)Get(search,"placedImages")).Add("audit",new GameObject("PlacedAudit"));
+        Call(search,"ShowInspection",item);
+        Rect first=still.rectTransform.rect;
+        yield return null; Canvas.ForceUpdateCanvases();
+        bool stable=Vector2.Distance(first.size,still.rectTransform.rect.size)<0.1f;
+        Debug.Log("AUDIT: generic inspection first-frame layout stable="+stable);
+        profile.items[0].secondarySprite=sprite;
+        root.SetActive(false); Call(search,"ShowInspection",item);
+        var secondary=(RawImage)Get(search,"modalSecondaryStill");
+        Check(secondary.gameObject.activeSelf && secondary.texture==sprite.texture &&
+            Mathf.Approximately(still.rectTransform.anchorMax.x,0.5f),"paired inspection layout lost its second image");
+        profile.items[0].secondarySprite=null; profile.items[0].sprite=null;
+        profile.items[0].placeholderText="Paper placeholder";
+        Call(search,"BuildItemDefinitions"); item=((System.Collections.IList)Get(search,"items"))[0];
+        root.SetActive(false); Call(search,"ShowInspection",item);
+        Check(still.texture==null && still.color!=Color.white && !secondary.gameObject.activeSelf &&
+            ((TMP_Text)Get(search,"modalPlaceholderText")).text=="Paper placeholder","intentional paper placeholder was hidden or retained stale art");
+        Destroy(go); Destroy(canvas); Destroy(profile);
+        Check(manualRestored && progressRestored,"old blank saves override the repaired background");
+        Check(guarded && stable,"generic inspection exposes an unprepared image/layout");
+        Debug.Log("PASS: old blank manual/progress backgrounds recover; generic inspection is prepared before display.");
     }
 
     private IEnumerator CheckMoteruEnding()

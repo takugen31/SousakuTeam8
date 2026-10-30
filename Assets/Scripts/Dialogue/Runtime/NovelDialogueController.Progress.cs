@@ -178,6 +178,7 @@ public sealed partial class NovelDialogueController
                     PrepareLine(line);
                     StartTyping(GetDialogueDisplayText(line, omitOuterDialogueQuotes));
                     RestoreProgressImages(state.images);
+                    RecoverMissingBackground();
                     RefreshStandardDoutePortraitLayout();
                     ApplyProloguePresentation(line);
                     if (state.textFullyDisplayed || completed) CompleteTyping();

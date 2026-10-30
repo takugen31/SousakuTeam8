@@ -34,8 +34,9 @@ Check ([InformationToastChecks.Notices]::Title('', '[情報] 新しい手がか�
 Check ($controller.Contains('!currentLine.HasChoices && !currentLine.HasSceneTransition') -and $controller.Contains('ArchiveManager.UnlockInformationTitle(title)')) 'Choice/scene transition safety or title acquisition missing'
 $runtimeCsv = Get-Content (Join-Path $root 'Assets/Scripts/Dialogue/Runtime/DialogueRuntimeCsv.cs') -Raw
 Check ($runtimeCsv.Contains('Get(row, columns, "archiveUnlockIds").Split') -and $runtimeCsv.Contains('line.archiveUnlockIds.Add(id)')) 'Embedded CSV events drop archive IDs'
-$consultation = Import-Csv (Join-Path $root 'Assets/Dialogue/CSV/Chapter_Yowashi_Consultation.csv')
-Check (($consultation | Where-Object lineId -eq 'chapter_yowashi_consultation_004').choice1Text.StartsWith('［情報］')) 'Information-selection choices removed'
+$consultation = Import-Csv (Join-Path $root 'Assets/Dialogue/CSV/Yowashi/chapter_yowashi_consultation.csv')
+Check (($consultation | Where-Object lineId -eq 'chapter_yowashi_consultation_004').choice1Text -eq 'ヨワシちゃんは息切れしやすい？') 'Information-selection choice changed'
+Check (($consultation | Where-Object lineId -eq 'chapter_yowashi_consultation_005').choice2Text -eq '医学書の内容') 'Medical-book evidence choice changed'
 $database = Get-Content (Join-Path $root 'Assets/Resources/Archive/ArchiveDatabase.asset') -Raw
 Check ($database.Contains('id: chapter_kayo.family') -and $database.Contains('title: 大葉カヨの家族')) 'Family information cannot be acquired'
 'PASS: all remaining acquisition notices route to toasts, exact titles, ordinary dialogue and information choices preserved, runtime CSV archive IDs supported.'
