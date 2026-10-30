@@ -48,6 +48,7 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
     private GameObject returnToTitleConfirmation;
     private TMP_Text returnToTitleWarning;
     private TMP_Text contextHelp;
+    private GameObject miniGameSkipConfirmation;
 
     private void UpdateContextHelp()
     {
@@ -189,9 +190,16 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         skipButton.onClick.AddListener(() =>
         {
             NovelDialogueController dialogue = FindCurrentDialogue();
-            if (dialogue == null || !dialogue.CanSkipFromMenu) return;
-            manager.CloseArchive();
-            dialogue.ShowSkipConfirmation();
+            if (dialogue != null && dialogue.CanSkipFromMenu)
+            {
+                manager.CloseArchive();
+                dialogue.ShowSkipConfirmation();
+            }
+            else if (CanSkipMiniGame())
+            {
+                miniGameSkipConfirmation.SetActive(true);
+                miniGameSkipConfirmation.transform.SetAsLastSibling();
+            }
         });
         autoButton = CreateMenuItem("AutoPlay", "オート：OFF", 0.30f);
         autoLabel = autoButton.GetComponentInChildren<TMP_Text>();
@@ -234,6 +242,46 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         SetAnchors(cancel.gameObject, new Vector2(0.54f, 0.16f), new Vector2(0.90f, 0.38f), Vector2.zero, Vector2.zero);
         cancel.onClick.AddListener(() => returnToTitleConfirmation.SetActive(false));
         returnToTitleConfirmation.SetActive(false);
+        BuildMiniGameSkipConfirmation();
+    }
+
+    private bool CanSkipMiniGame()
+    {
+        var puzzle = FindFirstObjectByType<PuzzleGameFlowController>();
+        var catcher = FindFirstObjectByType<Sousakusai8.MiniGame.YowashiCatchGameFlowController>();
+        var timing = FindFirstObjectByType<TimingMeterGameFlowController>();
+        return (puzzle != null && puzzle.CanSkipFromMenu) || (catcher != null && catcher.CanSkipFromMenu) ||
+            (timing != null && timing.CanSkipFromMenu);
+    }
+
+    private void ConfirmMiniGameSkip()
+    {
+        miniGameSkipConfirmation.SetActive(false);
+        var puzzle = FindFirstObjectByType<PuzzleGameFlowController>();
+        if (puzzle != null && puzzle.CanSkipFromMenu) { puzzle.SkipFromMenu(); return; }
+        var catcher = FindFirstObjectByType<Sousakusai8.MiniGame.YowashiCatchGameFlowController>();
+        if (catcher != null && catcher.CanSkipFromMenu) { catcher.SkipFromMenu(true); return; }
+        var timing = FindFirstObjectByType<TimingMeterGameFlowController>();
+        if (timing != null && timing.CanSkipFromMenu) timing.SkipFromMenu(true);
+    }
+
+    private void BuildMiniGameSkipConfirmation()
+    {
+        miniGameSkipConfirmation = CreatePanel("MiniGameSkipConfirmation", windowRoot.transform, new Color(0f, 0f, 0f, 0.72f));
+        Stretch(miniGameSkipConfirmation.GetComponent<RectTransform>());
+        var box = CreatePanel("Confirmation", miniGameSkipConfirmation.transform, new Color(0f, 0f, 0f, 0.8f));
+        SetAnchors(box, new Vector2(0.27f, 0.33f), new Vector2(0.73f, 0.67f), Vector2.zero, Vector2.zero);
+        box.AddComponent<DialogueWindowFeather>();
+        var warning = CreateText("Warning", box.transform, "ミニゲームをスキップしますか？\n成功扱いで会話を続けます。", 28f, Color.white, FontStyles.Bold);
+        SetAnchors(warning.gameObject, new Vector2(0.08f, 0.48f), new Vector2(0.92f, 0.86f), Vector2.zero, Vector2.zero);
+        warning.alignment = TextAlignmentOptions.Center;
+        var confirm = CreateButton("Confirm", box.transform, "スキップする", 26f, PanelLightColor);
+        SetAnchors(confirm.gameObject, new Vector2(0.10f, 0.16f), new Vector2(0.46f, 0.38f), Vector2.zero, Vector2.zero);
+        confirm.onClick.AddListener(ConfirmMiniGameSkip);
+        var cancel = CreateButton("Cancel", box.transform, "戻る", 26f, PanelLightColor);
+        SetAnchors(cancel.gameObject, new Vector2(0.54f, 0.16f), new Vector2(0.90f, 0.38f), Vector2.zero, Vector2.zero);
+        cancel.onClick.AddListener(() => miniGameSkipConfirmation.SetActive(false));
+        miniGameSkipConfirmation.SetActive(false);
     }
 
     private NovelDialogueController FindCurrentDialogue()
@@ -249,7 +297,7 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
         UpdateSaveAvailability();
         NovelDialogueController dialogue = FindCurrentDialogue();
         autoButton.interactable = dialogue != null;
-        skipButton.interactable = dialogue != null && dialogue.CanSkipFromMenu;
+        skipButton.interactable = (dialogue != null && dialogue.CanSkipFromMenu) || CanSkipMiniGame();
         autoLabel.color = autoButton.interactable ? Color.white : new Color(0.65f, 0.65f, 0.65f, 1f);
         skipButton.GetComponentInChildren<TMP_Text>().color = skipButton.interactable
             ? Color.white : new Color(0.65f, 0.65f, 0.65f, 1f);
@@ -315,6 +363,7 @@ public sealed partial class ArchiveMenuUI : MonoBehaviour
             return;
         }
 
+        if (miniGameSkipConfirmation != null) miniGameSkipConfirmation.SetActive(false);
         windowRoot.SetActive(false);
         RestoreGameState();
     }

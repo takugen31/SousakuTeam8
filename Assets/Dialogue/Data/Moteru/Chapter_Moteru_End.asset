@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406423ecca767024fa41bca3c51a8402, type: 3}
   m_EditorClassIdentifier: Assembly-CSharp::DialogueScenarioSO
   m_Name: Chapter_Moteru_End
-  defaultBackground: {fileID: 0}
+  defaultBackground: {fileID: 8650445411857100538, guid: eb1dae07359204149b8f3ffdf73e1cef, type: 3}
   lines:
   - lineId: chapter_moteru_end_001
     speakerId: 
     expressionId: 
     text: "\u30D1\u30D1\u3001\u30DE\u30DE\u3063\uFF01\u305F\u3060\u3044\u307E\u3063\uFF01"
-    background: {fileID: 0}
+    background: {fileID: 8650445411857100538, guid: eb1dae07359204149b8f3ffdf73e1cef, type: 3}
     revealSpeakerName: 0
     consultationTitle: 
     nextScenePath: 
@@ -34,7 +34,7 @@ MonoBehaviour:
     background: {fileID: 0}
     revealSpeakerName: 0
     consultationTitle: 
-    nextScenePath: 
+    nextScenePath: Assets/Scenes/GameMap/Title.unity
     nextLineId: 
     choices: []
     affectionChanges: []

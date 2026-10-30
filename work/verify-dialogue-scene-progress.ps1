@@ -54,6 +54,11 @@ foreach ($scene in @('NovelScene','NovelScene_Kayo','NovelScene_Moteru','NovelSc
         Copy-Item -LiteralPath (Join-Path $root ('Assets/Scenes/GameMap/'+$scene+$suffix)) -Destination (Join-Path $testProject 'Assets/Scenes/GameMap')
     }
 }
+$endingBackgroundFolder = Join-Path $testProject 'Assets/Art/Backgrounds'
+New-Item -ItemType Directory -Path $endingBackgroundFolder -Force | Out-Null
+foreach ($suffix in @('.png','.png.meta')) {
+    Copy-Item -LiteralPath (Join-Path $root ('Assets/Art/Backgrounds/normal_room'+$suffix)) -Destination $endingBackgroundFolder -Force
+}
 $bootstrap = @'
 using System;
 using UnityEditor;
@@ -65,7 +70,7 @@ public static class DialogueSceneProgressBootstrap {
   PlayerSettings.companyName="DialogueProgressChecks"; PlayerSettings.productName=System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(Application.dataPath));
   DialogueScriptBindingChecks.Run();
   var scenes=new System.Collections.Generic.List<EditorBuildSettingsScene>();
-  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene","Title"}) {
+  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene","Title","NovelScene_Yowashi"}) {
    var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
    string path="Assets/Scenes/"+name+".unity"; EditorSceneManager.SaveScene(scene,path); scenes.Add(new EditorBuildSettingsScene(path,true));
   }

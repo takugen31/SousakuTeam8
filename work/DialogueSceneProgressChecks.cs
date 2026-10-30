@@ -273,8 +273,85 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckGatheringPresentation();
         yield return CheckEggPortraitVisibility();
         yield return CheckWallInspectionPresentation();
+        yield return CheckYowashiMiniGameSkip();
+        yield return CheckMoteruEnding();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckMoteruEnding()
+    {
+        SceneManager.LoadScene(A); yield return null;
+        GameProgress.ResetAll();
+        var ending=AssetDatabase.LoadAssetAtPath<DialogueScenarioSO>("Assets/Dialogue/Data/Moteru/Chapter_Moteru_End.asset");
+        Check(ending!=null && ending.DefaultBackground!=null,"Moteru ending background is missing");
+        var controller=Create(ending,"moteruEnding");
+        Set(controller,"endingFadeOutDuration",0f); Set(controller,"endingBlackHoldDuration",0f);
+        Set(controller,"endingTitleFadeInDuration",0f);
+        yield return null;
+        var background=(Image)Get(controller,"backgroundImage");
+        Check(background.enabled && background.sprite==ending.DefaultBackground,"Moteru ending starts without its room background");
+        Complete(controller); controller.Advance();
+        Check(Id(controller)=="chapter_moteru_end_002" && background.enabled,"Moteru final reply lost its background");
+        Complete(controller); controller.Advance();
+        yield return null;
+        var card=(GameObject)Get(controller,"endingCard");
+        Check(card!=null && SceneManager.GetActiveScene().name==A,"ending bypassed its clear screen");
+        Check(Array.Exists(card.GetComponentsInChildren<TMP_Text>(),text=>text.text.Contains("END No.07") && text.text.Contains("モテル")),
+            "Moteru clear screen has the wrong title or number");
+        var button=card.transform.Find("ReturnToTitle").GetComponent<Button>();
+        float deadline=Time.realtimeSinceStartup+2f;
+        while(!button.interactable && Time.realtimeSinceStartup<deadline) yield return null;
+        Check(button.interactable,"Moteru title-return button stayed disabled");
+        button.onClick.Invoke(); yield return null;
+        Check(SceneManager.GetActiveScene().name=="Title","Moteru ending did not return to Title");
+        Debug.Log("PASS: production Moteru ending retains its room, displays END No.07 and returns to Title from its button.");
+    }
+
+    private IEnumerator CheckYowashiMiniGameSkip()
+    {
+        foreach(string kind in new[]{"puzzle","catch","timing"})
+        {
+            SceneManager.LoadScene(B); yield return null;
+            GameProgress.ResetAll();
+            var go=new GameObject("SkipFlow"); go.SetActive(false);
+            MonoBehaviour flow;
+            if(kind=="puzzle") flow=go.AddComponent<PuzzleGameFlowController>();
+            else if(kind=="timing") flow=go.AddComponent<TimingMeterGameFlowController>();
+            else
+            {
+                var gameObject=new GameObject("InactiveCatchGame"); gameObject.SetActive(false);
+                var mini=gameObject.AddComponent<Sousakusai8.MiniGame.CatchMiniGameController>();
+                flow=go.AddComponent<Sousakusai8.MiniGame.YowashiCatchGameFlowController>();
+                Set(flow,"miniGame",mini);
+            }
+            string destination=kind=="puzzle"?"chapter_yowashi_diary_001":kind=="catch"?
+                "chapter_yowashi_catchsuccess_001":"chapter_yowashi_rescue_015";
+            if(kind!="catch")
+            {
+                Type requestType=flow.GetType().GetNestedType("Request",BindingFlags.NonPublic);
+                object request=Activator.CreateInstance(requestType,true);
+                requestType.GetField("ReturnSceneName").SetValue(request,"NovelScene_Yowashi");
+                requestType.GetField(kind=="puzzle"?"ResumeLineId":"SuccessResumeLineId").SetValue(request,destination);
+                if(kind=="timing") requestType.GetField("CharacterId").SetValue(request,"yowashi");
+                Set(flow,"activeRequest",request);
+            }
+            go.SetActive(true);
+            Check((bool)flow.GetType().GetProperty("CanSkipFromMenu").GetValue(flow),kind+": Yowashi skip is unavailable");
+            var menu=ArchiveManager.Instance.GetComponent<ArchiveMenuUI>();
+            ArchiveManager.Instance.OpenArchive();
+            Check(Time.timeScale==0f,"menu did not pause the minigame");
+            Check((bool)menu.GetType().GetMethod("CanSkipMiniGame",Private).Invoke(menu,null),kind+": menu cannot find the skip flow");
+            var confirm=(GameObject)Get(menu,"miniGameSkipConfirmation"); confirm.SetActive(true);
+            Call(menu,"ConfirmMiniGameSkip");
+            yield return null;
+            Check(SceneManager.GetActiveScene().name=="NovelScene_Yowashi" && Time.timeScale==1f,kind+": skip failed to return or left time paused");
+            Check(DialogueProgressStore.TryGetSceneEntry("NovelScene_Yowashi",out var entry) && entry.lineId==destination,
+                kind+": skip did not select the production success continuation");
+            if(kind=="timing") Check(TimingGameResults.Get("yowashi").SuccessCount==1 && TimingGameResults.Get("yowashi").FailureCount==0,
+                "timing skip did not record exactly one success");
+            Debug.Log("PASS: Yowashi "+kind+" menu skip resumes the success conversation and restores time.");
+        }
     }
 
     private IEnumerator CheckWallInspectionPresentation()
