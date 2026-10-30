@@ -54,6 +54,24 @@ public sealed class PuzzleGameFlowController : MonoBehaviour
         PlayerPrefs.SetString(PendingReturnKey, JsonUtility.ToJson(pendingRequest));
     }
 
+    public bool CanSkipFromMenu => isActiveAndEnabled && !isReturning && activeRequest != null &&
+        activeRequest.ReturnSceneName == "NovelScene_Yowashi" &&
+        Application.CanStreamedLevelBeLoaded(activeRequest.ReturnSceneName);
+
+    public bool SkipFromMenu()
+    {
+        if (!CanSkipFromMenu) return false;
+        isReturning = true;
+        ArchiveManager.Close();
+        if (DialogueProgressTransitions.ReturnToScene(activeRequest.ReturnSceneName, activeRequest.ResumeLineId))
+        {
+            PlayerPrefs.DeleteKey(PendingReturnKey);
+            return true;
+        }
+        isReturning = false;
+        return false;
+    }
+
     private void OnEnable()
     {
         // Serialized context survives script reloads while the puzzle is open.

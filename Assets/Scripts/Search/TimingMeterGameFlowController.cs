@@ -62,6 +62,27 @@ public sealed class TimingMeterGameFlowController : MonoBehaviour
         PlayerPrefs.SetString(PendingReturnKey, JsonUtility.ToJson(pendingRequest));
     }
 
+    public bool CanSkipFromMenu => isActiveAndEnabled && !isReturning && activeRequest != null &&
+        activeRequest.CharacterId == "yowashi" && !resultRecorded &&
+        Application.CanStreamedLevelBeLoaded(activeRequest.ReturnSceneName);
+
+    public bool SkipFromMenu(bool success)
+    {
+        if (!CanSkipFromMenu) return false;
+        isReturning = true;
+        ArchiveManager.Close();
+        if (DialogueProgressTransitions.ReturnToScene(activeRequest.ReturnSceneName,
+            success ? activeRequest.SuccessResumeLineId : activeRequest.FailureResumeLineId))
+        {
+            TimingGameResults.Save(activeRequest.CharacterId, success);
+            resultRecorded = true;
+            PlayerPrefs.DeleteKey(PendingReturnKey);
+            return true;
+        }
+        isReturning = false;
+        return false;
+    }
+
     private void Start()
     {
         activeRequest = null;

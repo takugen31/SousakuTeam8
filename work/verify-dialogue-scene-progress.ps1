@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$UnityEditor = 'D:/Unity/Unity Editer/6000.3.6f1/Editor/Unity.exe',
     [string]$ReuseProject
 )
@@ -27,7 +27,7 @@ foreach ($module in @('audio','imageconversion','physics','physics2d','jsonseria
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Packages/manifest.json'), (@{dependencies=$dependencies} | ConvertTo-Json), $utf8)
 Copy-Item -LiteralPath (Join-Path $root 'ProjectSettings/ProjectVersion.txt') -Destination (Join-Path $testProject 'ProjectSettings')
-foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/MeterGame/Scripts','Assets/MeterGame/Art/Fonts','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data')) {
+foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/MeterGame/Scripts','Assets/MeterGame/Art/Fonts','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data','Assets/Resources/StoryStills')) {
     $destination = Join-Path $testProject $folder
     New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force | Out-Null
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
@@ -54,6 +54,11 @@ foreach ($scene in @('NovelScene','NovelScene_Kayo','NovelScene_Moteru','NovelSc
         Copy-Item -LiteralPath (Join-Path $root ('Assets/Scenes/GameMap/'+$scene+$suffix)) -Destination (Join-Path $testProject 'Assets/Scenes/GameMap')
     }
 }
+$endingBackgroundFolder = Join-Path $testProject 'Assets/Art/Backgrounds'
+New-Item -ItemType Directory -Path $endingBackgroundFolder -Force | Out-Null
+foreach ($suffix in @('.png','.png.meta')) {
+    Copy-Item -LiteralPath (Join-Path $root ('Assets/Art/Backgrounds/normal_room'+$suffix)) -Destination $endingBackgroundFolder -Force
+}
 $bootstrap = @'
 using System;
 using UnityEditor;
@@ -65,7 +70,7 @@ public static class DialogueSceneProgressBootstrap {
   PlayerSettings.companyName="DialogueProgressChecks"; PlayerSettings.productName=System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(Application.dataPath));
   DialogueScriptBindingChecks.Run();
   var scenes=new System.Collections.Generic.List<EditorBuildSettingsScene>();
-  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene","Title"}) {
+  foreach(string name in new[]{"NovelScene_Moteru","ProgressOther","NovelScene","Title","NovelScene_Yowashi"}) {
    var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
    string path="Assets/Scenes/"+name+".unity"; EditorSceneManager.SaveScene(scene,path); scenes.Add(new EditorBuildSettingsScene(path,true));
   }

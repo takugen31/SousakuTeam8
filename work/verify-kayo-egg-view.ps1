@@ -39,8 +39,17 @@ foreach ($i in 0..120) {
 }
 Assert-Egg ($effect.Contains('egg.rect.width / egg.rect.height') -and $effect.Contains('image.preserveAspect = true') -and $effect.Contains('image.raycastTarget = false')) 'Aspect or input preservation missing'
 Assert-Egg (-not $effect.Contains('SetRoomLookPose') -and -not $effect.Contains('HideLookPresentation')) 'Background or dialogue unexpectedly modified'
-foreach ($method in @('PrepareLine(DialogueLine line)', 'OnDisable()', 'CancelChapterTransition()')) {
-    Assert-Egg ([regex]::IsMatch($source, [regex]::Escape($method) + '\s*\{\s*(?:StopEndingCard\(\);\s*)?(?:moteruApproachElapsed = 0f;\s*)?StopKayoEggView\(\);')) "Cleanup missing in $method"
+foreach ($method in @('PrepareLine(DialogueLine line)', 'OnDisable()', 'CancelChapterTransition(bool preservePushback = false)')) {
+    $methodStart = $source.IndexOf($method)
+    Assert-Egg ($methodStart -ge 0) "Method missing: $method"
+    $opening = $source.IndexOf('{', $methodStart)
+    $depth = 1; $closing = $opening + 1
+    while ($closing -lt $source.Length -and $depth -gt 0) {
+        if ($source[$closing] -eq '{') { $depth++ }
+        if ($source[$closing] -eq '}') { $depth-- }
+        $closing++
+    }
+    Assert-Egg ($source.Substring($opening, $closing-$opening).Contains('StopKayoEggView();')) "Cleanup missing in $method"
 }
 Assert-Egg ($source.Contains('isKayoEggViewActive && kayoEggRect != null && !IsKayoEggLine(line?.lineId)') -and $source.Contains('StartCoroutine(SlideKayoEggOut(line))')) 'Leaving egg dialogue bypasses the exit animation'
 $exitStart = $source.IndexOf('private IEnumerator SlideKayoEggOut(')

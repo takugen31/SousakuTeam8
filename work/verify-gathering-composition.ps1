@@ -6,7 +6,7 @@ $start=$source.IndexOf('private void StartGatheringComposition')
 $end=$source.IndexOf('private void StartSearchPortraitSlide',$start)
 $effect=$source.Substring($start,$end-$start)
 Assert-Gather ($effect.Contains('StartsWith("chapter1_kayo_", StringComparison.Ordinal)') -and $effect.Contains('StartsWith("chapter1_yowashi_", StringComparison.Ordinal)') -and -not $effect.Contains('chapter2_')) 'Gathering scope incorrect'
-Assert-Gather ($effect.Contains('SetDouteFacePortrait(leftPortraitImage, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress))') -and $effect.Contains('SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f')) 'Portrait framing missing'
+Assert-Gather ($effect.Contains('SetDouteFacePortrait(gatheringDoutePortrait, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress))') -and $effect.Contains('SetGatheringPortrait(rightPortraitImage, viewport, 0.76f, 3.1f')) 'Portrait framing missing'
 Assert-Gather ($source.Contains('DouteCloseUpScale = 0.55f') -and $source.Contains('DouteFaceCenter = 0.84f') -and $effect.Contains('0.48f - portraitWidth * 0.5f / viewport.x')) 'New illustration calibration or divider clearance missing'
 Assert-Gather ($effect.Contains('new Vector2(0.5f, 0.48f), 1.35f') -and $effect.Contains('Mathf.Lerp(0.48f, 0.53f, progress)') -and $effect.Contains('gatheringDivider.color = Color.black') -and $effect.Contains('ConfigureFeather(new Vector2(viewport.x * 0.08f, 0f))')) 'Independent camera heights, opaque center or wider edge feather missing'
 Assert-Gather ($effect.Contains('CreateRoomLookImage(gatheringLeftFrame, "GatheringLeftRoom")') -and $effect.Contains('CreateRoomLookImage(gatheringRightFrame, "GatheringRightRoom")')) 'Background halves are not independently clipped'

@@ -21,6 +21,20 @@ namespace Sousakusai8.MiniGame
             return finalScore > thresholdExclusive;
         }
 
+        public bool CanSkipFromMenu => isActiveAndEnabled && !returning && miniGame != null &&
+            Application.CanStreamedLevelBeLoaded(returnSceneName);
+
+        public bool SkipFromMenu(bool success)
+        {
+            if (!CanSkipFromMenu) return false;
+            returning = true;
+            ArchiveManager.Close();
+            if (DialogueProgressTransitions.ReturnToScene(returnSceneName,
+                success ? successResumeLineId : failureResumeLineId)) return true;
+            returning = false;
+            return false;
+        }
+
         private void Awake()
         {
             if (miniGame == null) miniGame = GetComponent<CatchMiniGameController>();

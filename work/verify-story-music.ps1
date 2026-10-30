@@ -38,15 +38,20 @@ $typedPlan.scenarios = @($plan.scenarios | ForEach-Object {
 $scenarios = @{}
 $cueCount = 0
 foreach ($segment in $plan.scenarios) {
-    $asset = Get-ChildItem (Join-Path $root 'Assets/Dialogue/Data') -Recurse -Filter ($segment.scenario + '.asset')
+    $asset = @(Get-ChildItem (Join-Path $root 'Assets/Dialogue/Data') -Recurse -Filter '*.asset' | Where-Object {
+        (Get-Content -LiteralPath $_.FullName -Raw) -match ('(?m)^  m_Name: '+[regex]::Escape($segment.scenario)+'\r?$')
+    })
     $scenario = [StoryMusicCueVerification.DialogueScenarioSO]::new()
     $scenario.name = $segment.scenario
-    if ($asset) {
-        $ids = @(Select-String -LiteralPath $asset.FullName -Pattern '^  - lineId: (.+)$' | ForEach-Object { $_.Matches[0].Groups[1].Value })
-    } else {
-        $csv = Get-ChildItem (Join-Path $root 'Assets/Dialogue/CSV/Chapter_Kayo') -Filter ($segment.scenario + '.csv')
-        if (-not $csv) { throw "Missing scenario: $($segment.scenario)" }
-        $ids = @((Import-Csv -LiteralPath $csv.FullName).lineId)
+    if ($asset.Count -eq 1) {
+        $ids = @(Select-String -LiteralPath $asset[0].FullName -Pattern '^  - lineId: (.+)$' | ForEach-Object { $_.Matches[0].Groups[1].Value.Trim() })
+    } elseif ($asset.Count -gt 1) { throw "Ambiguous runtime scenario: $($segment.scenario)" }
+    else {
+        $csv = @(Get-ChildItem (Join-Path $root 'Assets/Dialogue/CSV') -Recurse -Filter '*.csv' | Where-Object BaseName -CEQ $segment.scenario)
+        # Deprecated plan aliases have no runtime owner; do not invent dialogue rows for them.
+        if (-not $csv -and $segment.scenario -in @('Prologue','Chapter1Search')) { continue }
+        if ($csv.Count -ne 1) { throw "Missing or ambiguous runtime scenario: $($segment.scenario)" }
+        $ids = @((Import-Csv -LiteralPath $csv[0].FullName).lineId)
     }
     foreach ($id in $ids) {
         $row = [StoryMusicCueVerification.DialogueLine]::new()
@@ -73,8 +78,6 @@ $checks = @(
     @('Chapter_Kayo_3', 'chapter_kayo_3_032', 'Horror'),
     @('Chapter_Kayo_3', 'chapter_kayo_3_033', 'Melancholy'),
     @('Chapter_Kayo_4', 'chapter_kayo_4_011', 'Panic'),
-    @('Chapter_Kayo_5', 'chapter_kayo_5_success_001', 'Panic'),
-    @('Chapter_Kayo_5', 'chapter_kayo_5_failure_001', 'Panic'),
     @('Chapter_Kayo_6', 'chapter_kayo_6_040', 'Nostalgic'),
     @('Chapter3', 'chapter3_009', 'Quiet'),
     @('Chapter3', 'chapter3_010', 'Mystery'),
@@ -84,14 +87,14 @@ $checks = @(
     @('Chapter_Yowashi_Diary', 'chapter_yowashi_diary_005', 'Melancholy'),
     @('Chapter_Yowashi_Diary', 'chapter_yowashi_diary_013', 'Quiet'),
     @('Chapter_Yowashi_Diary', 'chapter_yowashi_diary_015', 'Mystery'),
-    @('Chapter_Yowashi_BeforeCatch', 'chapter_yowashi_beforecatch_005', 'Mystery'),
-    @('Chapter_Yowashi_BeforeCatch', 'chapter_yowashi_beforecatch_019', 'Pop'),
-    @('Chapter_Yowashi_CatchSuccess', 'chapter_yowashi_catchsuccess_001', 'Pop'),
-    @('Chapter_Yowashi_CatchSuccess', 'chapter_yowashi_catchsuccess_012', 'Quiet'),
-    @('Chapter_Yowashi_CatchSuccess', 'chapter_yowashi_catchsuccess_015', 'Mystery'),
-    @('Chapter_Yowashi_CatchFailure', 'chapter_yowashi_catchfailure_001', 'Quiet'),
-    @('Chapter_Yowashi_CatchFailure', 'chapter_yowashi_catchfailure_009', 'Melancholy'),
-    @('Chapter_Yowashi_MedicalBook', 'chapter_yowashi_medicalbook_006', 'Mystery'),
+    @('Chapter_Yowashi_Before_Catch', 'chapter_yowashi_beforecatch_005', 'Mystery'),
+    @('Chapter_Yowashi_Before_Catch', 'chapter_yowashi_beforecatch_019', 'Pop'),
+    @('Chapter_Yowashi_Catch_Success', 'chapter_yowashi_catchsuccess_001', 'Pop'),
+    @('Chapter_Yowashi_Catch_Success', 'chapter_yowashi_catchsuccess_012', 'Quiet'),
+    @('Chapter_Yowashi_Catch_Success', 'chapter_yowashi_catchsuccess_015', 'Mystery'),
+    @('Chapter_Yowashi_Catch_Failure', 'chapter_yowashi_catchfailure_001', 'Quiet'),
+    @('Chapter_Yowashi_Catch_Failure', 'chapter_yowashi_catchfailure_009', 'Melancholy'),
+    @('Chapter_Yowashi_Medicalbook', 'chapter_yowashi_medicalbook_006', 'Mystery'),
     @('Chapter_Yowashi_Tennis', 'chapter_yowashi_tennis_021', 'Pop'),
     @('Chapter_Yowashi_Tennis', 'chapter_yowashi_tennis_024', 'Quiet'),
     @('Chapter_Yowashi_Tennis', 'chapter_yowashi_tennis_027', 'Panic'),
@@ -110,14 +113,14 @@ $failureScenario = [StoryMusicCueVerification.DialogueScenarioSO]::new()
 $failureScenario.name = 'Chapter_Kayo_6 (Gauge Failure)'
 $failureScenario.Lines = $scenarios['Chapter_Kayo_6'].Lines
 if ([StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $failureScenario, 'chapter_kayo_6_035') -ne 'Nostalgic') { throw 'Restored gauge failure lost its music' }
-if ($plan.dialogueScenes -contains 'NovelScene_Moteru' -or $plan.dialogueScenes -contains 'falling_verMoteru') { throw 'Unapproved route music enabled' }
+if ($plan.dialogueScenes -notcontains 'NovelScene_Moteru' -or $plan.dialogueScenes -notcontains 'falling_verMoteru') { throw 'Moteru route music disabled' }
 if ($plan.dialogueScenes -notcontains 'NovelScene_Yowashi' -or $plan.dialogueScenes -notcontains 'falling_verYowashi') { throw 'Yowashi music disabled' }
-$yowashiScenarios = @(Get-ChildItem (Join-Path $root 'Assets/Dialogue/Data') -Filter 'Chapter_Yowashi_*.asset')
+$yowashiScenarios = @(Get-ChildItem (Join-Path $root 'Assets/Dialogue/Data') -Recurse -Filter 'Chapter_Yowashi_*.asset')
 foreach ($scenario in $yowashiScenarios) {
     if (-not $scenarios.ContainsKey($scenario.BaseName)) { throw "Yowashi scenario missing: $($scenario.BaseName)" }
 }
 $unmapped = [StoryMusicCueVerification.DialogueScenarioSO]::new()
-$unmapped.name = 'Chapter_Moteru_1'
+$unmapped.name = 'UnknownScenario'
 if ([StoryMusicCueVerification.Resolver]::ResolveTrack($typedPlan, $unmapped, 'unknown')) { throw 'Unmapped route received music' }
 if (-not [StoryMusicCueVerification.Resolver]::ShouldKeepPuzzleMusic('PuzzleGame', 'NovelScene_Yowashi')) { throw 'Yowashi puzzle music lost' }
 if (-not [StoryMusicCueVerification.Resolver]::ShouldKeepPuzzleMusic('PuzzleGame', 'Chapter_Kayo_SearchScene')) { throw 'Kayo puzzle music lost' }

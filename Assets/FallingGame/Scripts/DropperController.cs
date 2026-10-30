@@ -37,7 +37,7 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
-            if (game == null)
+            if (game == null || game.IsPaused)
             {
                 return;
             }

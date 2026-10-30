@@ -72,10 +72,10 @@ foreach ($row in 1..19) {
     $knownFromContext = [NameHistoryChecks.Controller]::AreCommonIntroductionsComplete($id)
     Check-Name 'yowashi' 'ヨワシ' $false $knownFromContext 'ヨワシ'
 }
-$csv = Import-Csv (Join-Path $root 'Assets/Dialogue/CSV/Chapter_Yowashi_BeforeCatch.csv')
+$csv = Import-Csv (Join-Path $root 'Assets/Dialogue/CSV/Yowashi/chapter_yowashi_before_catch.csv')
 $greeting = $csv | Where-Object lineId -eq 'chapter_yowashi_beforecatch_001'
 if ($greeting.speakerId -ne 'yowashi' -or $greeting.text -ne 'おはようドウテ卿！いい朝だねぇ') { throw 'Greeting speaker incorrect' }
-$beforeCatchAsset = Get-Content (Join-Path $root 'Assets/Dialogue/Data/Chapter_Yowashi_BeforeCatch.asset') -Raw
+$beforeCatchAsset = Get-Content (Join-Path $root 'Assets/Dialogue/Data/Yowashi/Chapter_Yowashi_Before_Catch.asset') -Raw
 if (-not [regex]::IsMatch($beforeCatchAsset, 'lineId: chapter_yowashi_beforecatch_001\s+speakerId: yowashi')) { throw 'Runtime greeting speaker incorrect' }
 $problem = $csv | Where-Object lineId -eq 'chapter_yowashi_beforecatch_007'
 if ($problem.speakerId -ne 'yowashi' -or -not $problem.text.Contains('この日記は知らんぞ')) { throw 'Problem dialogue cue differs' }

@@ -121,13 +121,12 @@ namespace Sousakusai8.MiniGame
             root.gameObject.SetActive(!finished);
             if (finished) return;
             ApplyPlayfieldViewport();
-            // Legacy HUD writers can still update their fields; presentation owns the formatted values.
+            // Keep the counter geometry fixed while its value changes.
             if (lastScore != value || score.text.StartsWith("スコア"))
             {
                 score.text = value.ToString("N0");
                 lastScore = value;
             }
-            scorePanel.sizeDelta = new Vector2(Mathf.Clamp((score.preferredWidth + 4f) / 0.84f, 80f, 160f), 46f);
             int second = Mathf.CeilToInt(remaining);
             if (lastSecond != second || time.text.StartsWith("残り"))
             {

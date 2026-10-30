@@ -273,6 +273,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private bool isGatheringCompositionActive;
     private SearchPortraitPose gatheringLeftPose, gatheringRightPose;
     private Image gatheringLeftBackground, gatheringRightBackground;
+    private Image gatheringDoutePortrait;
     private Image gatheringDivider;
     private RectTransform gatheringLeftFrame, gatheringRightFrame;
     private Transform gatheringLeftParent, gatheringRightParent;
@@ -432,6 +433,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
                 UpdateAutoPlayButton();
                 if (autoPlayEnabled && !isTyping) ScheduleAutoAdvance();
             }
+            RecoverMissingBackground();
             RefreshStandardDoutePortraitLayout();
             ApplyProloguePresentation(line);
             return true;
@@ -491,7 +493,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             text.raycastTarget = false;
             if (text.gameObject.name == "ConfirmationMessage")
             {
-                text.text = "次の選択肢・シーン遷移前、または次の章まで\nスキップしますか？";
+                text.text = "この章の会話・選択肢を次の章までスキップしますか？\n章内のシーン遷移、または次章がない場合は手前で止まります。";
                 text.fontSize = 32f;
                 text.enableAutoSizing = false;
                 text.alignment = TextAlignmentOptions.Center;
@@ -593,6 +595,12 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void RefreshStandardDoutePortraitLayout()
     {
+        if (isGatheringCompositionActive)
+        {
+            // Old checkpoints may restore the ordinary portrait's enabled state.
+            if (leftPortraitImage != null) leftPortraitImage.enabled = false;
+            return;
+        }
         if (!normalizeBustPortraitSizes || !CanApplyStandardDoutePortraitLayout() || isRoomLookPlaying) return;
         RectTransform parent = leftPortraitImage.rectTransform.parent as RectTransform;
         if (parent != null && parent.rect.size != doutePortraitViewport)
@@ -1330,6 +1338,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private void CancelChapterTransition(bool preservePushback = false)
     {
         prologuePresentation?.Hide();
+        StopStoryStill();
         if (!preservePushback) StopKayoPushback();
         StopEndingCard();
         moteruApproachElapsed = 0f;
@@ -1434,11 +1443,12 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         }
         // Music belongs to the incoming scene/segment, not to the end of its entrance fade.
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
+        bool changeStill = StoryStillResource(line?.lineId) != activeStoryStillResource;
         bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
         bool changeRevealView = IsApproachRevealLine(line?.lineId) != isMoteruRevealViewActive;
         bool changeExaminationView = IsKayoExaminationLine(line?.lineId) != isKayoExaminationViewActive;
         bool changeMonologueView = IsCenteredNarrationLine(line?.lineId) != (douteMonologueView != null);
-        if (changeBandageView || changeRevealView || changeExaminationView || changeMonologueView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
+        if (changeStill || changeBandageView || changeRevealView || changeExaminationView || changeMonologueView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
         {
             roomLookCoroutine = StartCoroutine(FadeToDialogueComposition(line));
             return;
@@ -1702,6 +1712,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     {
         SaveSceneProgress();
         prologuePresentation?.Hide();
+        StopStoryStill();
         StopKayoPushback();
         StopEndingCard();
         StopKayoEggView();
@@ -1744,6 +1755,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         shade.color = new Color(0f, 0f, 0f, 0f);
         shade.raycastTarget = true;
 
+        CanvasGroup still = CreateEndingStill(rect, line.lineId);
         TextMeshProUGUI caption = CreateEndingText(rect, "EndingTitle", 42f);
         caption.text = $"END No.{number:00}\n\n{title}";
         caption.rectTransform.anchorMin = new Vector2(.1f, .4f);
@@ -1786,11 +1798,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             // Removing it here would expose the final dialogue frame.
             LoadDialogueScene(line.nextScenePath, line);
         });
-        endingCardCoroutine = StartCoroutine(PlayEndingCard(shade, captionGroup, buttonGroup, button));
+        endingCardCoroutine = StartCoroutine(PlayEndingCard(shade, still, captionGroup, buttonGroup, button));
         return true;
     }
 
-    private IEnumerator PlayEndingCard(Image shade, CanvasGroup caption, CanvasGroup buttonGroup, Button button)
+    private IEnumerator PlayEndingCard(Image shade, CanvasGroup still, CanvasGroup caption, CanvasGroup buttonGroup, Button button)
     {
         // Finish the blackout before revealing any ending text.
         float elapsed = 0f;
@@ -1806,6 +1818,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (endingBlackHoldDuration > 0f)
             yield return new WaitForSecondsRealtime(endingBlackHoldDuration);
 
+        if (still != null) yield return FadeEndingContent(still, 0.6f);
         yield return FadeEndingContent(caption, endingTitleFadeInDuration);
         yield return FadeEndingContent(buttonGroup, 0.6f);
         buttonGroup.interactable = true;
@@ -1855,6 +1868,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private void PrepareLine(DialogueLine line)
     {
         prologuePresentation?.Hide();
+        if (StoryStillResource(line?.lineId) != activeStoryStillResource) StopStoryStill();
         completedDepartureLineId = null;
         if (!IsKayoPushbackLine(line?.lineId)) StopKayoPushback();
         StopKayoEggView();
@@ -1862,7 +1876,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         StopYowashiBandageView();
         StopKayoExaminationView();
         StopDouteMonologueView();
-        StopGatheringComposition();
+        if (!IsContinuingGatheringComposition(line)) StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
         RestoreChoiceOnlyWindow();
@@ -1893,6 +1907,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         StartDouteMonologueView(line);
         StartMoteruRevealView(line);
         StartKayoEggView(line);
+        ApplyStoryStill(line);
         LineStarted?.Invoke(line);
     }
 
@@ -1905,6 +1920,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void StartKayoEggView(DialogueLine line)
     {
+        if (storyStillView != null && StoryStillResource(line?.lineId) != null) return;
         if (!IsKayoEggLine(line?.lineId) || dialogueRoot == null) return;
         // Reuse the original standalone item art, not a crop of Kayo's portrait.
         Sprite egg = Resources.Load<DialogueAdvanceMarkSet>("DialogueAdvanceMarks")?.kayo;
@@ -2526,6 +2542,12 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (isPlaying && currentLine == farewellLine) Advance();
     }
 
+    private bool IsContinuingGatheringComposition(DialogueLine line)
+    {
+        return isGatheringCompositionActive && gatheringAnimationTarget != null &&
+            line?.lineId != null && line.lineId.StartsWith("chapter1_" + gatheringAnimationTarget + "_", StringComparison.Ordinal);
+    }
+
     private void StartGatheringComposition(DialogueLine line)
     {
         // Only the invitations between exploration and the later self-introductions.
@@ -2545,8 +2567,24 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             gatheringDouteSlideElapsed = 0f;
             ResetKayoFall();
         }
-        // The other person is present even on Doute's opening greeting.
+        // Update the same split view across pages, retaining the slide and its original poses.
+        if (IsContinuingGatheringComposition(line))
+        {
+            SetPortrait(rightPortraitImage, portrait);
+            Vector2 currentViewport = dialogueRoot.GetComponent<RectTransform>().rect.size;
+            ApplyGatheringDouteSlide(currentViewport);
+            float currentCropLine = target == "kayo" ? 0.83f : 0.87f;
+            SetGatheringPortrait(rightPortraitImage, currentViewport, 0.76f, 3.1f,
+                0.5f - (currentCropLine - 0.5f) * 3.1f, 1f);
+            ApplyKayoFallPose();
+            return;
+        }
+        // The close-up owns its image; normal dialogue must not dirty its mesh on page advances.
+        if (!characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist)) return;
+        Sprite doutePortrait = protagonist.GetPortrait(line.speakerId == protagonistCharacterId ? line.expressionId : "normal");
+        if (doutePortrait == null) return;
         SetPortrait(rightPortraitImage, portrait);
+        SetPortrait(leftPortraitImage, doutePortrait);
         gatheringLeftPose = CapturePortraitPose(leftPortraitImage.rectTransform);
         gatheringRightPose = CapturePortraitPose(rightPortraitImage.rectTransform);
         gatheringLeftParent = leftPortraitImage.transform.parent;
@@ -2561,7 +2599,11 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
         gatheringLeftFrame = CreateGatheringHalfFrame(parent, "GatheringLeftHalf", viewport.x, true);
         gatheringLeftFrame.SetSiblingIndex(leftPortraitImage.transform.GetSiblingIndex());
-        leftPortraitImage.transform.SetParent(gatheringLeftFrame, false);
+        gatheringDoutePortrait = CreateRoomLookImage(gatheringLeftFrame, "GatheringDoutePortrait");
+        gatheringDoutePortrait.sprite = doutePortrait;
+        gatheringDoutePortrait.color = leftPortraitImage.color;
+        gatheringDoutePortrait.preserveAspect = true;
+        leftPortraitImage.enabled = false;
         gatheringRightFrame = CreateGatheringHalfFrame(parent, "GatheringRightHalf", viewport.x, false);
         gatheringRightFrame.SetSiblingIndex(rightPortraitImage.transform.GetSiblingIndex());
         rightPortraitImage.transform.SetParent(gatheringRightFrame, false);
@@ -2655,13 +2697,13 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void ApplyGatheringDouteSlide(Vector2 viewport)
     {
-        if (leftPortraitImage == null || leftPortraitImage.sprite == null || viewport.x <= 0f) return;
+        if (gatheringDoutePortrait == null || gatheringDoutePortrait.sprite == null || viewport.x <= 0f) return;
         float progress = Mathf.SmoothStep(0f, 1f, gatheringDouteSlideElapsed / 5.5f);
         // Retain the original downward reveal, using the new face's proportions.
         float portraitWidth = viewport.y * 2.7f * DouteCloseUpScale *
-            leftPortraitImage.sprite.rect.width / leftPortraitImage.sprite.rect.height;
+            gatheringDoutePortrait.sprite.rect.width / gatheringDoutePortrait.sprite.rect.height;
         float x = Mathf.Min(0.23f, 0.48f - portraitWidth * 0.5f / viewport.x);
-        SetDouteFacePortrait(leftPortraitImage, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress));
+        SetDouteFacePortrait(gatheringDoutePortrait, viewport, x, 2.7f, Mathf.Lerp(0.5f, 0.17f, progress));
         if (gatheringLeftBackground != null)
             SetRoomLookPose(gatheringLeftBackground, viewport,
                 new Vector2(0.5f, Mathf.Lerp(0.48f, 0.53f, progress)), 1.35f);
@@ -2721,20 +2763,24 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         {
             leftPortraitImage.transform.SetParent(gatheringLeftParent, false);
             RestorePortraitPose(leftPortraitImage.rectTransform, gatheringLeftPose);
+            // A new scenario may already have cleared the ordinary portrait. Carry
+            // the visible close-up back rather than enabling an untextured Image.
+            SetPortrait(leftPortraitImage, gatheringDoutePortrait != null
+                ? gatheringDoutePortrait.sprite : leftPortraitImage.sprite);
         }
         if (rightPortraitImage != null)
         {
             rightPortraitImage.transform.SetParent(gatheringRightParent, false);
             RestorePortraitPose(rightPortraitImage.rectTransform, gatheringRightPose);
         }
-        foreach (Image image in new[] { gatheringLeftBackground, gatheringRightBackground, gatheringDivider })
+        foreach (Image image in new[] { gatheringLeftBackground, gatheringRightBackground, gatheringDivider, gatheringDoutePortrait })
         {
             if (image == null) continue;
             image.gameObject.SetActive(false);
             image.transform.SetParent(null, false);
             Destroy(image.gameObject);
         }
-        gatheringLeftBackground = gatheringRightBackground = gatheringDivider = null;
+        gatheringLeftBackground = gatheringRightBackground = gatheringDivider = gatheringDoutePortrait = null;
         foreach (RectTransform frame in new[] { gatheringLeftFrame, gatheringRightFrame })
         {
             if (frame == null) continue;
@@ -2746,6 +2792,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (leftPortraitImage != null) leftPortraitImage.transform.SetSiblingIndex(gatheringLeftSibling);
         if (rightPortraitImage != null) rightPortraitImage.transform.SetSiblingIndex(gatheringRightSibling);
         isGatheringCompositionActive = false;
+        if (CanApplyStandardDoutePortraitLayout()) ApplyProtagonistFacing();
     }
 
     private void StartSearchPortraitSlide(DialogueLine line)
@@ -2971,6 +3018,14 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         rect.localScale *= scale;
     }
 
+    private void RecoverMissingBackground()
+    {
+        // Keep valid saved art/tints/geometry; repair only an absent background from an old save.
+        if (backgroundImage == null || (backgroundImage.enabled && backgroundImage.sprite != null)) return;
+        Sprite fallback = currentLine?.background != null ? currentLine.background : currentScenario?.DefaultBackground;
+        if (fallback != null) SetBackground(fallback);
+    }
+
     private void ResetBackgroundForScenario()
     {
         SetBackground(
@@ -3193,10 +3248,21 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             !string.Equals(currentLine.speakerId, protagonistCharacterId, StringComparison.Ordinal) ||
             !characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist)) return;
 
+        if (isGatheringCompositionActive)
+        {
+            // Keep the regular portrait hidden; the retained close-up is already on screen.
+            Sprite portrait = protagonist.GetPortrait(currentLine.expressionId);
+            if (gatheringDoutePortrait != null && gatheringDoutePortrait.sprite != portrait)
+            {
+                gatheringDoutePortrait.sprite = portrait;
+                ApplyGatheringDouteSlide(dialogueRoot.GetComponent<RectTransform>().rect.size);
+            }
+            return;
+        }
         SetPortrait(leftPortraitImage, protagonist.GetPortrait(currentLine.expressionId));
         ApplyProtagonistFacing();
         // These compositions deliberately replace the regular left portrait.
-        if (leftPortraitImage != null && (douteMonologueView != null || isKayoEggViewActive ||
+        if (leftPortraitImage != null && (douteMonologueView != null ||
             isMoteruRevealViewActive || isYowashiBandageViewActive || isKayoExaminationViewActive))
             leftPortraitImage.enabled = false;
     }
@@ -3226,6 +3292,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void StartTyping(string text)
     {
+        if (TryPlayMovementBeforeStill(text)) return;
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
@@ -3643,7 +3710,10 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         DialogueLine cursor = currentLine;
         while (cursor != null && visited.Add(cursor.lineId))
         {
-            // Stop on the first decision or scene boundary in the active asset/route.
+            // Choices can be skipped as a chapter when a following chapter is available.
+            // Do not choose a branch or apply its affection/archive effects.
+            if (cursor.HasChoices && TryStartNextScenario()) return true;
+            // A final chapter still needs its route decision or scene transition.
             if (cursor.HasChoices || cursor.HasSceneTransition)
             {
                 BeginChapterTransition(() => ShowSkipDestination(cursor));

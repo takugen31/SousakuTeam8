@@ -93,6 +93,7 @@ public sealed class SearchSceneController : MonoBehaviour
     private TMP_Text roomIndicator;
     private GameObject modalRoot;
     private RawImage modalStill;
+    private CanvasGroup modalPresentation;
     private AspectRatioFitter modalStillAspect;
     private TMP_Text modalTitle;
     private TMP_Text savedMessage;
@@ -595,6 +596,9 @@ public sealed class SearchSceneController : MonoBehaviour
             parent,
             new Color(0.008f, 0.012f, 0.02f, 0.77f),
             true);
+        modalRoot.SetActive(false);
+        modalPresentation = modalRoot.AddComponent<CanvasGroup>();
+        modalPresentation.alpha = 0f;
         Stretch(modalRoot.GetComponent<RectTransform>());
 
         GameObject stillBounds = new GameObject("StillBounds", typeof(RectTransform));
@@ -622,6 +626,7 @@ public sealed class SearchSceneController : MonoBehaviour
         stillObject.transform.SetParent(stillFrame.transform, false);
         modalStill = stillObject.GetComponent<RawImage>();
         modalStill.color = Color.white;
+        modalStill.enabled = false;
         modalStill.raycastTarget = false;
         Stretch(modalStill.rectTransform);
         GameObject secondary = new GameObject("SecondaryItemStill", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
@@ -888,7 +893,13 @@ public sealed class SearchSceneController : MonoBehaviour
             modalSecondaryStill.uvRect = InspectionUvRect(settings.secondarySprite, new Rect(0f, 0f, 1f, 1f));
             SetAnchors(modalSecondaryStill.gameObject, new Vector2(0.5f, 0f), Vector2.one);
         }
+        // Resolve the image's aspect and paired layout before making it visible.
+        modalPresentation.alpha = 0f;
+        modalStill.enabled = true; // The intentional paper placeholder also uses this surface.
         modalRoot.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(modalRoot.GetComponent<RectTransform>());
+        Canvas.ForceUpdateCanvases();
+        modalPresentation.alpha = 1f;
         leftArrow.gameObject.SetActive(false);
         rightArrow.gameObject.SetActive(false);
         RefreshHotspots();

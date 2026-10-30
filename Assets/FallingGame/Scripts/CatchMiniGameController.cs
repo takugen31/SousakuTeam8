@@ -12,6 +12,7 @@ namespace Sousakusai8.MiniGame
     /// </summary>
     public sealed class CatchMiniGameController : MonoBehaviour
     {
+        public const float GameplayObjectScale = 1.4f;
         public event System.Action<int> RoundEnded;
 
         [System.Serializable]
@@ -71,17 +72,17 @@ namespace Sousakusai8.MiniGame
         [SerializeField, Min(1)] private int initialPoolSize = 64;
 
         [Header("Score")]
-        [SerializeField] private int goodItemScore = 100;
+        [SerializeField] private int goodItemScore = 75;
         [SerializeField] private int badItemPenalty = 150;
         [SerializeField, Range(0f, 1f)] private float badItemChance = 0.25f;
 
         [Header("Jump Unlock")]
-        [SerializeField] private int jumpUnlockScore = 2000;
+        [SerializeField] private int jumpUnlockScore = 1000;
         [SerializeField, Min(0f)] private float jumpUnlockMessageDuration = 3f;
         [SerializeField] private string jumpUnlockMessage = "\"ジャンプ\"を獲得!";
 
         [Header("Sweep Unlock")]
-        [SerializeField] private int sweepUnlockScore = 6000;
+        [SerializeField] private int sweepUnlockScore = 3000;
         [SerializeField, Min(0)] private int sweepScoreCost = 200;
         [SerializeField, Min(0f)] private float sweepCooldown = 10f;
         [SerializeField, Min(0f)] private float sweepUnlockMessageDuration = 3f;
@@ -145,6 +146,7 @@ namespace Sousakusai8.MiniGame
         private UniversalRenderPipelineAsset runtimeRenderPipeline;
         private bool renderingQualityApplied;
         private CatchGameHud hudPresentation;
+        private bool inputWasPaused;
 
         public float BottomEdge => gameCamera.transform.position.y - gameCamera.orthographicSize;
         public float TopEdge => gameCamera.transform.position.y + gameCamera.orthographicSize;
@@ -157,10 +159,11 @@ namespace Sousakusai8.MiniGame
             maximumDropperSpeedMultiplier,
             GetDifficultyProgress());
         public float BadItemStackDuration => badItemStackDuration;
-        public Vector2 FallingItemSize => fallingItemSize;
+        public Vector2 FallingItemSize => fallingItemSize * GameplayObjectScale;
         public Sprite StackedBadItemSprite => stackedBadItemSprite;
-        public Vector2 StackedBadItemSize => stackedBadItemSize;
+        public Vector2 StackedBadItemSize => stackedBadItemSize * GameplayObjectScale;
         public bool IsGameRunning => phase == GamePhase.Playing;
+        public bool IsPaused => Time.timeScale <= 0f || ArchiveManager.IsOpen;
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
         public int CurrentScore => score;
@@ -224,6 +227,8 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
+            ResizeGameplayActor(catcher.GetComponent<SpriteRenderer>(), false, GameplayObjectScale * 0.8f);
+            if (dropper != null) ResizeGameplayActor(dropper.GetComponent<SpriteRenderer>(), true);
             catcher.Initialize(this, gameCamera);
 
             bool spawningReady = dropper != null && spawnedItemsRoot != null && itemPoolRoot != null &&
@@ -264,6 +269,9 @@ namespace Sousakusai8.MiniGame
 
         private void Update()
         {
+            if (IsPaused) { inputWasPaused = true; return; }
+            // Do not treat a menu-closing click as start/sweep input.
+            if (inputWasPaused) { inputWasPaused = false; return; }
             if (TryInstantClearForTesting()) return;
             if (phase == GamePhase.AwaitingInput && WasAnyStartButtonPressed())
             {
@@ -421,7 +429,6 @@ namespace Sousakusai8.MiniGame
                     xOffset + Random.Range(-0.12f, 0.12f),
                     Random.Range(-0.12f, 0.12f),
                     0f);
-                position.x = Mathf.Clamp(position.x, GetLeftEdge(0.35f), GetRightEdge(0.35f));
 
                 FallingItemKind? forcedKind = null;
                 if (badItemsRemaining >= 0)
@@ -447,9 +454,9 @@ namespace Sousakusai8.MiniGame
             SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
             int visualIndex = Random.Range(0, candidates.Length);
             SpriteRenderer sourceVisual = candidates[visualIndex];
-            Vector2 badFallingSize = isBad ? PlateFallingSize : fallingItemSize;
-            Vector2 badStackedSize = isBad ? BrokenPlateSize : stackedBadItemSize;
-            Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
+            Vector2 targetFallingSize = isBad ? PlateFallingSize * GameplayObjectScale : FallingItemSize;
+            Vector2 targetStackedSize = isBad ? BrokenPlateSize * GameplayObjectScale : StackedBadItemSize;
+            Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f * GameplayObjectScale, 0f);
 
             FallingItem item = GetPooledItem();
             GameObject itemObject = item.gameObject;
@@ -466,14 +473,14 @@ namespace Sousakusai8.MiniGame
                 ApplySimpleSpriteSize(
                     spriteRenderer,
                     itemObject.transform,
-                    badFallingSize);
+                    targetFallingSize);
             }
             else
             {
                 ApplySimpleSpriteSize(
                     spriteRenderer,
                     itemObject.transform,
-                    fallingItemSize);
+                    targetFallingSize);
             }
 
             item.Initialize(
@@ -482,9 +489,37 @@ namespace Sousakusai8.MiniGame
                 kind,
                 Random.Range(minimumFallSpeed, maximumFallSpeed),
                 isBad ? GetStackedBadItemSprite(visualIndex) : null,
-                badStackedSize,
-                isBad ? badFallingSize : fallingItemSize);
+                targetStackedSize,
+                targetFallingSize);
             itemObject.SetActive(true);
+            // Use the actual enlarged, rotated visual for spawn margins, just as
+            // FallingItem and PlayerCatcherController use renderer bounds to catch.
+            Bounds bounds = spriteRenderer.bounds;
+            spawnPosition.x = Mathf.Clamp(spawnPosition.x,
+                GetLeftEdge(bounds.extents.x), GetRightEdge(bounds.extents.x));
+            if (dropper != null)
+            {
+                SpriteRenderer dropperVisual = dropper.GetComponent<SpriteRenderer>();
+                if (dropperVisual != null)
+                    spawnPosition.y = Mathf.Min(spawnPosition.y,
+                        dropperVisual.bounds.min.y - bounds.extents.y);
+            }
+            itemObject.transform.position = spawnPosition;
+        }
+
+        private void ResizeGameplayActor(SpriteRenderer visual, bool anchorTop, float multiplier = GameplayObjectScale)
+        {
+            if (visual == null) return;
+            Bounds original = visual.bounds;
+            Vector3 scale = visual.transform.localScale;
+            visual.transform.localScale = new Vector3(
+                scale.x * multiplier, scale.y * multiplier, scale.z);
+            Bounds resized = visual.bounds;
+            float anchorOffset = anchorTop ? original.max.y - resized.max.y : original.min.y - resized.min.y;
+            Vector3 position = visual.transform.position + Vector3.up * anchorOffset;
+            position.x = Mathf.Clamp(position.x,
+                GetLeftEdge(resized.extents.x), GetRightEdge(resized.extents.x));
+            visual.transform.position = position;
         }
 
         private Sprite GetStackedBadItemSprite(int visualIndex)
@@ -664,14 +699,14 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
-            scoreText.text = $"スコア  {score}";
+            if (hudPresentation == null) scoreText.text = $"スコア  {score}";
             UpdateTimeText();
             UpdateScoreMessage();
         }
 
         private void ShowFeedback()
         {
-            if (scoreText != null)
+            if (scoreText != null && hudPresentation == null)
             {
                 scoreText.text = $"スコア  {score}";
             }
@@ -681,6 +716,7 @@ namespace Sousakusai8.MiniGame
                 feedbackText.text = catchFeedback;
                 feedbackText.gameObject.SetActive(true);
             }
+            UpdateHudPresentation();
         }
 
         private void ResolveHudReferences()
@@ -887,7 +923,7 @@ namespace Sousakusai8.MiniGame
 
         private void UpdateTimeText()
         {
-            if (timeText != null)
+            if (timeText != null && hudPresentation == null)
             {
                 timeText.text = $"残り  {Mathf.CeilToInt(remainingTime)}";
             }
