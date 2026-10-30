@@ -1,4 +1,4 @@
-// Runs only inside the isolated project created by verify-dialogue-scene-progress.ps1.
+﻿// Runs only inside the isolated project created by verify-dialogue-scene-progress.ps1.
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -277,8 +277,100 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckMoteruEnding();
         yield return CheckRemainingPresentationRisks();
         yield return CheckKayoGaugeOutcomeContract();
+        yield return CheckStoryStills();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckStoryStills()
+    {
+        foreach (var entry in new[] {
+            new { Character="yowashi", First=12, Last=14, Art="YowashiPrologue" },
+            new { Character="kayo", First=12, Last=21, Art="KayoPrologue" },
+            new { Character="moteru", First=13, Last=18, Art="MoteruPrologue" } })
+        {
+            SceneManager.LoadScene("NovelScene"); yield return null;
+            GameProgress.ResetAll();
+            var sequence = ScriptableObject.CreateInstance<DialogueScenarioSO>();
+            sequence.name="Still_"+entry.Character;
+            string prefix="chapter2_"+entry.Character+"_";
+            var lines=new List<DialogueLine> { Line("still_setup") };
+            for(int n=entry.First-1;n<=entry.Last+1;n++) lines.Add(Line(prefix+n.ToString("000")));
+            sequence.ReplaceAll(lines); sequence.SetDefaultBackground(sprite);
+            var controller=Create(sequence,"still",false);
+            var root=(GameObject)Get(controller,"dialogueRoot");
+            var rect=root.GetComponent<RectTransform>(); rect.sizeDelta=new Vector2(1920,1080);
+            ((Image)Get(controller,"backgroundImage")).transform.SetAsFirstSibling();
+            foreach(string field in new[]{"leftPortraitImage","rightPortraitImage"})
+            {
+                var image=new GameObject(field,typeof(RectTransform),typeof(CanvasRenderer),typeof(Image)).GetComponent<Image>();
+                image.transform.SetParent(root.transform,false); image.sprite=sprite;
+                Set(controller,field,image);
+            }
+            Body(controller).transform.SetAsLastSibling();
+            var stillCharacters=ScriptableObject.CreateInstance<CharacterDatabaseSO>();
+            var cast=new List<CharacterData>();
+            foreach(string id in new[]{"doute","kayo","yowashi","moteru"})
+                cast.Add(new CharacterData { characterId=id, displayName=id, expressions=new List<CharacterExpression> {
+                    new CharacterExpression { expressionId="normal", portrait=sprite } } });
+            stillCharacters.ReplaceAll(cast); Set(controller,"characterDatabase",stillCharacters);
+            controller.StartDialogue();
+            Call(controller,"PrepareLine",lines[1]);
+            Check(Get(controller,"storyStillView")==null,"still started before the script marker: "+entry.Character);
+            var line=lines[2];
+            Call(controller,"PrepareLine",line);
+            if(entry.Character=="kayo")
+            {
+                // Exercise the existing egg motion independently of the advance-mark fixture.
+                Call(controller,"StopStoryStill");
+                var egg=new GameObject("Egg",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image));
+                egg.transform.SetParent(root.transform,false);
+                Set(controller,"kayoEggView",egg); Set(controller,"kayoEggRect",egg.GetComponent<RectTransform>());
+                Set(controller,"kayoEggSlideStart",new Vector2(900,-600)); Set(controller,"kayoEggSlideElapsed",0f);
+                Set(controller,"isKayoEggViewActive",true);
+                Set(controller,"eggLeftOriginalColor",Color.white); Set(controller,"eggRightOriginalColor",Color.white);
+                Call(controller,"StartTyping",line.text);
+                Check((bool)Get(controller,"isRoomLookPlaying") && Get(controller,"storyStillView")==null && Body(controller).text==string.Empty,
+                    "Kayo still/text hid the original egg motion");
+                float deadline=Time.realtimeSinceStartup+5f;
+                while((bool)Get(controller,"isRoomLookPlaying") && Time.realtimeSinceStartup<deadline) yield return null;
+                Check(!(bool)Get(controller,"isKayoEggViewActive"),"egg exit was not completed before the still");
+            }
+            if(entry.Character=="moteru")
+            {
+                Check((bool)Get(controller,"isMoteruRevealViewActive"),"original Moteru split view was removed");
+                Call(controller,"StartTyping",line.text);
+                Check(Get(controller,"storyStillView")==null && (bool)Get(controller,"isRoomLookPlaying"),
+                    "fast page advance cut off Moteru's approach");
+                float deadline=Time.realtimeSinceStartup+4f;
+                while((bool)Get(controller,"isRoomLookPlaying") && Time.realtimeSinceStartup<deadline) yield return null;
+                Check((float)Get(controller,"moteruApproachElapsed")>=2.4f,"Moteru approach did not finish");
+            }
+            if(entry.Character=="yowashi")
+                Check((bool)Get(controller,"isYowashiBandageViewActive"),"original Yowashi arm framing was removed");
+            var view=(GameObject)Get(controller,"storyStillView");
+            Check(view!=null && view.activeSelf,"still missing at marker: "+entry.Character);
+            var art=view.GetComponentInChildren<RawImage>();
+            Check(art.texture==Resources.Load<Texture2D>("StoryStills/"+entry.Art),"wrong imported still");
+            Canvas.ForceUpdateCanvases();
+            Vector2 size=art.rectTransform.rect.size;
+            Check(Mathf.Abs(size.x/size.y-3508f/2480f)<0.01f,"still was stretched");
+            Check(view.transform.GetSiblingIndex()<Body(controller).transform.GetSiblingIndex(),"still covered dialogue");
+            for(int i=3;i<lines.Count-1;i++)
+            {
+                Call(controller,"PrepareLine",lines[i]);
+                Check((GameObject)Get(controller,"storyStillView")==view,"still recreated while paging");
+            }
+            var saved=new GameSaveData();
+            Check(controller.CaptureCheckpoint(saved) && controller.RestoreCheckpoint(saved),"still checkpoint failed");
+            Check(Get(controller,"storyStillView")!=null,"loading did not restore still");
+            Call(controller,"PrepareLine",lines[lines.Count-1]);
+            Check(Get(controller,"storyStillView")==null,"still remained beyond script end");
+            Call(controller,"PrepareLine",line);
+            Call(controller,"CancelChapterTransition",false);
+            Check(Get(controller,"storyStillView")==null,"still survived cancellation");
+        }
+        Debug.Log("PASS: all three script still ranges, original egg/approach motion before text, imported art/aspect/layers, stable paging, checkpoint restore and cleanup.");
     }
 
     private IEnumerator CheckKayoGaugeOutcomeContract()

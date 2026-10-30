@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$UnityEditor = 'D:/Unity/Unity Editer/6000.3.6f1/Editor/Unity.exe',
     [string]$ReuseProject
 )
@@ -27,7 +27,7 @@ foreach ($module in @('audio','imageconversion','physics','physics2d','jsonseria
 }
 [IO.File]::WriteAllText((Join-Path $testProject 'Packages/manifest.json'), (@{dependencies=$dependencies} | ConvertTo-Json), $utf8)
 Copy-Item -LiteralPath (Join-Path $root 'ProjectSettings/ProjectVersion.txt') -Destination (Join-Path $testProject 'ProjectSettings')
-foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/MeterGame/Scripts','Assets/MeterGame/Art/Fonts','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data')) {
+foreach ($folder in @('Assets/Scripts','Assets/FallingGame/Scripts','Assets/PuzzleGame/Runtime','Assets/MeterGame/Scripts','Assets/MeterGame/Art/Fonts','Assets/TextMesh Pro/Resources','Assets/TextMesh Pro/Shaders','Assets/Dialogue/Data','Assets/Resources/StoryStills')) {
     $destination = Join-Path $testProject $folder
     New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force | Out-Null
     New-Item -ItemType Directory -Path $destination -Force | Out-Null

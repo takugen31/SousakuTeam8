@@ -1339,6 +1339,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private void CancelChapterTransition(bool preservePushback = false)
     {
         prologuePresentation?.Hide();
+        StopStoryStill();
         if (!preservePushback) StopKayoPushback();
         StopEndingCard();
         moteruApproachElapsed = 0f;
@@ -1443,11 +1444,12 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         }
         // Music belongs to the incoming scene/segment, not to the end of its entrance fade.
         StoryMusicController.ApplyDialogue(gameObject.scene, currentScenario, line);
+        bool changeStill = StoryStillResource(line?.lineId) != activeStoryStillResource;
         bool changeBandageView = IsYowashiBandageLine(line?.lineId) != isYowashiBandageViewActive;
         bool changeRevealView = IsApproachRevealLine(line?.lineId) != isMoteruRevealViewActive;
         bool changeExaminationView = IsKayoExaminationLine(line?.lineId) != isKayoExaminationViewActive;
         bool changeMonologueView = IsCenteredNarrationLine(line?.lineId) != (douteMonologueView != null);
-        if (changeBandageView || changeRevealView || changeExaminationView || changeMonologueView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
+        if (changeStill || changeBandageView || changeRevealView || changeExaminationView || changeMonologueView || (useSearchPortraitSlide && line != null && (line.speakerId == "kayo" || line.speakerId == "yowashi")))
         {
             roomLookCoroutine = StartCoroutine(FadeToDialogueComposition(line));
             return;
@@ -1711,6 +1713,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     {
         SaveSceneProgress();
         prologuePresentation?.Hide();
+        StopStoryStill();
         StopKayoPushback();
         StopEndingCard();
         StopKayoEggView();
@@ -1864,6 +1867,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private void PrepareLine(DialogueLine line)
     {
         prologuePresentation?.Hide();
+        if (StoryStillResource(line?.lineId) != activeStoryStillResource) StopStoryStill();
         completedDepartureLineId = null;
         if (!IsKayoPushbackLine(line?.lineId)) StopKayoPushback();
         StopKayoEggView();
@@ -1902,6 +1906,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         StartDouteMonologueView(line);
         StartMoteruRevealView(line);
         StartKayoEggView(line);
+        ApplyStoryStill(line);
         LineStarted?.Invoke(line);
     }
 
@@ -1914,6 +1919,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void StartKayoEggView(DialogueLine line)
     {
+        if (storyStillView != null && StoryStillResource(line?.lineId) != null) return;
         if (!IsKayoEggLine(line?.lineId) || dialogueRoot == null) return;
         // Reuse the original standalone item art, not a crop of Kayo's portrait.
         Sprite egg = Resources.Load<DialogueAdvanceMarkSet>("DialogueAdvanceMarks")?.kayo;
@@ -3282,6 +3288,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
 
     private void StartTyping(string text)
     {
+        if (TryPlayMovementBeforeStill(text)) return;
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
