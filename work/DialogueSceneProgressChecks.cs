@@ -678,6 +678,21 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
             Check(controller.RestoreCheckpoint(checkpoint), target+": gathering checkpoint restore failed");
             closeUp=(Image)Get(controller,"gatheringDoutePortrait");
             Check(closeUp!=null && closeUp.enabled && !left.enabled, target+": restored ordinary portrait overlaps the close-up");
+            // Production Chapter2 begins with Moteru, before Doute speaks again.
+            // StartScenario clears portraits before PrepareLine tears down the split.
+            var next=ScriptableObject.CreateInstance<DialogueScenarioSO>();
+            next.name="AfterGathering_"+target; next.SetDefaultBackground(sprite);
+            var opening=Line("chapter2_001"); opening.speakerId=target;
+            next.ReplaceAll(new List<DialogueLine> { opening, Line("chapter2_002") });
+            Call(controller,"StartScenario",next,opening,1);
+            Check(!(bool)Get(controller,"isGatheringCompositionActive") && left.enabled && left.sprite==sprite,
+                target+": next chapter restored an empty white Doute rectangle");
+            yield return null;
+            Check(left.enabled && left.sprite==sprite && left.transform.parent==root.transform,
+                target+": Doute did not survive the first non-protagonist page after gathering");
+            Complete(controller); controller.Advance(); yield return null;
+            Check(left.enabled && left.sprite==sprite,"Doute's next line lost the restored portrait");
+            Debug.Log("PASS: "+target+" gathering -> chapter2 retains Doute's textured portrait before he speaks.");
             Complete(controller); controller.Advance();
             Check(!(bool)Get(controller,"isGatheringCompositionActive") && left.transform.parent==root.transform,
                 target+": leaving the sequence did not restore the normal hierarchy");

@@ -274,7 +274,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
     private SearchPortraitPose gatheringLeftPose, gatheringRightPose;
     private Image gatheringLeftBackground, gatheringRightBackground;
     private Image gatheringDoutePortrait;
-    private bool gatheringLeftWasEnabled;
     private Image gatheringDivider;
     private RectTransform gatheringLeftFrame, gatheringRightFrame;
     private Transform gatheringLeftParent, gatheringRightParent;
@@ -2584,7 +2583,6 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (doutePortrait == null) return;
         SetPortrait(rightPortraitImage, portrait);
         SetPortrait(leftPortraitImage, doutePortrait);
-        gatheringLeftWasEnabled = leftPortraitImage.enabled;
         gatheringLeftPose = CapturePortraitPose(leftPortraitImage.rectTransform);
         gatheringRightPose = CapturePortraitPose(rightPortraitImage.rectTransform);
         gatheringLeftParent = leftPortraitImage.transform.parent;
@@ -2763,7 +2761,10 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         {
             leftPortraitImage.transform.SetParent(gatheringLeftParent, false);
             RestorePortraitPose(leftPortraitImage.rectTransform, gatheringLeftPose);
-            leftPortraitImage.enabled = gatheringLeftWasEnabled;
+            // A new scenario may already have cleared the ordinary portrait. Carry
+            // the visible close-up back rather than enabling an untextured Image.
+            SetPortrait(leftPortraitImage, gatheringDoutePortrait != null
+                ? gatheringDoutePortrait.sprite : leftPortraitImage.sprite);
         }
         if (rightPortraitImage != null)
         {
@@ -2789,6 +2790,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (leftPortraitImage != null) leftPortraitImage.transform.SetSiblingIndex(gatheringLeftSibling);
         if (rightPortraitImage != null) rightPortraitImage.transform.SetSiblingIndex(gatheringRightSibling);
         isGatheringCompositionActive = false;
+        if (CanApplyStandardDoutePortraitLayout()) ApplyProtagonistFacing();
     }
 
     private void StartSearchPortraitSlide(DialogueLine line)
