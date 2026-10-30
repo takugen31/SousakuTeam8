@@ -510,7 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sousakusai8.MiniGame.PlayerCatcherController
   keyboardMoveSpeed: 8
-  jumpSpeed: 7
+  jumpSpeed: 7.35
   gravity: 18
 --- !u!212 &1258845369
 SpriteRenderer:
@@ -651,8 +651,8 @@ MonoBehaviour:
   resultDialogueText: {fileID: 1973000003}
   resultCountsText: {fileID: 1974000003}
   initialPoolSize: 64
-  goodItemScore: 50
-  badItemPenalty: 200
+  goodItemScore: 75
+  badItemPenalty: 150
   badItemChance: 0.25
   jumpUnlockScore: 1000
   jumpUnlockMessageDuration: 3

@@ -72,8 +72,8 @@ namespace Sousakusai8.MiniGame
         [SerializeField, Min(1)] private int initialPoolSize = 64;
 
         [Header("Score")]
-        [SerializeField] private int goodItemScore = 50;
-        [SerializeField] private int badItemPenalty = 200;
+        [SerializeField] private int goodItemScore = 75;
+        [SerializeField] private int badItemPenalty = 150;
         [SerializeField, Range(0f, 1f)] private float badItemChance = 0.25f;
 
         [Header("Jump Unlock")]

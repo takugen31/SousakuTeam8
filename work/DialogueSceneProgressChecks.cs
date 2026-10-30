@@ -8,6 +8,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 public sealed class DialogueSceneProgressChecks : MonoBehaviour
 {
@@ -310,28 +312,28 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         Set(game,"goodItemVisuals",new[]{visual}); Set(game,"badItemVisuals",new[]{visual});
         Set(game,"stackedBadItemSprite",sprite); Set(game,"forceHighestQualityLevel",false); Set(game,"initialPoolSize",1);
         owner.SetActive(true);
-        Check((int)Get(game,"goodItemScore")==50 && (int)Get(game,"badItemPenalty")==200 &&
+        Check((int)Get(game,"goodItemScore")==75 && (int)Get(game,"badItemPenalty")==150 &&
             (int)Get(game,"jumpUnlockScore")==1000 && (int)Get(game,"sweepUnlockScore")==3000,
             "catch balance defaults or ability thresholds differ");
         foreach(string scene in new[]{"SampleScene","falling_verKayo","falling_verMoteru","falling_verYowashi"})
         {
             string path=System.IO.Path.GetFullPath(Application.dataPath+"/../../../Assets/FallingGame/Scenes/"+scene+".unity");
             string yaml=System.IO.File.ReadAllText(path).Replace("\r\n","\n");
-            foreach(string setting in new[]{"goodItemScore: 50","badItemPenalty: 200","jumpUnlockScore: 1000","sweepUnlockScore: 3000"})
+            foreach(string setting in new[]{"goodItemScore: 75","badItemPenalty: 150","jumpUnlockScore: 1000","sweepUnlockScore: 3000"})
                 Check(yaml.Contains("  "+setting+"\n"),scene+": outdated catch balance "+setting);
         }
         Call(game,"PrepareForStart");
-        for(int i=0;i<19;i++) game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
-        Check(game.CurrentScore==950 && !game.CanPlayerJump,"jump unlocked too early after scoring adjustment");
+        for(int i=0;i<13;i++) game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
+        Check(game.CurrentScore==975 && !game.CanPlayerJump,"jump unlocked too early after scoring adjustment");
         game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
-        Check(game.CurrentScore==1000 && game.CanPlayerJump,"jump no longer unlocks on the twentieth small item");
-        for(int i=0;i<40;i++) game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
+        Check(game.CurrentScore==1050 && game.CanPlayerJump,"jump no longer unlocks on the fourteenth small item");
+        for(int i=0;i<26;i++) game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
         Check(game.CurrentScore==3000 && (bool)Get(game,"sweepUnlocked"),"sweep threshold drifted");
         Check(!Sousakusai8.MiniGame.YowashiCatchGameFlowController.IsSuccess(game.CurrentScore,3000),"3000 incorrectly clears the strict threshold");
         game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
-        Check(Sousakusai8.MiniGame.YowashiCatchGameFlowController.IsSuccess(game.CurrentScore,3000),"61 clean catches do not clear");
+        Check(Sousakusai8.MiniGame.YowashiCatchGameFlowController.IsSuccess(game.CurrentScore,3000),"41 clean catches do not clear");
         game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Bad);
-        Check(game.CurrentScore==2850,"plate penalty is not 200 points");
+        Check(game.CurrentScore==2925,"plate penalty is not 150 points");
         Call(game,"PrepareForStart");
         Check(Vector2.Distance((Vector2)playerVisual.bounds.size,(Vector2)beforePlayer.size*(1.4f*0.8f))<0.0001f &&
             Vector2.Distance((Vector2)dropperVisual.bounds.size,(Vector2)beforeDropper.size*1.4f)<0.0001f,"catch actor size multipliers are incorrect: player="+playerVisual.bounds.size+" before="+beforePlayer.size+" dropper="+dropperVisual.bounds.size+" before="+beforeDropper.size);
@@ -365,7 +367,7 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
                 "test did not place the item in the visual-only margin");
             Call(item,"Update"); Check(game.CurrentScore==score,"item touching only the outside of the artwork was caught");
             item.transform.position=new Vector3(contactX-0.01f,catcher.CatchBounds.center.y,0);
-            Call(item,"Update"); Check(game.CurrentScore==score+(kind==Sousakusai8.MiniGame.FallingItemKind.Good?50:-200),
+            Call(item,"Update"); Check(game.CurrentScore==score+(kind==Sousakusai8.MiniGame.FallingItemKind.Good?75:-150),
                 "item touching the smaller catch area did not score");
         }
         Debug.Log("PASS: catcher is 0.8x its previous visual size with centered 75% hit bounds; visual-only grazes miss, inner contact scores, items/dropper retain size and floor/spawn alignment.");
@@ -382,12 +384,12 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         Call(game,"UpdateHudPresentation"); Canvas.ForceUpdateCanvases();
         RectTransform panel=labels[0].transform.parent as RectTransform;
         Vector2 panelSize=panel.sizeDelta, counterPosition=labels[0].rectTransform.anchoredPosition;
-        foreach(int value in new[]{950,9950,-100,99950})
+        foreach(int value in new[]{925,9925,-150,99925})
         {
             Set(game,"score",value);
             // A catch can run after the controller's Update, immediately before rendering.
             game.RecordCatch(Sousakusai8.MiniGame.FallingItemKind.Good);
-            string expected=(value+50).ToString("N0");
+            string expected=(value+75).ToString("N0");
             Check(labels[0].text==expected,"catch briefly wrote the legacy score label before the next frame");
             Call(game,"UpdateTimeText");
             Check(labels[1].text.Contains(":"),"timer briefly changed format");
@@ -402,6 +404,47 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
                 "counter or feedback shifted on the frame after a catch");
         }
         Debug.Log("PASS: score changes across digit/sign boundaries keep fixed geometry and formatted text even when a catch happens after the HUD update.");
+        var previousUpdateMode=InputSystem.settings.updateMode;
+        var previousInputBehavior=InputSystem.settings.editorInputBehaviorInPlayMode;
+        var previousBackgroundBehavior=InputSystem.settings.backgroundBehavior;
+        InputSystem.settings.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+        InputSystem.settings.updateMode=InputSettings.UpdateMode.ProcessEventsManually;
+        InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+        var mouse=InputSystem.AddDevice<Mouse>(); var keyboard=InputSystem.AddDevice<Keyboard>();
+        InputSystem.EnableDevice(mouse); InputSystem.EnableDevice(keyboard);
+        game.enabled=false; catcher.enabled=false;
+        var dropperController=dropper.GetComponent<Sousakusai8.MiniGame.DropperController>(); dropperController.enabled=false;
+        var phaseField=game.GetType().GetField("phase",Private);
+        phaseField.SetValue(game,Enum.Parse(phaseField.FieldType,"Playing"));
+        Set(game,"jumpUnlocked",true); Set(game,"sweepUnlocked",true);
+        Call(game,"SpawnItem",player.transform.position,Sousakusai8.MiniGame.FallingItemKind.Good);
+        var pausedItem=spawned.GetComponentInChildren<Sousakusai8.MiniGame.FallingItem>(); pausedItem.enabled=false;
+        pausedItem.transform.position=player.transform.position;
+        var pausedPosition=player.transform.position; var pausedDropper=dropper.transform.position;
+        float pausedVelocity=(float)Get(catcher,"verticalVelocity"), pausedTime=(float)Get(game,"remainingTime");
+        int pausedScore=game.CurrentScore;
+        ArchiveManager.Instance.OpenArchive();
+        Check(ArchiveManager.IsOpen && game.IsPaused && Time.timeScale==0f,"pause fixture did not open the real system menu");
+        InputSystem.QueueStateEvent(mouse,new MouseState { position=new Vector2(Screen.width,Screen.height/2f) }.WithButton(MouseButton.Right));
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D,Key.Space,Key.LeftShift)); InputSystem.Update();
+        Call(game,"Update"); Call(catcher,"Update"); Call(dropperController,"Update"); Call(pausedItem,"Update");
+        Check(player.transform.position==pausedPosition && (float)Get(catcher,"verticalVelocity")==pausedVelocity &&
+            dropper.transform.position==pausedDropper && game.CurrentScore==pausedScore &&
+            (float)Get(game,"remainingTime")==pausedTime,"menu input moved actors, jumped, scored, swept or advanced the timer");
+        game.ReleaseItem(pausedItem);
+        ArchiveManager.Instance.CloseArchive();
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState());
+        InputSystem.QueueStateEvent(mouse,new MouseState { position=new Vector2(Screen.width,Screen.height/2f) }); InputSystem.Update();
+        Call(game,"Update"); Call(catcher,"Update"); Call(catcher,"Update");
+        Check(player.transform.position.x==pausedPosition.x,"menu mouse position teleported the catcher on resume");
+        InputSystem.QueueStateEvent(mouse,new MouseState { position=new Vector2(0,Screen.height/2f) }); InputSystem.Update();
+        Call(catcher,"Update");
+        Check(player.transform.position.x!=pausedPosition.x,"fresh mouse movement did not resume player control");
+        InputSystem.RemoveDevice(mouse); InputSystem.RemoveDevice(keyboard);
+        InputSystem.settings.updateMode=previousUpdateMode;
+        InputSystem.settings.editorInputBehaviorInPlayMode=previousInputBehavior;
+        InputSystem.settings.backgroundBehavior=previousBackgroundBehavior;
+        Debug.Log("PASS: real menu pause blocks mouse/keyboard movement, jump, sweep, spawn/catch and timer updates; resume ignores menu input until fresh mouse movement.");
     }
 
     private IEnumerator CheckStoryStills()

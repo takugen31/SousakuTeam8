@@ -10,7 +10,7 @@ namespace Sousakusai8.MiniGame
         [SerializeField, Min(0f)] private float keyboardMoveSpeed = 8f;
 
         [Header("Jump Movement")]
-        [SerializeField, Min(0f)] private float jumpSpeed = 7f;
+        [SerializeField, Min(0f)] private float jumpSpeed = 7.35f;
         [SerializeField, Min(0f)] private float gravity = 18f;
 
         [Header("Catch Area")]
