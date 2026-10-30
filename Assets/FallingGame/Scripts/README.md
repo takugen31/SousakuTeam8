@@ -41,3 +41,7 @@
 リザルトは会話・メニューと共通のNoto Sans JPと半透明の黒いパネルを使用します。左に立ち絵、右の `Result Panel` にスコア・取得数・台詞をまとめ、表示中はゲーム中のHUDを隠します。
 ミニゲーム中は最高品質レベル、Render Scale 2.0、4xアンチエイリアスを使用します。UIは画面全体のOverlay Canvasに描画し、キャラクターと落下物はHUDを除いた領域に描画します。値は `Catch Mini Game` の `Rendering Quality` から変更できます。
 EditorのGame Viewは `GameViewQualityGuard` が低解像度プレビューを解除し、拡大時のフィルタをBilinearへ補正します。必要ならUnityメニューの `yoogen > 画質 > Game View の低解像度表示を解除` から手動でも再適用できます。
+
+### オブジェクトの表示倍率
+
+小物・皿・地面に残る破片・キャラは、シーンの基準サイズの1.4倍で表示します。共通倍率は `CatchMiniGameController.GameplayObjectScale`。当たり判定と移動範囲は拡大後の `SpriteRenderer.bounds` を使用し、出現位置も実際の幅で画面内に収めます。下のキャラの接地位置と上のキャラの上端は維持します。

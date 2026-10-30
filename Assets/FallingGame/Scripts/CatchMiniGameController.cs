@@ -12,6 +12,7 @@ namespace Sousakusai8.MiniGame
     /// </summary>
     public sealed class CatchMiniGameController : MonoBehaviour
     {
+        public const float GameplayObjectScale = 1.4f;
         public event System.Action<int> RoundEnded;
 
         [System.Serializable]
@@ -157,9 +158,9 @@ namespace Sousakusai8.MiniGame
             maximumDropperSpeedMultiplier,
             GetDifficultyProgress());
         public float BadItemStackDuration => badItemStackDuration;
-        public Vector2 FallingItemSize => fallingItemSize;
+        public Vector2 FallingItemSize => fallingItemSize * GameplayObjectScale;
         public Sprite StackedBadItemSprite => stackedBadItemSprite;
-        public Vector2 StackedBadItemSize => stackedBadItemSize;
+        public Vector2 StackedBadItemSize => stackedBadItemSize * GameplayObjectScale;
         public bool IsGameRunning => phase == GamePhase.Playing;
         public bool CanPlayerMove => phase == GamePhase.Countdown || phase == GamePhase.Playing;
         public bool CanPlayerJump => jumpUnlocked;
@@ -224,6 +225,8 @@ namespace Sousakusai8.MiniGame
                 return;
             }
 
+            ResizeGameplayActor(catcher.GetComponent<SpriteRenderer>(), false);
+            if (dropper != null) ResizeGameplayActor(dropper.GetComponent<SpriteRenderer>(), true);
             catcher.Initialize(this, gameCamera);
 
             bool spawningReady = dropper != null && spawnedItemsRoot != null && itemPoolRoot != null &&
@@ -421,7 +424,6 @@ namespace Sousakusai8.MiniGame
                     xOffset + Random.Range(-0.12f, 0.12f),
                     Random.Range(-0.12f, 0.12f),
                     0f);
-                position.x = Mathf.Clamp(position.x, GetLeftEdge(0.35f), GetRightEdge(0.35f));
 
                 FallingItemKind? forcedKind = null;
                 if (badItemsRemaining >= 0)
@@ -447,9 +449,9 @@ namespace Sousakusai8.MiniGame
             SpriteRenderer[] candidates = isBad ? badItemVisuals : goodItemVisuals;
             int visualIndex = Random.Range(0, candidates.Length);
             SpriteRenderer sourceVisual = candidates[visualIndex];
-            Vector2 badFallingSize = isBad ? PlateFallingSize : fallingItemSize;
-            Vector2 badStackedSize = isBad ? BrokenPlateSize : stackedBadItemSize;
-            Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f, 0f);
+            Vector2 targetFallingSize = isBad ? PlateFallingSize * GameplayObjectScale : FallingItemSize;
+            Vector2 targetStackedSize = isBad ? BrokenPlateSize * GameplayObjectScale : StackedBadItemSize;
+            Vector3 spawnPosition = new(dropperPosition.x, dropperPosition.y - 0.65f * GameplayObjectScale, 0f);
 
             FallingItem item = GetPooledItem();
             GameObject itemObject = item.gameObject;
@@ -466,14 +468,14 @@ namespace Sousakusai8.MiniGame
                 ApplySimpleSpriteSize(
                     spriteRenderer,
                     itemObject.transform,
-                    badFallingSize);
+                    targetFallingSize);
             }
             else
             {
                 ApplySimpleSpriteSize(
                     spriteRenderer,
                     itemObject.transform,
-                    fallingItemSize);
+                    targetFallingSize);
             }
 
             item.Initialize(
@@ -482,9 +484,37 @@ namespace Sousakusai8.MiniGame
                 kind,
                 Random.Range(minimumFallSpeed, maximumFallSpeed),
                 isBad ? GetStackedBadItemSprite(visualIndex) : null,
-                badStackedSize,
-                isBad ? badFallingSize : fallingItemSize);
+                targetStackedSize,
+                targetFallingSize);
             itemObject.SetActive(true);
+            // Use the actual enlarged, rotated visual for spawn margins, just as
+            // FallingItem and PlayerCatcherController use renderer bounds to catch.
+            Bounds bounds = spriteRenderer.bounds;
+            spawnPosition.x = Mathf.Clamp(spawnPosition.x,
+                GetLeftEdge(bounds.extents.x), GetRightEdge(bounds.extents.x));
+            if (dropper != null)
+            {
+                SpriteRenderer dropperVisual = dropper.GetComponent<SpriteRenderer>();
+                if (dropperVisual != null)
+                    spawnPosition.y = Mathf.Min(spawnPosition.y,
+                        dropperVisual.bounds.min.y - bounds.extents.y);
+            }
+            itemObject.transform.position = spawnPosition;
+        }
+
+        private void ResizeGameplayActor(SpriteRenderer visual, bool anchorTop)
+        {
+            if (visual == null) return;
+            Bounds original = visual.bounds;
+            Vector3 scale = visual.transform.localScale;
+            visual.transform.localScale = new Vector3(
+                scale.x * GameplayObjectScale, scale.y * GameplayObjectScale, scale.z);
+            Bounds resized = visual.bounds;
+            float anchorOffset = anchorTop ? original.max.y - resized.max.y : original.min.y - resized.min.y;
+            Vector3 position = visual.transform.position + Vector3.up * anchorOffset;
+            position.x = Mathf.Clamp(position.x,
+                GetLeftEdge(resized.extents.x), GetRightEdge(resized.extents.x));
+            visual.transform.position = position;
         }
 
         private Sprite GetStackedBadItemSprite(int visualIndex)

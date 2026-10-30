@@ -278,8 +278,67 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckRemainingPresentationRisks();
         yield return CheckKayoGaugeOutcomeContract();
         yield return CheckStoryStills();
+        yield return CheckCatchObjectSizing();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckCatchObjectSizing()
+    {
+        SceneManager.LoadScene(B); yield return null;
+        var camera=new GameObject("SizingCamera",typeof(Camera)).GetComponent<Camera>();
+        camera.orthographic=true; camera.orthographicSize=5f; camera.aspect=16f/9f;
+        camera.transform.position=new Vector3(0,0,-10);
+        var owner=new GameObject("CatchSizing"); owner.SetActive(false);
+        var game=owner.AddComponent<Sousakusai8.MiniGame.CatchMiniGameController>();
+        var player=new GameObject("Catcher",typeof(SpriteRenderer),typeof(Sousakusai8.MiniGame.PlayerCatcherController));
+        var dropper=new GameObject("Dropper",typeof(SpriteRenderer),typeof(Sousakusai8.MiniGame.DropperController));
+        player.transform.SetParent(owner.transform); dropper.transform.SetParent(owner.transform);
+        player.transform.position=new Vector3(0,-4,0); dropper.transform.position=new Vector3(0,4,0);
+        var playerVisual=player.GetComponent<SpriteRenderer>(); var dropperVisual=dropper.GetComponent<SpriteRenderer>();
+        playerVisual.sprite=dropperVisual.sprite=sprite;
+        Bounds beforePlayer=new Bounds(player.transform.TransformPoint(sprite.bounds.center), Vector3.Scale(sprite.bounds.size,player.transform.lossyScale));
+        Bounds beforeDropper=new Bounds(dropper.transform.TransformPoint(sprite.bounds.center), Vector3.Scale(sprite.bounds.size,dropper.transform.lossyScale));
+        var pool=new GameObject("Pool"); pool.transform.SetParent(owner.transform);
+        var spawned=new GameObject("Spawned"); spawned.transform.SetParent(owner.transform);
+        var visual=new GameObject("ItemVisual",typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
+        visual.transform.SetParent(pool.transform); visual.sprite=sprite;
+        Set(game,"gameCamera",camera); Set(game,"catcher",player.GetComponent<Sousakusai8.MiniGame.PlayerCatcherController>());
+        Set(game,"dropper",dropper.GetComponent<Sousakusai8.MiniGame.DropperController>());
+        Set(game,"spawnedItemsRoot",spawned.transform); Set(game,"itemPoolRoot",pool.transform);
+        Set(game,"goodItemVisuals",new[]{visual}); Set(game,"badItemVisuals",new[]{visual});
+        Set(game,"stackedBadItemSprite",sprite); Set(game,"forceHighestQualityLevel",false); Set(game,"initialPoolSize",1);
+        owner.SetActive(true);
+        Check(Vector2.Distance((Vector2)playerVisual.bounds.size,(Vector2)beforePlayer.size*1.4f)<0.0001f &&
+            Vector2.Distance((Vector2)dropperVisual.bounds.size,(Vector2)beforeDropper.size*1.4f)<0.0001f,"catch actors are not exactly 1.4x: player="+playerVisual.bounds.size+" before="+beforePlayer.size+" dropper="+dropperVisual.bounds.size+" before="+beforeDropper.size);
+        Check(Mathf.Abs(playerVisual.bounds.min.y-beforePlayer.min.y)<0.0001f &&
+            Mathf.Abs(dropperVisual.bounds.max.y-beforeDropper.max.y)<0.0001f,"resizing moved the floor or top anchor");
+        var catcher=player.GetComponent<Sousakusai8.MiniGame.PlayerCatcherController>();
+        Check(catcher.CatchBounds==playerVisual.bounds,"catcher hit bounds do not follow enlarged art");
+        foreach(var kind in new[]{Sousakusai8.MiniGame.FallingItemKind.Good,Sousakusai8.MiniGame.FallingItemKind.Bad})
+        {
+            Call(game,"SpawnItem",new Vector3(100,4,0),kind);
+            var item=spawned.GetComponentInChildren<Sousakusai8.MiniGame.FallingItem>();
+            var image=item.GetComponent<SpriteRenderer>();
+            float expected=(kind==Sousakusai8.MiniGame.FallingItemKind.Good?0.62f:0.84f)*1.4f;
+            Check(Mathf.Abs(image.bounds.size.x-expected)<0.0001f,"falling object size multiplier is incorrect");
+            Check(image.bounds.max.x<=game.GetRightEdge(0)+0.0001f && image.bounds.max.y<=dropperVisual.bounds.min.y+0.0001f,
+                "enlarged spawn clips the screen edge or overlaps dropper");
+            if(kind==Sousakusai8.MiniGame.FallingItemKind.Bad)
+            {
+                Call(item,"StackAtBottom");
+                Check(Mathf.Abs(image.bounds.size.x-0.784f*1.4f)<0.0001f &&
+                    Mathf.Abs(image.bounds.min.y-catcher.GroundSurfaceY)<0.0001f,"broken plate scale or grounding is incorrect");
+            }
+            int score=game.CurrentScore;
+            float contactX=catcher.CatchBounds.max.x+image.bounds.extents.x;
+            item.transform.position=new Vector3(contactX+0.01f,catcher.CatchBounds.center.y,0);
+            Call(item,"Update"); Check(game.CurrentScore==score,"item caught outside enlarged bounds");
+            item.transform.position=new Vector3(contactX-0.01f,catcher.CatchBounds.center.y,0);
+            Call(item,"Update"); Check(game.CurrentScore==score+(kind==Sousakusai8.MiniGame.FallingItemKind.Good?100:-150),
+                "item touching enlarged catcher did not score");
+        }
+        Debug.Log("PASS: catch actors/items are 1.4x; enlarged hit edges score correctly, spawn stays onscreen, pooled/broken plates retain scale and ground alignment.");
     }
 
     private IEnumerator CheckStoryStills()
