@@ -21,6 +21,8 @@ public static class EndingCatalog
                 number = 5; title = "ヨワシ・救助失敗エンド（仮）"; break;
             case "chapter3_009":
                 number = 6; title = "永遠の白い部屋エンド（仮）"; break;
+            case "chapter_moteru_end_002":
+                number = 7; title = "モテル・ハッピーエンド（仮）"; break;
             default: return false;
         }
         return true;
