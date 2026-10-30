@@ -63,6 +63,10 @@ public sealed partial class NovelDialogueController
         matte.color = Color.black;
         matte.raycastTarget = false;
 
+        // Stretch each outermost pixel column behind the fitted artwork. Sampling
+        // at the texel center avoids wrapping or pulling in the opposite edge.
+        CreateStoryStillEdge(frame, texture, true);
+        CreateStoryStillEdge(frame, texture, false);
         var artwork = new GameObject("Artwork", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage), typeof(AspectRatioFitter));
         artwork.transform.SetParent(frame, false);
         RawImage raw = artwork.GetComponent<RawImage>();
@@ -74,6 +78,21 @@ public sealed partial class NovelDialogueController
         activeStoryStillResource = resource;
         storyStillView.SetActive(true);
         LayoutRebuilder.ForceRebuildLayoutImmediate(frame);
+    }
+
+    private static void CreateStoryStillEdge(RectTransform parent, Texture2D texture, bool left)
+    {
+        var edge = new GameObject(left ? "LeftEdgeFill" : "RightEdgeFill",
+            typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+        RectTransform rect = edge.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        rect.anchorMin = new Vector2(left ? 0f : 0.5f, 0f);
+        rect.anchorMax = new Vector2(left ? 0.5f : 1f, 1f);
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+        RawImage image = edge.GetComponent<RawImage>();
+        image.texture = texture;
+        image.uvRect = new Rect(left ? 0.5f / texture.width : 1f - 0.5f / texture.width, 0f, 0f, 1f);
+        image.raycastTarget = false;
     }
 
     private bool TryPlayMovementBeforeStill(string text)

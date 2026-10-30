@@ -350,8 +350,21 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
                 Check((bool)Get(controller,"isYowashiBandageViewActive"),"original Yowashi arm framing was removed");
             var view=(GameObject)Get(controller,"storyStillView");
             Check(view!=null && view.activeSelf,"still missing at marker: "+entry.Character);
-            var art=view.GetComponentInChildren<RawImage>();
+            var art=view.transform.Find("Artwork").GetComponent<RawImage>();
             Check(art.texture==Resources.Load<Texture2D>("StoryStills/"+entry.Art),"wrong imported still");
+            var leftFill=view.transform.Find("LeftEdgeFill").GetComponent<RawImage>();
+            var rightFill=view.transform.Find("RightEdgeFill").GetComponent<RawImage>();
+            Check(leftFill.texture==art.texture && rightFill.texture==art.texture &&
+                leftFill.uvRect==new Rect(0.5f/art.texture.width,0f,0f,1f) &&
+                rightFill.uvRect==new Rect(1f-0.5f/art.texture.width,0f,0f,1f),
+                "side fills do not extend the outermost pixel columns");
+            Check(leftFill.rectTransform.anchorMin==Vector2.zero &&
+                leftFill.rectTransform.anchorMax==new Vector2(0.5f,1f) &&
+                rightFill.rectTransform.anchorMin==new Vector2(0.5f,0f) &&
+                rightFill.rectTransform.anchorMax==Vector2.one &&
+                leftFill.transform.GetSiblingIndex()<art.transform.GetSiblingIndex() &&
+                rightFill.transform.GetSiblingIndex()<art.transform.GetSiblingIndex(),
+                "side fills leave a gap or cover the original artwork");
             Canvas.ForceUpdateCanvases();
             Vector2 size=art.rectTransform.rect.size;
             Check(Mathf.Abs(size.x/size.y-3508f/2480f)<0.01f,"still was stretched");
