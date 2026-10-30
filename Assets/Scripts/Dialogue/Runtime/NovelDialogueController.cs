@@ -3243,7 +3243,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         SetPortrait(leftPortraitImage, protagonist.GetPortrait(currentLine.expressionId));
         ApplyProtagonistFacing();
         // These compositions deliberately replace the regular left portrait.
-        if (leftPortraitImage != null && (douteMonologueView != null || isKayoEggViewActive ||
+        if (leftPortraitImage != null && (douteMonologueView != null ||
             isMoteruRevealViewActive || isYowashiBandageViewActive || isKayoExaminationViewActive))
             leftPortraitImage.enabled = false;
     }

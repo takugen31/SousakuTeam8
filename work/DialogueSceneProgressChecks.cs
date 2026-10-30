@@ -271,8 +271,39 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return CheckTitleContinuation();
         yield return CheckPrologueProfile();
         yield return CheckGatheringPresentation();
+        yield return CheckEggPortraitVisibility();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckEggPortraitVisibility()
+    {
+        SceneManager.LoadScene("NovelScene"); yield return null;
+        GameProgress.ResetAll();
+        var controller=Create(main,"eggVisibility",false);
+        var root=(GameObject)Get(controller,"dialogueRoot");
+        var left=new GameObject("Left",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image)).GetComponent<Image>();
+        var right=new GameObject("Right",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image)).GetComponent<Image>();
+        left.transform.SetParent(root.transform,false); right.transform.SetParent(root.transform,false);
+        Set(controller,"leftPortraitImage",left); Set(controller,"rightPortraitImage",right);
+        controller.StartDialogue();
+        right.sprite=sprite; right.enabled=true;
+        // Reproduce the egg overlay's state at text start, independent of imported egg artwork.
+        Set(controller,"eggLeftOriginalColor",Color.white); Set(controller,"eggRightOriginalColor",Color.white);
+        Set(controller,"isKayoEggViewActive",true);
+        left.color=right.color=new Color(0.45f,0.45f,0.45f,1f);
+        for(int page=0;page<3;page++)
+        {
+            Call(controller,"StartTyping","Egg dialogue page "+page);
+            Check(left.enabled && right.enabled && left.color==new Color(0.45f,0.45f,0.45f,1f) &&
+                right.color==left.color,"egg dialogue hides Doute or loses portrait dimming at text start");
+            yield return null;
+            Check(left.enabled,"Doute disappeared during egg dialogue");
+        }
+        Call(controller,"StopKayoEggView");
+        Check(left.enabled && right.enabled && left.color==Color.white && right.color==Color.white,
+            "leaving egg close-up failed to restore both portraits");
+        Debug.Log("PASS: egg dialogue retains both dimmed portraits at text start and restores brightness on exit.");
     }
 
     private IEnumerator CheckGatheringPresentation()
