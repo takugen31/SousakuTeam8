@@ -10,19 +10,19 @@ public static class EndingCatalog
         switch (lineId)
         {
             case "chapter_kayo_end_004":
-                number = 1; title = "カヨ・ハッピーエンド（仮）"; break;
+                number = 1; title = "カヨ・ハッピーエンド"; break;
             case "chapter_kayo_3_032":
-                number = 2; title = "カヨ・バッドエンド（仮）"; break;
+                number = 2; title = "カヨ・バッドエンド"; break;
             case "chapter_yowashi_rescue_038":
-                number = 3; title = "ヨワシ・ハッピーエンド（仮）"; break;
+                number = 3; title = "ヨワシ・ハッピーエンド"; break;
             case "chapter_yowashi_catchfailure_009":
-                number = 4; title = "ヨワシ・キャッチ失敗エンド（仮）"; break;
+                number = 4; title = "ヨワシ・キャッチ失敗エンド"; break;
             case "chapter_yowashi_rescue_042":
-                number = 5; title = "ヨワシ・救助失敗エンド（仮）"; break;
+                number = 5; title = "ヨワシ・救助失敗エンド"; break;
             case "chapter3_009":
-                number = 6; title = "永遠の白い部屋エンド（仮）"; break;
+                number = 6; title = "永遠の白い部屋エンド"; break;
             case "chapter_moteru_end_002":
-                number = 7; title = "モテル・ハッピーエンド（仮）"; break;
+                number = 7; title = "モテル・ハッピーエンド"; break;
             default: return false;
         }
         return true;
