@@ -270,8 +270,73 @@ public sealed class DialogueSceneProgressChecks : MonoBehaviour
         yield return TimingStartGateChecks.Run();
         yield return CheckTitleContinuation();
         yield return CheckPrologueProfile();
+        yield return CheckGatheringPresentation();
         Debug.Log("PASS: dialogue scene progress integration completed.");
         EditorApplication.Exit(0);
+    }
+
+    private IEnumerator CheckGatheringPresentation()
+    {
+        foreach (string target in new[] { "yowashi", "kayo" })
+        {
+            SceneManager.LoadScene("NovelScene"); yield return null;
+            GameProgress.ResetAll();
+            characters.ReplaceAll(new List<CharacterData> {
+                new CharacterData { characterId="doute", displayName="Doute", expressions=new List<CharacterExpression> {
+                    new CharacterExpression { expressionId="normal", portrait=sprite } } },
+                new CharacterData { characterId=target, displayName=target, expressions=new List<CharacterExpression> {
+                    new CharacterExpression { expressionId="normal", portrait=sprite } } } });
+            var scenario = ScriptableObject.CreateInstance<DialogueScenarioSO>();
+            scenario.name = "GatheringCheck_" + target;
+            scenario.hideFlags = HideFlags.DontUnloadUnusedAsset;
+            scenario.SetDefaultBackground(sprite);
+            var reply = Line("chapter1_"+target+"_002"); reply.speakerId=target;
+            scenario.ReplaceAll(new List<DialogueLine> {
+                Line("chapter1_"+target+"_001"), reply, Line("chapter1_"+target+"_003"), Line("outsideGathering") });
+            var controller = Create(scenario, "gathering_"+target, false);
+            var root = (GameObject)Get(controller,"dialogueRoot");
+            root.GetComponent<RectTransform>().sizeDelta = new Vector2(1920,1080);
+            Image left = new GameObject("Left",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image)).GetComponent<Image>();
+            Image right = new GameObject("Right",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image)).GetComponent<Image>();
+            left.transform.SetParent(root.transform,false); right.transform.SetParent(root.transform,false);
+            Set(controller,"leftPortraitImage",left); Set(controller,"rightPortraitImage",right);
+            Set(controller,"normalizeBustPortraitSizes",true);
+            controller.StartDialogue();
+            RectTransform rect=left.rectTransform;
+            float expectedHeight=root.GetComponent<RectTransform>().rect.height*2.7f*0.55f;
+            Check(left.enabled && Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f,
+                target+": first greeting renders the small ordinary portrait instead of the close-up");
+            Vector2 firstPosition=rect.anchoredPosition;
+            yield return null;
+            Check(Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f, target+": first rendered frame changed portrait size");
+            Set(controller,"gatheringDouteSlideElapsed",2.75f);
+            Call(controller,"UpdateGatheringDouteSlide");
+            Check(rect.anchoredPosition.y<firstPosition.y, target+": portrait did not slide downward");
+            Transform frame=left.transform.parent;
+            Transform rightFrame=right.transform.parent;
+            for(int page=0;page<2;page++)
+            {
+                Vector2 position=rect.anchoredPosition;
+                float elapsed=(float)Get(controller,"gatheringDouteSlideElapsed");
+                Complete(controller); controller.Advance();
+                Check(left.transform.parent==frame && right.transform.parent==rightFrame,
+                    target+": advancing rebuilt the split view");
+                Check(Vector2.Distance(rect.anchoredPosition,position)<0.1f && Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f &&
+                    Mathf.Approximately((float)Get(controller,"gatheringDouteSlideElapsed"),elapsed),
+                    target+": advancing flashed the normal portrait or restarted the slide");
+                yield return null;
+                Check(Mathf.Abs(rect.sizeDelta.y-expectedHeight)<0.1f, target+": rendered page flashed the normal size");
+            }
+            Complete(controller); controller.Advance();
+            Check(!(bool)Get(controller,"isGatheringCompositionActive") && left.transform.parent==root.transform,
+                target+": leaving the sequence did not restore the normal hierarchy");
+            Check(Mathf.Abs(rect.sizeDelta.y-root.GetComponent<RectTransform>().rect.height*0.99f)<0.1f,
+                target+": normal dialogue did not regain ordinary portrait sizing");
+            yield return null;
+            Check(root.transform.Find("GatheringLeftHalf")==null && root.transform.Find("GatheringRightHalf")==null,
+                target+": stale split masks remain after leaving");
+            Debug.Log("PASS: "+target+" starts with close-up framing, slides down, advances both speakers without pose/frame resets, and restores normal dialogue.");
+        }
     }
 
     private IEnumerator CheckPrologueProfile()

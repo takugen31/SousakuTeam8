@@ -1862,7 +1862,7 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         StopYowashiBandageView();
         StopKayoExaminationView();
         StopDouteMonologueView();
-        StopGatheringComposition();
+        if (!IsContinuingGatheringComposition(line)) StopGatheringComposition();
         StopSearchPortraitSlide();
         StopWindowShake();
         RestoreChoiceOnlyWindow();
@@ -2526,6 +2526,12 @@ public sealed partial class NovelDialogueController : MonoBehaviour
         if (isPlaying && currentLine == farewellLine) Advance();
     }
 
+    private bool IsContinuingGatheringComposition(DialogueLine line)
+    {
+        return isGatheringCompositionActive && gatheringAnimationTarget != null &&
+            line?.lineId != null && line.lineId.StartsWith("chapter1_" + gatheringAnimationTarget + "_", StringComparison.Ordinal);
+    }
+
     private void StartGatheringComposition(DialogueLine line)
     {
         // Only the invitations between exploration and the later self-introductions.
@@ -2545,7 +2551,21 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             gatheringDouteSlideElapsed = 0f;
             ResetKayoFall();
         }
-        // The other person is present even on Doute's opening greeting.
+        // Update the same split view across pages, retaining the slide and its original poses.
+        if (IsContinuingGatheringComposition(line))
+        {
+            SetPortrait(rightPortraitImage, portrait);
+            Vector2 currentViewport = dialogueRoot.GetComponent<RectTransform>().rect.size;
+            ApplyGatheringDouteSlide(currentViewport);
+            float currentCropLine = target == "kayo" ? 0.83f : 0.87f;
+            SetGatheringPortrait(rightPortraitImage, currentViewport, 0.76f, 3.1f,
+                0.5f - (currentCropLine - 0.5f) * 3.1f, 1f);
+            ApplyKayoFallPose();
+            return;
+        }
+        // Both portraits must be ready before the first frame, even when Doute is not speaking.
+        if (characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist))
+            SetPortrait(leftPortraitImage, protagonist.GetPortrait("normal"));
         SetPortrait(rightPortraitImage, portrait);
         gatheringLeftPose = CapturePortraitPose(leftPortraitImage.rectTransform);
         gatheringRightPose = CapturePortraitPose(rightPortraitImage.rectTransform);
@@ -3194,7 +3214,10 @@ public sealed partial class NovelDialogueController : MonoBehaviour
             !characterDatabase.TryGetCharacter(protagonistCharacterId, out CharacterData protagonist)) return;
 
         SetPortrait(leftPortraitImage, protagonist.GetPortrait(currentLine.expressionId));
-        ApplyProtagonistFacing();
+        if (isGatheringCompositionActive)
+            ApplyGatheringDouteSlide(dialogueRoot.GetComponent<RectTransform>().rect.size);
+        else
+            ApplyProtagonistFacing();
         // These compositions deliberately replace the regular left portrait.
         if (leftPortraitImage != null && (douteMonologueView != null || isKayoEggViewActive ||
             isMoteruRevealViewActive || isYowashiBandageViewActive || isKayoExaminationViewActive))
